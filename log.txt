@@ -65134,3 +65134,52 @@ Swizzle for _handleHotKeyPressed: in NSApplication is active!
 Swizzle for _handleHotKeyRelease: in NSApplication is active!
 Ableton Live found with PID: 2197
 Quartz event tap is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Ableton Live found with PID: 2197
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Swizzle for _handleHotKeyPressed: in NSApplication is active!
+Swizzle for _handleHotKeyRelease: in NSApplication is active!
+Failed to get Ableton Live PID
+Ableton Live found with PID: 2247
+Ableton Live found with PID: 2247
+Quartz event tap is active!
