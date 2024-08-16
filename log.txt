@@ -1,0 +1,4653 @@
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle performKeyEquivalent: method
+Swizzle for performKeyEquivalent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 10
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 11
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 12
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 14
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 13
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 6
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 1
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 2
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 8
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 9
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+swizzledSendEvent: method called
+Event type: 5
+Original sendEvent: method is null!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Swizzle for sendEvent: is active!
+Attempting to swizzle sendEvent: method
+Failed to find sendEvent: method!
+Attempting to swizzle sendEvent: method
+Failed to find sendEvent: method!
+Attempting to swizzle sendEvent: method
+Failed to find sendEvent: method!
+Attempting to swizzle sendEvent: method
+Failed to find sendEvent: method!
+Attempting to swizzle sendEvent: method
+Failed to find sendEvent: method!
+Attempting to swizzle sendEvent: method
+Failed to find sendEvent: method!
+Attempting to swizzle sendEvent: method
+Failed to find sendEvent: method!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 31, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 43, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 46, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 46, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 9437448
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 116, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 121, Modifiers: 8388864
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 46, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 46, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 32, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+swizzledPerformKeyEquivalent: method called
+Event type: 10
+Key code: 40, Modifiers: 1048840
+Original performKeyEquivalent: method is null!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSWindow
+Swizzle for keyDown: in NSWindow is active!
+Swizzle for keyUp: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 37
+swizzledPerformKeyEquivalent: method called
+Key code: 32
+swizzledPerformKeyEquivalent: method called
+Key code: 32
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 83
+swizzledPerformKeyEquivalent: method called
+Key code: 83
+swizzledPerformKeyEquivalent: method called
+Key code: 84
+swizzledPerformKeyEquivalent: method called
+Key code: 85
+swizzledPerformKeyEquivalent: method called
+Key code: 87
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSView
+Swizzle for keyDown: in NSView is active!
+Swizzle for keyUp: in NSView is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle keyDown: and keyUp: methods in NSResponder
+Swizzle for keyDown: in NSResponder is active!
+Swizzle for keyUp: in NSResponder is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 34
+swizzledPerformKeyEquivalent: method called
+Key code: 32
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 14
+swizzledPerformKeyEquivalent: method called
+Key code: 3
+swizzledPerformKeyEquivalent: method called
+Key code: 37
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 14
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 5
+swizzledPerformKeyEquivalent: method called
+Key code: 4
+swizzledPerformKeyEquivalent: method called
+Key code: 1
+swizzledPerformKeyEquivalent: method called
+Key code: 2
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 3
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 41
+swizzledPerformKeyEquivalent: method called
+Key code: 37
+swizzledPerformKeyEquivalent: method called
+Key code: 1
+swizzledPerformKeyEquivalent: method called
+Key code: 2
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 47
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 11
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 4
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 4
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 11
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 13
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 34
+swizzledPerformKeyEquivalent: method called
+Key code: 3
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 13
+swizzledPerformKeyEquivalent: method called
+Key code: 12
+swizzledPerformKeyEquivalent: method called
+Key code: 13
+swizzledPerformKeyEquivalent: method called
+Key code: 41
+swizzledPerformKeyEquivalent: method called
+Key code: 3
+swizzledPerformKeyEquivalent: method called
+Key code: 37
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 0
+swizzledPerformKeyEquivalent: method called
+Key code: 1
+swizzledPerformKeyEquivalent: method called
+Key code: 3
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 8
+swizzledPerformKeyEquivalent: method called
+Key code: 43
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 7
+swizzledPerformKeyEquivalent: method called
+Key code: 8
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 34
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 34
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 46
+swizzledPerformKeyEquivalent: method called
+Key code: 45
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 3
+swizzledPerformKeyEquivalent: method called
+Key code: 31
+swizzledPerformKeyEquivalent: method called
+Key code: 34
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 37
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 38
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Attempting to swizzle performKeyEquivalent: method in NSWindow
+Swizzle for performKeyEquivalent: in NSWindow is active!
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 40
+Command + K pressed! Triggering custom action.
+swizzledPerformKeyEquivalent: method called
+Key code: 3
+swizzledPerformKeyEquivalent: method called
+Key code: 25
+swizzledPerformKeyEquivalent: method called
+Key code: 28
+swizzledPerformKeyEquivalent: method called
+Key code: 19
+swizzledPerformKeyEquivalent: method called
+Key code: 20
+swizzledPerformKeyEquivalent: method called
+Key code: 21
+swizzledPerformKeyEquivalent: method called
+Key code: 23
+swizzledPerformKeyEquivalent: method called
+Key code: 22
