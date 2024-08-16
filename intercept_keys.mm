@@ -1,21 +1,16 @@
 #include <iostream>
 #include <fstream>
 #include <objc/runtime.h>
+#include <Cocoa/Cocoa.h>
 
 #import "intercept_keys.h"
 
-#include "menu.h"
-
-OriginalHandleHotKeyPressedType originalHandleHotKeyPressed = nullptr;
-OriginalHandleHotKeyReleaseType originalHandleHotKeyRelease = nullptr;
-
 __attribute__((constructor))
 void initialize() {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+				setAbletonLivePID();
         setupQuartzEventTap();
     });
-
-		setAbletonLivePID();
 }
 
 void logToFile(const std::string &message) {
@@ -52,135 +47,6 @@ void introspect() {
 	}
 
 	free(methods);
-}
-
-// was the event custom handled
-BOOL swizzledPerformKeyEquivalent(id self, SEL _cmd, NSEvent *event) {
-    logToFile("swizzledPerformKeyEquivalent: method called");
-    logToFile("Key code: " + std::to_string([event keyCode]));
-
-//    if ([event keyCode] == 40 && ([event modifierFlags] & NSEventModifierFlagCommand)) {
-//        logToFile("Command + K pressed! Triggering custom action.");
-//				introspect();
-        // Custom logic here
-//        return YES; // Indicate that the event was handled
-//    }
-
-    if (originalPerformKeyEquivalent) {
-        return originalPerformKeyEquivalent(self, _cmd, event);
-    } else {
-        return NO;
-    }
-}
-
-__attribute__((constructor))
-void swizzlePerformKeyEquivalent() {
-    logToFile("Attempting to swizzle performKeyEquivalent: method in NSWindow");
-
-    // Update the class to NSWindow or NSResponder
-    //Class nsWindowClass = objc_getClass("NSWindow");
-    Class nsWindowClass = objc_getClass("NSView");
-
-    if (!nsWindowClass) {
-        logToFile("Failed to get NSWindow class!");
-        return;
-    }
-
-    SEL performKeyEquivalentSelector = @selector(performKeyEquivalent:);
-    Method performKeyEquivalentMethod = class_getInstanceMethod(nsWindowClass, performKeyEquivalentSelector);
-
-    if (performKeyEquivalentMethod) {
-        // Perform method swizzling
-        IMP originalIMP = method_getImplementation(performKeyEquivalentMethod);
-        originalPerformKeyEquivalent = (OriginalPerformKeyEquivalentType)originalIMP;
-
-        if (originalIMP) {
-            method_setImplementation(performKeyEquivalentMethod, (IMP)swizzledPerformKeyEquivalent);
-            logToFile("Swizzle for performKeyEquivalent: in NSWindow is active!");
-        } else {
-            logToFile("Failed to get the original performKeyEquivalent: implementation!");
-        }
-    } else {
-        logToFile("Failed to find performKeyEquivalent: method in NSWindow!");
-    }
-}
-
-//__attribute__((destructor))
-//void unswizzlePerformKeyEquivalent() {
-//    if (originalPerformKeyEquivalent) {
-//        Class nsWindowClass = objc_getClass("NSWindow");
-//        SEL performKeyEquivalentSelector = @selector(performKeyEquivalent:);
-//        Method performKeyEquivalentMethod = class_getInstanceMethod(nsWindowClass, performKeyEquivalentSelector);
-//        if (performKeyEquivalentMethod) {
-//            method_setImplementation(performKeyEquivalentMethod, (IMP)originalPerformKeyEquivalent);
-//            logToFile("Unswizzled performKeyEquivalent: method in NSWindow, original method restored");
-//        } else {
-//            logToFile("Failed to find performKeyEquivalent: method in NSWindow for unswizzling!");
-//        }
-//    } else {
-//        logToFile("Original performKeyEquivalent: method in NSWindow was null, nothing to unswizzle");
-//    }
-//}
-
-// Swizzled method for _handleHotKeyPressed:
-void swizzledHandleHotKeyPressed(id self, SEL _cmd, NSEvent *event) {
-    logToFile("_handleHotKeyPressed: method called");
-    logToFile("Key code: " + std::to_string([event keyCode]) + ", Modifiers: " + std::to_string([event modifierFlags]));
-
-    // Custom logic for handling the hotkey event
-    if ([event keyCode] == 40 && ([event modifierFlags] & NSEventModifierFlagCommand)) {
-        logToFile("Command + K hotkey pressed! Triggering custom action.");
-    }
-
-    // Call the original implementation
-    if (originalHandleHotKeyPressed) {
-        originalHandleHotKeyPressed(self, _cmd, event);
-    }
-}
-
-// Swizzled method for _handleHotKeyRelease:
-void swizzledHandleHotKeyRelease(id self, SEL _cmd, NSEvent *event) {
-    logToFile("_handleHotKeyRelease: method called");
-    logToFile("Key code: " + std::to_string([event keyCode]) + ", Modifiers: " + std::to_string([event modifierFlags]));
-
-    // Call the original implementation
-    if (originalHandleHotKeyRelease) {
-        originalHandleHotKeyRelease(self, _cmd, event);
-    }
-}
-
-// Function to swizzle _handleHotKeyPressed:
-__attribute__((constructor))
-void swizzleHandleHotKeyPressed() {
-    Class nsAppClass = objc_getClass("NSApplication");
-
-    SEL selector = NSSelectorFromString(@"_handleHotKeyPressed:");
-    Method method = class_getInstanceMethod(nsAppClass, selector);
-
-    if (method) {
-        originalHandleHotKeyPressed = (OriginalHandleHotKeyPressedType)method_getImplementation(method);
-        method_setImplementation(method, (IMP)swizzledHandleHotKeyPressed);
-        logToFile("Swizzle for _handleHotKeyPressed: in NSApplication is active!");
-    } else {
-        logToFile("Failed to find _handleHotKeyPressed: method in NSApplication!");
-    }
-}
-
-// Function to swizzle _handleHotKeyRelease:
-__attribute__((constructor))
-void swizzleHandleHotKeyRelease() {
-    Class nsAppClass = objc_getClass("NSApplication");
-
-    SEL selector = NSSelectorFromString(@"_handleHotKeyRelease:");
-    Method method = class_getInstanceMethod(nsAppClass, selector);
-
-    if (method) {
-        originalHandleHotKeyRelease = (OriginalHandleHotKeyReleaseType)method_getImplementation(method);
-        method_setImplementation(method, (IMP)swizzledHandleHotKeyRelease);
-        logToFile("Swizzle for _handleHotKeyRelease: in NSApplication is active!");
-    } else {
-        logToFile("Failed to find _handleHotKeyRelease: method in NSApplication!");
-    }
 }
 
 void setAbletonLivePID() {
