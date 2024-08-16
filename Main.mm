@@ -1,13 +1,32 @@
 #include <iostream>
 #include <fstream>
 #include <objc/runtime.h>
+#include <ApplicationServices/ApplicationServices.h>
+#include <unistd.h> // For getpid()
 #include <Cocoa/Cocoa.h>
 
-#import "intercept_keys.h"
+#import "Main.h"
+
+#include "CustomAlert.h"
+
+CustomAlert *customAlert = nullptr;
+
+void showCustomAlert() {
+    customAlert = [[CustomAlert alloc] initWithTitle:@"Custom Searchable Menu"];
+    
+    if (customAlert) {
+        [customAlert showWindow:nil];
+        [[customAlert window] center];
+        [[customAlert window] makeKeyAndOrderFront:nil];
+
+        // Run the window modally if needed
+        [NSApp runModalForWindow:[customAlert window]];
+    }
+}
 
 __attribute__((constructor))
 void initialize() {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 				setAbletonLivePID();
         setupQuartzEventTap();
     });
@@ -82,7 +101,23 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 				CGEventFlags flags = CGEventGetFlags(event);
 				logToFile("Key event: " + std::string(type == kCGEventKeyDown ? "KeyDown" : "KeyUp") + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-        //if (type == kCGEventKeyDown && keyCode == 37 && (CGEventGetFlags(event) & kCGEventFlagMaskCommand)) {
+        if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
+					if (!customAlert || (customAlert && !customAlert.isOpen)) {
+						logToFile("showing custom alert");
+						showCustomAlert();
+					}
+				}
+
+        if ((keyCode == 53 || keyCode = 19) && type == kCGEventKeyDown) { // Escape key
+            logToFile("closing menu.");
+            if (customAlert && customAlert.isOpen) {
+								[customAlert closeAlert];
+                customAlert = nullptr; // Reset pointer
+								return NULL;
+						}
+        }
+
+				// 1 sends CMD+M
         if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
 
 						// Log key events
@@ -106,35 +141,6 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 
 		return event;
 }
-
-// Function to set up the Quartz event tap
-//void setupQuartzEventTap() {
-//
-//		logToFile("setup quartz event tap");
-//    // Create an event tap to capture key events
-//    CGEventMask eventMask = (1 << kCGEventKeyDown) | (1 << kCGEventKeyUp);
-//   // CFMachPortRef eventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, 0, eventMask, eventTapCallback, NULL);
-//		CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, 0, eventMask, eventTapCallback, NULL);
-//
-//    if (!eventTap) {
-//        logToFile("Failed to create event tap.");
-//        return;
-//    }
-//
-//    // Create a run loop source and add it to the current run loop
-//    CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
-//    CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
-//    CGEventTapEnable(eventTap, true);
-//    logToFile("Quartz event tap is active!");
-//
-//		logToFile("before run loop");
-//    // Start the run loop
-//    CFRunLoopRun();
-//		logToFile("after run loop");
-//}
-
-#include <ApplicationServices/ApplicationServices.h>
-#include <unistd.h> // For getpid()
 
 void setupQuartzEventTap() {
     setAbletonLivePID();  // Set the PID of Ableton Live
