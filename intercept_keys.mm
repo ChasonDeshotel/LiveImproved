@@ -3,16 +3,11 @@
 #include <objc/runtime.h>
 #include <Cocoa/Cocoa.h>
 
-// Define the function pointer type for the original performKeyEquivalent: method
-typedef BOOL (*OriginalPerformKeyEquivalentType)(id, SEL, NSEvent*);
 
-// Original performKeyEquivalent: method pointer
+typedef BOOL (*OriginalPerformKeyEquivalentType)(id, SEL, NSEvent*);
 static OriginalPerformKeyEquivalentType originalPerformKeyEquivalent = nullptr;
 
-// Path to the log file
 static const char *logFilePath = "/Users/cdeshotel/Scripts/Ableton/InterceptKeys/log.txt";
-
-// Utility function to log messages to a file
 void logToFile(const std::string &message) {
     std::ofstream logfile;
     logfile.open(logFilePath, std::ios_base::app);
@@ -22,27 +17,32 @@ void logToFile(const std::string &message) {
     }
 }
 
-// Our custom performKeyEquivalent: method
 BOOL swizzledPerformKeyEquivalent(id self, SEL _cmd, NSEvent *event) {
     logToFile("swizzledPerformKeyEquivalent: method called");
-    logToFile("Event type: " + std::to_string([event type]));
-    logToFile("Key code: " + std::to_string([event keyCode]) + ", Modifiers: " + std::to_string([event modifierFlags]));
+    logToFile("Key code: " + std::to_string([event keyCode]));
 
-    // Call the original performKeyEquivalent: method
+    if ([event keyCode] == 40 && ([event modifierFlags] & NSEventModifierFlagCommand)) {
+        logToFile("Command + K pressed! Triggering custom action.");
+        // Custom logic here
+        return YES; // Indicate that the event was handled
+    }
+
     if (originalPerformKeyEquivalent) {
         return originalPerformKeyEquivalent(self, _cmd, event);
     } else {
-        logToFile("Original performKeyEquivalent: method is null!");
         return NO;
     }
 }
+
+
 
 __attribute__((constructor))
 void swizzlePerformKeyEquivalent() {
     logToFile("Attempting to swizzle performKeyEquivalent: method in NSWindow");
 
     // Update the class to NSWindow or NSResponder
-    Class nsWindowClass = objc_getClass("NSWindow");
+    //Class nsWindowClass = objc_getClass("NSWindow");
+    Class nsWindowClass = objc_getClass("NSView");
 
     if (!nsWindowClass) {
         logToFile("Failed to get NSWindow class!");
