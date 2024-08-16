@@ -65134,3 +65134,55 @@ Swizzle for _handleHotKeyPressed: in NSApplication is active!
 Swizzle for _handleHotKeyRelease: in NSApplication is active!
 Ableton Live found with PID: 2197
 Quartz event tap is active!
+Failed to get Ableton Live PID
+Ableton Live found with PID: 3757
+Ableton Live found with PID: 3757
+Quartz event tap is active!
+Failed to get Ableton Live PID
+Ableton Live found with PID: 3786
+Ableton Live found with PID: 3786
+Quartz event tap is active!
+Ableton Live found with PID: 3808
+Ableton Live found with PID: 3808
+Quartz event tap is active!
+Ableton Live found with PID: 3821
+Ableton Live found with PID: 3821
+Quartz event tap is active!
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyDown, Key code: 0, Modifiers: 256
+Ableton Live event detected.
+Key event: KeyUp, Key code: 0, Modifiers: 256
