@@ -3,6 +3,17 @@
 
 #import <Cocoa/Cocoa.h>
 
+#ifdef __cplusplus
+#include <string>
+extern "C" {
+#endif
+
+void logToFile(const std::string &message);
+
+#ifdef __cplusplus
+}
+#endif
+
 static pid_t abletonLivePID = 0;
 
 static const char *logFilePath = "/Users/cdeshotel/Scripts/Ableton/InterceptKeys/log.txt";
