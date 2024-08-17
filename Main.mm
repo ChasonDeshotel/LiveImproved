@@ -84,12 +84,22 @@ void setAbletonLivePID() {
 }
 
 CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
+
+
     // Get the PID of the event's source process
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, 40); 
 
     // Only handle events from Ableton Live's PID
     if (eventPID == abletonLivePID) {
         logToFile("Ableton Live event detected.");
+
+				//if (customAlert && customAlert.isOpen) {
+				//		// Log that the event is going to the custom alert window
+				//		logToFile("Event sent to custom alert window.");
+				//		NSEvent* nsEvent = [NSEvent eventWithCGEvent:event];
+				//		[NSApp sendEvent:nsEvent];
+				//		return NULL;
+				//}
         // Process the event
 				//for (int i = 0; i < kCGEventSourceStateID + 10; i++) {
 				//		int64_t value = CGEventGetIntegerValueField(event, i);
@@ -112,10 +122,15 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
             logToFile("closing menu.");
             if (customAlert && customAlert.isOpen) {
 								[customAlert closeAlert];
-                customAlert = nullptr; // Reset pointer
+                customAlert = nullptr;
 								return NULL;
 						}
         }
+
+				// when the menu is open, do not send keypresses to Live
+				if (customAlert && customAlert.isOpen) {
+						return event;
+				}
 
 				// 1 sends CMD+M
         if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {

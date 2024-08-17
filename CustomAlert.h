@@ -7,6 +7,8 @@
 
 @property (nonatomic, assign) BOOL isOpen;
 
+@property (nonatomic, strong) IBOutlet NSTextField *searchField;
+
 - (instancetype)initWithTitle:(NSString *)title;
 
 - (void)closeAlert;

@@ -6,21 +6,22 @@
     // Initialize with an empty window
     self = [super initWithWindow:nil];
     if (self) {
-				self.isOpen = NO;
+        self.isOpen = NO;
 
         // Create the window
         NSRect frame = NSMakeRect(0, 0, 400, 200);
-        NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 400, 200)
-                                                       styleMask:(NSWindowStyleMaskBorderless | NSWindowStyleMaskClosable)
+        NSWindow *window = [[NSWindow alloc] initWithContentRect:frame
+                                                       styleMask:(NSWindowStyleMaskTitled)
                                                          backing:NSBackingStoreBuffered
                                                            defer:NO];
+
 
         [window setTitle:title];
         [self setWindow:window];
 
         // Create the text field
-        NSTextField *searchField = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 140, 200, 24)];
-        [[window contentView] addSubview:searchField];
+        self.searchField = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 140, 200, 24)];
+        [[window contentView] addSubview:self.searchField];
 
         // Create the buttons
         NSButton *button1 = [[NSButton alloc] initWithFrame:NSMakeRect(50, 60, 100, 30)];
@@ -42,10 +43,10 @@
         [[window contentView] addSubview:button3];
 
         // Set the text field as the first responder (focused)
-        [window makeFirstResponder:searchField];
+        [window makeFirstResponder:self.searchField];
+				[window makeKeyAndOrderFront:nil];
 
-        // Add Escape key handling to close the window
-        [window setDefaultButtonCell:[button1 cell]]; // Assuming button1 is the default button
+//        [window setDefaultButtonCell:[button1 cell]]; // Assuming button1 is the default button
     }
     return self;
 }
@@ -61,6 +62,7 @@
 - (void)showWindow:(id)sender {
     [super showWindow:sender];
     self.isOpen = YES;
+    [self.window makeFirstResponder:self.searchField];
 }
 
 - (void)closeAlert {
@@ -69,20 +71,26 @@
     self.isOpen = NO;
 }
 
+- (void)close {
+		[NSApp stopModal];
+    [super close];
+    self.isOpen = NO;
+}
+
 // Button actions
 - (void)option1Selected:(id)sender {
     NSLog(@"Option 1 selected.");
-    [self close];
+    [self closeAlert];
 }
 
 - (void)option2Selected:(id)sender {
     NSLog(@"Option 2 selected.");
-    [self close];
+    [self closeAlert];
 }
 
 - (void)option3Selected:(id)sender {
     NSLog(@"Option 3 selected.");
-    [self close];
+    [self closeAlert];
 }
 
 @end
