@@ -9,6 +9,10 @@
 
 #include "CustomAlert.h"
 
+//Method name: searchString:inUserInterfaceItemString:searchRange:foundRange:
+//Method name: sendAction:to:from:
+//Method name: sendEvent:
+
 CustomAlert *customAlert = nullptr;
 
 void showCustomAlert() {
@@ -57,7 +61,8 @@ pid_t getPID(NSString *processName) {
 
 void introspect() {
 	unsigned int methodCount = 0;
-	Method *methods = class_copyMethodList(objc_getClass("NSApplication"), &methodCount);
+	//Method *methods = class_copyMethodList(objc_getClass("NSApplication"), &methodCount);
+	Method *methods = class_copyMethodList(objc_getClass("NSPanel"), &methodCount);
 
 	for (unsigned int i = 0; i < methodCount; i++) {
 			SEL methodName = method_getName(methods[i]);
@@ -110,6 +115,9 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 				CGEventFlags flags = CGEventGetFlags(event);
 				logToFile("Key event: " + std::string(type == kCGEventKeyDown ? "KeyDown" : "KeyUp") + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+
+				introspect();
+
 
         if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
 					if (!customAlert || (customAlert && !customAlert.isOpen)) {

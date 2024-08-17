@@ -16,6 +16,12 @@
 
 @end
 
+//    CGFloat windowWidth = self.window.contentView.frame.size.width;
+
+//#--------------------------------------------------------------------------------
+//# An Ableton Live tick is 100ms. This constant is typically used for timeouts,
+//# and factors in some extra time for processing overhead.
+//#--------------------------------------------------------------------------------
 
 @implementation CustomAlert
 - (instancetype)initWithTitle:(NSString *)title {
@@ -84,7 +90,7 @@
     [self.resultsTableView setBackgroundColor:[NSColor clearColor]];
     [self.resultsTableView setGridStyleMask:NSTableViewGridNone];
 
-    self.tableContainer = [[NSScrollView alloc] initWithFrame:self.resultsTableView.frame];
+    self.tableContainer = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 270, 400, 100)];
     [self.tableContainer setDocumentView:self.resultsTableView];
     [self.tableContainer setHasVerticalScroller:YES];
     [self.tableContainer setDrawsBackground:NO];
@@ -138,37 +144,6 @@
     }
 }
 
-
-// Method to capture key presses
-//- (void)keyDown:(NSEvent *)event {
-//    NSString *characters = [event charactersIgnoringModifiers];
-//    
-//    // Handle Up Arrow (key code 126) and Down Arrow (key code 125)
-//    if ([characters isEqualToString:@"\x1b[A"] || [characters isEqualToString:@"\x1b[B"]) {
-//        NSInteger selectedRow = [self.resultsTableView selectedRow];
-//        
-//        if ([characters isEqualToString:@"\x1b[A"]) { // Up Arrow
-//            if (selectedRow > 0) {
-//                [self.resultsTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:selectedRow - 1] byExtendingSelection:NO];
-//            }
-//        } else if ([characters isEqualToString:@"\x1b[B"]) { // Down Arrow
-//            if (selectedRow < self.filteredOptions.count - 1) {
-//                [self.resultsTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:selectedRow + 1] byExtendingSelection:NO];
-//            }
-//        }
-//        
-//        // Ensure the selection is visible
-//        [self.resultsTableView scrollRowToVisible:[self.resultsTableView selectedRow]];
-//    } else {
-//        [super keyDown:event]; // Pass other keys to the default handler
-//    }
-//}
-//
-//// Ensure keyDown events are passed to the search field's window
-//- (void)controlTextDidBeginEditing:(NSNotification *)notification {
-//    [self.window makeFirstResponder:self.searchField];
-//}
-
 - (void)showWindow:(id)sender {
     [super showWindow:sender];
     self.isOpen = YES;
@@ -193,7 +168,6 @@
 //    NSLog(@"Option 1 selected.");
 //    [self closeAlert];
 //}
-
 
 @end
 
