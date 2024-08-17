@@ -108,7 +108,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 					}
 				}
 
-        if ((keyCode == 53 || keyCode = 19) && type == kCGEventKeyDown) { // Escape key
+        if ((keyCode == 53 || keyCode == 19) && type == kCGEventKeyDown) { // Escape key
             logToFile("closing menu.");
             if (customAlert && customAlert.isOpen) {
 								[customAlert closeAlert];
