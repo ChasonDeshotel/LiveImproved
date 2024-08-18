@@ -16,18 +16,12 @@
 
 @end
 
-//    CGFloat windowWidth = self.window.contentView.frame.size.width;
-
-//#--------------------------------------------------------------------------------
-//# An Ableton Live tick is 100ms. This constant is typically used for timeouts,
-//# and factors in some extra time for processing overhead.
-//#--------------------------------------------------------------------------------
 
 @implementation CustomAlert
 - (instancetype)initWithTitle:(NSString *)title {
     self = [super initWithWindow:nil];
     if (self) {
-        // Create the window
+        //    CGFloat windowWidth = self.window.contentView.frame.size.width;
         NSRect frame = NSMakeRect(0, 0, 400, 400);
         CustomAlertWindow *window = [[CustomAlertWindow alloc] initWithContentRect:frame
                                                        //styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable)
@@ -45,30 +39,23 @@
         self.visualEffectView.layer.cornerRadius = 5.0; 
         self.visualEffectView.layer.masksToBounds = YES;
         
-        // Configure the visual effect view
         [self.visualEffectView setMaterial:NSVisualEffectMaterialDark]; // Choose the material
         [self.visualEffectView setBlendingMode:NSVisualEffectBlendingModeWithinWindow];
         [self.visualEffectView setState:NSVisualEffectStateActive]; // Ensure the effect is active
         
-        // Create and configure the search field
         self.searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0, 370, 400, 30)];
         self.searchField.delegate = self;
         [self.searchField setBackgroundColor:[NSColor clearColor]]; // Ensure the background is transparent
         [self.searchField setDrawsBackground:NO];
-        
-        // Add the search field to the visual effect view
         [self.visualEffectView addSubview:self.searchField];
         
-        // Add the visual effect view to the window's content view
         [self.window.contentView addSubview:self.visualEffectView];
 
-        // Set up recent searches and options
         self.searchField.recentsAutosaveName = @"CustomSearchFieldRecents";
         self.allOptions = @[@"Option 1", @"Option 2", @"Option 3", @"Another Option", @"More Options"];
         self.filteredOptions = [self.allOptions mutableCopy];
         self.searchField.maximumRecents = 5;
 
-        // Create the results table view
         [self createResultsTableView];
 
         [window makeFirstResponder:self.searchField];
@@ -121,11 +108,6 @@
     [self.resultsTableView reloadData];
 }
 
-// if text length is 0 and escape is pressed, menu should go away
-// may have to set a var here and close from Main.mm
-
-// NSTableViewDataSource and NSTableViewDelegate methods
-
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     return self.filteredOptions.count;
 }
@@ -140,7 +122,7 @@
         NSString *selectedOption = self.filteredOptions[selectedRow];
         std::string logMessage = std::string([[NSString stringWithFormat:@"Selected item: %@", selectedOption] UTF8String]);
         logToFile(logMessage);
-        // Handle the selected option (e.g., update the search field, trigger an action)
+        // do the needful
     }
 }
 
@@ -162,12 +144,6 @@
     self.isOpen = NO;
     logToFile("close called");
 }
-
-// Button actions
-//- (void)option1Selected:(id)sender {
-//    NSLog(@"Option 1 selected.");
-//    [self closeAlert];
-//}
 
 @end
 

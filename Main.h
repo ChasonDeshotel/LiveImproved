@@ -14,20 +14,15 @@ void logToFile(const std::string &message);
 }
 #endif
 
-static pid_t abletonLivePID = 0;
-
-static const char *logFilePath = "/Users/cdeshotel/Scripts/Ableton/InterceptKeys/log.txt";
-
-void setAbletonLivePID();
-
 #include <ApplicationServices/ApplicationServices.h>
 
-// Declare the event tap callback function
+static pid_t abletonLivePID = 0;
+static const char *logFilePath = "/Users/cdeshotel/Scripts/Ableton/InterceptKeys/log.txt";
+
 CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
 
-// Declare the function to set up the event tap
+void setAbletonLivePID();
 void setupQuartzEventTap();
-
 void introspect();
 
 #endif

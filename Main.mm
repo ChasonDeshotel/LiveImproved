@@ -84,40 +84,19 @@ void setAbletonLivePID() {
 
     abletonLivePID = pidFromApp;
     logToFile("Ableton Live found with PID: " + std::to_string(abletonLivePID));
-
-    // Continue with your existing logic to match the PID in the event tap...
 }
 
 CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
-
-
-    // Get the PID of the event's source process
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, 40); 
 
-    // Only handle events from Ableton Live's PID
     if (eventPID == abletonLivePID) {
         logToFile("Ableton Live event detected.");
-
-				//if (customAlert && customAlert.isOpen) {
-				//		// Log that the event is going to the custom alert window
-				//		logToFile("Event sent to custom alert window.");
-				//		NSEvent* nsEvent = [NSEvent eventWithCGEvent:event];
-				//		[NSApp sendEvent:nsEvent];
-				//		return NULL;
-				//}
-        // Process the event
-				//for (int i = 0; i < kCGEventSourceStateID + 10; i++) {
-				//		int64_t value = CGEventGetIntegerValueField(event, i);
-				//		logToFile("Field " + std::to_string(i) + ": " + std::to_string(value));
-				//}
-				//logToFile("--------");
 
 				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 				CGEventFlags flags = CGEventGetFlags(event);
 				logToFile("Key event: " + std::string(type == kCGEventKeyDown ? "KeyDown" : "KeyUp") + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
 				introspect();
-
 
         if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
 					if (!customAlert || (customAlert && !customAlert.isOpen)) {
@@ -126,7 +105,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 					}
 				}
 
-        if (keyCode == 53 && type == kCGEventKeyDown && customAlert.searchText.length == 0) { // Escape key
+        if (keyCode == 53 && type == kCGEventKeyDown && customAlert.searchText.length == 0) {
             logToFile("closing menu.");
             if (customAlert && customAlert.isOpen) {
 								[customAlert closeAlert];
@@ -136,14 +115,12 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
         }
 
 				// when the menu is open, do not send keypresses to Live
+        // or it activates your hotkeys
 				if (customAlert && customAlert.isOpen) {
 						return event;
 				}
 
-				// 1 sends CMD+M
         if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
-
-						// Log key events
             logToFile("sending new key event");
 
             CGEventRef newKeyDownEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, true); // 37 is the keyCode for 'L'
@@ -158,7 +135,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
             CFRelease(newKeyDownEvent);
             CFRelease(newKeyUpEvent);
 
-            return NULL; // Block the original event
+            return NULL; // block the origianl event
         }
 		}
 
@@ -166,7 +143,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 }
 
 void setupQuartzEventTap() {
-    setAbletonLivePID();  // Set the PID of Ableton Live
+    setAbletonLivePID();
 
     if (abletonLivePID == 0) {
         logToFile("Ableton Live not found.");

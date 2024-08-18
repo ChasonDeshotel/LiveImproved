@@ -12,8 +12,6 @@
 @property (nonatomic, strong) NSScrollView *tableContainer;
 @property (nonatomic, strong) NSVisualEffectView *visualEffectView;
 
-//@property (nonatomic, strong) NSVisualEffectView *backgroundView;
-
 @property (nonatomic, assign) BOOL isOpen;
 @property (nonatomic, strong) NSString *searchText;
 
