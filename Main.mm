@@ -74,7 +74,7 @@ void introspect() {
 }
 
 void setAbletonLivePID() {
-    NSString *appName = @"Ableton Live 11 Suite";
+    NSString *appName = @"Ableton Live 12 Suite";
     pid_t pidFromApp = getPID(appName);
 
     if (pidFromApp <= 0) {
