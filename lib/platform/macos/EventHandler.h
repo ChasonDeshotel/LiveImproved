@@ -2,7 +2,8 @@
 #define EVENT_HANDLER_H
 
 #include <ApplicationServices/ApplicationServices.h>
-#include <string>
+
+#include "../../LogHandler.h"
 
 class EventHandler {
 public:
@@ -13,6 +14,8 @@ public:
     void runPlatform();
 
 private:
+    LogHandler& log;
+
     static CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
 
     CFMachPortRef eventTap;

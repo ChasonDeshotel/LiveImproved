@@ -9,6 +9,8 @@
 #include "platform/macos/KeySender.h"
 #endif
 
+#include "LogHandler.h"
+
 class ActionHandler {
 public:
     ActionHandler();
@@ -18,6 +20,7 @@ public:
     bool handleKeyEvent(int keyCode, int flags, std::string type);
 
 private:
+    LogHandler& log;
     KeySender keySender;
 
     bool onEscapePress();

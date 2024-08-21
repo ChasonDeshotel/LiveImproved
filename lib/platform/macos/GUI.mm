@@ -1,6 +1,6 @@
 #import "../../PlatformSpecific.h"
 #import "GUI.h"
-#include "../../Log.h"
+#include "../../LogHandler.h"
 #include <string>
 
 @interface CustomAlertWindow : NSWindow
@@ -17,7 +17,6 @@
 }
 
 @end
-
 
 @implementation GUI
 - (instancetype)initWithTitle:(NSString *)title {
@@ -89,20 +88,20 @@
 }
 
 - (void)controlTextDidChange:(NSNotification *)notification {
-    Log::logToFile("control text change");
+    LogHandler::getInstance().info("control text change");
 
     self.searchText = [self.searchField stringValue];
     std::string logMessage = "Search text: " + std::string([self.searchText UTF8String]);
-    Log::logToFile(logMessage);
+    LogHandler::getInstance().info(logMessage);
 
     if (self.searchText.length == 0) {
         self.filteredOptions = [self.allOptions mutableCopy];
         //[self.tableContainer setHidden:YES];
-        Log::logToFile("No search text entered. Showing all options.");
+        LogHandler::getInstance().info("No search text entered. Showing all options.");
     } else {
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF contains[c] %@", self.searchText];
         self.filteredOptions = [[self.allOptions filteredArrayUsingPredicate:predicate] mutableCopy];
-        Log::logToFile("Filtered options count: " + std::to_string(self.filteredOptions.count));
+        LogHandler::getInstance().info("Filtered options count: " + std::to_string(self.filteredOptions.count));
         [self.resultsTableView reloadData];
         //[self.tableContainer setHidden:NO];
     }
@@ -123,7 +122,7 @@
     if (selectedRow >= 0) {
         NSString *selectedOption = self.filteredOptions[selectedRow];
         std::string logMessage = std::string([[NSString stringWithFormat:@"Selected item: %@", selectedOption] UTF8String]);
-        Log::logToFile(logMessage);
+        LogHandler::getInstance().info(logMessage);
         // do the needful
     }
 }
@@ -144,7 +143,7 @@
 		[NSApp stopModal];
     [super close];
     self.isOpen = NO;
-    Log::logToFile("close called");
+    LogHandler::getInstance().info("close called");
 }
 
 @end

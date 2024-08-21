@@ -7,7 +7,7 @@ killall Live
 clang++ -std=c++17 -dynamiclib -o ./build/libintercept_keys.dylib \
   ./lib/ActionHandler.cpp              \
   ./lib/ApplicationManager.cpp         \
-  ./lib/Log.cpp                        \
+  ./lib/LogHandler.cpp                 \
   ./lib/platform/macos/EventHandler.mm \
   ./lib/platform/macos/GUI.mm          \
   ./lib/platform/macos/IPCManager.cpp  \

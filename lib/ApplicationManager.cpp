@@ -1,17 +1,20 @@
 #include <string>
 
+#include "ActionHandler.h"
 #include "ApplicationManager.h"
-#include "PlatformSpecific.h"  // Interface for platform-specific functions
+#include "LogHandler.h"
+#include "PlatformSpecific.h"
 
 ApplicationManager::ApplicationManager()
     : actionHandler()
-      , eventHandler() {
-    // Initialize IPC or other cross-platform setups
-}
+      , eventHandler() 
+{}
 
 void ApplicationManager::initialize() {
     // Initialize platform-specific components
     initializePlatform();
+
+    LogHandler::getInstance().info("ApplicatonManager: init");
 
     ipc.createPipe("/tmp/request_pipe");
     ipc.createPipe("/tmp/response_pipe");
@@ -20,7 +23,6 @@ void ApplicationManager::initialize() {
 }
 
 void ApplicationManager::run() {
-    // Run the main event loop or equivalent cross-platform code
     runPlatform();
 }
 
@@ -47,3 +49,7 @@ ActionHandler& ApplicationManager::getActionHandler() {
 EventHandler& ApplicationManager::getEventHandler() {
     return eventHandler;
 }
+
+//LogHandler& ApplicationManager::getLogHandler() {
+//    return logHandler;
+//}

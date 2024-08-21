@@ -1,8 +1,9 @@
 #ifndef APPLICATION_MANAGER_H
 #define APPLICATION_MANAGER_H
 
-#include "PlatformSpecific.h"
 #include "ActionHandler.h"
+#include "ApplicationManager.h"
+#include "PlatformSpecific.h"
 
 class ApplicationManager {
 public:
@@ -25,18 +26,19 @@ public:
     EventHandler& getEventHandler();
     IPCManager& getIPCManager();
 
+    // crashes
+    //LogHandler& getLogHandler();
+
 private:
     ApplicationManager();
 
-    // singleton so delete the copy constructor and assignment operator
     ApplicationManager(const ApplicationManager&) = delete;
     ApplicationManager& operator=(const ApplicationManager&) = delete;
     
     ActionHandler actionHandler;
     EventHandler eventHandler;
-
-    // should be singleton
     IPCManager ipc;
+    //LogHandler logHandler;
 
     KeySender keySender;
 

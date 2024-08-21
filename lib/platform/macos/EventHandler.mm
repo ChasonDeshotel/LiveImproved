@@ -6,9 +6,13 @@
 
 #include "EventHandler.h"
 #include "../../ApplicationManager.h"
-#include "../../Log.h"
+#include "../../LogHandler.h"
 
-EventHandler::EventHandler() : eventTap(nullptr), runLoopSource(nullptr) {}
+EventHandler::EventHandler() : 
+    log(LogHandler::getInstance())
+    , eventTap(nullptr)
+    , runLoopSource(nullptr)
+{}
 
 EventHandler::~EventHandler() {
     if (eventTap) {
@@ -20,12 +24,16 @@ EventHandler::~EventHandler() {
 }
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
+    // because callback
+    // and it was getting crashy
+    // with more cute implementations
     ApplicationManager &app = ApplicationManager::getInstance();
+    LogHandler &log = LogHandler::getInstance();
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
     if (eventPID == app.getAbletonLivePID()) {
-        Log::logToFile("Ableton Live event detected.");
+        log.info("Ableton Live event detected.");
 
 				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 //				CGEventFlags flags = CGEventGetFlags(event);
@@ -33,7 +41,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
         int flags = (int)CGEventGetFlags(event);
         std::string type = kCGEventKeyDown ? "keyDown" : "keyUp";
 
-				Log::logToFile("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+				log.info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
         bool shouldBlock = app.getActionHandler().handleKeyEvent(static_cast<int>(keyCode), flags, type);
 
@@ -48,13 +56,13 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 //
 //        if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
 //					if (!customAlert || (customAlert && !customAlert.isOpen)) {
-//						Log::logToFile("showing custom alert");
+//						log.info("showing custom alert");
 //						showCustomAlert();
 //					}
 //				}
 //
 //        if (keyCode == 53 && type == kCGEventKeyDown && customAlert.searchText.length == 0) {
-//            Log::logToFile("closing menu.");
+//            log.info("closing menu.");
 //            if (customAlert && customAlert.isOpen) {
 //								[customAlert closeAlert];
 //                customAlert = nullptr;
@@ -69,7 +77,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 //				}
 //
 //        if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
-//            Log::logToFile("sending new key event");
+//            log.info("sending new key event");
 //
 //            CGEventRef newKeyDownEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, true); // 37 is the keyCode for 'L'
 //						CGEventFlags flags = kCGEventFlagMaskCommand | kCGEventFlagMaskShift;
@@ -92,8 +100,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 
 void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
+    log.info("EventHandler::setupQuartEventTap() called");
+
     if (app.getAbletonLivePID() == 0) {
-        Log::logToFile("Ableton Live not found.");
+        log.info("Ableton Live not found.");
         return;
     }
 
@@ -101,14 +111,14 @@ void EventHandler::setupQuartzEventTap() {
     CFMachPortRef eventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, NULL);
 
     if (!eventTap) {
-        Log::logToFile("Failed to create event tap.");
+        log.info("Failed to create event tap.");
         return;
     }
 
     CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
-    Log::logToFile("Quartz event tap is active!");
+    log.info("Quartz event tap is active!");
 
     CFRunLoopRun();
 }

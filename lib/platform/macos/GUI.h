@@ -3,6 +3,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "../../LogHandler.h"
+
 @interface GUI : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
 @property (nonatomic, strong) NSSearchField *searchField;
@@ -11,6 +13,8 @@
 @property (nonatomic, strong) NSTableView *resultsTableView;
 @property (nonatomic, strong) NSScrollView *tableContainer;
 @property (nonatomic, strong) NSVisualEffectView *visualEffectView;
+
+@property (nonatomic, assign) LogHandler* log;
 
 @property (nonatomic, assign) BOOL isOpen;
 @property (nonatomic, strong) NSString *searchText;

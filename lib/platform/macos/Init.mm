@@ -8,7 +8,7 @@
 
 #include "../../../Main.h"
 #include "../../ApplicationManager.h"
-#include "../../Log.h"
+#include "../../LogHandler.h"
 #include "../../PlatformSpecific.h"
 
 __attribute__((constructor))
@@ -34,22 +34,24 @@ pid_t getPID(NSString *processName) {
 
 void setAbletonLivePID() {
     ApplicationManager &app = ApplicationManager::getInstance();
+    LogHandler::getInstance().info("Init::setAbletonLivePID() called");
 
     NSString *appName = @"Ableton Live 12 Suite";
     pid_t pidFromApp = getPID(appName);
 
     if (pidFromApp <= 0) {
-        Log::logToFile("Failed to get Ableton Live PID");
+        LogHandler::getInstance().info("Failed to get Ableton Live PID");
         return;
     }
 
     app.setAbletonLivePID(pidFromApp);
-    Log::logToFile("Ableton Live found with PID: " + std::to_string(app.getAbletonLivePID()));
+    LogHandler::getInstance().info("Ableton Live found with PID: " + std::to_string(app.getAbletonLivePID()));
 
 }
 
 void initializePlatform() {
     ApplicationManager &app = ApplicationManager::getInstance();
+    LogHandler::getInstance().info("Init::initializePlatform() called");
   
     setAbletonLivePID();
     app.getEventHandler().setupQuartzEventTap();
