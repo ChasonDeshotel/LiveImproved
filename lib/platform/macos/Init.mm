@@ -9,7 +9,6 @@
 #include "../../../Main.h"
 #include "../../ApplicationManager.h"
 #include "../../LogHandler.h"
-#include "../../PlatformSpecific.h"
 
 __attribute__((constructor))
 static void dylib_init() {

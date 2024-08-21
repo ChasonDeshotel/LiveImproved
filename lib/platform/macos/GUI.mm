@@ -1,7 +1,7 @@
-#import "../../PlatformSpecific.h"
-#import "GUI.h"
-#include "../../LogHandler.h"
 #include <string>
+
+#include "../../LogHandler.h"
+#import "GUI.h"
 
 @interface CustomAlertWindow : NSWindow
 @end
