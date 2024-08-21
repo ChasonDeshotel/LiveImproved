@@ -22,7 +22,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 //				CGEventFlags flags = CGEventGetFlags(event);
 
         int flags = (int)CGEventGetFlags(event);
-        std::string type = kCGEventKeyDown ? "KeyDown" : "KeyUp";
+        std::string type = kCGEventKeyDown ? "keyDown" : "keyUp";
 
 				Log::logToFile("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
@@ -34,7 +34,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
     return event;
 }
 
-//
+// move to ActionHandler
 //				introspect();
 //
 //        if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
@@ -105,6 +105,5 @@ void setupQuartzEventTap() {
 }
 
 void runPlatform() {
-    // Start the Cocoa event loop or other macOS-specific runtime
     [[NSApplication sharedApplication] run];
 }
