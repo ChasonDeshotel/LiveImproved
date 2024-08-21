@@ -4,7 +4,8 @@
 #include "PlatformSpecific.h"  // Interface for platform-specific functions
 
 ApplicationManager::ApplicationManager()
-    : actionHandler(ActionHandler::getInstance()) {
+    : actionHandler()
+      , eventHandler() {
     // Initialize IPC or other cross-platform setups
 }
 

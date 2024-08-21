@@ -16,6 +16,8 @@ public:
     void sendMessage(const std::string& message);
     std::string receiveMessage();
 
+    // not cross platform compatible
+    // move to platform/macos/init
     pid_t getAbletonLivePID() const;
     void setAbletonLivePID(pid_t pid);
 
@@ -30,11 +32,15 @@ private:
     ApplicationManager(const ApplicationManager&) = delete;
     ApplicationManager& operator=(const ApplicationManager&) = delete;
     
-    ActionHandler& actionHandler;
+    ActionHandler actionHandler;
     EventHandler eventHandler;
+
+    // should be singleton
     IPCManager ipc;
+
     KeySender keySender;
 
+    // not cross platform compatible
     pid_t abletonLivePID;
 };
 
