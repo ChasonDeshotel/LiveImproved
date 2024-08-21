@@ -1,14 +1,14 @@
-#ifndef IPCUTILS_H
-#define IPCUTILS_H
+#ifndef IPCMANAGER_H
+#define IPCMANAGER_H
 
 #include <iostream>
 #include <map>
 #include <string>
 
-class IPCUtils {
+class IPCManager {
 public:
-    IPCUtils();
-    ~IPCUtils();
+    IPCManager();
+    ~IPCManager();
 
     void createPipe(const std::string& pipe_name);
     void openPipeForWrite(const std::string& pipe_name, bool non_blocking = false);

@@ -21,6 +21,7 @@ public:
 
     ActionHandler& getActionHandler();
     EventHandler& getEventHandler();
+    IPCManager& getIPCManager();
 
 private:
     ApplicationManager();
@@ -30,9 +31,10 @@ private:
     ApplicationManager& operator=(const ApplicationManager&) = delete;
     
     ActionHandler& actionHandler;
-    IPCUtils ipc;
     EventHandler eventHandler;
+    IPCManager ipc;
     KeySender keySender;
+
     pid_t abletonLivePID;
 };
 

@@ -10,7 +10,7 @@ clang++ -std=c++17 -dynamiclib -o libintercept_keys.dylib \
   ./lib/Log.cpp                        \
   ./lib/platform/macos/EventHandler.mm \
   ./lib/platform/macos/GUI.mm          \
-  ./lib/platform/macos/IPCUtils.cpp    \
+  ./lib/platform/macos/IPCManager.cpp  \
   ./lib/platform/macos/Init.mm         \
   ./lib/platform/macos/KeySender.mm    \
   -I./lib                              \
