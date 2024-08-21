@@ -1,7 +1,10 @@
+#include <string>
+
 #include "ApplicationManager.h"
 #include "PlatformSpecific.h"  // Interface for platform-specific functions
 
-ApplicationManager::ApplicationManager() {
+ApplicationManager::ApplicationManager()
+    : actionHandler(ActionHandler::getInstance()) {
     // Initialize IPC or other cross-platform setups
 }
 
@@ -34,4 +37,12 @@ void ApplicationManager::sendMessage(const std::string& message) {
 
 std::string ApplicationManager::receiveMessage() {
     return ipc.readFromPipe("/tmp/response_pipe");
+}
+
+ActionHandler& ApplicationManager::getActionHandler() {
+    return actionHandler;
+}
+
+EventHandler& ApplicationManager::getEventHandler() {
+    return eventHandler;
 }

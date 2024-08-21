@@ -10,7 +10,6 @@
 #include "../../ApplicationManager.h"
 #include "../../Log.h"
 #include "../../PlatformSpecific.h"
-#include "Events.h"
 
 __attribute__((constructor))
 static void dylib_init() {
@@ -50,6 +49,12 @@ void setAbletonLivePID() {
 }
 
 void initializePlatform() {
+    ApplicationManager &app = ApplicationManager::getInstance();
+  
     setAbletonLivePID();
-    setupQuartzEventTap();
+    app.getEventHandler().setupQuartzEventTap();
+}
+
+void runPlatform() {
+    [[NSApplication sharedApplication] run];
 }

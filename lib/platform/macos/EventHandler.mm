@@ -4,13 +4,22 @@
 #include <objc/runtime.h>
 #include <Cocoa/Cocoa.h>
 
-#include "../../../Main.h"
+#include "EventHandler.h"
 #include "../../ApplicationManager.h"
 #include "../../Log.h"
-#include "../../PlatformSpecific.h"
-#include "../../ActionHandler.h"
 
-CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
+EventHandler::EventHandler() : eventTap(nullptr), runLoopSource(nullptr) {}
+
+EventHandler::~EventHandler() {
+    if (eventTap) {
+        CFRelease(eventTap);
+    }
+    if (runLoopSource) {
+        CFRelease(runLoopSource);
+    }
+}
+
+CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     ApplicationManager &app = ApplicationManager::getInstance();
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
@@ -26,7 +35,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 
 				Log::logToFile("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-        bool shouldBlock = ActionHandler::getInstance().handleKeyEvent(static_cast<int>(keyCode), flags, type);
+        bool shouldBlock = app.getActionHandler().handleKeyEvent(static_cast<int>(keyCode), flags, type);
 
         return shouldBlock ? NULL : event;
     }
@@ -81,7 +90,7 @@ CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef 
 //		return event;
 //}
 
-void setupQuartzEventTap() {
+void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
     if (app.getAbletonLivePID() == 0) {
         Log::logToFile("Ableton Live not found.");
@@ -104,6 +113,3 @@ void setupQuartzEventTap() {
     CFRunLoopRun();
 }
 
-void runPlatform() {
-    [[NSApplication sharedApplication] run];
-}
