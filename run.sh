@@ -4,7 +4,19 @@ killall Live
 #mkfifo /Users/cdeshotel/Scripts/Ableton/InterceptKeys/read
 #mkfifo /Users/cdeshotel/Scripts/Ableton/InterceptKeys/write
 
-clang++ -dynamiclib -o libintercept_keys.dylib ./Main.mm ./CustomAlert.mm -framework Cocoa \
+clang++ -std=c++17 -dynamiclib -o libintercept_keys.dylib \
+  ./lib/ApplicationManager.cpp      \
+  ./lib/ActionHandler.cpp           \
+  ./lib/IPCUtils.cpp                \
+  ./lib/Log.cpp                     \
+  ./lib/platform/macos/Events.mm    \
+  ./lib/platform/macos/GUI.mm       \
+  ./lib/platform/macos/Init.mm      \
+  ./lib/platform/macos/KeySender.mm \
+  -I./lib                           \
+  -I./lib/platform/macos            \
+  -framework Cocoa                  \
+                                     \
 	&& export DYLD_INSERT_LIBRARIES=/Users/cdeshotel/Scripts/Ableton/InterceptKeys/libintercept_keys.dylib \
 	&& open /Applications/Ableton\ Live\ 12\ Suite.app \
 	; unset DYLD_INSERT_LIBRARIES

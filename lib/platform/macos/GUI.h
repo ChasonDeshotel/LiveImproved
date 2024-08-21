@@ -1,9 +1,9 @@
-#ifndef CustomAlert_H
-#define CustomAlert_H
+#ifndef GUI_H
+#define GUI_H
 
 #import <Cocoa/Cocoa.h>
 
-@interface CustomAlert : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
+@interface GUI : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
 @property (nonatomic, strong) NSSearchField *searchField;
 @property (nonatomic, strong) NSArray<NSString *> *allOptions;

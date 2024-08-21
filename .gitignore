@@ -2,6 +2,8 @@ NOTES
 .DS_Store
 libintercept_keys.dylib
 
+py/
+
 log.txt
 method_dump.txt
 

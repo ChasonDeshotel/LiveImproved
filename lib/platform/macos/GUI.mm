@@ -1,5 +1,7 @@
-#import "Main.h"
-#import "CustomAlert.h"
+#import "../../PlatformSpecific.h"
+#import "GUI.h"
+#include "../../Log.h"
+#include <string>
 
 @interface CustomAlertWindow : NSWindow
 @end
@@ -17,7 +19,7 @@
 @end
 
 
-@implementation CustomAlert
+@implementation GUI
 - (instancetype)initWithTitle:(NSString *)title {
     self = [super initWithWindow:nil];
     if (self) {
@@ -87,20 +89,20 @@
 }
 
 - (void)controlTextDidChange:(NSNotification *)notification {
-    logToFile("control text change");
+    Log::logToFile("control text change");
 
     self.searchText = [self.searchField stringValue];
     std::string logMessage = "Search text: " + std::string([self.searchText UTF8String]);
-    logToFile(logMessage);
+    Log::logToFile(logMessage);
 
     if (self.searchText.length == 0) {
         self.filteredOptions = [self.allOptions mutableCopy];
         //[self.tableContainer setHidden:YES];
-        logToFile("No search text entered. Showing all options.");
+        Log::logToFile("No search text entered. Showing all options.");
     } else {
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF contains[c] %@", self.searchText];
         self.filteredOptions = [[self.allOptions filteredArrayUsingPredicate:predicate] mutableCopy];
-        logToFile("Filtered options count: " + std::to_string(self.filteredOptions.count));
+        Log::logToFile("Filtered options count: " + std::to_string(self.filteredOptions.count));
         [self.resultsTableView reloadData];
         //[self.tableContainer setHidden:NO];
     }
@@ -121,7 +123,7 @@
     if (selectedRow >= 0) {
         NSString *selectedOption = self.filteredOptions[selectedRow];
         std::string logMessage = std::string([[NSString stringWithFormat:@"Selected item: %@", selectedOption] UTF8String]);
-        logToFile(logMessage);
+        Log::logToFile(logMessage);
         // do the needful
     }
 }
@@ -142,7 +144,7 @@
 		[NSApp stopModal];
     [super close];
     self.isOpen = NO;
-    logToFile("close called");
+    Log::logToFile("close called");
 }
 
 @end
