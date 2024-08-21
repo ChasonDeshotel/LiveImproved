@@ -41,7 +41,7 @@
         self.visualEffectView.layer.cornerRadius = 5.0; 
         self.visualEffectView.layer.masksToBounds = YES;
         
-        [self.visualEffectView setMaterial:NSVisualEffectMaterialDark]; // Choose the material
+        [self.visualEffectView setMaterial:NSVisualEffectMaterialPopover]; // Choose the material
         [self.visualEffectView setBlendingMode:NSVisualEffectBlendingModeWithinWindow];
         [self.visualEffectView setState:NSVisualEffectStateActive]; // Ensure the effect is active
         
