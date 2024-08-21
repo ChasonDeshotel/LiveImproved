@@ -4,7 +4,7 @@ killall Live
 #mkfifo /Users/cdeshotel/Scripts/Ableton/InterceptKeys/read
 #mkfifo /Users/cdeshotel/Scripts/Ableton/InterceptKeys/write
 
-clang++ -std=c++17 -dynamiclib -o libintercept_keys.dylib \
+clang++ -std=c++17 -dynamiclib -o ./build/libintercept_keys.dylib \
   ./lib/ActionHandler.cpp              \
   ./lib/ApplicationManager.cpp         \
   ./lib/Log.cpp                        \
@@ -17,6 +17,6 @@ clang++ -std=c++17 -dynamiclib -o libintercept_keys.dylib \
   -I./lib/platform/macos               \
   -framework Cocoa                     \
                                        \
-	&& export DYLD_INSERT_LIBRARIES=/Users/cdeshotel/Scripts/Ableton/InterceptKeys/libintercept_keys.dylib \
+	&& export DYLD_INSERT_LIBRARIES=/Users/cdeshotel/Scripts/Ableton/InterceptKeys/build/libintercept_keys.dylib \
 	&& open /Applications/Ableton\ Live\ 12\ Suite.app \
 	; unset DYLD_INSERT_LIBRARIES

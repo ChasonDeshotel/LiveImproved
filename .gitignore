@@ -1,5 +1,6 @@
 NOTES
 .DS_Store
+build/
 libintercept_keys.dylib
 
 py/
