@@ -10,6 +10,8 @@ public:
     EventHandler();
     ~EventHandler();
 
+    void initialize();
+
     void setupQuartzEventTap();
     void runPlatform();
 

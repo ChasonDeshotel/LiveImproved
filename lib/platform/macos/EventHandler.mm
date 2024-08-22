@@ -23,6 +23,56 @@ EventHandler::~EventHandler() {
     }
 }
 
+pid_t abletonLivePID;
+
+pid_t getPID(NSString *processName) {
+//    ApplicationManager &app = ApplicationManager::getInstance();
+
+    NSArray *runningApps = [[NSWorkspace sharedWorkspace] runningApplications];
+    
+    for (NSRunningApplication *app in runningApps) {
+        NSString *executablePath = [[app executableURL] path];
+        if ([executablePath containsString:processName]) {
+            return [app processIdentifier];
+        }
+    }
+    return -1;
+}
+
+pid_t getAbletonLivePID() {
+    return abletonLivePID;
+}
+
+// should be on init
+void setAbletonLivePID() {
+//    ApplicationManager &app = ApplicationManager::getInstance();
+    LogHandler::getInstance().info("Init::setAbletonLivePID() called");
+
+    NSString *appName = @"Ableton Live 12 Suite";
+    abletonLivePID = getPID(appName);
+
+    if (abletonLivePID <= 0) {
+        LogHandler::getInstance().info("Failed to get Ableton Live PID");
+        return;
+    }
+
+    //app.setAbletonLivePID(pidFromApp);
+    LogHandler::getInstance().info("Ableton Live found with PID: " + std::to_string(getAbletonLivePID()));
+
+}
+
+void EventHandler::initialize() {
+    ApplicationManager &app = ApplicationManager::getInstance();
+    LogHandler::getInstance().info("Init::initializePlatform() called");
+  
+    setAbletonLivePID();
+    app.getEventHandler().setupQuartzEventTap();
+}
+
+void runPlatform() {
+    [[NSApplication sharedApplication] run];
+}
+
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     // because callback
     // and it was getting crashy
@@ -32,7 +82,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
-    if (eventPID == app.getAbletonLivePID()) {
+    if (eventPID == getAbletonLivePID()) {
         log.info("Ableton Live event detected.");
 
 				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
@@ -43,7 +93,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 
 				log.info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-        bool shouldBlock = app.getActionHandler().handleKeyEvent(static_cast<int>(keyCode), flags, type);
+//        bool shouldBlock = app.getActionHandler().handleKeyEvent(static_cast<int>(keyCode), flags, type);
+        bool shouldBlock = false;
 
         return shouldBlock ? NULL : event;
     }
@@ -102,7 +153,7 @@ void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
     log.info("EventHandler::setupQuartEventTap() called");
 
-    if (app.getAbletonLivePID() == 0) {
+    if (getAbletonLivePID() == 0) {
         log.info("Ableton Live not found.");
         return;
     }

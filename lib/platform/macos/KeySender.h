@@ -3,7 +3,9 @@
 
 class KeySender {
 public:
-    static void sendKeypress(int keyCode, int flags);
+    KeySender();
+    ~KeySender();
+    void sendKeypress(int keyCode, int flags);
 };
 
 #endif

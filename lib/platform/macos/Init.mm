@@ -10,13 +10,6 @@
 #include "../../ApplicationManager.h"
 #include "../../LogHandler.h"
 
-__attribute__((constructor))
-static void dylib_init() {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        ApplicationManager::getInstance().initialize();
-    });
-}
-
 pid_t getPID(NSString *processName) {
     ApplicationManager &app = ApplicationManager::getInstance();
 
