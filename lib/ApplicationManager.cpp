@@ -1,17 +1,16 @@
 #include <string>
 
 #include "ApplicationManager.h"
-#include "ActionHandler.h"
 #include "LogHandler.h"
 #include "PlatformDependent.h"
-//#include "ActionHandler.h"
+#include "ActionHandler.h"
 
 ApplicationManager::ApplicationManager()
-    : logHandler_(LogHandler::getInstance()) {
+    : logHandler_(&LogHandler::getInstance()) {
 }
 
 void ApplicationManager::initialize() {
-    LogHandler::getInstance().info("ApplicatonManager: init");
+    logHandler_->info("ApplicatonManager: init");
 
     eventHandler_ = new EventHandler(*this);
     eventHandler_->initialize(); // start event loop
@@ -19,8 +18,7 @@ void ApplicationManager::initialize() {
     actionHandler_ = new ActionHandler(*this);
     keySender_ = new KeySender(*this);
 
-    LogHandler::getInstance().info("ApplicatonManager: init finished");
-
+    logHandler_->info("ApplicatonManager: init finished");
 }
 
 ActionHandler* ApplicationManager::getActionHandler() {
@@ -35,6 +33,6 @@ KeySender* ApplicationManager::getKeySender() {
     return keySender_;
 }
 
-LogHandler& ApplicationManager::getLogHandler() {
+LogHandler* ApplicationManager::getLogHandler() {
     return logHandler_;
 }

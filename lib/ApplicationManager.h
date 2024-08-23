@@ -16,7 +16,7 @@ public:
 
     void initialize();
 
-    LogHandler& getLogHandler();
+    LogHandler* getLogHandler();
 
     EventHandler* getEventHandler();
     ActionHandler* getActionHandler();
@@ -38,7 +38,7 @@ private:
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
 
-    LogHandler& logHandler_;
+    LogHandler* logHandler_;
 
     // not cross platform compatible
     pid_t abletonLivePID;
