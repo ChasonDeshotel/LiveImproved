@@ -35,11 +35,16 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
 
 bool ActionHandler::displaySearchBox() {
     log_->info("foo");
-    app_.getGUISearchBox()->initWithTitle("foo");
+//    app_.getGUISearchBox()->initWithTitle("foo");
+    app_.getGUISearchBox()->showAlert();
     return false;
 }
 
 bool ActionHandler::loadItem() {
+    log_->info("bar");
+    app_.getGUISearchBox()->closeAlert();
+
+    return false;
     log_->info("writing request");
     app_.getIPC()->writeRequest("load_item,1");
     return false;

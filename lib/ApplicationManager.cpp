@@ -17,7 +17,7 @@ void ApplicationManager::init() {
     // crashed when chaining
     eventHandler_ = new EventHandler(*this);
     eventHandler_->init(); // start event loop
- 
+
     ipc_ = new IPC(*this);
     ipc_->init();
 
