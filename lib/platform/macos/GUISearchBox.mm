@@ -107,9 +107,7 @@
 
     }
 
-    //[[self window] orderOut:nil];
     [self.window center];
-    //[self.window makeKeyAndOrderFront:nil];
 
     return self;
 }
@@ -171,10 +169,6 @@ GUISearchBox::~GUISearchBox() {
 
 bool GUISearchBox::isOpen() const {
     return isOpen_;
-}
-
-void GUISearchBox::setIsOpen(bool open) {
-    isOpen_ = open;
 }
 
 const std::string& GUISearchBox::getSearchText() const {
