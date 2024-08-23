@@ -32,6 +32,7 @@ pid_t PID::findByName(std::string processName) {
         if ([executablePath containsString:nsProcessName]) {
             pid_t PID = [app processIdentifier];
             log_->info("Ableton Live found with PID: " + std::to_string(PID));
+            abletonLivePID = PID;
             return PID;
         }
     }
