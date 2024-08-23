@@ -15,6 +15,7 @@ void ApplicationManager::init() {
     pid_ = (new PID(*this))->init();
 
     ipc_ = new IPC(*this);
+    ipc_->init();
 
     // crashed when chaining
     eventHandler_ = new EventHandler(*this);
