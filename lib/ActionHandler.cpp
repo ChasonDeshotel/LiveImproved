@@ -1,8 +1,9 @@
 #include "ActionHandler.h"
 #include "ApplicationManager.h"
 
-ActionHandler::ActionHandler(ApplicationManager& appManager) :
-    app_(appManager)
+ActionHandler::ActionHandler(ApplicationManager& appManager)
+    : app_(appManager)
+    , log_(appManager.getLogHandler())
 {}
 
 ActionHandler::~ActionHandler() {}
@@ -17,6 +18,8 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
     app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
     if (type == "keyDown") {
         switch (keyCode) {
+            case 0:  // a
+                return writeRequest(std::string("asdf"));
             case 53:  // escape
                 return onEscapePress();
             default:
@@ -30,8 +33,15 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
     return false;
 }
 
+bool ActionHandler::writeRequest(std::string message) {
+    log_->info("writing request");
+    app_.getIPC()->writeRequest(message);
+    return true;
+}
+
 bool ActionHandler::onEscapePress() {
     app_.getLogHandler()->info("Escape pressed");
+    app_.getIPC()->readResponse();
     return true;
 }
 

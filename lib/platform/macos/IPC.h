@@ -13,20 +13,26 @@ public:
     IPC(ApplicationManager& appManager);
     ~IPC();
 
-    void init();
-
-    void createPipe(const std::string& pipe_name);
-    void openPipeForWrite(const std::string& pipe_name, bool non_blocking = false);
-    void openPipeForRead(const std::string& pipe_name, bool non_blocking = false);
-
-    void writeToPipe(const std::string& pipe_name, const std::string& message);
-    std::string readFromPipe(const std::string& pipe_name);
+    bool init();
+    
+    bool writeRequest(const std::string& message);
+    std::string readResponse();
 
 private:
     ApplicationManager& app_;
     LogHandler* log_;
 
+    std::string requestPipePath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/request";
+    std::string responsePipePath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/response";
+
     std::map<std::string, int> pipes_;
+
+    bool createPipe(const std::string& pipe_name);
+    bool openPipeForWrite(const std::string& pipe_name, bool non_blocking = false);
+    bool openPipeForRead(const std::string& pipe_name, bool non_blocking = false);
+
+    bool writeToPipe(const std::string& pipe_name, const std::string& message);
+    std::string readFromPipe(const std::string& pipe_name);
 };
 
 #endif 

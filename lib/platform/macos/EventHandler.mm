@@ -33,7 +33,7 @@ void runPlatform() {
     [[NSApplication sharedApplication] run];
 }
 
-CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
+CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
@@ -45,11 +45,11 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 //				CGEventFlags flags = CGEventGetFlags(event);
 
         int flags = (int)CGEventGetFlags(event);
-        std::string type = kCGEventKeyDown ? "keyDown" : "keyUp";
+        std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
 
-				handler->log_->info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+				handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-        bool shouldBlock = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, type);
+        bool shouldBlock = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, keyUpDown);
 
         return shouldBlock ? NULL : event;
     }
