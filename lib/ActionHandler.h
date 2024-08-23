@@ -21,7 +21,9 @@ private:
     ApplicationManager& app_;
     LogHandler* log_;
 
-    bool writeRequest(std::string message);
+    bool displaySearchBox();
+
+    bool loadItem();
     bool onEscapePress();
 };
 

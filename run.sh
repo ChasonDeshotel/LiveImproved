@@ -4,6 +4,7 @@ clang++ -std=c++17 -dynamiclib -o ./build/LiveImproved.dylib \
   ./Main.mm                            \
   ./lib/ApplicationManager.cpp         \
   ./lib/LogHandler.cpp                 \
+  ./lib/platform/macos/GUISearchBox.mm \
   ./lib/platform/macos/IPC.cpp         \
   ./lib/platform/macos/PID.mm          \
   ./lib/platform/macos/EventHandler.mm \

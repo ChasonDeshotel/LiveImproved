@@ -1,7 +1,9 @@
+#include "GUI.h"
+#include "../../ApplicationManager.h"
 #include <string>
+#import <Cocoa/Cocoa.h>
 
 #include "../../LogHandler.h"
-#import "GUI.h"
 
 @interface CustomAlertWindow : NSWindow
 @end
@@ -16,6 +18,9 @@
     return YES;
 }
 
+@end
+
+@interface GUI : NSWindowController
 @end
 
 @implementation GUI
@@ -56,6 +61,9 @@
         self.allOptions = @[@"Option 1", @"Option 2", @"Option 3", @"Another Option", @"More Options"];
         self.filteredOptions = [self.allOptions mutableCopy];
         self.searchField.maximumRecents = 5;
+
+        self.isOpen = NO;
+        self.searchText = @"";
 
         [self createResultsTableView];
 
@@ -109,6 +117,15 @@
     [self.resultsTableView reloadData];
 }
 
+- (BOOL)isOpen {
+    return self->isOpen;
+}
+
+- (void)setIsOpen:(BOOL)open {
+    self->isOpen = open;
+    // Update UI state if necessary
+}
+
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     return self.filteredOptions.count;
 }
@@ -125,6 +142,14 @@
         LogHandler::getInstance().info(logMessage);
         // do the needful
     }
+}
+
+- (NSString *)getSearchText {
+    return self->searchText;
+}
+- (void)setSearchText:(NSString *)text {
+    self->searchText = text;
+    // Update search field if necessary
 }
 
 - (void)showWindow:(id)sender {

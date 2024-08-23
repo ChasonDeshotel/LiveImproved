@@ -23,6 +23,7 @@ public:
     ActionHandler* getActionHandler();
     KeySender* getKeySender();
     IPC* getIPC();
+    GUISearchBox* getGUISearchBox();
 
 private:
     // Private constructor to prevent direct instantiation
@@ -36,6 +37,7 @@ private:
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
+    GUISearchBox* guiSearchBox_ = nullptr;
 
     LogHandler* logHandler_;
 };

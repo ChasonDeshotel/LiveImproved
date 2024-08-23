@@ -19,9 +19,9 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
     if (type == "keyDown") {
         switch (keyCode) {
             case 0:  // a
-                return writeRequest(std::string("asdf"));
+                return loadItem();
             case 53:  // escape
-                return onEscapePress();
+                return displaySearchBox();
             default:
                 return false;
         }
@@ -33,10 +33,16 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
     return false;
 }
 
-bool ActionHandler::writeRequest(std::string message) {
+bool ActionHandler::displaySearchBox() {
+    log_->info("foo");
+    app_.getGUISearchBox()->initWithTitle("foo");
+    return false;
+}
+
+bool ActionHandler::loadItem() {
     log_->info("writing request");
-    app_.getIPC()->writeRequest(message);
-    return true;
+    app_.getIPC()->writeRequest("load_item,1");
+    return false;
 }
 
 bool ActionHandler::onEscapePress() {

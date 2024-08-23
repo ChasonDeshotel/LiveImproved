@@ -24,6 +24,8 @@ void ApplicationManager::init() {
     actionHandler_ = new ActionHandler(*this);
     keySender_ = new KeySender(*this);
 
+    guiSearchBox_ = new GUISearchBox(*this);
+
     logHandler_->info("ApplicatonManager::init() finished");
 }
 
@@ -50,3 +52,8 @@ ActionHandler* ApplicationManager::getActionHandler() {
 KeySender* ApplicationManager::getKeySender() {
     return keySender_;
 }
+
+GUISearchBox* ApplicationManager::getGUISearchBox() {
+    return guiSearchBox_;
+}
+
