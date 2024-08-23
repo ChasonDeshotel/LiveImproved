@@ -43,7 +43,7 @@ pid_t PID::findByName(std::string processName) {
 
 pid_t PID::livePID() {
     if (abletonLivePID != -1) {
-      log_->info("PID::livePID() - returning cached result");
+      //log_->info("PID::livePID() - returning cached result");
       return abletonLivePID;
     }
 
