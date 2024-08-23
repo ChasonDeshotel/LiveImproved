@@ -22,6 +22,7 @@ public:
     EventHandler* getEventHandler();
     ActionHandler* getActionHandler();
     KeySender* getKeySender();
+    IPC* getIPC();
 
 private:
     // Private constructor to prevent direct instantiation
@@ -31,6 +32,7 @@ private:
     ApplicationManager& operator=(const ApplicationManager&) = delete;
 
     PID* pid_ = nullptr;
+    IPC* ipc_ = nullptr;
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;

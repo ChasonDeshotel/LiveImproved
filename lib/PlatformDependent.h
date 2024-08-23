@@ -2,13 +2,11 @@
 #define PLATFORM_DEPENDENT_H
 
 #ifdef _WIN32
-#include "platform/win/EventHandler.h"
-//#include "platform/win/IPCManager.h"
-#include "platform/win/KeySender.h"
+// do includes for win
 #else
+#include "platform/macos/IPC.h"
 #include "platform/macos/PID.h"
 #include "platform/macos/EventHandler.h"
-//#include "platform/macos/IPCManager.h"
 #include "platform/macos/KeySender.h"
 #endif
 

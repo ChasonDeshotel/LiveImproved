@@ -7,7 +7,7 @@ ActionHandler::ActionHandler(ApplicationManager& appManager) :
 
 ActionHandler::~ActionHandler() {}
 
-void ActionHandler::Init() {
+void ActionHandler::init() {
     // should do the mapping / read config or something
 }
 

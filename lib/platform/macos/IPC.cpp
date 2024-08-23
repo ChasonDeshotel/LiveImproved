@@ -1,19 +1,24 @@
-#include "IPCManager.h"
+#include "IPC.h"
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cstring>
 
-IPCManager::IPCManager() = default;
+#include "../../ApplicationManager.h"
 
-IPCManager::~IPCManager() {
+IPC::IPC(ApplicationManager& appManager)
+    : app_(appManager)
+    , log_(appManager.getLogHandler())
+{}
+
+IPC::~IPC() {
     for (auto& pipe : pipes_) {
         close(pipe.second);
         unlink(pipe.first.c_str());
     }
 }
 
-void IPCManager::createPipe(const std::string& pipe_name) {
+void IPC::createPipe(const std::string& pipe_name) {
     if (mkfifo(pipe_name.c_str(), 0666) == -1 && errno != EEXIST) {
         std::cerr << "Failed to create named pipe: " << strerror(errno) << std::endl;
         exit(EXIT_FAILURE);
@@ -21,7 +26,7 @@ void IPCManager::createPipe(const std::string& pipe_name) {
     pipes_[pipe_name] = -1;
 }
 
-void IPCManager::openPipeForWrite(const std::string& pipe_name, bool non_blocking) {
+void IPC::openPipeForWrite(const std::string& pipe_name, bool non_blocking) {
     int flags = O_WRONLY;
     if (non_blocking) {
         flags |= O_NONBLOCK;
@@ -36,7 +41,7 @@ void IPCManager::openPipeForWrite(const std::string& pipe_name, bool non_blockin
     pipes_[pipe_name] = fd;
 }
 
-void IPCManager::openPipeForRead(const std::string& pipe_name, bool non_blocking) {
+void IPC::openPipeForRead(const std::string& pipe_name, bool non_blocking) {
     int flags = O_RDONLY;
     if (non_blocking) {
         flags |= O_NONBLOCK;
@@ -51,7 +56,7 @@ void IPCManager::openPipeForRead(const std::string& pipe_name, bool non_blocking
     pipes_[pipe_name] = fd;
 }
 
-void IPCManager::writeToPipe(const std::string& pipe_name, const std::string& message) {
+void IPC::writeToPipe(const std::string& pipe_name, const std::string& message) {
     int fd = pipes_[pipe_name];
     if (fd == -1) {
         std::cerr << "Pipe not opened for writing: " << pipe_name << std::endl;
@@ -68,7 +73,7 @@ void IPCManager::writeToPipe(const std::string& pipe_name, const std::string& me
     }
 }
 
-std::string IPCManager::readFromPipe(const std::string& pipe_name) {
+std::string IPC::readFromPipe(const std::string& pipe_name) {
     char buffer[1024];
     std::string result;
 

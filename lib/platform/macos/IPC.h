@@ -1,5 +1,5 @@
-#ifndef IPCMANAGER_H
-#define IPCMANAGER_H
+#ifndef IPC_H
+#define IPC_H
 
 #include <iostream>
 #include <map>
@@ -8,10 +8,10 @@
 class ApplicationManager;
 class LogHandler;
 
-class IPCManager {
+class IPC {
 public:
-    IPCManager(ApplicationManager& appManager);
-    ~IPCManager();
+    IPC(ApplicationManager& appManager);
+    ~IPC();
 
     void init();
 
@@ -23,6 +23,9 @@ public:
     std::string readFromPipe(const std::string& pipe_name);
 
 private:
+    ApplicationManager& app_;
+    LogHandler* log_;
+
     std::map<std::string, int> pipes_;
 };
 
