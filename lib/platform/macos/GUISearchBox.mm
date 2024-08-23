@@ -123,16 +123,6 @@
     return self.filteredOptions[row]; // Ensure this returns the correct data for each row
 }
 
-//- (void)showWindow:(id)sender {
-//    [super showWindow:sender];
-////    dispatch_async(dispatch_get_main_queue(), ^{
-////        [NSApp runModalForWindow:[self window]];
-////    });
-//
-//    self.isOpen = YES;
-//    //[self.window makeFirstResponder:self.searchField];
-//}
-//
 - (void)closeAlert {
     [NSApp stopModal];
     [self close];
@@ -144,13 +134,11 @@
 // C++ wrapper
 GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     : app_(appManager), title("foo"), isOpen_(false), windowController_(nullptr) {
-    // Instantiate the Objective-C class
-    LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
 
+    LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
     NSString* nsTitle = [NSString stringWithUTF8String:title.c_str()];
     windowController_ = (void*)[[GUISearchBoxWindowController alloc] initWithTitle:nsTitle];
 
-    // Ensure that all UI components are initialized
     if (windowController_) {
         LogHandler::getInstance().info("Successfully created GUISearchBoxWindowController");
     } else {
@@ -185,8 +173,8 @@ void GUISearchBox::showAlert() {
     if (windowController_) {
         CustomAlertWindow* window = (CustomAlertWindow*)[(GUISearchBoxWindowController*)windowController_ window];
         LogHandler::getInstance().info("showAlert called - making window visible");
-        [window setIsVisible:YES];  // Explicitly show the window
-        [window makeKeyAndOrderFront:nil];  // Bring it to the front
+        [window setIsVisible:YES];
+        [window makeKeyAndOrderFront:nil];
         isOpen_ = true;
     }
 }
@@ -198,17 +186,3 @@ void GUISearchBox::closeAlert() {
     }
 }
 
-
-//void GUISearchBox::initWithTitle(const std::string& title) {
-//    if (!windowController_) {
-//        LogHandler::getInstance().info("Initializing GUISearchBoxWindowController");
-//        NSString* nsTitle = [NSString stringWithUTF8String:title.c_str()];
-//        windowController_ = (void*)[[GUISearchBoxWindowController alloc] initWithTitle:nsTitle];
-//        GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
-////        windowController_ = [[GUISearchBoxWindowController alloc] initWithTitle:nsTitle];
-//        searchField = (void *)controller.searchField;
-//        visualEffectView = (void *)controller.visualEffectView;
-//// hide on launch
-////        [controller showWindow:nil];
-//    }
-//}
