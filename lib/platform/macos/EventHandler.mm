@@ -126,6 +126,15 @@ void EventHandler::setupQuartzEventTap() {
     CGEventTapEnable(eventTap, true);
     log_->info("Quartz event tap is active!");
 
-    CFRunLoopRun();
+    // blocking mode
+    //CFRunLoopRun();
+    
+    // non-blocking
+    //while (true) {
+    //    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, false);  // 0.1-second timeout
+
+    //    app.getIPC()->init();
+    //    // Additional non-blocking tasks can be done here
+    //}
 }
 

@@ -38,6 +38,21 @@ bool IPC::init() {
         return false;
     }
 
+    // timer to attempt opening the request pipe 
+    // without log jamming bableton
+    dispatch_queue_t queue = dispatch_get_main_queue();
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC, 0);  // 100ms interval
+    dispatch_source_set_event_handler(timer, ^{
+        if (openPipeForWrite(requestPipePath, true)) {
+            log_->info("Request pipe successfully opened for writing");
+            dispatch_source_cancel(timer);
+        } else {
+            log_->info("Attempt to open request pipe for writing failed. Retrying...");
+        }
+    });
+    dispatch_resume(timer);
+
     // Send "READY" signal to the Remote Script
     //if (!writeRequest("READY")) {
     //    log_->info("IPC::init() failed to send READY signal");
@@ -47,24 +62,24 @@ bool IPC::init() {
     // wait until the remote script is able to read
     // this is probably backwards because this blocks ableton from loading
     // or should be delayed
-    std::string response;
-    int max_attempts = 1000;
-    int attempt = 0;
-    while (attempt < max_attempts) {
-        if (openPipeForWrite(requestPipePath, true)) {  // Try opening in non-blocking mode
-            log_->info("Request pipe successfully opened for writing");
-            break;
-        }
+    //std::string response;
+    //int max_attempts = 1000;
+    //int attempt = 0;
+    //while (attempt < max_attempts) {
+    //    if (openPipeForWrite(requestPipePath, true)) {  // Try opening in non-blocking mode
+    //        log_->info("Request pipe successfully opened for writing");
+    //        break;
+    //    }
 
-        log_->info("Attempt " + std::to_string(attempt + 1) + " to open request pipe for writing failed. Retrying...");
-        usleep(100000); // 100ms
-        attempt++;
-    }
+    //    log_->info("Attempt " + std::to_string(attempt + 1) + " to open request pipe for writing failed. Retrying...");
+    //    usleep(100000); // 100ms
+    //    attempt++;
+    //}
 
-    if (pipes_[requestPipePath] == -1) {
-        log_->info("IPC::init() could not open request pipe after " + std::to_string(max_attempts) + " attempts");
-        return false;
-    }
+    //if (pipes_[requestPipePath] == -1) {
+    //    log_->info("IPC::init() could not open request pipe after " + std::to_string(max_attempts) + " attempts");
+    //    return false;
+    //}
 
     log_->info("IPC::init() finished");
     return true;
