@@ -22,8 +22,9 @@ private:
     ApplicationManager& app_;
     LogHandler* log_;
 
-    std::string requestPipePath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/request";
-    std::string responsePipePath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/response";
+    std::string homeDir = std::string(getenv("HOME"));
+    std::string requestPipePath = homeDir + "/Documents/Ableton/User Library/Remote Scripts/LiveImproved/lim_request";
+    std::string responsePipePath = homeDir + "/Documents/Ableton/User Library/Remote Scripts/LiveImproved/lim_response";
 
     std::map<std::string, int> pipes_;
 
