@@ -5,12 +5,10 @@
 #include <Cocoa/Cocoa.h>
 
 #include "EventHandler.h"
-#include "../../LogHandler.h"
 #include "../../ApplicationManager.h"
 
 EventHandler::EventHandler(ApplicationManager& appManager)
     : app_(appManager)
-    , log(LogHandler::getInstance())
     , eventTap(nullptr)
     , runLoopSource(nullptr)
 {}
@@ -43,24 +41,24 @@ pid_t getAbletonLivePID() {
 }
 
 // should be on init
-void setAbletonLivePID() {
-    LogHandler::getInstance().info("Init::setAbletonLivePID() called");
+void EventHandler::setAbletonLivePID() {
+    app_.getLogHandler()->info("Init::setAbletonLivePID() called");
 
     NSString *appName = @"Ableton Live 12 Suite";
     abletonLivePID = getPID(appName);
 
     if (abletonLivePID <= 0) {
-        LogHandler::getInstance().info("Failed to get Ableton Live PID");
+        app_.getLogHandler()->info("Failed to get Ableton Live PID");
         return;
     }
 
     //app.setAbletonLivePID(pidFromApp);
-    LogHandler::getInstance().info("Ableton Live found with PID: " + std::to_string(getAbletonLivePID()));
+    app_.getLogHandler()->info("Ableton Live found with PID: " + std::to_string(getAbletonLivePID()));
 
 }
 
 void EventHandler::initialize() {
-    LogHandler::getInstance().info("Init::initializePlatform() called");
+    app_.getLogHandler()->info("Init::initializePlatform() called");
   
     setAbletonLivePID();
     app_.getEventHandler()->setupQuartzEventTap();
@@ -73,13 +71,10 @@ void runPlatform() {
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
-    // should update to syntax like :92
-    LogHandler &log = LogHandler::getInstance();
-
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
     if (eventPID == getAbletonLivePID()) {
-        log.info("Ableton Live event detected.");
+        handler->app_.getLogHandler()->info("Ableton Live event detected.");
 
 				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 //				CGEventFlags flags = CGEventGetFlags(event);
@@ -87,7 +82,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
         int flags = (int)CGEventGetFlags(event);
         std::string type = kCGEventKeyDown ? "keyDown" : "keyUp";
 
-				log.info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+				handler->app_.getLogHandler()->info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
         bool shouldBlock = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, type);
 
@@ -102,13 +97,13 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 //
 //        if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
 //					if (!customAlert || (customAlert && !customAlert.isOpen)) {
-//						log.info("showing custom alert");
+//						app_.getLogHandler()->info("showing custom alert");
 //						showCustomAlert();
 //					}
 //				}
 //
 //        if (keyCode == 53 && type == kCGEventKeyDown && customAlert.searchText.length == 0) {
-//            log.info("closing menu.");
+//            app_.getLogHandler()->info("closing menu.");
 //            if (customAlert && customAlert.isOpen) {
 //								[customAlert closeAlert];
 //                customAlert = nullptr;
@@ -123,7 +118,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 //				}
 //
 //        if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
-//            log.info("sending new key event");
+//            app_.getLogHandler()->info("sending new key event");
 //
 //            CGEventRef newKeyDownEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, true); // 37 is the keyCode for 'L'
 //						CGEventFlags flags = kCGEventFlagMaskCommand | kCGEventFlagMaskShift;
@@ -146,10 +141,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 
 void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
-    log.info("EventHandler::setupQuartEventTap() called");
+    app_.getLogHandler()->info("EventHandler::setupQuartEventTap() called");
 
     if (getAbletonLivePID() == 0) {
-        log.info("Ableton Live not found.");
+        app_.getLogHandler()->info("Ableton Live not found.");
         return;
     }
 
@@ -157,14 +152,14 @@ void EventHandler::setupQuartzEventTap() {
     CFMachPortRef eventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
-        log.info("Failed to create event tap.");
+        app_.getLogHandler()->info("Failed to create event tap.");
         return;
     }
 
     CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
-    log.info("Quartz event tap is active!");
+    app_.getLogHandler()->info("Quartz event tap is active!");
 
     CFRunLoopRun();
 }

@@ -1,6 +1,5 @@
 #include "ActionHandler.h"
 #include "ApplicationManager.h"
-#include "LogHandler.h"
 
 ActionHandler::ActionHandler(ApplicationManager& appManager) :
     app_(appManager)
@@ -11,7 +10,7 @@ ActionHandler::~ActionHandler() {}
 // returns a bool that tells the event handler 
 // whether or not to block the event
 bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
-    LogHandler::getInstance().info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
     if (type == "keyDown") {
         switch (keyCode) {
             case 53:  // escape
@@ -28,7 +27,7 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
 }
 
 bool ActionHandler::onEscapePress() {
-    LogHandler::getInstance().info("Escape pressed");
+    app_.getLogHandler()->info("Escape pressed");
     return true;
 }
 

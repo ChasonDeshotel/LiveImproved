@@ -3,8 +3,6 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
-#include "../../LogHandler.h"
-
 class ApplicationManager;
 
 class EventHandler {
@@ -14,12 +12,13 @@ public:
 
     void initialize();
 
+    void setAbletonLivePID();
+
     void setupQuartzEventTap();
     void runPlatform();
 
 private:
     ApplicationManager& app_;
-    LogHandler& log;
 
     static CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
 
