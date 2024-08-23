@@ -3,7 +3,9 @@
 #include "KeySender.h"
 #include "../../LogHandler.h"
 
-KeySender::KeySender() {}
+KeySender::KeySender(ApplicationManager& appManager)
+    : app_(appManager)
+{}
 
 KeySender::~KeySender() {}
 

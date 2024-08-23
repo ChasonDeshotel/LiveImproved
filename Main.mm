@@ -1,8 +1,10 @@
 #include <ApplicationServices/ApplicationServices.h>
 
+#include "lib/LogHandler.h"
+
 #include "lib/ApplicationManager.h"
 #include "lib/PlatformDependent.h"
-#include "lib/LogHandler.h"
+#include "lib/ActionHandler.h"
 
 __attribute__((constructor))
 static void dylib_init() {
@@ -10,13 +12,11 @@ static void dylib_init() {
         LogHandler::getInstance().info("injected successfully");
         ApplicationManager& app = ApplicationManager::getInstance();
 
-        // Initialize platform-specific modules
-        EventHandler eventHandler;
+        EventHandler eventHandler(app);
+        ActionHandler actionHandler(app);
+        KeySender keySender(app);
 
-//        IPCManager* ipcManager = new IPCManager();
-        KeySender keySender;
-
-        app.initialize(eventHandler, keySender);
+        app.initialize();
 
         // Initialize ApplicationManager with these modules
         ApplicationManager::getInstance();

@@ -3,25 +3,22 @@
 
 #include <string>
 
-#ifdef _WIN32
-#include "platform/win/KeySender.h"
-#else
-#include "platform/macos/KeySender.h"
-#endif
-
 #include "LogHandler.h"
+
+class ApplicationManager;
 
 class ActionHandler {
 public:
-    ActionHandler();
+    ActionHandler(ApplicationManager& appManager);
     ~ActionHandler();
+
+    void initialize();
 
     // returns if the event should be blocking
     bool handleKeyEvent(int keyCode, int flags, std::string type);
 
 private:
-    LogHandler& log;
-    KeySender keySender;
+    ApplicationManager& app_;
 
     bool onEscapePress();
 };

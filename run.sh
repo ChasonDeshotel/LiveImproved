@@ -10,6 +10,7 @@ clang++ -std=c++17 -dynamiclib -o ./build/LiveImproved.dylib \
   ./lib/LogHandler.cpp                 \
   ./lib/platform/macos/EventHandler.mm \
   ./lib/platform/macos/KeySender.mm    \
+  ./lib/ActionHandler.cpp              \
   -I./lib                              \
   -I./lib/platform/macos               \
   -framework Cocoa                     \

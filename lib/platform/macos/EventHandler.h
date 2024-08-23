@@ -5,9 +5,11 @@
 
 #include "../../LogHandler.h"
 
+class ApplicationManager;
+
 class EventHandler {
 public:
-    EventHandler();
+    EventHandler(ApplicationManager& appManager);
     ~EventHandler();
 
     void initialize();
@@ -16,6 +18,7 @@ public:
     void runPlatform();
 
 private:
+    ApplicationManager& app_;
     LogHandler& log;
 
     static CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);

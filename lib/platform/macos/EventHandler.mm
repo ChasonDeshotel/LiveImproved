@@ -5,11 +5,12 @@
 #include <Cocoa/Cocoa.h>
 
 #include "EventHandler.h"
-#include "../../ApplicationManager.h"
 #include "../../LogHandler.h"
+#include "../../ApplicationManager.h"
 
-EventHandler::EventHandler() : 
-    log(LogHandler::getInstance())
+EventHandler::EventHandler(ApplicationManager& appManager)
+    : app_(appManager)
+    , log(LogHandler::getInstance())
     , eventTap(nullptr)
     , runLoopSource(nullptr)
 {}
@@ -62,11 +63,11 @@ void setAbletonLivePID() {
 }
 
 void EventHandler::initialize() {
-    ApplicationManager &app = ApplicationManager::getInstance();
+//    ApplicationManager &app = ApplicationManager::getInstance();
     LogHandler::getInstance().info("Init::initializePlatform() called");
   
     setAbletonLivePID();
-    app.getEventHandler().setupQuartzEventTap();
+    app_.getEventHandler()->setupQuartzEventTap();
 }
 
 void runPlatform() {
@@ -74,10 +75,10 @@ void runPlatform() {
 }
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
+    EventHandler* handler = static_cast<EventHandler*>(refcon);
     // because callback
     // and it was getting crashy
     // with more cute implementations
-    ApplicationManager &app = ApplicationManager::getInstance();
     LogHandler &log = LogHandler::getInstance();
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
@@ -93,8 +94,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 
 				log.info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-//        bool shouldBlock = app.getActionHandler().handleKeyEvent(static_cast<int>(keyCode), flags, type);
-        bool shouldBlock = false;
+        bool shouldBlock = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, type);
 
         return shouldBlock ? NULL : event;
     }
@@ -159,7 +159,7 @@ void EventHandler::setupQuartzEventTap() {
     }
 
     CGEventMask eventMask = (1 << kCGEventKeyDown) | (1 << kCGEventKeyUp);
-    CFMachPortRef eventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, NULL);
+    CFMachPortRef eventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
         log.info("Failed to create event tap.");

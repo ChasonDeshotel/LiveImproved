@@ -1,17 +1,28 @@
 #include <string>
 
 #include "ApplicationManager.h"
+#include "ActionHandler.h"
 #include "LogHandler.h"
 #include "PlatformDependent.h"
+//#include "ActionHandler.h"
 
-void ApplicationManager::initialize(EventHandler& eventHandler, KeySender& keySender) {
+ApplicationManager::ApplicationManager()
+    : logHandler_(LogHandler::getInstance()) {
+}
+
+void ApplicationManager::initialize() {
     LogHandler::getInstance().info("ApplicatonManager: init");
 //    this->eventHandler_ = eventHandler;
 //    this->ipcManager_ = ipcManager;
-    keySender_ = &keySender;  // Store the pointer to the reference
-    eventHandler_ = &eventHandler;
+    eventHandler_ = new EventHandler(*this);
+    eventHandler_->initialize();
 
-    eventHandler.initialize();
+    actionHandler_ = new ActionHandler(*this);
+    keySender_ = new KeySender(*this);
+
+    //actionHandler_ = &actionHandler;
+
+
     // Initialize platform-specific components
 //    initializePlatform();
 
@@ -43,16 +54,16 @@ void ApplicationManager::initialize(EventHandler& eventHandler, KeySender& keySe
 //    return ipc.readFromPipe("/tmp/response_pipe");
 //}
 //
-//ActionHandler& ApplicationManager::getActionHandler() {
-//    return actionHandler;
-//}
-//
-EventHandler& ApplicationManager::getEventHandler() {
-    return *eventHandler_;
+ActionHandler* ApplicationManager::getActionHandler() {
+    return actionHandler_;
 }
 
-KeySender& ApplicationManager::getKeySender() {
-    return *keySender_;
+EventHandler* ApplicationManager::getEventHandler() {
+    return eventHandler_;
+}
+
+KeySender* ApplicationManager::getKeySender() {
+    return keySender_;
 }
 
 //LogHandler& ApplicationManager::getLogHandler() {
