@@ -27,6 +27,8 @@ private:
 
     std::map<std::string, int> pipes_;
 
+    void removePipeIfExists(const std::string& pipe_name);
+
     bool createPipe(const std::string& pipe_name);
     bool openPipeForWrite(const std::string& pipe_name, bool non_blocking = false);
     bool openPipeForRead(const std::string& pipe_name, bool non_blocking = false);

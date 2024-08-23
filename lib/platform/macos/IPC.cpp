@@ -14,20 +14,71 @@ IPC::IPC(ApplicationManager& appManager)
 
 IPC::~IPC() {
     for (auto& pipe : pipes_) {
-        close(pipe.second);
+        if (pipe.second != -1) {
+            close(pipe.second);
+        }
         unlink(pipe.first.c_str());
     }
 }
 
 bool IPC::init() {
     log_->info("IPC::init() called");
+
+    removePipeIfExists(requestPipePath);
+    removePipeIfExists(responsePipePath);
+
     if (!createPipe(requestPipePath) || !createPipe(responsePipePath)) {
         log_->info("IPC::init() failed");
         return false;
     }
 
-    return true;
+    // make sure we can open/read the response pipe
+    if (!openPipeForRead(responsePipePath, true)) {
+        log_->info("IPC::init() failed to open pipes for initial communication");
+        return false;
+    }
+
+    // Send "READY" signal to the Remote Script
+    //if (!writeRequest("READY")) {
+    //    log_->info("IPC::init() failed to send READY signal");
+    //    return false;
+    //}
+
+    // wait until the remote script is able to read
+    // this is probably backwards because this blocks ableton from loading
+    // or should be delayed
+    std::string response;
+    int max_attempts = 1000;
+    int attempt = 0;
+    while (attempt < max_attempts) {
+        if (openPipeForWrite(requestPipePath, true)) {  // Try opening in non-blocking mode
+            log_->info("Request pipe successfully opened for writing");
+            break;
+        }
+
+        log_->info("Attempt " + std::to_string(attempt + 1) + " to open request pipe for writing failed. Retrying...");
+        usleep(100000); // 100ms
+        attempt++;
+    }
+
+    if (pipes_[requestPipePath] == -1) {
+        log_->info("IPC::init() could not open request pipe after " + std::to_string(max_attempts) + " attempts");
+        return false;
+    }
+
     log_->info("IPC::init() finished");
+    return true;
+}
+
+void IPC::removePipeIfExists(const std::string& pipe_name) {
+    if (access(pipe_name.c_str(), F_OK) != -1) {
+        // File exists, so remove it
+        if (unlink(pipe_name.c_str()) == 0) {
+            log_->info("Removed existing pipe: " + pipe_name);
+        } else {
+            log_->info("Failed to remove existing pipe: " + pipe_name + " - " + strerror(errno));
+        }
+    }
 }
 
 bool IPC::createPipe(const std::string& pipe_name) {
