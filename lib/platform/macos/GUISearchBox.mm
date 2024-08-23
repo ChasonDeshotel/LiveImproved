@@ -102,6 +102,10 @@
         self.allOptions = @[@"Option 1", @"Option 2", @"Option 3", @"Another Option", @"More Options"];
         self.filteredOptions = [NSMutableArray arrayWithArray:self.allOptions];
 
+        NSString *filteredOptionsString = [self.filteredOptions componentsJoinedByString:@", "];
+        LogHandler::getInstance().info("filteredOptions: " + std::string([filteredOptionsString UTF8String]));
+        [self.resultsTableView reloadData];
+
     }
 
     //[[self window] orderOut:nil];
@@ -109,6 +113,14 @@
     //[self.window makeKeyAndOrderFront:nil];
 
     return self;
+}
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
+    return self.filteredOptions.count; // Ensure this returns the correct number of rows
+}
+
+- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    return self.filteredOptions[row]; // Ensure this returns the correct data for each row
 }
 
 //- (void)showWindow:(id)sender {
