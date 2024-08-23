@@ -1,11 +1,8 @@
 NOTES
 .DS_Store
 build/
-libintercept_keys.dylib
+logs/
 
-py/
-
-log.txt
 method_dump.txt
 
 # Swap
