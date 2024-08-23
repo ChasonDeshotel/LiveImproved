@@ -27,8 +27,6 @@ EventHandler::~EventHandler() {
 pid_t abletonLivePID;
 
 pid_t getPID(NSString *processName) {
-//    ApplicationManager &app = ApplicationManager::getInstance();
-
     NSArray *runningApps = [[NSWorkspace sharedWorkspace] runningApplications];
     
     for (NSRunningApplication *app in runningApps) {
@@ -46,7 +44,6 @@ pid_t getAbletonLivePID() {
 
 // should be on init
 void setAbletonLivePID() {
-//    ApplicationManager &app = ApplicationManager::getInstance();
     LogHandler::getInstance().info("Init::setAbletonLivePID() called");
 
     NSString *appName = @"Ableton Live 12 Suite";
@@ -63,7 +60,6 @@ void setAbletonLivePID() {
 }
 
 void EventHandler::initialize() {
-//    ApplicationManager &app = ApplicationManager::getInstance();
     LogHandler::getInstance().info("Init::initializePlatform() called");
   
     setAbletonLivePID();
@@ -76,9 +72,8 @@ void runPlatform() {
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     EventHandler* handler = static_cast<EventHandler*>(refcon);
-    // because callback
-    // and it was getting crashy
-    // with more cute implementations
+
+    // should update to syntax like :92
     LogHandler &log = LogHandler::getInstance();
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
