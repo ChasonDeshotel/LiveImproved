@@ -6,6 +6,7 @@
 //#include "platform/win/IPCManager.h"
 #include "platform/win/KeySender.h"
 #else
+#include "platform/macos/PID.h"
 #include "platform/macos/EventHandler.h"
 //#include "platform/macos/IPCManager.h"
 #include "platform/macos/KeySender.h"

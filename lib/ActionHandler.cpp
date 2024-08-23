@@ -7,6 +7,10 @@ ActionHandler::ActionHandler(ApplicationManager& appManager) :
 
 ActionHandler::~ActionHandler() {}
 
+void ActionHandler::Init() {
+    // should do the mapping / read config or something
+}
+
 // returns a bool that tells the event handler 
 // whether or not to block the event
 bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {

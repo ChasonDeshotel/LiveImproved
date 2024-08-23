@@ -14,18 +14,14 @@ public:
         return instance;
     }
 
-    void initialize();
+    void init();
 
     LogHandler* getLogHandler();
 
+    pid_t getPID();
     EventHandler* getEventHandler();
     ActionHandler* getActionHandler();
     KeySender* getKeySender();
-
-    // not cross platform compatible
-    // move to platform/macos/init
-    //pid_t getAbletonLivePID() const;
-    //void setAbletonLivePID(pid_t pid);
 
 private:
     // Private constructor to prevent direct instantiation
@@ -34,14 +30,12 @@ private:
     ApplicationManager(const ApplicationManager&) = delete;
     ApplicationManager& operator=(const ApplicationManager&) = delete;
 
+    PID* pid_ = nullptr;
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
 
     LogHandler* logHandler_;
-
-    // not cross platform compatible
-    pid_t abletonLivePID;
 };
 
 #endif

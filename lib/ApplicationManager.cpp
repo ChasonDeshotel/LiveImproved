@@ -9,16 +9,19 @@ ApplicationManager::ApplicationManager()
     : logHandler_(&LogHandler::getInstance()) {
 }
 
-void ApplicationManager::initialize() {
-    logHandler_->info("ApplicatonManager: init");
+void ApplicationManager::init() {
+    logHandler_->info("ApplicatonManager::init() called");
 
+    pid_ = (new PID(*this))->init();
+
+    // crashed when chaining
     eventHandler_ = new EventHandler(*this);
-    eventHandler_->initialize(); // start event loop
+    eventHandler_->init(); // start event loop
 
     actionHandler_ = new ActionHandler(*this);
     keySender_ = new KeySender(*this);
 
-    logHandler_->info("ApplicatonManager: init finished");
+    logHandler_->info("ApplicatonManager::init() finished");
 }
 
 ActionHandler* ApplicationManager::getActionHandler() {
@@ -35,4 +38,8 @@ KeySender* ApplicationManager::getKeySender() {
 
 LogHandler* ApplicationManager::getLogHandler() {
     return logHandler_;
+}
+
+pid_t ApplicationManager::getPID() {
+    return pid_->livePID();
 }

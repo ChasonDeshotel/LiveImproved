@@ -2,6 +2,7 @@
 #define KEY_SENDER_H
 
 class ApplicationManager;
+class LogHandler;
 
 class KeySender {
 public:
@@ -10,7 +11,7 @@ public:
     void sendKeypress(int keyCode, int flags);
 
 private:
-    ApplicationManager& app_;
+    LogHandler* log_;
 };
 
 #endif

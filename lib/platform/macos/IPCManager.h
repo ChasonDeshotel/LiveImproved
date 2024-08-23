@@ -5,10 +5,15 @@
 #include <map>
 #include <string>
 
+class ApplicationManager;
+class LogHandler;
+
 class IPCManager {
 public:
-    IPCManager();
+    IPCManager(ApplicationManager& appManager);
     ~IPCManager();
+
+    void init();
 
     void createPipe(const std::string& pipe_name);
     void openPipeForWrite(const std::string& pipe_name, bool non_blocking = false);

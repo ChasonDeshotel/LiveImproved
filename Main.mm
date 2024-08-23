@@ -12,11 +12,12 @@ static void dylib_init() {
         LogHandler::getInstance().info("injected successfully");
         ApplicationManager& app = ApplicationManager::getInstance();
 
+        PID pid(app);
         EventHandler eventHandler(app);
         ActionHandler actionHandler(app);
         KeySender keySender(app);
 
-        app.initialize();
+        app.init();
 
         // Initialize ApplicationManager with these modules
         ApplicationManager::getInstance();

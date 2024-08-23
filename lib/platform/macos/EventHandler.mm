@@ -4,11 +4,12 @@
 #include <objc/runtime.h>
 #include <Cocoa/Cocoa.h>
 
-#include "EventHandler.h"
 #include "../../ApplicationManager.h"
+#include "EventHandler.h"
 
 EventHandler::EventHandler(ApplicationManager& appManager)
     : app_(appManager)
+    , log_(appManager.getLogHandler())
     , eventTap(nullptr)
     , runLoopSource(nullptr)
 {}
@@ -22,45 +23,9 @@ EventHandler::~EventHandler() {
     }
 }
 
-pid_t abletonLivePID;
-
-pid_t getPID(NSString *processName) {
-    NSArray *runningApps = [[NSWorkspace sharedWorkspace] runningApplications];
-    
-    for (NSRunningApplication *app in runningApps) {
-        NSString *executablePath = [[app executableURL] path];
-        if ([executablePath containsString:processName]) {
-            return [app processIdentifier];
-        }
-    }
-    return -1;
-}
-
-pid_t getAbletonLivePID() {
-    return abletonLivePID;
-}
-
-// should be on init
-void EventHandler::setAbletonLivePID() {
-    app_.getLogHandler()->info("Init::setAbletonLivePID() called");
-
-    NSString *appName = @"Ableton Live 12 Suite";
-    abletonLivePID = getPID(appName);
-
-    if (abletonLivePID <= 0) {
-        app_.getLogHandler()->info("Failed to get Ableton Live PID");
-        return;
-    }
-
-    //app.setAbletonLivePID(pidFromApp);
-    app_.getLogHandler()->info("Ableton Live found with PID: " + std::to_string(getAbletonLivePID()));
-
-}
-
-void EventHandler::initialize() {
-    app_.getLogHandler()->info("Init::initializePlatform() called");
+void EventHandler::init() {
+    log_->info("EventHandler::Init() called");
   
-    setAbletonLivePID();
     app_.getEventHandler()->setupQuartzEventTap();
 }
 
@@ -73,8 +38,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
-    if (eventPID == getAbletonLivePID()) {
-        handler->app_.getLogHandler()->info("Ableton Live event detected.");
+    if (eventPID == handler->app_.getPID()) {
+        handler->log_->info("Ableton Live event detected.");
 
 				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 //				CGEventFlags flags = CGEventGetFlags(event);
@@ -82,7 +47,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
         int flags = (int)CGEventGetFlags(event);
         std::string type = kCGEventKeyDown ? "keyDown" : "keyUp";
 
-				handler->app_.getLogHandler()->info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+				handler->log_->info("Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
         bool shouldBlock = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, type);
 
@@ -97,13 +62,13 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 //
 //        if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
 //					if (!customAlert || (customAlert && !customAlert.isOpen)) {
-//						app_.getLogHandler()->info("showing custom alert");
+//						log_->info("showing custom alert");
 //						showCustomAlert();
 //					}
 //				}
 //
 //        if (keyCode == 53 && type == kCGEventKeyDown && customAlert.searchText.length == 0) {
-//            app_.getLogHandler()->info("closing menu.");
+//            log_->info("closing menu.");
 //            if (customAlert && customAlert.isOpen) {
 //								[customAlert closeAlert];
 //                customAlert = nullptr;
@@ -118,7 +83,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 //				}
 //
 //        if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
-//            app_.getLogHandler()->info("sending new key event");
+//            log_->info("sending new key event");
 //
 //            CGEventRef newKeyDownEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, true); // 37 is the keyCode for 'L'
 //						CGEventFlags flags = kCGEventFlagMaskCommand | kCGEventFlagMaskShift;
@@ -141,10 +106,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType typ
 
 void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
-    app_.getLogHandler()->info("EventHandler::setupQuartEventTap() called");
+    log_->info("EventHandler::setupQuartEventTap() called");
 
-    if (getAbletonLivePID() == 0) {
-        app_.getLogHandler()->info("Ableton Live not found.");
+    if (app_.getPID() == -1) {
+        log_->info("Ableton Live not found.");
         return;
     }
 
@@ -152,14 +117,14 @@ void EventHandler::setupQuartzEventTap() {
     CFMachPortRef eventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
-        app_.getLogHandler()->info("Failed to create event tap.");
+        log_->info("Failed to create event tap.");
         return;
     }
 
     CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
-    app_.getLogHandler()->info("Quartz event tap is active!");
+    log_->info("Quartz event tap is active!");
 
     CFRunLoopRun();
 }
