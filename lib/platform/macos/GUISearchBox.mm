@@ -99,7 +99,6 @@
         [[window contentView] addSubview:self.visualEffectView];
 
         self.searchField.recentsAutosaveName = @"CustomSearchFieldRecents";
-        self.allOptions = @[@"Option 1", @"Option 2", @"Option 3", @"Another Option", @"More Options"];
         self.filteredOptions = [NSMutableArray arrayWithArray:self.allOptions];
 
         NSString *filteredOptionsString = [self.filteredOptions componentsJoinedByString:@", "];
@@ -113,6 +112,23 @@
     //[self.window makeKeyAndOrderFront:nil];
 
     return self;
+}
+
+- (void)controlTextDidChange:(NSNotification *)notification {
+    NSString *searchText = [self.searchField stringValue];
+    [self.filteredOptions removeAllObjects];
+
+    if ([searchText length] == 0) {
+        [self.filteredOptions addObjectsFromArray:self.allOptions];
+    } else {
+        for (NSString *option in self.allOptions) {
+            if ([option rangeOfString:searchText options:NSCaseInsensitiveSearch].location != NSNotFound) {
+                [self.filteredOptions addObject:option];
+            }
+        }
+    }
+
+    [self.resultsTableView reloadData];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
@@ -186,3 +202,17 @@ void GUISearchBox::closeAlert() {
     }
 }
 
+void GUISearchBox::setOptions(const std::vector<std::string>& options) {
+    NSMutableArray *nsOptions = [NSMutableArray arrayWithCapacity:options.size()];
+    for (const std::string& option : options) {
+        NSString *nsString = [NSString stringWithUTF8String:option.c_str()];
+        [nsOptions addObject:nsString];
+    }
+
+    // set allOptions in the Objective-C class
+    GUISearchBoxWindowController *controller = (GUISearchBoxWindowController *)windowController_;
+    controller.allOptions = [nsOptions copy];
+    controller.filteredOptions = [nsOptions mutableCopy];
+
+    [controller.resultsTableView reloadData];
+}

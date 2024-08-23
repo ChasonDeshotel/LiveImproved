@@ -25,6 +25,8 @@ void ApplicationManager::init() {
     keySender_ = new KeySender(*this);
 
     guiSearchBox_ = new GUISearchBox(*this);
+    std::vector<std::string> options = {"foo", "bar", "Option 1", "Option 2", "Option 3"};
+    guiSearchBox_->setOptions(options);
 
     logHandler_->info("ApplicatonManager::init() finished");
 }

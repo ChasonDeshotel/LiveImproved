@@ -25,6 +25,8 @@ public:
     bool isOpen() const;
     void setIsOpen(bool open);
 
+    void setOptions(const std::vector<std::string>& options);
+
     const std::string& getSearchText() const;
     void setSearchText(const std::string& text);
 
