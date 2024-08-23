@@ -12,6 +12,9 @@ void ActionHandler::init() {
     // should do the mapping / read config or something
 }
 
+// need to block all events when 
+// app_.getGUISearchBox()->isOpen() = true
+
 // returns a bool that tells the event handler 
 // whether or not to block the event
 bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
