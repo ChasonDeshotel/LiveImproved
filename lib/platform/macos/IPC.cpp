@@ -18,6 +18,10 @@ IPC::~IPC() {
     }
 }
 
+void IPC::init() {
+
+}
+
 void IPC::createPipe(const std::string& pipe_name) {
     if (mkfifo(pipe_name.c_str(), 0666) == -1 && errno != EEXIST) {
         std::cerr << "Failed to create named pipe: " << strerror(errno) << std::endl;
