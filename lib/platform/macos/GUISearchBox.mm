@@ -187,24 +187,31 @@ void GUISearchBox::setSearchText(const std::string text) {
 }
 
 void GUISearchBox::clearSearchText() {
-    // Clear the C++ side searchText
+    // clear the C++ side searchText
     searchText.clear();
 
-    // Clear the search text on the Objective-C side
+    // clear the Obj-C side
     GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
-    controller.searchText = @"";  // Set the NSString to an empty string
+    controller.searchText = @"";
 
-    // Optionally, clear the search field's displayed text
+    // clear the UI
     [controller.searchField setStringValue:@""];
+
+    // reset filtered options to show all options
+    [controller.filteredOptions removeAllObjects];
+    [controller.filteredOptions addObjectsFromArray:controller.allOptions];
+
+    // reload the table view to display all options
+    [controller.resultsTableView reloadData];
     
-    // Log the action for debugging purposes
     LogHandler::getInstance().info("Search text cleared.");
 }
 
 void GUISearchBox::openSearchBox() {
+    LogHandler::getInstance().info("open search box called");
     if (windowController_) {
+        LogHandler::getInstance().info("window controller found");
         CustomAlertWindow* window = (CustomAlertWindow*)[(GUISearchBoxWindowController*)windowController_ window];
-        LogHandler::getInstance().info("showAlert called - making window visible");
         [window setIsVisible:YES];
         [window makeKeyAndOrderFront:nil];
         isOpen_ = true;
@@ -212,7 +219,9 @@ void GUISearchBox::openSearchBox() {
 }
 
 void GUISearchBox::closeSearchBox() {
+    LogHandler::getInstance().info("close search box called");
     if (windowController_) {
+        LogHandler::getInstance().info("window controller found");
         [(GUISearchBoxWindowController*)windowController_ closeAlert];
         isOpen_ = false;
     }
