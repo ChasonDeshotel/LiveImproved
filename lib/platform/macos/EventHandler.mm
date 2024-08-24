@@ -1,4 +1,5 @@
 #include <ApplicationServices/ApplicationServices.h>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <objc/runtime.h>
@@ -51,60 +52,14 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
 				handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-        bool shouldBlock = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, keyUpDown);
+        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, keyUpDown);
+        handler->log_->info("shouldPassEvent = " + std::to_string(shouldPassEvent));
 
-        return shouldBlock ? NULL : event;
+        return shouldPassEvent ? event : NULL;
     }
 
     return event;
 }
-
-// move to ActionHandler
-//				introspect();
-//
-//        if (type == kCGEventKeyDown && keyCode == 19 && (CGEventGetFlags(event))) {
-//					if (!customAlert || (customAlert && !customAlert.isOpen)) {
-//						log_->info("showing custom alert");
-//						showCustomAlert();
-//					}
-//				}
-//
-//        if (keyCode == 53 && type == kCGEventKeyDown && customAlert.searchText.length == 0) {
-//            log_->info("closing menu.");
-//            if (customAlert && customAlert.isOpen) {
-//								[customAlert closeAlert];
-//                customAlert = nullptr;
-//								return NULL;
-//						}
-//        }
-//
-//				// when the menu is open, do not send keypresses to Live
-//        // or it activates your hotkeys
-//				if (customAlert && customAlert.isOpen) {
-//						return event;
-//				}
-//
-//        if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
-//            log_->info("sending new key event");
-//
-//            CGEventRef newKeyDownEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, true); // 37 is the keyCode for 'L'
-//						CGEventFlags flags = kCGEventFlagMaskCommand | kCGEventFlagMaskShift;
-//            CGEventSetFlags(newKeyDownEvent, flags);
-//            CGEventPost(kCGAnnotatedSessionEventTap, newKeyDownEvent);
-//
-//            CGEventRef newKeyUpEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, false); // Key up event
-//						CGEventSetFlags(newKeyDownEvent, flags);
-//            CGEventPost(kCGAnnotatedSessionEventTap, newKeyUpEvent);
-//
-//            CFRelease(newKeyDownEvent);
-//            CFRelease(newKeyUpEvent);
-//
-//            return NULL; // block the origianl event
-//        }
-//		}
-//
-//		return event;
-//}
 
 void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();

@@ -21,7 +21,8 @@ private:
     ApplicationManager& app_;
     LogHandler* log_;
 
-    bool displaySearchBox();
+    bool openSearchBox();
+    bool closeSearchBox();
 
     bool loadItem();
     bool onEscapePress();

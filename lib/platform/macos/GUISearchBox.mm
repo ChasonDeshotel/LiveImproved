@@ -114,6 +114,7 @@
 
 - (void)controlTextDidChange:(NSNotification *)notification {
     NSString *searchText = [self.searchField stringValue];
+    self.searchText = searchText;
     [self.filteredOptions removeAllObjects];
 
     if ([searchText length] == 0) {
@@ -171,15 +172,36 @@ bool GUISearchBox::isOpen() const {
     return isOpen_;
 }
 
-const std::string& GUISearchBox::getSearchText() const {
-    return searchText;
+const std::string GUISearchBox::getSearchText() const {
+    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+    NSString* nsSearchText = controller.searchText;
+
+    const char* cStr = [nsSearchText UTF8String];
+    return std::string(cStr);
 }
 
-void GUISearchBox::setSearchText(const std::string& text) {
-    searchText = text;
+void GUISearchBox::setSearchText(const std::string text) {
+    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+    NSString* nsSearchText = [NSString stringWithUTF8String:text.c_str()];
+    controller.searchText = nsSearchText;
 }
 
-void GUISearchBox::showAlert() {
+void GUISearchBox::clearSearchText() {
+    // Clear the C++ side searchText
+    searchText.clear();
+
+    // Clear the search text on the Objective-C side
+    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+    controller.searchText = @"";  // Set the NSString to an empty string
+
+    // Optionally, clear the search field's displayed text
+    [controller.searchField setStringValue:@""];
+    
+    // Log the action for debugging purposes
+    LogHandler::getInstance().info("Search text cleared.");
+}
+
+void GUISearchBox::openSearchBox() {
     if (windowController_) {
         CustomAlertWindow* window = (CustomAlertWindow*)[(GUISearchBoxWindowController*)windowController_ window];
         LogHandler::getInstance().info("showAlert called - making window visible");
@@ -189,7 +211,7 @@ void GUISearchBox::showAlert() {
     }
 }
 
-void GUISearchBox::closeAlert() {
+void GUISearchBox::closeSearchBox() {
     if (windowController_) {
         [(GUISearchBoxWindowController*)windowController_ closeAlert];
         isOpen_ = false;

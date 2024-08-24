@@ -15,15 +15,16 @@ public:
 
     void initWithTitle(const std::string& title);
 
-    void closeAlert();
-    void showAlert();
+    void closeSearchBox();
+    void openSearchBox();
 
     bool isOpen() const;
 
     void setOptions(const std::vector<std::string>& options);
 
-    const std::string& getSearchText() const;
-    void setSearchText(const std::string& text);
+    const std::string getSearchText() const;
+    void setSearchText(const std::string text);
+    void clearSearchText();
 
 private:
     ApplicationManager& app_;

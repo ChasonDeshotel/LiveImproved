@@ -15,47 +15,101 @@ void ActionHandler::init() {
 // need to block all events when 
 // app_.getGUISearchBox()->isOpen() = true
 
-// returns a bool that tells the event handler 
-// whether or not to block the event
+// returns: bool: shouldPassEvent
+// -- should the original event be passed
+// through to the calling function
+// or should the original input be blocked
 bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
     app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+
     if (type == "keyDown") {
+
         switch (keyCode) {
-            case 0:  // a
-                return loadItem();
+//            case 0:  // a
+//                return loadItem();
+            case 19:
+              openSearchBox();
+              return false;
             case 53:  // escape
-                return displaySearchBox();
+              closeSearchBox();
+              return false;
             default:
-                return false;
+                return true;
         }
+
+        // when the menu is open, do not send keypresses to Live
+        // or it activates your hotkeys
+        if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
+            log_->info("is open, do not pass keys to Live");
+            return false;
+        }
+
     }
 
     // if we meet no criteria,
     // the original event should
-    // not be blocked
-    return false;
-}
-
-bool ActionHandler::displaySearchBox() {
-    log_->info("foo");
-//    app_.getGUISearchBox()->initWithTitle("foo");
-    app_.getGUISearchBox()->showAlert();
-    return false;
-}
-
-bool ActionHandler::loadItem() {
-    log_->info("bar");
-    app_.getGUISearchBox()->closeAlert();
-
-    return false;
-    log_->info("writing request");
-    app_.getIPC()->writeRequest("load_item,1");
-    return false;
-}
-
-bool ActionHandler::onEscapePress() {
-    app_.getLogHandler()->info("Escape pressed");
-    app_.getIPC()->readResponse();
+    // be passed to the original caller
     return true;
 }
+
+// move to ActionHandler
+//				introspect();
+//        if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
+//            log_->info("sending new key event");
+//
+//            CGEventRef newKeyDownEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, true); // 37 is the keyCode for 'L'
+//						CGEventFlags flags = kCGEventFlagMaskCommand | kCGEventFlagMaskShift;
+//            CGEventSetFlags(newKeyDownEvent, flags);
+//            CGEventPost(kCGAnnotatedSessionEventTap, newKeyDownEvent);
+//
+//            CGEventRef newKeyUpEvent = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)46, false); // Key up event
+//						CGEventSetFlags(newKeyDownEvent, flags);
+//            CGEventPost(kCGAnnotatedSessionEventTap, newKeyUpEvent);
+//
+//            CFRelease(newKeyDownEvent);
+//            CFRelease(newKeyUpEvent);
+//
+//            return NULL; // block the origianl event
+//        }
+//		}
+//
+//		return event;
+//}
+
+
+bool ActionHandler::openSearchBox() {
+    log_->info("showing search box");
+    app_.getGUISearchBox()->openSearchBox();
+    return false;
+}
+
+bool ActionHandler::closeSearchBox() {
+    log_->info("closing search box");
+    // add text length check
+    log_->info("text: " + std::to_string(app_.getGUISearchBox()->getSearchText().length()));
+    log_->info("isOpen: " + std::to_string(app_.getGUISearchBox()->isOpen()));
+    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchText().length()) {
+        app_.getGUISearchBox()->clearSearchText();
+    } else {
+        app_.getGUISearchBox()->closeSearchBox();
+        return false;
+    }
+    return false;
+}
+
+//bool ActionHandler::loadItem() {
+//    log_->info("bar");
+//    app_.getGUISearchBox()->closeSearchBox();
+//
+//    return false;
+//    log_->info("writing request");
+//    app_.getIPC()->writeRequest("load_item,1");
+//    return false;
+//}
+
+//bool ActionHandler::onEscapePress() {
+//    app_.getLogHandler()->info("Escape pressed");
+//    app_.getIPC()->readResponse();
+//    return true;
+//}
 
