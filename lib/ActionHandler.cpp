@@ -30,6 +30,10 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
             case 19:
               openSearchBox();
               return false;
+            case 20:
+              app_.getIPC()->writeRequest("RELOAD");
+            case 21:
+              refreshPluginCache();
             case 53:  // escape
               closeSearchBox();
               return false;
@@ -89,6 +93,11 @@ bool ActionHandler::closeSearchBox() {
         app_.getGUISearchBox()->closeSearchBox();
     }
     return false;
+}
+
+void ActionHandler::refreshPluginCache() {
+    app_.getIPC()->writeRequest("PLUGINS");
+
 }
 
 //bool ActionHandler::loadItem() {

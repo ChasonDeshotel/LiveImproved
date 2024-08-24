@@ -46,6 +46,7 @@ bool IPC::init() {
     dispatch_source_set_event_handler(timer, ^{
         if (openPipeForWrite(requestPipePath, true)) {
             log_->info("Request pipe successfully opened for writing");
+            writeRequest("READY");
             dispatch_source_cancel(timer);
         } else {
             log_->info("Attempt to open request pipe for writing failed. Retrying...");
