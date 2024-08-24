@@ -135,7 +135,7 @@
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    return self.filteredOptions[row]; // Ensure this returns the correct data for each row
+    return self.filteredOptions[row];
 }
 
 - (void)closeAlert {
@@ -148,7 +148,12 @@
 
 // C++ wrapper
 GUISearchBox::GUISearchBox(ApplicationManager& appManager)
-    : app_(appManager), title("foo"), isOpen_(false), windowController_(nullptr) {
+    : app_(appManager)
+    , title("foo")
+    , isOpen_(false)
+    , searchText("")
+    , windowController_(nullptr)
+{
 
     LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
     NSString* nsTitle = [NSString stringWithUTF8String:title.c_str()];
@@ -172,12 +177,20 @@ bool GUISearchBox::isOpen() const {
     return isOpen_;
 }
 
-const std::string GUISearchBox::getSearchText() const {
-    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
-    NSString* nsSearchText = controller.searchText;
+std::string GUISearchBox::getSearchText() const {
+    if (!windowController_) {
+        return "";
+    }
 
-    const char* cStr = [nsSearchText UTF8String];
-    return std::string(cStr);
+    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+
+    NSString* nsSearchText = controller.searchText;
+    if (!nsSearchText) {
+        return "";
+    }
+
+    std::string result([nsSearchText UTF8String]);
+    return result;
 }
 
 void GUISearchBox::setSearchText(const std::string text) {
@@ -187,30 +200,32 @@ void GUISearchBox::setSearchText(const std::string text) {
 }
 
 void GUISearchBox::clearSearchText() {
-    // clear the C++ side searchText
+    // Clear C++ side
     searchText.clear();
 
-    // clear the Obj-C side
-    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
-    controller.searchText = @"";
+    if (!windowController_) {
+        return;
+    }
 
-    // clear the UI
+    // Clear the Obj-C side
+    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+    controller.searchText = @""; // Set to empty string
+    LogHandler::getInstance().info("Obj-C searchText cleared");
+
+    // Clear the UI
     [controller.searchField setStringValue:@""];
 
-    // reset filtered options to show all options
+    // Reset filtered options to show all options
     [controller.filteredOptions removeAllObjects];
     [controller.filteredOptions addObjectsFromArray:controller.allOptions];
 
-    // reload the table view to display all options
+    // Reload the table view to display all options
     [controller.resultsTableView reloadData];
-    
-    LogHandler::getInstance().info("Search text cleared.");
+    LogHandler::getInstance().info("Table view reloaded");
 }
 
 void GUISearchBox::openSearchBox() {
-    LogHandler::getInstance().info("open search box called");
     if (windowController_) {
-        LogHandler::getInstance().info("window controller found");
         CustomAlertWindow* window = (CustomAlertWindow*)[(GUISearchBoxWindowController*)windowController_ window];
         [window setIsVisible:YES];
         [window makeKeyAndOrderFront:nil];
@@ -219,9 +234,7 @@ void GUISearchBox::openSearchBox() {
 }
 
 void GUISearchBox::closeSearchBox() {
-    LogHandler::getInstance().info("close search box called");
     if (windowController_) {
-        LogHandler::getInstance().info("window controller found");
         [(GUISearchBoxWindowController*)windowController_ closeAlert];
         isOpen_ = false;
     }

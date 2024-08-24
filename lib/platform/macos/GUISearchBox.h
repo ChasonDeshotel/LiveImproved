@@ -22,7 +22,7 @@ public:
 
     void setOptions(const std::vector<std::string>& options);
 
-    const std::string getSearchText() const;
+    std::string getSearchText() const;
     void setSearchText(const std::string text);
     void clearSearchText();
 

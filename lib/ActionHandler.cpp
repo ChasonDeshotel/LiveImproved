@@ -78,21 +78,15 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
 
 
 bool ActionHandler::openSearchBox() {
-    log_->info("showing search box");
     app_.getGUISearchBox()->openSearchBox();
     return false;
 }
 
 bool ActionHandler::closeSearchBox() {
-    log_->info("closing search box");
-    // add text length check
-    log_->info("text: " + std::to_string(app_.getGUISearchBox()->getSearchText().length()));
-    log_->info("isOpen: " + std::to_string(app_.getGUISearchBox()->isOpen()));
     if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchText().length()) {
         app_.getGUISearchBox()->clearSearchText();
     } else {
         app_.getGUISearchBox()->closeSearchBox();
-        return false;
     }
     return false;
 }
