@@ -14,7 +14,6 @@ ResponseParser::ResponseParser(ApplicationManager& appManager)
 
 ResponseParser::~ResponseParser() {}
 
-// Helper function to split a string by a delimiter
 std::vector<std::string> ResponseParser::split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
     std::stringstream ss(str);
@@ -47,7 +46,6 @@ std::vector<std::string> ResponseParser::splitStringInPlace(std::string& str, ch
 }
 
 
-// Function to parse the input string into a vector of Plugin
 std::vector<Plugin> ResponseParser::parsePlugins(const std::string& input) {
     std::vector<Plugin> plugins;
     std::vector<std::string> entries = split(input, '|');
@@ -104,28 +102,3 @@ std::vector<Plugin> ResponseParser::getUniquePlugins(const std::vector<Plugin>& 
     
     return result;
 }
-
-// Function to extract unique names
-//std::vector<std::string> extractUniqueNames(const std::vector<Plugin>& plugins) {
-//    std::set<std::string> uniqueNamesSet; // Using a set to ensure uniqueness
-//    for (const auto& plugin : plugins) {
-//        uniqueNamesSet.insert(plugin.name);
-//    }
-//
-//    // Convert the set back to a vector
-//    return std::vector<std::string>(uniqueNamesSet.begin(), uniqueNamesSet.end());
-//}
-//
-//// Alternatively, if order matters and you want to preserve the first occurrence of each name:
-//std::vector<std::string> extractUniqueNamesInOrder(const std::vector<Plugin>& plugins) {
-//    std::vector<std::string> uniqueNames;
-//    std::set<std::string> seenNames;
-//
-//    for (const auto& plugin : plugins) {
-//        if (seenNames.insert(plugin.name).second) {
-//            uniqueNames.push_back(plugin.name); // Only add if it's not a duplicate
-//        }
-//    }
-//
-//    return uniqueNames;
-//}

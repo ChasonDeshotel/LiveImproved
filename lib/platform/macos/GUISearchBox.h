@@ -28,6 +28,8 @@ public:
     void setSearchText(const std::string text);
     void clearSearchText();
 
+    void handlePluginSelected(const Plugin& plugin);
+
 private:
     ApplicationManager& app_;
 
@@ -46,6 +48,7 @@ private:
     void* tableContainer;
     void* visualEffectView;
     void* windowController_;
+
 };
 
 #endif

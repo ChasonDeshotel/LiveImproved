@@ -2,6 +2,7 @@
 #import "../../ApplicationManager.h"
 #import <Cocoa/Cocoa.h>
 #include "../../LogHandler.h"
+#include "../../types/Plugin.h"
 
 // Custom window class to allow the window to become key and main
 @interface CustomAlertWindow : NSWindow
@@ -22,9 +23,10 @@
 // Objective-C class to manage the search box window
 @interface GUISearchBoxWindowController : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
 
+@property (nonatomic, assign) GUISearchBox *searchBox;
 @property (nonatomic, strong) NSSearchField *searchField;
-@property (nonatomic, strong) NSArray<NSString *> *allOptions;
-@property (nonatomic, strong) NSMutableArray<NSString *> *filteredOptions;
+@property (nonatomic, strong) NSArray<NSValue *> *allOptions;
+@property (nonatomic, strong) NSMutableArray<NSValue *> *filteredOptions;
 @property (nonatomic, strong) NSTableView *resultsTableView;
 @property (nonatomic, strong) NSScrollView *tableContainer;
 @property (nonatomic, strong) NSVisualEffectView *visualEffectView;
@@ -122,7 +124,8 @@
     } else {
         for (NSString *option in self.allOptions) {
             if ([option rangeOfString:searchText options:NSCaseInsensitiveSearch].location != NSNotFound) {
-                [self.filteredOptions addObject:option];
+                NSValue *pluginValue = [NSValue valueWithPointer:option];
+                [self.filteredOptions addObject:pluginValue];
             }
         }
     }
@@ -130,12 +133,35 @@
     [self.resultsTableView reloadData];
 }
 
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
+    NSTableView *tableView = (NSTableView *)[notification object];
+    NSInteger selectedRow = [tableView selectedRow];
+
+    if (selectedRow >= 0) {
+        // Access the corresponding Plugin object
+        NSValue *pluginValue = [self.filteredOptions objectAtIndex:selectedRow];
+        Plugin *selectedPlugin = (Plugin *)[pluginValue pointerValue];
+
+        // Now you can use the Plugin object
+        LogHandler::getInstance().info("Selected plugin: " + selectedPlugin->name);
+
+        if (self.searchBox) {
+            self.searchBox->handlePluginSelected(*selectedPlugin);
+        }
+    }
+}
+
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     return self.filteredOptions.count; // Ensure this returns the correct number of rows
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    return self.filteredOptions[row];
+    if (row < self.filteredOptions.count) {
+        NSValue *pluginValue = [self.filteredOptions objectAtIndex:row];
+        Plugin *plugin = (Plugin *)[pluginValue pointerValue];
+        return [NSString stringWithUTF8String:plugin->name.c_str()];
+    }
+    return nil;
 }
 
 - (void)closeAlert {
@@ -158,6 +184,9 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
     NSString* nsTitle = [NSString stringWithUTF8String:title.c_str()];
     windowController_ = (void*)[[GUISearchBoxWindowController alloc] initWithTitle:nsTitle];
+
+    // Pass the C++ object pointer to the Objective-C controller
+    ((GUISearchBoxWindowController*)windowController_).searchBox = this;
 
     if (windowController_) {
         LogHandler::getInstance().info("Successfully created GUISearchBoxWindowController");
@@ -241,16 +270,24 @@ void GUISearchBox::closeSearchBox() {
 }
 
 void GUISearchBox::setOptions(const std::vector<Plugin>& options) {
-    NSMutableArray *nsOptions = [NSMutableArray arrayWithCapacity:options.size()];
+    NSMutableArray *nsPlugins = [NSMutableArray arrayWithCapacity:options.size()];
+
     for (const Plugin& plugin : options) {
-        NSString *nsString = [NSString stringWithUTF8String:plugin.name.c_str()];
-        [nsOptions addObject:nsString];
+        // Store the pointer to the Plugin object in an NSValue
+        NSValue *pluginValue = [NSValue valueWithPointer:&plugin];
+        [nsPlugins addObject:pluginValue];
     }
 
-    // set allOptions in the Objective-C class
+    // Set allOptions in the Objective-C class
     GUISearchBoxWindowController *controller = (GUISearchBoxWindowController *)windowController_;
-    controller.allOptions = [nsOptions copy];
-    controller.filteredOptions = [nsOptions mutableCopy];
+    controller.allOptions = [nsPlugins copy];
+    controller.filteredOptions = [nsPlugins mutableCopy];
 
     [controller.resultsTableView reloadData];
+}
+
+void GUISearchBox::handlePluginSelected(const Plugin& plugin) {
+    // Handle the selected Plugin object on the C++ side
+    LogHandler::getInstance().info("Plugin selected: " + plugin.name);
+    // Perform additional actions as needed
 }
