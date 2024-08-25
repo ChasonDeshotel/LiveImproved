@@ -38,6 +38,15 @@ bool IPC::init() {
         return false;
     }
 
+    double delayInSeconds = 2.0;
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+
+    dispatch_after(delay, queue, ^{
+        app_.refreshPluginCache();
+    });
+
+
 //    if (!initReadWithEventLoop()) {
 //        log_->info("IPC::init() failed to set up event loop for reading.");
 //        return false;

@@ -1,6 +1,9 @@
 #ifndef APPLICATION_MANAGER_H
 #define APPLICATION_MANAGER_H
 
+#include <vector>
+#include <numeric>
+
 #include "PlatformDependent.h"
 #include "ActionHandler.h"
 #include "LogHandler.h"
@@ -25,6 +28,11 @@ public:
     IPC* getIPC();
     GUISearchBox* getGUISearchBox();
 
+    std::vector<std::string> pluginCache;
+    std::string getPluginCacheAsStr() const;
+
+    void refreshPluginCache();
+
 private:
     // Private constructor to prevent direct instantiation
     ApplicationManager();
@@ -40,6 +48,9 @@ private:
     GUISearchBox* guiSearchBox_ = nullptr;
 
     LogHandler* logHandler_;
+
+    std::vector<std::string> splitStringInPlace(std::string& str, char delimiter);
+
 };
 
 #endif

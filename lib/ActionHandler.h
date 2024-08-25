@@ -26,8 +26,6 @@ private:
 
     bool loadItem();
     bool onEscapePress();
-
-    void refreshPluginCache();
 };
 
 #endif
