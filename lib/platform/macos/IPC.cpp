@@ -196,7 +196,7 @@ bool IPC::writeRequest(const std::string& message) {
         return false;
     }
 
-    log_->info("Message written to request pipe: " + requestPipePath);
+    log_->info("Message: (" + message + ")  written to request pipe: " + requestPipePath);
     return true;
 }
 

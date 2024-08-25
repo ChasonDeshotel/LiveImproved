@@ -42,18 +42,18 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
     if (eventPID == handler->app_.getPID()) {
-        handler->log_->info("Ableton Live event detected.");
+//        handler->log_->info("Ableton Live event detected.");
 
 				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
 //				CGEventFlags flags = CGEventGetFlags(event);
 
         int flags = (int)CGEventGetFlags(event);
         std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
-
-				handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
-
         bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, keyUpDown);
-        handler->log_->info("shouldPassEvent = " + std::to_string(shouldPassEvent));
+
+        if (keyUpDown == "keyDown") {
+            handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags) + " should pass: " + std::to_string(shouldPassEvent));
+        }
 
         return shouldPassEvent ? event : NULL;
     }

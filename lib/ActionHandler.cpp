@@ -20,7 +20,7 @@ void ActionHandler::init() {
 // through to the calling function
 // or should the original input be blocked
 bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
-    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+//    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
     if (type == "keyDown") {
 
