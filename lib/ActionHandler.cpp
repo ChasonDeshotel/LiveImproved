@@ -32,8 +32,10 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
               return false;
             case 20:
               app_.getIPC()->writeRequest("RELOAD");
+              return false;
             case 21:
               refreshPluginCache();
+              return false;
             case 53:  // escape
               closeSearchBox();
               return false;
@@ -97,7 +99,15 @@ bool ActionHandler::closeSearchBox() {
 
 void ActionHandler::refreshPluginCache() {
     app_.getIPC()->writeRequest("PLUGINS");
-
+    // Set up a callback to handle the response asynchronously using dispatch
+    app_.getIPC()->initReadWithEventLoop([this](const std::string& response) {
+        if (!response.empty()) {
+        LogHandler::getInstance().info("Received response: " + response);
+            // Handle the response here, e.g., update the UI or process the data
+        } else {
+            LogHandler::getInstance().info("Failed to receive a valid response.");
+        }
+    });
 }
 
 //bool ActionHandler::loadItem() {

@@ -17,10 +17,14 @@ public:
     
     bool writeRequest(const std::string& message);
     std::string readResponse();
+    bool initReadWithEventLoop(std::function<void(const std::string&)> callback);
+    void drainPipe(int fd);
 
 private:
     ApplicationManager& app_;
     LogHandler* log_;
+
+    std::string readResponseInternal(int fd);
 
     std::string homeDir = std::string(getenv("HOME"));
     std::string requestPipePath = homeDir + "/Documents/Ableton/User Library/Remote Scripts/LiveImproved/lim_request";
