@@ -37,11 +37,31 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
               app_.refreshPluginCache();
               return false;
             case 23: // 5
-              app_.getLogHandler()->info(app_.getPluginCacheAsStr());
+//              app_.getLogHandler()->info(app_.getPluginCacheAsStr());
               return false;
             case 53:  // escape
-              closeSearchBox();
+              if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
+                  closeSearchBox();
+                  return false;
+              } else {
+                  return true;
+              }
+
+            // hjkl navigation
+            case 4:
+              app_.getKeySender()->sendKeyPress(123, 256);
               return false;
+            case 38:
+              app_.getKeySender()->sendKeyPress(125, 256);
+              return false;
+            case 40:
+              app_.getKeySender()->sendKeyPress(126, 256);
+              return false;
+            case 37:
+              app_.getKeySender()->sendKeyPress(124, 256);
+              return false;
+
+
             default:
               return true;
         }

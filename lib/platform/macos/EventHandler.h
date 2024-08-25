@@ -5,6 +5,7 @@
 
 class ApplicationManager;
 class LogHandler;
+class ActionHandler;
 
 class EventHandler {
 public:

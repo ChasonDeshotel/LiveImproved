@@ -240,10 +240,10 @@ void GUISearchBox::closeSearchBox() {
     }
 }
 
-void GUISearchBox::setOptions(const std::vector<std::string>& options) {
+void GUISearchBox::setOptions(const std::vector<Plugin>& options) {
     NSMutableArray *nsOptions = [NSMutableArray arrayWithCapacity:options.size()];
-    for (const std::string& option : options) {
-        NSString *nsString = [NSString stringWithUTF8String:option.c_str()];
+    for (const Plugin& plugin : options) {
+        NSString *nsString = [NSString stringWithUTF8String:plugin.name.c_str()];
         [nsOptions addObject:nsString];
     }
 

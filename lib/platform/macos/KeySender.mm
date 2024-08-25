@@ -10,7 +10,7 @@ KeySender::KeySender(ApplicationManager& appManager)
 
 KeySender::~KeySender() {}
 
-void KeySender::sendKeypress(int keyCode, int flags) {
+void KeySender::sendKeyPress(int keyCode, int flags) {
     log_->info("sending keydown: " + std::to_string(keyCode));
 
     CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, (CGKeyCode)keyCode, true);

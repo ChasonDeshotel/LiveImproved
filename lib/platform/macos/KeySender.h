@@ -8,7 +8,7 @@ class KeySender {
 public:
     KeySender(ApplicationManager& appManager);
     ~KeySender();
-    void sendKeypress(int keyCode, int flags);
+    void sendKeyPress(int keyCode, int flags);
 
 private:
     LogHandler* log_;

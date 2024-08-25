@@ -7,8 +7,8 @@
 #include "PlatformDependent.h"
 #include "ActionHandler.h"
 #include "LogHandler.h"
-
-class EventHandler;
+#include "ResponseParser.h"
+#include "EventHandler.h"
 
 class ApplicationManager {
 public:
@@ -27,9 +27,11 @@ public:
     KeySender* getKeySender();
     IPC* getIPC();
     GUISearchBox* getGUISearchBox();
+    ResponseParser* getResponseParser();
 
-    std::vector<std::string> pluginCache;
-    std::string getPluginCacheAsStr() const;
+    std::string pluginCacheStr;
+    std::string getPluginsAsStr() const;
+    std::vector<Plugin> getPlugins();
 
     void refreshPluginCache();
 
@@ -46,8 +48,11 @@ private:
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
     GUISearchBox* guiSearchBox_ = nullptr;
+    ResponseParser* responseParser_ = nullptr;
 
     LogHandler* logHandler_;
+
+    std::vector<Plugin> plugins_;
 
     std::vector<std::string> splitStringInPlace(std::string& str, char delimiter);
 

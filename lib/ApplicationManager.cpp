@@ -4,6 +4,7 @@
 #include "LogHandler.h"
 #include "PlatformDependent.h"
 #include "ActionHandler.h"
+#include "ResponseParser.h"
 
 ApplicationManager::ApplicationManager()
     : logHandler_(&LogHandler::getInstance()) {
@@ -20,6 +21,8 @@ void ApplicationManager::init() {
 
     ipc_ = new IPC(*this);
     ipc_->init();
+
+    responseParser_ = new ResponseParser(*this);
 
     actionHandler_ = new ActionHandler(*this);
     keySender_ = new KeySender(*this);
@@ -57,32 +60,8 @@ GUISearchBox* ApplicationManager::getGUISearchBox() {
     return guiSearchBox_;
 }
 
-std::vector<std::string> ApplicationManager::splitStringInPlace(std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    char* start = &str[0];  // Pointer to the beginning of the string
-    char* end = start;
-
-    while (*end != '\0') {  // Loop until the end of the string
-        if (*end == delimiter) {
-            *end = '\0';  // Replace the delimiter with a null terminator
-            tokens.push_back(start);  // Store the start pointer as a string in the vector
-            start = end + 1;  // Move the start pointer to the next character
-        }
-        end++;
-    }
-
-    tokens.push_back(start);  // Add the last token after the loop ends
-
-    return tokens;
-}
-
-std::string ApplicationManager::getPluginCacheAsStr() const {
-    if (pluginCache.empty()) {
-        return "";
-    }
-
-    return std::accumulate(std::next(pluginCache.begin()), pluginCache.end(), pluginCache[0],
-        [](const std::string& a, const std::string& b) { return a + ',' + b; });
+std::vector<Plugin> ApplicationManager::getPlugins() {
+    return plugins_;
 }
 
 void ApplicationManager::refreshPluginCache() {
@@ -91,12 +70,21 @@ void ApplicationManager::refreshPluginCache() {
     ipc_->initReadWithEventLoop([this](const std::string& response) {
         if (!response.empty()) {
         LogHandler::getInstance().info("Received response: " + response);
-            std::string mutableResponse = response;
-            pluginCache = splitStringInPlace(mutableResponse, ',');
+            pluginCacheStr = response;
+            plugins_ = responseParser_->parsePlugins(response);
 
-            guiSearchBox_->setOptions(pluginCache);
+            guiSearchBox_->setOptions(plugins_);
         } else {
             LogHandler::getInstance().info("Failed to receive a valid response.");
         }
     });
 }
+
+//std::string ApplicationManager::getPluginsAsStr() const {
+//    if (pluginCache.empty()) {
+//        return "";
+//    }
+//
+//    return std::accumulate(std::next(plugins_.begin()), plugins_.end(), plugins_[0],
+//        [](const std::string& a, const std::string& b) { return a + ',' + b; });
+//}

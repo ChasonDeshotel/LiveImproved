@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+#include "../../types/Plugin.h"
+
 class ApplicationManager;
 class LogHandler;
 
@@ -20,7 +22,7 @@ public:
 
     bool isOpen() const;
 
-    void setOptions(const std::vector<std::string>& options);
+    void setOptions(const std::vector<Plugin>& options);
 
     std::string getSearchText() const;
     void setSearchText(const std::string text);

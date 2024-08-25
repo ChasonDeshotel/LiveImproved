@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "ApplicationManager.h"
 #include "LogHandler.h"
 
 class ApplicationManager;
