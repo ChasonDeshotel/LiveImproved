@@ -24,6 +24,8 @@ IPC::~IPC() {
 bool IPC::init() {
     log_->info("IPC::init() called");
 
+    dispatch_queue_t queue = dispatch_get_main_queue();
+
     removePipeIfExists(requestPipePath);
     removePipeIfExists(responsePipePath);
 
@@ -42,7 +44,7 @@ bool IPC::init() {
     dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
 
-    dispatch_after(delay, queue, ^{
+    dispatch_after(delay, backgroundQueue, ^{
         app_.refreshPluginCache();
     });
 
@@ -54,7 +56,6 @@ bool IPC::init() {
 
     // timer to attempt opening the request pipe 
     // without log jamming bableton
-    dispatch_queue_t queue = dispatch_get_main_queue();
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC, 0);  // 100ms interval
     dispatch_source_set_event_handler(timer, ^{

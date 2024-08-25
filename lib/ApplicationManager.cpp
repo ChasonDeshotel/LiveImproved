@@ -26,9 +26,6 @@ void ApplicationManager::init() {
 
     guiSearchBox_ = new GUISearchBox(*this);
 
-    std::vector<std::string> options = {"foo", "bar", "Option 1", "Option 2", "Option 3"};
-    guiSearchBox_->setOptions(options);
-
     logHandler_->info("ApplicatonManager::init() finished");
 }
 
@@ -96,6 +93,8 @@ void ApplicationManager::refreshPluginCache() {
         LogHandler::getInstance().info("Received response: " + response);
             std::string mutableResponse = response;
             pluginCache = splitStringInPlace(mutableResponse, ',');
+
+            guiSearchBox_->setOptions(pluginCache);
         } else {
             LogHandler::getInstance().info("Failed to receive a valid response.");
         }
