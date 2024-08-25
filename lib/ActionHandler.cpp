@@ -48,19 +48,34 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
               }
 
             // hjkl navigation
-            case 4:
-              app_.getKeySender()->sendKeyPress(123, 256);
-              return false;
-            case 38:
-              app_.getKeySender()->sendKeyPress(125, 256);
-              return false;
-            case 40:
-              app_.getKeySender()->sendKeyPress(126, 256);
-              return false;
-            case 37:
-              app_.getKeySender()->sendKeyPress(124, 256);
-              return false;
-
+//            case 4:
+//              if (app_.getGUISearchBox()->isOpen()) {
+//                  return true;
+//              } else {
+//                  app_.getKeySender()->sendKeyPress(123, 256);
+//                  return false;
+//              }
+//            case 38:
+//              if (app_.getGUISearchBox()->isOpen()) {
+//                  return true;
+//              } else {
+//                  app_.getKeySender()->sendKeyPress(125, 256);
+//                  return false;
+//              }
+//            case 40:
+//              if (app_.getGUISearchBox()->isOpen()) {
+//                  return true;
+//              } else {
+//                  app_.getKeySender()->sendKeyPress(126, 256);
+//                  return false;
+//              }
+//            case 37:
+//              if (app_.getGUISearchBox()->isOpen()) {
+//                  return true;
+//              } else {
+//                  app_.getKeySender()->sendKeyPress(124, 256);
+//                  return false;
+//              }
 
             default:
               return true;

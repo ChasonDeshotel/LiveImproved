@@ -8,6 +8,28 @@
 @interface CustomAlertWindow : NSWindow
 @end
 
+
+// TODO: custom table view to highlight the row
+// and allow keyboard navigation while still
+// putting text to the box
+@interface CustomTableView : NSTableView
+@end
+
+@implementation CustomTableView
+
+- (void)keyDown:(NSEvent *)event {
+    NSString *characters = [event characters];
+    if ([characters length] > 0 && [[characters stringByTrimmingCharactersInSet:[NSCharacterSet controlCharacterSet]] length] > 0) {
+        // If the key is a text character, send it to the search field
+        [[self.window firstResponder] keyDown:event];
+    } else {
+        // Otherwise, handle it as usual
+        [super keyDown:event];
+    }
+}
+
+@end
+
 @implementation CustomAlertWindow
 
 - (BOOL)canBecomeKeyWindow {
@@ -18,10 +40,18 @@
     return YES;
 }
 
+- (void)performClose:(id)sender {
+    [super performClose:sender];
+    [NSApp stopModal];  // Ensure the modal session ends when the window is closed
+}
+
 @end
 
 // Objective-C class to manage the search box window
 @interface GUISearchBoxWindowController : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
+
+@property (nonatomic, assign) pid_t livePID;
+@property (nonatomic, assign) BOOL isLiveActive;
 
 @property (nonatomic, assign) GUISearchBox *searchBox;
 @property (nonatomic, strong) NSSearchField *searchField;
@@ -38,15 +68,40 @@
 
 - (instancetype)initWithTitle:(NSString *)title;
 - (void)closeAlert;
+- (void)startMonitoringApplicationFocus;
+- (void)applicationDidActivate:(NSNotification *)notification;
+- (void)applicationDidDeactivate:(NSNotification *)notification;
 
 @end
 
 @implementation GUISearchBoxWindowController
 
+- (void)runModalLoopForWindow:(NSWindow *)window {
+    while (self.isOpen) {
+        NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                             untilDate:[NSDate distantFuture]
+                                                inMode:NSDefaultRunLoopMode
+                                               dequeue:YES];
+        
+        [NSApp sendEvent:event];
+        [NSApp updateWindows];
+        
+        if ([event type] == NSEventTypeKeyDown || [event type] == NSEventTypeKeyUp) {
+            NSNotification *notification = [NSNotification notificationWithName:NSTextDidChangeNotification object:self.searchField];
+            [self controlTextDidChange:notification];  // Trigger text change event manually
+        }
+    }
+}
+
+
 - (instancetype)initWithTitle:(NSString *)title {
     LogHandler::getInstance().info("init with title called");
     self = [super initWithWindow:nil];
     if (self) {
+
+        pid_t livePID = ApplicationManager::getInstance().getPID();
+        self.isLiveActive = YES;
+
         NSRect frame = NSMakeRect(0, 0, 400, 400);
         
         // Use CustomAlertWindow to ensure the window can accept input
@@ -58,7 +113,7 @@
         [window setBackgroundColor:[NSColor clearColor]];
 
         // always on top
-        //[window setLevel:NSFloatingWindowLevel];
+        [window setLevel:NSFloatingWindowLevel];
 
         [self setWindow:window];
 
@@ -107,6 +162,8 @@
         LogHandler::getInstance().info("filteredOptions: " + std::string([filteredOptionsString UTF8String]));
         [self.resultsTableView reloadData];
 
+        [self startMonitoringApplicationFocus];
+
     }
 
     [self.window center];
@@ -114,7 +171,54 @@
     return self;
 }
 
+
+- (void)startMonitoringApplicationFocus {
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                                                           selector:@selector(applicationDidActivate:)
+                                                               name:NSWorkspaceDidActivateApplicationNotification
+                                                             object:nil];
+
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+                                                           selector:@selector(applicationDidDeactivate:)
+                                                               name:NSWorkspaceDidDeactivateApplicationNotification
+                                                             object:nil];
+}
+
+- (void)applicationDidActivate:(NSNotification *)notification {
+    NSDictionary *userInfo = [notification userInfo];
+    NSRunningApplication *runningApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
+    pid_t pid = runningApp.processIdentifier;
+
+    if (pid == self.livePID && !self.isLiveActive && self.isOpen) {
+        CustomAlertWindow* window = (CustomAlertWindow*)[self window];
+        LogHandler::getInstance().info("did activate. pid: " + std::to_string(pid)
+          + " live pid: " + std::to_string(self.livePID));
+        [window setIsVisible:YES];
+        [window makeKeyAndOrderFront:nil];
+        self.isLiveActive = YES;
+    }
+}
+
+- (void)applicationDidDeactivate:(NSNotification *)notification {
+    NSDictionary *userInfo = [notification userInfo];
+    NSRunningApplication *runningApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
+    pid_t pid = runningApp.processIdentifier;
+
+    if (pid == self.livePID && self.isLiveActive && self.isOpen) {
+        CustomAlertWindow* window = (CustomAlertWindow*)[self window];
+        LogHandler::getInstance().info("did deactivate. pid: " + std::to_string(pid)
+        + " live pid: " + std::to_string(self.livePID));
+        [window orderOut:nil];  // Hides the window
+        self.isLiveActive = NO;
+    }
+}
+
 - (void)controlTextDidChange:(NSNotification *)notification {
+    if (notification == nil) {
+        // Handle the case where notification is nil
+        return;
+    }
+    
     NSString *searchText = [self.searchField stringValue];
     self.searchText = searchText;
     [self.filteredOptions removeAllObjects];
@@ -122,15 +226,21 @@
     if ([searchText length] == 0) {
         [self.filteredOptions addObjectsFromArray:self.allOptions];
     } else {
-        for (NSString *option in self.allOptions) {
-            if ([option rangeOfString:searchText options:NSCaseInsensitiveSearch].location != NSNotFound) {
-                NSValue *pluginValue = [NSValue valueWithPointer:option];
+        for (NSValue *pluginValue in self.allOptions) {
+            Plugin *plugin = (Plugin *)[pluginValue pointerValue];
+            NSString *pluginName = [NSString stringWithUTF8String:plugin->name.c_str()];
+            if ([pluginName rangeOfString:searchText options:NSCaseInsensitiveSearch].location != NSNotFound) {
                 [self.filteredOptions addObject:pluginValue];
             }
         }
     }
 
     [self.resultsTableView reloadData];
+
+    if (self.filteredOptions.count == 1) {
+        [self.resultsTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+        [self tableViewSelectionDidChange:nil]; // Trigger the selection change manually
+    }
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
@@ -142,13 +252,18 @@
         NSValue *pluginValue = [self.filteredOptions objectAtIndex:selectedRow];
         Plugin *selectedPlugin = (Plugin *)[pluginValue pointerValue];
 
-        // Now you can use the Plugin object
-        LogHandler::getInstance().info("Selected plugin: " + selectedPlugin->name);
-
-        if (self.searchBox) {
-            self.searchBox->handlePluginSelected(*selectedPlugin);
+        if (self.filteredOptions.count == 1) {
+            // Access the corresponding Plugin object
+          LogHandler::getInstance().info("Selected plugin: " + selectedPlugin->name);
+            NSValue *pluginValue = [self.filteredOptions objectAtIndex:selectedRow];
+            Plugin *selectedPlugin = (Plugin *)[pluginValue pointerValue];
+            if (self.searchBox) {
+                self.searchBox->handlePluginSelected(*selectedPlugin);
+            }
         }
     }
+
+
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
@@ -186,7 +301,16 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     windowController_ = (void*)[[GUISearchBoxWindowController alloc] initWithTitle:nsTitle];
 
     // Pass the C++ object pointer to the Objective-C controller
-    ((GUISearchBoxWindowController*)windowController_).searchBox = this;
+    GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+    controller.searchBox = this;
+    //((GUISearchBoxWindowController*)windowController_).searchBox = this;
+
+    pid_t livePID = app_.getPID();
+    controller.livePID = livePID;
+
+    LogHandler::getInstance().info("GUISearchBox::GUISearchBox - Retrieved live PID: " + std::to_string(livePID));
+
+//    ((GUISearchBoxWindowController*)windowController_).searchBox = this;
 
     if (windowController_) {
         LogHandler::getInstance().info("Successfully created GUISearchBoxWindowController");
@@ -259,6 +383,9 @@ void GUISearchBox::openSearchBox() {
         [window setIsVisible:YES];
         [window makeKeyAndOrderFront:nil];
         isOpen_ = true;
+        GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+        controller.isOpen = YES;
+        [(GUISearchBoxWindowController*)windowController_ performSelectorOnMainThread:@selector(runModalLoopForWindow:) withObject:window waitUntilDone:NO];
     }
 }
 
@@ -266,6 +393,11 @@ void GUISearchBox::closeSearchBox() {
     if (windowController_) {
         [(GUISearchBoxWindowController*)windowController_ closeAlert];
         isOpen_ = false;
+        GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+        controller.isOpen = NO;
+
+        CustomAlertWindow* window = (CustomAlertWindow*)[(GUISearchBoxWindowController*)windowController_ window];
+        [window orderOut:nil];
     }
 }
 
