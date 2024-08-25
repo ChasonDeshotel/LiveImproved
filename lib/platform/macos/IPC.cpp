@@ -24,7 +24,6 @@ IPC::~IPC() {
 bool IPC::init() {
     log_->info("IPC::init() called");
 
-    dispatch_queue_t queue = dispatch_get_main_queue();
 
     removePipeIfExists(requestPipePath);
     removePipeIfExists(responsePipePath);
@@ -48,14 +47,9 @@ bool IPC::init() {
         app_.refreshPluginCache();
     });
 
-
-//    if (!initReadWithEventLoop()) {
-//        log_->info("IPC::init() failed to set up event loop for reading.");
-//        return false;
-//    }
-
     // timer to attempt opening the request pipe 
     // without log jamming bableton
+    dispatch_queue_t queue = dispatch_get_main_queue();
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC, 0);  // 100ms interval
     dispatch_source_set_event_handler(timer, ^{
@@ -230,8 +224,7 @@ std::string IPC::readResponse() {
         fd = pipes_[responsePipePath];  // Reassign fd after reopening the pipe
     }
 
-    // Step 1: Read the 4-character header to determine the total message size
-    const size_t HEADER_SIZE = 4;  // Assuming a 4-byte header
+    const size_t HEADER_SIZE = 8;
     char header[HEADER_SIZE + 1];  // +1 for null-termination
     ssize_t bytesRead = 0;
     size_t totalHeaderRead = 0;
