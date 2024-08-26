@@ -25,8 +25,9 @@ BUILD_DIR     = ./build
 DYLIB         = $(BUILD_DIR)/LiveImproved.dylib
 
 # building as application
-APP_TARGET    = LiveImproved
-BUNDLE_PATH   = $(BUILD_DIR)/$(APP_TARGET).app
+APP_TARGET     = LiveImproved
+BUNDLE_PATH    = $(BUILD_DIR)/$(APP_TARGET).app
+APP_EXECUTABLE = $(BUNDLE_PATH)/Contents/MacOS/$(APP_TARGET)
 
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
@@ -85,12 +86,22 @@ APP_OBJECTS =                                     \
     $(SRC_DIR)/lib/ResponseParser.o               \
     $(MOC_SOURCES:.cpp=.o)
 
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+
 #
 # build library-style
 #
-lib: $(DYLIB)
+lib: clean $(DYLIB)
 $(DYLIB): $(SRC)
 	$(CC) $(CXXFLAGS) -dynamiclib -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
+
+app: clean $(BUNDLE_PATH)
+	$(CC) $(CXXFLAGS) -o $(APP_EXECUTABLE) $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
+
+$(BUNDLE_PATH):
+	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 
 inject: $(DYLIB)
 	@export DYLD_INSERT_LIBRARIES=$(DYLIB) && \
@@ -100,7 +111,7 @@ inject: $(DYLIB)
 #
 # build application-style
 #
-app: $(APP_OBJECTS)
+qtapp: clean $(APP_OBJECTS)
 	$(CXX) $(APP_OBJECTS) -o $(APP_TARGET) $(LDFLAGS)
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 	mv $(APP_TARGET) $(BUNDLE_PATH)/Contents/MacOS/
