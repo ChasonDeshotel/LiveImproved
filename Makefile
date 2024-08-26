@@ -103,7 +103,7 @@ app: clean $(BUNDLE_PATH)
 $(BUNDLE_PATH):
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 
-inject: $(DYLIB)
+inject: clean $(DYLIB)
 	@export DYLD_INSERT_LIBRARIES=$(DYLIB) && \
 	open $(LIVE) && \
 	unset DYLD_INSERT_LIBRARIES
