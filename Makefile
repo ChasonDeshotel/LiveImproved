@@ -135,6 +135,7 @@ $(MOC_SOURCES): %.moc.cpp: %.h
 
 clean:
 	rm -f $(DYLIB)
+	rm -rf $(BUILD_DIR)/test
 	rm -f $(APP_OBJECTS)
 	rm -f $(APP_TARGET)
 	rm -rf $(BUNDLE_PATH)
