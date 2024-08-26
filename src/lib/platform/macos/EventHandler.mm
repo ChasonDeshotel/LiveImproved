@@ -5,7 +5,7 @@
 #include <objc/runtime.h>
 #include <Cocoa/Cocoa.h>
 
-#include "../../ApplicationManager.h"
+#include "ApplicationManager.h"
 #include "EventHandler.h"
 
 EventHandler::EventHandler(ApplicationManager& appManager)

@@ -1,9 +1,9 @@
-#include "GUI.h"
-#include "../../ApplicationManager.h"
 #include <string>
 #import <Cocoa/Cocoa.h>
 
-#include "../../LogHandler.h"
+#include "LogHandler.h"
+#include "ApplicationManager.h"
+#include "GUI.h"
 
 @interface CustomAlertWindow : NSWindow
 @end

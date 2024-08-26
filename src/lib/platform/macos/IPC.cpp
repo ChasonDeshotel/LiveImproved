@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "../../ApplicationManager.h"
+#include "ApplicationManager.h"
 #include "IPC.h"
 
 IPC::IPC(ApplicationManager& appManager)

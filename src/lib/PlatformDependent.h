@@ -4,11 +4,11 @@
 #ifdef _WIN32
 // do includes for win
 #else
-#include "platform/macos/GUISearchBox.h"
-#include "platform/macos/IPC.h"
-#include "platform/macos/PID.h"
-#include "platform/macos/EventHandler.h"
-#include "platform/macos/KeySender.h"
+#include "GUISearchBox.h"
+#include "IPC.h"
+#include "PID.h"
+#include "EventHandler.h"
+#include "KeySender.h"
 #endif
 
 #endif

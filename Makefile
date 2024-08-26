@@ -1,10 +1,13 @@
 CC          = clang++
 CXXFLAGS    = -std=c++17 -dynamiclib
-INCLUDE     = -I./src -I./src/lib/platform/macos
+INCLUDE     = -I./src                             \
+							-I./src/lib                         \
+							-I./src/lib/platform/macos          \
+							-I./src/lib/types
 LIBS        = -lc++ -lSystem
 
-FRAMEWORKS  = -framework Cocoa          \
-              -framework CoreFoundation \
+FRAMEWORKS  = -framework Cocoa                    \
+              -framework CoreFoundation           \
               -framework CoreGraphics
 
 SRC_DIR     = ./src
@@ -16,16 +19,16 @@ BUNDLE_PATH = $(BUILD_DIR)/$(APP_TARGET).app
 
 LIVE        = /Applications/Ableton\ Live\ 12\ Suite.app
 
-SRC = \
-    $(SRC_DIR)/Main.mm \
-    $(SRC_DIR)/lib/ApplicationManager.cpp \
-    $(SRC_DIR)/lib/LogHandler.cpp \
+SRC =                                             \
+    $(SRC_DIR)/Main.mm                            \
+    $(SRC_DIR)/lib/ApplicationManager.cpp         \
+    $(SRC_DIR)/lib/LogHandler.cpp                 \
     $(SRC_DIR)/lib/platform/macos/GUISearchBox.mm \
-    $(SRC_DIR)/lib/platform/macos/IPC.cpp \
-    $(SRC_DIR)/lib/platform/macos/PID.mm \
+    $(SRC_DIR)/lib/platform/macos/IPC.cpp         \
+    $(SRC_DIR)/lib/platform/macos/PID.mm          \
     $(SRC_DIR)/lib/platform/macos/EventHandler.mm \
-    $(SRC_DIR)/lib/platform/macos/KeySender.mm \
-    $(SRC_DIR)/lib/ActionHandler.cpp \
+    $(SRC_DIR)/lib/platform/macos/KeySender.mm    \
+    $(SRC_DIR)/lib/ActionHandler.cpp              \
     $(SRC_DIR)/lib/ResponseParser.cpp
 
 QT_PATH     = $(HOME)/Qt/6.7.2/macos
@@ -37,17 +40,17 @@ MOC_SOURCES = $(MOC_HEADERS:.h=.moc.cpp)
 APP_SOURCES = $(SRC) $(MOC_SOURCES)
 
 # explicitly list so clean doesn't nuke .mm's
-APP_OBJECTS = \
-    $(SRC_DIR)/Main.o \
-    $(SRC_DIR)/lib/ApplicationManager.o \
-    $(SRC_DIR)/lib/LogHandler.o \
-    $(SRC_DIR)/lib/platform/macos/GUISearchBox.o \
-    $(SRC_DIR)/lib/platform/macos/IPC.o \
-    $(SRC_DIR)/lib/platform/macos/PID.o \
-    $(SRC_DIR)/lib/platform/macos/EventHandler.o \
-    $(SRC_DIR)/lib/platform/macos/KeySender.o \
-    $(SRC_DIR)/lib/ActionHandler.o \
-    $(SRC_DIR)/lib/ResponseParser.o \
+APP_OBJECTS =                                     \
+    $(SRC_DIR)/Main.o                             \
+    $(SRC_DIR)/lib/ApplicationManager.o           \
+    $(SRC_DIR)/lib/LogHandler.o                   \
+    $(SRC_DIR)/lib/platform/macos/GUISearchBox.o  \
+    $(SRC_DIR)/lib/platform/macos/IPC.o           \
+    $(SRC_DIR)/lib/platform/macos/PID.o           \
+    $(SRC_DIR)/lib/platform/macos/EventHandler.o  \
+    $(SRC_DIR)/lib/platform/macos/KeySender.o     \
+    $(SRC_DIR)/lib/ActionHandler.o                \
+    $(SRC_DIR)/lib/ResponseParser.o               \
     $(MOC_SOURCES:.cpp=.o)
 
 lib: $(DYLIB)

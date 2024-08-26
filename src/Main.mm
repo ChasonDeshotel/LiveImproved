@@ -1,10 +1,10 @@
 #include <ApplicationServices/ApplicationServices.h>
 
-#include "lib/LogHandler.h"
+#include "LogHandler.h"
 
-#include "lib/ApplicationManager.h"
-#include "lib/PlatformDependent.h"
-#include "lib/ActionHandler.h"
+#include "ApplicationManager.h"
+#include "PlatformDependent.h"
+#include "ActionHandler.h"
 
 __attribute__((constructor))
 static void dylib_init() {

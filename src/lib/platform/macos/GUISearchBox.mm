@@ -1,8 +1,9 @@
-#import "GUISearchBox.h"
-#import "../../ApplicationManager.h"
 #import <Cocoa/Cocoa.h>
-#include "../../LogHandler.h"
-#include "../../types/Plugin.h"
+
+#include "LogHandler.h"
+#include "ApplicationManager.h"
+#include "GUISearchBox.h"
+#include "Plugin.h"
 
 // Custom window class to allow the window to become key and main
 @interface CustomAlertWindow : NSWindow

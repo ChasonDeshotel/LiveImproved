@@ -1,7 +1,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <string>
 
-#include "../../ApplicationManager.h"
+#include "ApplicationManager.h"
 #include "KeySender.h"
 
 KeySender::KeySender(ApplicationManager& appManager)

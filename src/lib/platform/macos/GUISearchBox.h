@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "../../types/Plugin.h"
+#include "Plugin.h"
 
 class ApplicationManager;
 class LogHandler;
