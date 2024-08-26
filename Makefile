@@ -1,8 +1,6 @@
 CC = clang++
 
-CXXFLAGS =                            \
-         -std=c++17                   \
-	       -dynamiclib
+CXXFLAGS = -std=c++17
 
 INCLUDE =                             \
         -I./mock                      \
@@ -20,15 +18,17 @@ FRAMEWORKS =                          \
            -framework CoreFoundation  \
            -framework CoreGraphics    \
 
-SRC_DIR      = ./src
-MOCK_DIR     = ./mock
-BUILD_DIR    = ./build
+SRC_DIR       = ./src
+BUILD_DIR     = ./build
 
-DYLIB        = $(BUILD_DIR)/LiveImproved.dylib
-APP_TARGET   = LiveImproved
-BUNDLE_PATH  = $(BUILD_DIR)/$(APP_TARGET).app
+# building as library
+DYLIB         = $(BUILD_DIR)/LiveImproved.dylib
 
-LIVE         = /Applications/Ableton\ Live\ 12\ Suite.app
+# building as application
+APP_TARGET    = LiveImproved
+BUNDLE_PATH   = $(BUILD_DIR)/$(APP_TARGET).app
+
+LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
 MODULES =                               \
     Main.mm                            \
@@ -42,14 +42,27 @@ MODULES =                               \
     lib/ActionHandler.cpp              \
     lib/ResponseParser.cpp
 
+# for running tests
+TEST_DIR      = ./test
+BOOST_LIBS    = -lboost_unit_test_framework
+BOOST_INCLUDE = /usr/local/Cellar/boost/1.86.0/include/
+TEST_SRC      = $(wildcard $(TEST_DIR)/*.cpp)
+
+#
+# for building with mock modules
+# this will replace whatever normal modules
+# with the mocked versions
+# `make MOCK_MODULES="<mocked module>" <target>` 
+#
+MOCK_DIR = ./mock
 SRC := $(foreach module,$(MODULES), \
     $(if $(filter $(basename $(notdir $(module))),$(MOCK_MODULES)), \
         $(MOCK_DIR)/$(module), \
         $(SRC_DIR)/$(module)))
 
-$(info Compiling with the following sources:)
-$(info $(SRC))
-
+#
+# for building with Qt
+# 
 QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
@@ -72,15 +85,21 @@ APP_OBJECTS =                                     \
     $(SRC_DIR)/lib/ResponseParser.o               \
     $(MOC_SOURCES:.cpp=.o)
 
+#
+# build library-style
+#
 lib: $(DYLIB)
 $(DYLIB): $(SRC)
-	$(CC) $(CXXFLAGS) -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
+	$(CC) $(CXXFLAGS) -dynamiclib -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
 
 inject: $(DYLIB)
 	@export DYLD_INSERT_LIBRARIES=$(DYLIB) && \
 	open $(LIVE) && \
 	unset DYLD_INSERT_LIBRARIES
 
+#
+# build application-style
+#
 app: $(APP_OBJECTS)
 	$(CXX) $(APP_OBJECTS) -o $(APP_TARGET) $(LDFLAGS)
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
@@ -90,6 +109,9 @@ app: $(APP_OBJECTS)
 	install_name_tool -add_rpath @executable_path/../Frameworks $(BUNDLE_PATH)/Contents/MacOS/$(APP_TARGET)
 	$(MACDEPLOYQT) $(BUNDLE_PATH)
 
+# 
+# more Qt stuff
+#
 # Rule to build the object files
 %.o: %.cpp
 	$(CC) $(CXXFLAGS) -c $< -o $@
@@ -109,4 +131,13 @@ clean:
 
 run: $(BUNDLE_PATH)
 	open $(BUNDLE_PATH)
+
+test: FORCE
+	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test $(TEST_SRC) $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
+
+.PHONY: FORCE
+FORCE:
+
+run_tests: test
+	$(BUILD_DIR)/test
 
