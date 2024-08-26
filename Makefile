@@ -16,7 +16,6 @@ BUNDLE_PATH = $(BUILD_DIR)/$(APP_TARGET).app
 
 LIVE        = /Applications/Ableton\ Live\ 12\ Suite.app
 
-# Sources
 SRC = \
     $(SRC_DIR)/Main.mm \
     $(SRC_DIR)/lib/ApplicationManager.cpp \
@@ -29,7 +28,6 @@ SRC = \
     $(SRC_DIR)/lib/ActionHandler.cpp \
     $(SRC_DIR)/lib/ResponseParser.cpp
 
-# Qt
 QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
@@ -52,21 +50,16 @@ APP_OBJECTS = \
     $(SRC_DIR)/lib/ResponseParser.o \
     $(MOC_SOURCES:.cpp=.o)
 
-
-# Targets
 lib: $(DYLIB)
-app: $(APP)
+$(DYLIB): $(SRC)
+	$(CC) $(CXXFLAGS) -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
+
 inject: $(DYLIB)
 	@export DYLD_INSERT_LIBRARIES=$(DYLIB) && \
 	open $(LIVE) && \
 	unset DYLD_INSERT_LIBRARIES
 
-# Rule to build the dynamic library
-$(DYLIB): $(SRC)
-	$(CC) $(CXXFLAGS) -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
-
-# build target application
-$(BUNDLE_PATH): $(APP_OBJECTS)
+app: $(APP_OBJECTS)
 	$(CXX) $(APP_OBJECTS) -o $(APP_TARGET) $(LDFLAGS)
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 	mv $(APP_TARGET) $(BUNDLE_PATH)/Contents/MacOS/
@@ -82,11 +75,9 @@ $(BUNDLE_PATH): $(APP_OBJECTS)
 %.o: %.mm
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
-# Rule to generate MOC files
 $(MOC_SOURCES): %.moc.cpp: %.h
 	$(MOC) $< -o $@
 
-# Clean rule
 clean:
 	rm -f $(DYLIB)
 	rm -f $(APP_OBJECTS)
@@ -94,7 +85,6 @@ clean:
 	rm -rf $(BUNDLE_PATH)
 	rm -f $(MOC_SOURCES) $(MOC_SOURCES:.moc.cpp=.o)
 
-# Run the application
 run: $(BUNDLE_PATH)
 	open $(BUNDLE_PATH)
 
