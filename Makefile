@@ -1,35 +1,54 @@
-CC          = clang++
-CXXFLAGS    = -std=c++17 -dynamiclib
-INCLUDE     = -I./src                             \
-							-I./src/lib                         \
-							-I./src/lib/platform/macos          \
-							-I./src/lib/types
-LIBS        = -lc++ -lSystem
+CC = clang++
 
-FRAMEWORKS  = -framework Cocoa                    \
-              -framework CoreFoundation           \
-              -framework CoreGraphics
+CXXFLAGS =                            \
+         -std=c++17                   \
+	       -dynamiclib
 
-SRC_DIR     = ./src
-BUILD_DIR   = ./build
+INCLUDE =                             \
+        -I./mock                      \
+				-I./src                       \
+				-I./src/lib                   \
+				-I./src/lib/platform/macos    \
+				-I./src/lib/types
 
-DYLIB       = $(BUILD_DIR)/LiveImproved.dylib
-APP_TARGET  = LiveImproved
-BUNDLE_PATH = $(BUILD_DIR)/$(APP_TARGET).app
+LIBS =                                \
+     -lc++                            \
+     -lSystem
 
-LIVE        = /Applications/Ableton\ Live\ 12\ Suite.app
+FRAMEWORKS =                          \
+           -framework Cocoa           \
+           -framework CoreFoundation  \
+           -framework CoreGraphics    \
 
-SRC =                                             \
-    $(SRC_DIR)/Main.mm                            \
-    $(SRC_DIR)/lib/ApplicationManager.cpp         \
-    $(SRC_DIR)/lib/LogHandler.cpp                 \
-    $(SRC_DIR)/lib/platform/macos/GUISearchBox.mm \
-    $(SRC_DIR)/lib/platform/macos/IPC.cpp         \
-    $(SRC_DIR)/lib/platform/macos/PID.mm          \
-    $(SRC_DIR)/lib/platform/macos/EventHandler.mm \
-    $(SRC_DIR)/lib/platform/macos/KeySender.mm    \
-    $(SRC_DIR)/lib/ActionHandler.cpp              \
-    $(SRC_DIR)/lib/ResponseParser.cpp
+SRC_DIR      = ./src
+MOCK_DIR     = ./mock
+BUILD_DIR    = ./build
+
+DYLIB        = $(BUILD_DIR)/LiveImproved.dylib
+APP_TARGET   = LiveImproved
+BUNDLE_PATH  = $(BUILD_DIR)/$(APP_TARGET).app
+
+LIVE         = /Applications/Ableton\ Live\ 12\ Suite.app
+
+MODULES =                               \
+    Main.mm                            \
+    lib/ApplicationManager.cpp         \
+    lib/LogHandler.cpp                 \
+    lib/platform/macos/GUISearchBox.mm \
+    lib/platform/macos/IPC.cpp         \
+    lib/platform/macos/PID.mm          \
+    lib/platform/macos/EventHandler.mm \
+    lib/platform/macos/KeySender.mm    \
+    lib/ActionHandler.cpp              \
+    lib/ResponseParser.cpp
+
+SRC := $(foreach module,$(MODULES), \
+    $(if $(filter $(basename $(notdir $(module))),$(MOCK_MODULES)), \
+        $(MOCK_DIR)/$(module), \
+        $(SRC_DIR)/$(module)))
+
+$(info Compiling with the following sources:)
+$(info $(SRC))
 
 QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
