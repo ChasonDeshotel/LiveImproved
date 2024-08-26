@@ -239,7 +239,8 @@
 
     if (self.filteredOptions.count == 1) {
         [self.resultsTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
-        [self tableViewSelectionDidChange:nil]; // Trigger the selection change manually
+        NSNotification *dummyNotification = [NSNotification notificationWithName:NSTableViewSelectionDidChangeNotification object:self.resultsTableView];
+        [self tableViewSelectionDidChange:dummyNotification]; // Trigger the selection change manually
     }
 }
 
