@@ -1,28 +1,28 @@
 CC = clang++
 CXXFLAGS = -std=c++17 -dynamiclib
-INCLUDE = -I./lib \
-					-I./lib/platform/macos
+INCLUDE = -I./src \
+					-I./src/lib/platform/macos
 LIBS = -lc++ -lSystem
 
 FRAMEWORKS = -framework Cocoa -framework CoreFoundation -framework CoreGraphics
 
 # Paths
-SRC_DIR = ./lib
+SRC_DIR = ./src
 BUILD_DIR = ./build
 DYLIB = $(BUILD_DIR)/LiveImproved.dylib
 
 # Sources
 SRC = \
-    ./Main.mm \
-    $(SRC_DIR)/ApplicationManager.cpp \
-    $(SRC_DIR)/LogHandler.cpp \
-    $(SRC_DIR)/platform/macos/GUISearchBox.mm \
-    $(SRC_DIR)/platform/macos/IPC.cpp \
-    $(SRC_DIR)/platform/macos/PID.mm \
-    $(SRC_DIR)/platform/macos/EventHandler.mm \
-    $(SRC_DIR)/platform/macos/KeySender.mm \
-    $(SRC_DIR)/ActionHandler.cpp \
-    $(SRC_DIR)/ResponseParser.cpp
+    $(SRC_DIR)/Main.mm \
+    $(SRC_DIR)/lib/ApplicationManager.cpp \
+    $(SRC_DIR)/lib/LogHandler.cpp \
+    $(SRC_DIR)/lib/platform/macos/GUISearchBox.mm \
+    $(SRC_DIR)/lib/platform/macos/IPC.cpp \
+    $(SRC_DIR)/lib/platform/macos/PID.mm \
+    $(SRC_DIR)/lib/platform/macos/EventHandler.mm \
+    $(SRC_DIR)/lib/platform/macos/KeySender.mm \
+    $(SRC_DIR)/lib/ActionHandler.cpp \
+    $(SRC_DIR)/lib/ResponseParser.cpp
 
 # Targets
 all: $(DYLIB)
