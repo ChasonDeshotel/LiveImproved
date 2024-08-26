@@ -1,15 +1,20 @@
-CC = clang++
-CXXFLAGS = -std=c++17 -dynamiclib
-INCLUDE = -I./src \
-					-I./src/lib/platform/macos
-LIBS = -lc++ -lSystem
+CC          = clang++
+CXXFLAGS    = -std=c++17 -dynamiclib
+INCLUDE     = -I./src -I./src/lib/platform/macos
+LIBS        = -lc++ -lSystem
 
-FRAMEWORKS = -framework Cocoa -framework CoreFoundation -framework CoreGraphics
+FRAMEWORKS  = -framework Cocoa          \
+              -framework CoreFoundation \
+              -framework CoreGraphics
 
-# Paths
-SRC_DIR = ./src
-BUILD_DIR = ./build
-DYLIB = $(BUILD_DIR)/LiveImproved.dylib
+SRC_DIR     = ./src
+BUILD_DIR   = ./build
+
+DYLIB       = $(BUILD_DIR)/LiveImproved.dylib
+APP_TARGET  = LiveImproved
+BUNDLE_PATH = $(BUILD_DIR)/$(APP_TARGET).app
+
+LIVE        = /Applications/Ableton\ Live\ 12\ Suite.app
 
 # Sources
 SRC = \
@@ -25,8 +30,8 @@ SRC = \
     $(SRC_DIR)/lib/ResponseParser.cpp
 
 # Qt
-QT_PATH = $(HOME)/Qt/6.7.2/macos
-MOC = $(QT_PATH)/libexec/moc
+QT_PATH     = $(HOME)/Qt/6.7.2/macos
+MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
 MOC_HEADERS = $(SRC_DIR)/lib/qt/Test.h
@@ -47,16 +52,13 @@ APP_OBJECTS = \
     $(SRC_DIR)/lib/ResponseParser.o \
     $(MOC_SOURCES:.cpp=.o)
 
-# application-specific
-APP_TARGET = LiveImproved
-BUNDLE_PATH = ./build/$(TARGET).app
 
 # Targets
 lib: $(DYLIB)
 app: $(APP)
 inject: $(DYLIB)
 	@export DYLD_INSERT_LIBRARIES=$(DYLIB) && \
-	open /Applications/Ableton\ Live\ 12\ Suite.app && \
+	open $(LIVE) && \
 	unset DYLD_INSERT_LIBRARIES
 
 # Rule to build the dynamic library
@@ -96,16 +98,3 @@ clean:
 run: $(BUNDLE_PATH)
 	open $(BUNDLE_PATH)
 
-inject: 
-
-## Post-build actions
-#post-build:
-#	@export DYLD_INSERT_LIBRARIES=$(DYLIB) && \
-#	 open /Applications/Ableton\ Live\ 12\ Suite.app && \
-#	 unset DYLD_INSERT_LIBRARIES
-#
-## Default rule
-#.PHONY: all clean
-#all: $(DYLIB) post-build
-
-# Clean rule
