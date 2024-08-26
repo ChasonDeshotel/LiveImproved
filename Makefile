@@ -95,7 +95,7 @@ $(BUILD_DIR):
 #
 lib: clean $(DYLIB)
 $(DYLIB): $(SRC)
-	$(CC) $(CXXFLAGS) -dynamiclib -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
+	$(CC) $(CXXFLAGS) -DINJECTED_LIBRARY -dynamiclib -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
 
 app: clean $(BUNDLE_PATH)
 	$(CC) $(CXXFLAGS) -o $(APP_EXECUTABLE) $(SRC) $(INCLUDE) $(LIBS) $(FRAMEWORKS)
