@@ -41,6 +41,7 @@ pid_t PID::findByName(std::string processName) {
     return -1;
 }
 
+// TODO: consider looping here, the app is useless without the PID
 pid_t PID::livePID() {
     if (abletonLivePID != -1) {
       //log_->info("PID::livePID() - returning cached result");
@@ -56,9 +57,18 @@ pid_t PID::livePID() {
 
 PID* PID::init() {
     log_->info("PID::Init() called");
-  
     std::string appName = "Ableton Live 12 Suite";
-    findByName(appName);
 
+    #ifdef INJECTED_LIBRARY
+      findByName(appName);
+    #else
+        #include <unistd.h>
+        while (livePID() == -1) {
+            LogHandler::getInstance().info("Application not found, retrying...");
+            livePID();
+            sleep(1);
+        }
+    #endif
+  
     return this;
 }

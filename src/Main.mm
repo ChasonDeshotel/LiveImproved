@@ -28,13 +28,14 @@ static void dylib_init() {
 
 #else
 
+#import <Cocoa/Cocoa.h>
+
 int main(int argc, const char * argv[]) {
     LogHandler::getInstance().info("Application started");
 
     ApplicationManager& app = ApplicationManager::getInstance();
 
     PID pid(app);
-    EventHandler eventHandler(app);
     ActionHandler actionHandler(app);
     KeySender keySender(app);
 
@@ -45,7 +46,18 @@ int main(int argc, const char * argv[]) {
 
     });
 
-    CFRunLoopRun();
+    @autoreleasepool {
+        // Setup application
+        NSApplication *app = [NSApplication sharedApplication];
+        [app activateIgnoringOtherApps:YES];
+        
+        // Setup event tap
+        EventHandler handler(ApplicationManager::getInstance());
+        handler.setupQuartzEventTap();
+
+        // Start run loop
+        CFRunLoopRun();
+    }
 
     LogHandler::getInstance().info("Application exiting");
 
