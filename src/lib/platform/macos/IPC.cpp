@@ -24,9 +24,8 @@ IPC::~IPC() {
 bool IPC::init() {
     log_->info("IPC::init() called");
 
-
-    removePipeIfExists(requestPipePath);
-    removePipeIfExists(responsePipePath);
+//    removePipeIfExists(requestPipePath);
+//    removePipeIfExists(responsePipePath);
 
     if (!createPipe(requestPipePath) || !createPipe(responsePipePath)) {
         log_->info("IPC::init() failed");
@@ -39,14 +38,6 @@ bool IPC::init() {
         return false;
     }
 
-    double delayInSeconds = 2.0;
-    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
-
-    dispatch_after(delay, backgroundQueue, ^{
-        app_.refreshPluginCache();
-    });
-
     // timer to attempt opening the request pipe 
     // without log jamming bableton
     dispatch_queue_t queue = dispatch_get_main_queue();
@@ -55,7 +46,22 @@ bool IPC::init() {
     dispatch_source_set_event_handler(timer, ^{
         if (openPipeForWrite(requestPipePath, true)) {
             log_->info("Request pipe successfully opened for writing");
-            writeRequest("READY");
+
+            dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_time_t delay;
+            delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
+
+            dispatch_after(delay, backgroundQueue, ^{
+                log_->info("writing READY");
+                writeRequest("READY");
+            });
+
+            delay = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
+            dispatch_after(delay, backgroundQueue, ^{
+                log_->info("refreshing plugin cache");
+                app_.refreshPluginCache();
+            });
+
             dispatch_source_cancel(timer);
         } else {
             log_->info("Attempt to open request pipe for writing failed. Retrying...");
