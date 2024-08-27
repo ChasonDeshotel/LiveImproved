@@ -55,10 +55,16 @@ TEST_SRC      = $(wildcard $(TEST_DIR)/*.cpp)
 # with the mocked versions
 # `make MOCK_MODULES="<mocked module>" <target>` 
 #
+# this can mock a .mm with a .cpp
+# if .cpp and .mm exist, .cpp is used
 MOCK_DIR = ./mock
 SRC := $(foreach module,$(MODULES), \
     $(if $(filter $(basename $(notdir $(module))),$(MOCK_MODULES)), \
-        $(MOCK_DIR)/$(module), \
+        $(if $(wildcard $(MOCK_DIR)/$(basename $(notdir $(module))).cpp), \
+            $(MOCK_DIR)/$(basename $(notdir $(module))).cpp, \
+            $(if $(wildcard $(MOCK_DIR)/$(basename $(notdir $(module))).mm), \
+                $(MOCK_DIR)/$(basename $(notdir $(module))).mm, \
+                $(SRC_DIR)/$(module))), \
         $(SRC_DIR)/$(module)))
 
 #
