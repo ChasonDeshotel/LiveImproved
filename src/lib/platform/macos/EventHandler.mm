@@ -71,7 +71,7 @@ void EventHandler::setupQuartzEventTap() {
     }
 
     CGEventMask eventMask = (1 << kCGEventKeyDown) | (1 << kCGEventKeyUp);
-    CFMachPortRef eventTap = CGEventTapCreate(kCGSessionEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
+    CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
         log_->info("Failed to create event tap.");
