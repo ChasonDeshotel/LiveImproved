@@ -110,7 +110,8 @@ $(BUNDLE_PATH):
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 
 inject: clean $(DYLIB)
-	@export DYLD_INSERT_LIBRARIES=$(DYLIB) && \
+	# TODO: must be full path
+	@export DYLD_INSERT_LIBRARIES=/Users/cdeshotel/Scripts/Ableton/LiveImproved/build/LiveImproved.dylib && \
 	open $(LIVE) && \
 	unset DYLD_INSERT_LIBRARIES
 
