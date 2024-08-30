@@ -23,6 +23,8 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
 
     LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
 
+    connect(qtWidget_, &FocusedWidget::requestClose, this, &GUISearchBox::closeSearchBox);
+
     qtWidget_->setGeometry(100, 100, 400, 300);
     qtWidget_->resize(400, 300);
 
@@ -65,6 +67,7 @@ void GUISearchBox::openSearchBox() {
 void GUISearchBox::closeEvent(QCloseEvent* event) {
     closeSearchBox();
     QWidget::closeEvent(event);
+    ApplicationManager::getInstance().getEventHandler()->focusApplication(PID::getInstance().appPID());
 }
 
 void GUISearchBox::closeSearchBox() {
