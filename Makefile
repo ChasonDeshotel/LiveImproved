@@ -6,6 +6,7 @@ INCLUDE =                             \
         -I./mock                      \
         -I./src                       \
         -I./src/lib                   \
+        -I./src/lib/gui               \
         -I./src/lib/platform/macos    \
         -I./src/lib/types
 
@@ -48,12 +49,12 @@ PLIST_PATH     = $(BUNDLE_PATH)/Contents/Info.plist
 
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
-MODULES =                               \
+MODULES =                              \
     Main.mm                            \
 		lib/types/Plugin.h                 \
     lib/ApplicationManager.cpp         \
     lib/LogHandler.cpp                 \
-    lib/platform/macos/GUISearchBox.mm \
+    lib/gui/SearchBox.cpp              \
     lib/platform/macos/IPC.cpp         \
     lib/platform/macos/PID.mm          \
     lib/platform/macos/EventHandler.mm \
@@ -92,7 +93,7 @@ QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
-MOC_HEADERS = $(SRC_DIR)/lib/platform/macos/GUISearchBox.h \
+MOC_HEADERS = $(SRC_DIR)/lib/gui/SearchBox.h \
 							$(SRC_DIR)/Main.h
 						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
 
@@ -105,7 +106,7 @@ APP_OBJECTS =                                     \
     $(OBJ_DIR)/Main.o                             \
     $(OBJ_DIR)/lib/ApplicationManager.o           \
     $(OBJ_DIR)/lib/LogHandler.o                   \
-    $(OBJ_DIR)/lib/platform/macos/GUISearchBox.o  \
+    $(OBJ_DIR)/lib/gui/SearchBox.o                \
     $(OBJ_DIR)/lib/platform/macos/IPC.o           \
     $(OBJ_DIR)/lib/platform/macos/PID.o           \
     $(OBJ_DIR)/lib/platform/macos/EventHandler.o  \
@@ -117,6 +118,7 @@ APP_OBJECTS =                                     \
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
+	mkdir -p $(OBJ_DIR)/lib/gui
 	mkdir -p $(OBJ_DIR)/lib/platform/macos
 
 

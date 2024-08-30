@@ -9,6 +9,7 @@
 #include "LogHandler.h"
 #include "ResponseParser.h"
 #include "EventHandler.h"
+#include "SearchBox.h"
 
 class ApplicationManager {
 public:

@@ -9,7 +9,7 @@
 
 #include "LogHandler.h"
 #include "ApplicationManager.h"
-#include "GUISearchBox.h"
+#include "SearchBox.h"
 #include "Plugin.h"
 #include "PID.h"
 
