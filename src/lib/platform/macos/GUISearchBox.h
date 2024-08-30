@@ -1,6 +1,39 @@
 #ifndef GUI_SEARCH_BOX_H
 #define GUI_SEARCH_BOX_H
 
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
+class GUISearchBox;
+
+// Objective-C class to manage the search box window
+@interface GUISearchBoxWindowController : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
+
+@property (nonatomic, assign) pid_t livePID;
+@property (nonatomic, assign) BOOL isLiveActive;
+
+@property (nonatomic, assign) GUISearchBox *searchBox;
+@property (nonatomic, strong) NSSearchField *searchField;
+@property (nonatomic, strong) NSArray<NSValue *> *allOptions;
+@property (nonatomic, strong) NSMutableArray<NSValue *> *filteredOptions;
+@property (nonatomic, strong) NSTableView *resultsTableView;
+@property (nonatomic, strong) NSScrollView *tableContainer;
+@property (nonatomic, strong) NSVisualEffectView *visualEffectView;
+
+@property (nonatomic, assign) BOOL isOpen;
+@property (nonatomic, strong) NSString *searchText;
+
+- (instancetype)initWithTitle:(NSString *)title;
+- (void)openAlert;
+- (void)closeAlert;
+- (void)startMonitoringApplicationFocus;
+- (void)applicationDidActivate:(NSNotification *)notification;
+- (void)applicationDidDeactivate:(NSNotification *)notification;
+
+@end
+
+#endif
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -30,8 +63,9 @@ public:
 
     void handlePluginSelected(const Plugin& plugin);
 
+    void* getWindowController() const;
+
 private:
-    ApplicationManager& app_;
 
     bool isOpen_;
 

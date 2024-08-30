@@ -17,6 +17,8 @@ public:
     void setupQuartzEventTap();
     void runPlatform();
 
+    static void focusApplication(pid_t pid);
+
 private:
     ApplicationManager& app_;
     LogHandler* log_;

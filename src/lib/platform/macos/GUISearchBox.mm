@@ -4,6 +4,7 @@
 #include "ApplicationManager.h"
 #include "GUISearchBox.h"
 #include "Plugin.h"
+#include "PID.h"
 
 // Custom window class to allow the window to become key and main
 @interface CustomAlertWindow : NSWindow
@@ -48,34 +49,19 @@
 
 @end
 
-// Objective-C class to manage the search box window
-@interface GUISearchBoxWindowController : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
-
-@property (nonatomic, assign) pid_t livePID;
-@property (nonatomic, assign) BOOL isLiveActive;
-
-@property (nonatomic, assign) GUISearchBox *searchBox;
-@property (nonatomic, strong) NSSearchField *searchField;
-@property (nonatomic, strong) NSArray<NSValue *> *allOptions;
-@property (nonatomic, strong) NSMutableArray<NSValue *> *filteredOptions;
-@property (nonatomic, strong) NSTableView *resultsTableView;
-@property (nonatomic, strong) NSScrollView *tableContainer;
-@property (nonatomic, strong) NSVisualEffectView *visualEffectView;
-
-@property (nonatomic, assign) LogHandler* log;
-
-@property (nonatomic, assign) BOOL isOpen;
-@property (nonatomic, strong) NSString *searchText;
-
-- (instancetype)initWithTitle:(NSString *)title;
-- (void)closeAlert;
-- (void)startMonitoringApplicationFocus;
-- (void)applicationDidActivate:(NSNotification *)notification;
-- (void)applicationDidDeactivate:(NSNotification *)notification;
-
-@end
-
 @implementation GUISearchBoxWindowController
+
+- (void)keyDown:(NSEvent *)event {
+    [super keyDown:event];
+    // Handle specific key events
+    LogHandler::getInstance().info("Key Down");
+}
+
+- (void)keyUp:(NSEvent *)event {
+    [super keyUp:event];
+    // Handle specific key events
+    LogHandler::getInstance().info("Key Up");
+}
 
 - (void)runModalLoopForWindow:(NSWindow *)window {
     while (self.isOpen) {
@@ -100,7 +86,7 @@
     self = [super initWithWindow:nil];
     if (self) {
 
-        pid_t livePID = ApplicationManager::getInstance().getPID();
+        pid_t livePID = PID::getInstance().livePID();
         self.isLiveActive = YES;
 
         NSRect frame = NSMakeRect(0, 0, 400, 400);
@@ -189,6 +175,7 @@
     NSDictionary *userInfo = [notification userInfo];
     NSRunningApplication *runningApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
     pid_t pid = runningApp.processIdentifier;
+    pid_t livePID = PID::getInstance().livePID();
 
     if (pid == self.livePID && !self.isLiveActive && self.isOpen) {
         CustomAlertWindow* window = (CustomAlertWindow*)[self window];
@@ -204,6 +191,7 @@
     NSDictionary *userInfo = [notification userInfo];
     NSRunningApplication *runningApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
     pid_t pid = runningApp.processIdentifier;
+    pid_t livePID = PID::getInstance().livePID();
 
     if (pid == self.livePID && self.isLiveActive && self.isOpen) {
         CustomAlertWindow* window = (CustomAlertWindow*)[self window];
@@ -264,8 +252,6 @@
             }
         }
     }
-
-
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
@@ -281,18 +267,56 @@
     return nil;
 }
 
+- (void)openAlert {
+    if (self.isOpen) {
+        LogHandler::getInstance().info("Search box is already open");
+        return;
+    }
+
+    LogHandler::getInstance().info("Opening the search box");
+
+    CustomAlertWindow* window = (CustomAlertWindow*)[self window];
+    
+    [window setLevel:NSModalPanelWindowLevel];  // Keep the window on top
+    [window setHidesOnDeactivate:NO];  // Ensure the window stays active even when the app is not focused
+    [window setIsVisible:YES];  // Make the window visible
+    [window makeKeyAndOrderFront:nil];  // Bring the window to the front
+    [window makeFirstResponder:window.contentView];
+    [window orderFrontRegardless]; // if the window's been moved to the back, pop it back to the front
+
+    self.isOpen = YES;  // Update the state
+
+    [NSApp runModalForWindow:window];  // Start the modal session
+    [self performSelectorOnMainThread:@selector(runModalLoopForWindow:) withObject:window waitUntilDone:NO];
+
+
+    ApplicationManager::getInstance().getEventHandler()->focusApplication(PID::getInstance().appPID());
+}
+
 - (void)closeAlert {
-    [NSApp stopModal];
-    [self close];
-    self.isOpen = NO;
+    if (self.isOpen) {
+        LogHandler::getInstance().info("Closing the search box");
+
+        [NSApp stopModal]; // Stop the modal session
+        
+        CustomAlertWindow* window = (CustomAlertWindow*)[self window];
+        if (window) {
+            [window orderOut:nil]; // Hide the window
+        }
+        
+        self.isOpen = NO;
+
+        ApplicationManager::getInstance().getEventHandler()->focusApplication(PID::getInstance().livePID());
+    } else {
+        LogHandler::getInstance().info("Search box is already closed");
+    }
 }
 
 @end
 
 // C++ wrapper
 GUISearchBox::GUISearchBox(ApplicationManager& appManager)
-    : app_(appManager)
-    , title("foo")
+    : title("foo")
     , isOpen_(false)
     , searchText("")
     , windowController_(nullptr)
@@ -307,10 +331,10 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     controller.searchBox = this;
     //((GUISearchBoxWindowController*)windowController_).searchBox = this;
 
-    pid_t livePID = app_.getPID();
-    controller.livePID = livePID;
+//    pid_t livePID = ApplicationManager::getInstance().getPID();
+//    controller.livePID = livePID;
 
-    LogHandler::getInstance().info("GUISearchBox::GUISearchBox - Retrieved live PID: " + std::to_string(livePID));
+//    LogHandler::getInstance().info("GUISearchBox::GUISearchBox - Retrieved live PID: " + std::to_string(livePID));
 
 //    ((GUISearchBoxWindowController*)windowController_).searchBox = this;
 
@@ -326,6 +350,10 @@ GUISearchBox::~GUISearchBox() {
         [(GUISearchBoxWindowController*)windowController_ closeAlert];
         windowController_ = nullptr;
     }
+}
+
+void* GUISearchBox::getWindowController() const {
+    return windowController_;
 }
 
 bool GUISearchBox::isOpen() const {
@@ -380,26 +408,37 @@ void GUISearchBox::clearSearchText() {
 }
 
 void GUISearchBox::openSearchBox() {
+    if (isOpen_) {
+        LogHandler::getInstance().info("Search box is already open");
+        return;
+    }
+
     if (windowController_) {
-        CustomAlertWindow* window = (CustomAlertWindow*)[(GUISearchBoxWindowController*)windowController_ window];
-        [window setIsVisible:YES];
-        [window makeKeyAndOrderFront:nil];
-        isOpen_ = true;
-        GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
-        controller.isOpen = YES;
-        [(GUISearchBoxWindowController*)windowController_ performSelectorOnMainThread:@selector(runModalLoopForWindow:) withObject:window waitUntilDone:NO];
+        isOpen_ = true;  // Set the flag to true before proceeding
+
+        // Call the Objective-C method to handle the opening of the search box
+        [(GUISearchBoxWindowController*)windowController_ performSelectorOnMainThread:@selector(openAlert) withObject:nil waitUntilDone:NO];
+    } else {
+        LogHandler::getInstance().error("windowController_ is null, cannot open search box");
+        isOpen_ = false;  // Reset the flag if opening fails
     }
 }
 
 void GUISearchBox::closeSearchBox() {
+    if (!isOpen_) {
+        LogHandler::getInstance().info("Search box is not open");
+        return;
+    }
+
     if (windowController_) {
-        [(GUISearchBoxWindowController*)windowController_ closeAlert];
-        isOpen_ = false;
         GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)windowController_;
+        [controller performSelectorOnMainThread:@selector(closeAlert) withObject:nil waitUntilDone:YES];
+
+        isOpen_ = false;
         controller.isOpen = NO;
 
-        CustomAlertWindow* window = (CustomAlertWindow*)[(GUISearchBoxWindowController*)windowController_ window];
-        [window orderOut:nil];
+    } else {
+        LogHandler::getInstance().error("windowController_ is null, cannot close search box");
     }
 }
 

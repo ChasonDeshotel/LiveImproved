@@ -40,12 +40,12 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
 //              app_.getLogHandler()->info(app_.getPluginCacheAsStr());
               return false;
             case 53:  // escape
-              if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
+//              if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
                   closeSearchBox();
                   return false;
-              } else {
-                  return true;
-              }
+//              } else {
+//                  return true;
+//              }
 
             // hjkl navigation
 //            case 4:
@@ -83,7 +83,7 @@ bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
 
         // when the menu is open, do not send keypresses to Live
         // or it activates your hotkeys
-        if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
+        if (app_.getGUISearchBox()->isOpen()) {
             log_->info("is open, do not pass keys to Live");
             return false;
         }
@@ -127,11 +127,11 @@ bool ActionHandler::openSearchBox() {
 }
 
 bool ActionHandler::closeSearchBox() {
-    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchText().length()) {
-        app_.getGUISearchBox()->clearSearchText();
-    } else {
+//    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchText().length()) {
+//        app_.getGUISearchBox()->clearSearchText();
+//    } else {
         app_.getGUISearchBox()->closeSearchBox();
-    }
+//    }
     return false;
 }
 

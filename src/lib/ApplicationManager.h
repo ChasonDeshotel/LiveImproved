@@ -21,7 +21,7 @@ public:
 
     LogHandler* getLogHandler();
 
-    pid_t getPID();
+//    pid_t getPID();
     EventHandler* getEventHandler();
     ActionHandler* getActionHandler();
     KeySender* getKeySender();
@@ -42,12 +42,12 @@ private:
     ApplicationManager(const ApplicationManager&) = delete;
     ApplicationManager& operator=(const ApplicationManager&) = delete;
 
-    PID* pid_ = nullptr;
+    //PID* pid_ = nullptr;
     IPC* ipc_ = nullptr;
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
-    GUISearchBox* guiSearchBox_ = nullptr;
+    GUISearchBox* guiSearchBox_;
     ResponseParser* responseParser_ = nullptr;
 
     LogHandler* logHandler_;

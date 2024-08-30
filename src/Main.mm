@@ -14,7 +14,6 @@ static void dylib_init() {
         LogHandler::getInstance().info("injected successfully");
         ApplicationManager& app = ApplicationManager::getInstance();
 
-        PID pid(app);
         EventHandler eventHandler(app);
         ActionHandler actionHandler(app);
         KeySender keySender(app);
@@ -33,30 +32,31 @@ static void dylib_init() {
 int main(int argc, const char * argv[]) {
     LogHandler::getInstance().info("Application started");
 
-    ApplicationManager& app = ApplicationManager::getInstance();
-
-    PID pid(app);
-    ActionHandler actionHandler(app);
-    KeySender keySender(app);
-
-    app.init();
-
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        LogHandler::getInstance().info("Initialization complete");
-
-    });
-
     @autoreleasepool {
+        [NSApplication sharedApplication];
+
+        ApplicationManager& app = ApplicationManager::getInstance();
+
+        ActionHandler actionHandler(app);
+        KeySender keySender(app);
+
+        app.init();
+
         // Setup application
-        NSApplication *app = [NSApplication sharedApplication];
-        [app activateIgnoringOtherApps:YES];
+        //NSApplication *app = [NSApplication sharedApplication];
+        //[app activateIgnoringOtherApps:YES];
         
         // Setup event tap
         EventHandler handler(ApplicationManager::getInstance());
         handler.setupQuartzEventTap();
 
+        LogHandler::getInstance().info("Initialization complete");
+
+        // IF INJECTED_LIBRARY
+        //CFRunLoopRun();
+        // ELSE
         // Start run loop
-        CFRunLoopRun();
+        [NSApp run];
     }
 
     LogHandler::getInstance().info("Application exiting");

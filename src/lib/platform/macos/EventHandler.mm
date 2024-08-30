@@ -7,6 +7,10 @@
 
 #include "ApplicationManager.h"
 #include "EventHandler.h"
+#include "LogHandler.h"
+#include "PID.h"
+
+@class GUISearchBoxWindowController;
 
 EventHandler::EventHandler(ApplicationManager& appManager)
     : app_(appManager)
@@ -36,23 +40,66 @@ void EventHandler::runPlatform() {
     [[NSApplication sharedApplication] run];
 }
 
+void EventHandler::focusApplication(pid_t pid) {
+    NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+            
+    if (app) {
+        LogHandler::getInstance().info("bringing app into focus: " + std::to_string(PID::getInstance().appPID()));
+
+        [app activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
+    }
+}
+
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
+    CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+    CGEventFlags flags = CGEventGetFlags(event);
 
-    if (eventPID == handler->app_.getPID()) {
-//        handler->log_->info("Ableton Live event detected.");
+    // need to capture clicks as well
+    if (handler->app_.getGUISearchBox()->isOpen()
+        && (eventPID == PID::getInstance().appPID() 
+        || eventPID == PID::getInstance().livePID())
+        )
+    {
+        handler->log_->info("event pid: " + std::to_string(eventPID));
+        handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
+        if (eventPID == PID::getInstance().livePID()) {
+            EventHandler::focusApplication(PID::getInstance().appPID());
+        }
 
-				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
-//				CGEventFlags flags = CGEventGetFlags(event);
+        // Forward the event to the search box window
+        NSEvent *event = [NSEvent keyEventWithType:NSEventTypeKeyDown
+                                           location:NSMakePoint(0, 0)
+                                      modifierFlags:flags
+                                          timestamp:[[NSProcessInfo processInfo] systemUptime]
+                                       windowNumber:[[NSApp mainWindow] windowNumber]
+                                            context:nil
+                                         characters:@""
+                        charactersIgnoringModifiers:@""
+                                          isARepeat:NO
+                                            keyCode:keyCode];
 
-        int flags = (int)CGEventGetFlags(event);
+        GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)handler->app_.getGUISearchBox()->getWindowController();
+        [controller.window sendEvent:event];
+
+        return NULL;
+
+    } else if (eventPID == PID::getInstance().livePID()) {
+        handler->log_->info("Ableton Live event detected.");
+
+    //				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+    //				CGEventFlags flags = CGEventGetFlags(event);
+
+        int flagsInt = (int)CGEventGetFlags(event);
         std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
-        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flags, keyUpDown);
+
+
+        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flagsInt, keyUpDown);
 
         if (keyUpDown == "keyDown") {
-            handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags) + " should pass: " + std::to_string(shouldPassEvent));
+            handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flagsInt) + " should pass: " + std::to_string(shouldPassEvent));
         }
 
         return shouldPassEvent ? event : NULL;
@@ -65,7 +112,7 @@ void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
     log_->info("EventHandler::setupQuartEventTap() called");
 
-    if (app_.getPID() == -1) {
+    if (PID::getInstance().livePID() == -1) {
         log_->info("Ableton Live not found.");
         return;
     }

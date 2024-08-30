@@ -7,13 +7,14 @@
 #include "ResponseParser.h"
 
 ApplicationManager::ApplicationManager()
-    : logHandler_(&LogHandler::getInstance()) {
+    : logHandler_(&LogHandler::getInstance())
+{
 }
 
 void ApplicationManager::init() {
     logHandler_->info("ApplicatonManager::init() called");
 
-    pid_ = (new PID(*this))->init();
+//    pid_ = (new PID(*this))->init();
 
     // crashed when chaining
     eventHandler_ = new EventHandler(*this);
@@ -36,9 +37,9 @@ LogHandler* ApplicationManager::getLogHandler() {
     return logHandler_;
 }
 
-pid_t ApplicationManager::getPID() {
-    return pid_->livePID();
-}
+//pid_t ApplicationManager::getPID() {
+//    return pid_->livePID();
+//}
 
 IPC* ApplicationManager::getIPC() {
     return ipc_;
@@ -73,7 +74,7 @@ void ApplicationManager::refreshPluginCache() {
             pluginCacheStr = response;
             plugins_ = responseParser_->parsePlugins(response);
 
-            guiSearchBox_->setOptions(plugins_);
+//            guiSearchBox.setOptions(plugins_);
         } else {
             LogHandler::getInstance().info("Failed to receive a valid response.");
         }
