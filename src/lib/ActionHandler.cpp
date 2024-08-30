@@ -127,11 +127,11 @@ bool ActionHandler::openSearchBox() {
 }
 
 bool ActionHandler::closeSearchBox() {
-//    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchText().length()) {
-//        app_.getGUISearchBox()->clearSearchText();
-//    } else {
+    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchTextLength()) {
+        app_.getGUISearchBox()->clearSearchText();
+    } else {
         app_.getGUISearchBox()->closeSearchBox();
-//    }
+    }
     return false;
 }
 

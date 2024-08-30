@@ -74,7 +74,7 @@ void ApplicationManager::refreshPluginCache() {
             pluginCacheStr = response;
             plugins_ = responseParser_->parsePlugins(response);
 
-//            guiSearchBox.setOptions(plugins_);
+            guiSearchBox_->setOptions(plugins_);
         } else {
             LogHandler::getInstance().info("Failed to receive a valid response.");
         }

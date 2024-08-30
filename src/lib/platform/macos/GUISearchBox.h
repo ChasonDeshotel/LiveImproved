@@ -1,54 +1,101 @@
 #ifndef GUI_SEARCH_BOX_H
 #define GUI_SEARCH_BOX_H
 
-#ifdef __OBJC__
-#import <Foundation/Foundation.h>
-#import <Cocoa/Cocoa.h>
-class GUISearchBox;
-
-// Objective-C class to manage the search box window
-@interface GUISearchBoxWindowController : NSWindowController <NSSearchFieldDelegate, NSTableViewDelegate, NSTableViewDataSource>
-
-@property (nonatomic, assign) pid_t livePID;
-@property (nonatomic, assign) BOOL isLiveActive;
-
-@property (nonatomic, assign) GUISearchBox *searchBox;
-@property (nonatomic, strong) NSSearchField *searchField;
-@property (nonatomic, strong) NSArray<NSValue *> *allOptions;
-@property (nonatomic, strong) NSMutableArray<NSValue *> *filteredOptions;
-@property (nonatomic, strong) NSTableView *resultsTableView;
-@property (nonatomic, strong) NSScrollView *tableContainer;
-@property (nonatomic, strong) NSVisualEffectView *visualEffectView;
-
-@property (nonatomic, assign) BOOL isOpen;
-@property (nonatomic, strong) NSString *searchText;
-
-- (instancetype)initWithTitle:(NSString *)title;
-- (void)openAlert;
-- (void)closeAlert;
-- (void)startMonitoringApplicationFocus;
-- (void)applicationDidActivate:(NSNotification *)notification;
-- (void)applicationDidDeactivate:(NSNotification *)notification;
-
-@end
-
-#endif
-
 #include <string>
 #include <vector>
 #include <memory>
 
 #include "Plugin.h"
 
-class ApplicationManager;
-class LogHandler;
+#include <QMouseEvent>
+#include <QWidget>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QString>
 
-class GUISearchBox {
+#include "LogHandler.h"
+
+class ApplicationManager;
+//class LogHandler;
+
+class FocusedWidget : public QWidget {
+    Q_OBJECT
+
+public:
+    FocusedWidget(QLineEdit* searchField, QWidget* parent = nullptr)
+        : QWidget(parent), searchField_(searchField)
+    {
+        this->setWindowFlags(Qt::FramelessWindowHint);
+    }
+
+protected:
+    void focusInEvent(QFocusEvent* event) override {
+        QWidget::focusInEvent(event);
+        if (searchField_) {
+            searchField_->setFocus();
+        }
+    }
+
+    void mousePressEvent(QMouseEvent* event) override {
+        if (event->button() == Qt::LeftButton) {
+            mousePressed_ = true;
+            mouseStartPosition_ = event->globalPosition().toPoint();
+            windowStartPosition_ = this->frameGeometry().topLeft();
+        }
+    }
+
+    void mouseMoveEvent(QMouseEvent* event) override {
+        if (mousePressed_) {
+            QPoint delta = event->globalPosition().toPoint() - mouseStartPosition_;
+            this->move(windowStartPosition_ + delta);
+        }
+    }
+
+    void mouseReleaseEvent(QMouseEvent* event) override {
+        if (event->button() == Qt::LeftButton) {
+            mousePressed_ = false;
+        }
+    }
+
+    void keyPressEvent(QKeyEvent* event) override {
+        QWidget::keyPressEvent(event);  // Call the base class implementation
+
+        // Example: Handle specific key presses
+        if (event->key() == Qt::Key_Escape) {
+            // Handle the Escape key, e.g., close the widget
+            close();
+        } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            // Handle Enter/Return key
+            // Add your logic here
+        } else {
+            // Handle other keys
+        }
+
+        // Log the key press event if needed
+        LogHandler::getInstance().info("Key Pressed: " + std::to_string(event->key()));
+    }
+
+    // Handle key release events
+    void keyReleaseEvent(QKeyEvent* event) override {
+        QWidget::keyReleaseEvent(event);  // Call the base class implementation
+
+        // Log the key release event if needed
+        LogHandler::getInstance().info("Key Released: " + std::to_string(event->key()));
+    }
+
+private:
+    QLineEdit* searchField_;
+    bool mousePressed_;
+    QPoint mouseStartPosition_;
+    QPoint windowStartPosition_;
+};
+
+class GUISearchBox : public QWidget {
+    Q_OBJECT
+
 public:
     GUISearchBox(ApplicationManager& appManager);
     ~GUISearchBox();
-
-    void initWithTitle(const std::string& title);
 
     void closeSearchBox();
     void openSearchBox();
@@ -57,31 +104,30 @@ public:
 
     void setOptions(const std::vector<Plugin>& options);
 
-    std::string getSearchText() const;
     void setSearchText(const std::string text);
+    std::string getSearchText() const;
+    size_t getSearchTextLength() const;
     void clearSearchText();
+
+    QWidget* getQtWidget() const;
 
     void handlePluginSelected(const Plugin& plugin);
 
-    void* getWindowController() const;
+protected:
+    virtual void closeEvent(QCloseEvent* event) override;
 
 private:
+
+    void filterOptions(const QString &text);
+
+    QLineEdit* searchField_;
+    FocusedWidget* qtWidget_;
+    QListWidget* optionsList_;
 
     bool isOpen_;
 
     std::string title;
-    std::vector<std::string> allOptions;
-    std::vector<std::string> filteredOptions;
     std::shared_ptr<LogHandler> log;
-
-    std::string searchText;
-
-    // placeholder, platform-specific
-    void* searchField;
-    void* resultsTableView;
-    void* tableContainer;
-    void* visualEffectView;
-    void* windowController_;
 
 };
 

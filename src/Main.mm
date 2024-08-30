@@ -1,4 +1,5 @@
 #include <ApplicationServices/ApplicationServices.h>
+#include <QApplication>
 
 #include "LogHandler.h"
 
@@ -29,29 +30,53 @@ static void dylib_init() {
 
 #import <Cocoa/Cocoa.h>
 
-int main(int argc, const char * argv[]) {
+@interface AppDelegate : NSObject <NSApplicationDelegate>
+@end
+
+@implementation AppDelegate
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    // Create a hidden dummy window
+    NSWindow *dummyWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
+                                                        styleMask:NSWindowStyleMaskBorderless
+                                                          backing:NSBackingStoreBuffered
+                                                            defer:NO];
+    [dummyWindow setIsVisible:NO];  // Hide the window
+    [NSApp setWindowsMenu:nil];     // Optional: Removes the default Windows menu
+}
+
+@end
+
+int main(int argc, char *argv[]) {
     LogHandler::getInstance().info("Application started");
 
+    static QApplication app(argc, argv);
+
     @autoreleasepool {
+        // Initialize Cocoa Application
         [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
 
+        // Dummy window creation to prevent macOS from automatically creating a new window
+        NSWindow *dummyWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1, 1)
+                                                            styleMask:NSWindowStyleMaskBorderless
+                                                              backing:NSBackingStoreBuffered
+                                                                defer:NO];
+        [dummyWindow setIsVisible:NO];
+
+        // Custom initialization logic
         ApplicationManager& app = ApplicationManager::getInstance();
-
         ActionHandler actionHandler(app);
         KeySender keySender(app);
-
         app.init();
 
-        // Setup application
-        //NSApplication *app = [NSApplication sharedApplication];
-        //[app activateIgnoringOtherApps:YES];
-        
-        // Setup event tap
-        EventHandler handler(ApplicationManager::getInstance());
+        // Setup event tap for Quartz events
+        EventHandler handler(app);
         handler.setupQuartzEventTap();
 
         LogHandler::getInstance().info("Initialization complete");
 
+        // Start the NSApplication run loop
         // IF INJECTED_LIBRARY
         //CFRunLoopRun();
         // ELSE
@@ -59,9 +84,13 @@ int main(int argc, const char * argv[]) {
         [NSApp run];
     }
 
-    LogHandler::getInstance().info("Application exiting");
+    [NSApp finishLaunching];
 
-    return 0;
+    return app.exec();
+
+    //LogHandler::getInstance().info("Application exiting");
+
+    //return 0;
 }
 
 #endif

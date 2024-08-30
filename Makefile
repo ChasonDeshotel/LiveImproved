@@ -50,6 +50,7 @@ LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
 MODULES =                               \
     Main.mm                            \
+		lib/types/Plugin.h                 \
     lib/ApplicationManager.cpp         \
     lib/LogHandler.cpp                 \
     lib/platform/macos/GUISearchBox.mm \
@@ -91,7 +92,8 @@ QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
-MOC_HEADERS = $(SRC_DIR)/lib/platform/macos/GUISearchBox.h
+MOC_HEADERS = $(SRC_DIR)/lib/platform/macos/GUISearchBox.h \
+							$(SRC_DIR)/Main.h
 						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
 
 MOC_SOURCES = $(MOC_HEADERS:$(SRC_DIR)/%.h=$(OBJ_DIR)/%.moc.cpp)
