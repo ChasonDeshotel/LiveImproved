@@ -17,24 +17,22 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     : title("foo")
     , isOpen_(false)
     , searchField_(new QLineEdit())
-    , qtWidget_(new FocusedWidget(searchField_))
     , optionsList_(new QListWidget())
+    , qtWidget_(this)
 {
 
     LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
 
-    connect(qtWidget_, &FocusedWidget::requestClose, this, &GUISearchBox::closeSearchBox);
+    this->setGeometry(100, 100, 400, 300);
+    this->resize(400, 300);
 
-    qtWidget_->setGeometry(100, 100, 400, 300);
-    qtWidget_->resize(400, 300);
-
-    QVBoxLayout *layout = new QVBoxLayout(qtWidget_);
+    QVBoxLayout *layout = new QVBoxLayout(this);
 
     searchField_->setFocusPolicy(Qt::StrongFocus);
     layout->addWidget(searchField_);
     layout->addWidget(optionsList_);
 
-    qtWidget_->setLayout(layout);
+    this->setLayout(layout);
 
     QObject::connect(searchField_, &QLineEdit::textChanged, [this](const QString &text) {
         this->filterOptions(text);

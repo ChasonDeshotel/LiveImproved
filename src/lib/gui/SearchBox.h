@@ -19,6 +19,8 @@
 class ApplicationManager;
 //class LogHandler;
 
+// TODO: not really a QWidget, but this is 
+// abused for `connect`
 class GUISearchBox : public QWidget {
     Q_OBJECT
 
@@ -50,7 +52,7 @@ private:
     void filterOptions(const QString &text);
 
     QLineEdit* searchField_;
-    FocusedWidget* qtWidget_;
+    QWidget* qtWidget_;
     QListWidget* optionsList_;
 
     bool isOpen_;
