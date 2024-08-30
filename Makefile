@@ -1,13 +1,23 @@
 CC = clang++
 
 CXXFLAGS = -std=c++17
-
+	
 INCLUDE =                             \
         -I./mock                      \
-				-I./src                       \
-				-I./src/lib                   \
-				-I./src/lib/platform/macos    \
-				-I./src/lib/types
+        -I./src                       \
+        -I./src/lib                   \
+        -I./src/lib/platform/macos    \
+        -I./src/lib/types
+
+INCLUDE_QT =                              \
+           -I$(QT_PATH)/lib/QtWidgets.framework/Versions/A/Headers \
+           -I$(QT_PATH)/lib/QtCore.framework/Versions/A/Headers    \
+           -I ~/Qt/6.7.2/macos/lib/QtGui.framework/Headers \
+           -I$(QT_PATH)/include           \
+           -I$(QT_PATH)/include/QtWidgets \
+           -I$(QT_PATH)/include/QtCore
+
+OBJ_DIR = $(BUILD_DIR)/obj
 
 LIBS =                                \
      -lc++                            \
@@ -16,7 +26,13 @@ LIBS =                                \
 FRAMEWORKS =                          \
            -framework Cocoa           \
            -framework CoreFoundation  \
-           -framework CoreGraphics    \
+           -framework CoreGraphics
+
+FRAMEWORKS_QT =                             \
+              -F $(HOME)/Qt/6.7.2/macos/lib \
+              -framework QtWidgets          \
+              -framework QtCore             \
+              -framework QtGui
 
 SRC_DIR       = ./src
 BUILD_DIR     = ./build
@@ -28,6 +44,7 @@ DYLIB         = $(BUILD_DIR)/LiveImproved.dylib
 APP_TARGET     = LiveImproved
 BUNDLE_PATH    = $(BUILD_DIR)/$(APP_TARGET).app
 APP_EXECUTABLE = $(BUNDLE_PATH)/Contents/MacOS/$(APP_TARGET)
+PLIST_PATH     = $(BUNDLE_PATH)/Contents/Info.plist
 
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
@@ -74,26 +91,31 @@ QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
-MOC_HEADERS = $(SRC_DIR)/lib/qt/Test.h
-MOC_SOURCES = $(MOC_HEADERS:.h=.moc.cpp)
-APP_SOURCES = $(SRC) $(MOC_SOURCES)
+MOC_HEADERS = $(SRC_DIR)/lib/platform/macos/GUISearchBox.h
+						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
+
+MOC_SOURCES = $(MOC_HEADERS:$(SRC_DIR)/%.h=$(OBJ_DIR)/%.moc.cpp)
+
+MOC_OBJECTS = $(MOC_SOURCES:.cpp=.o)
 
 # explicitly list so clean doesn't nuke .mm's
 APP_OBJECTS =                                     \
-    $(SRC_DIR)/Main.o                             \
-    $(SRC_DIR)/lib/ApplicationManager.o           \
-    $(SRC_DIR)/lib/LogHandler.o                   \
-    $(SRC_DIR)/lib/platform/macos/GUISearchBox.o  \
-    $(SRC_DIR)/lib/platform/macos/IPC.o           \
-    $(SRC_DIR)/lib/platform/macos/PID.o           \
-    $(SRC_DIR)/lib/platform/macos/EventHandler.o  \
-    $(SRC_DIR)/lib/platform/macos/KeySender.o     \
-    $(SRC_DIR)/lib/ActionHandler.o                \
-    $(SRC_DIR)/lib/ResponseParser.o               \
-    $(MOC_SOURCES:.cpp=.o)
+    $(OBJ_DIR)/Main.o                             \
+    $(OBJ_DIR)/lib/ApplicationManager.o           \
+    $(OBJ_DIR)/lib/LogHandler.o                   \
+    $(OBJ_DIR)/lib/platform/macos/GUISearchBox.o  \
+    $(OBJ_DIR)/lib/platform/macos/IPC.o           \
+    $(OBJ_DIR)/lib/platform/macos/PID.o           \
+    $(OBJ_DIR)/lib/platform/macos/EventHandler.o  \
+    $(OBJ_DIR)/lib/platform/macos/KeySender.o     \
+    $(OBJ_DIR)/lib/ActionHandler.o                \
+    $(OBJ_DIR)/lib/ResponseParser.o               \
+    $(MOC_OBJECTS)
+#    $(MOC_SOURCES:.cpp=.o)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
+	mkdir -p $(OBJ_DIR)/lib/platform/macos
 
 
 #
@@ -118,8 +140,27 @@ inject: clean $(DYLIB)
 #
 # build application-style
 #
-qtapp: clean $(APP_OBJECTS)
-	$(CXX) $(APP_OBJECTS) -o $(APP_TARGET) $(LDFLAGS)
+generate-plist:
+	@mkdir -p $(BUNDLE_PATH)/Contents
+	@echo '<?xml version="1.0" encoding="UTF-8"?>' > $(PLIST_PATH)
+	@echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> $(PLIST_PATH)
+	@echo '<plist version="1.0">' >> $(PLIST_PATH)
+	@echo '<dict>' >> $(PLIST_PATH)
+	@echo '  <key>CFBundleName</key>' >> $(PLIST_PATH)
+	@echo '  <string>$(APP_TARGET)</string>' >> $(PLIST_PATH)
+	@echo '  <key>CFBundleIdentifier</key>' >> $(PLIST_PATH)
+	@echo '  <string>com.example.$(APP_TARGET)</string>' >> $(PLIST_PATH)
+	@echo '  <key>CFBundleVersion</key>' >> $(PLIST_PATH)
+	@echo '  <string>1.0</string>' >> $(PLIST_PATH)
+	@echo '  <key>CFBundleExecutable</key>' >> $(PLIST_PATH)
+	@echo '  <string>$(APP_TARGET)</string>' >> $(PLIST_PATH)
+	@echo '  <key>LSBackgroundOnly</key>' >> $(PLIST_PATH)
+	@echo '  <string>1</string>' >> $(PLIST_PATH)
+	@echo '</dict>' >> $(PLIST_PATH)
+	@echo '</plist>' >> $(PLIST_PATH)
+
+qtapp: clean $(APP_OBJECTS) generate-plist
+	$(CC) $(APP_OBJECTS) -o $(APP_TARGET) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) $(LIBS) $(FRAMEWORKS) $(FRAMEWORKS_QT) -headerpad_max_install_names
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 	mv $(APP_TARGET) $(BUNDLE_PATH)/Contents/MacOS/
 	cp -R $(QT_PATH)/lib/QtWidgets.framework $(BUNDLE_PATH)/Contents/MacOS/
@@ -131,14 +172,20 @@ qtapp: clean $(APP_OBJECTS)
 # more Qt stuff
 #
 # Rule to build the object files
-%.o: %.cpp
-	$(CC) $(CXXFLAGS) -c $< -o $@
+# Define build directory creation as a prerequisite for object files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) -c $< -o $@
 
-%.o: %.mm
-	$(CC) $(CXXFLAGS) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.mm | $(BUILD_DIR)
+	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) -c $< -o $@
 
-$(MOC_SOURCES): %.moc.cpp: %.h
+# Rule to generate the .moc.cpp file from the .h file
+$(OBJ_DIR)/%.moc.cpp: $(SRC_DIR)/%.h | $(BUILD_DIR)
 	$(MOC) $< -o $@
+
+# Rule to compile the .moc.cpp into a .o file
+$(OBJ_DIR)/%.moc.o: $(OBJ_DIR)/%.moc.cpp
+	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) -c $< -o $@
 
 clean:
 	rm -f $(DYLIB)
@@ -146,10 +193,11 @@ clean:
 	rm -f $(APP_OBJECTS)
 	rm -f $(APP_TARGET)
 	rm -rf $(BUNDLE_PATH)
-	rm -f $(MOC_SOURCES) $(MOC_SOURCES:.moc.cpp=.o)
+#	rm -f $(MOC_SOURCES) $(MOC_SOURCES:.moc.cpp=.o)
 
 run: $(BUNDLE_PATH)
-	open $(BUNDLE_PATH)
+	$(APP_EXECUTABLE)
+#	open $(BUNDLE_PATH)
 
 test: FORCE
 	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test $(TEST_SRC) $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
@@ -159,4 +207,6 @@ FORCE:
 
 run_tests: test
 	$(BUILD_DIR)/test
+
+
 
