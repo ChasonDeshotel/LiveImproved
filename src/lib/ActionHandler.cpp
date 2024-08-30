@@ -136,15 +136,11 @@ bool ActionHandler::closeSearchBox() {
 }
 
 
-//bool ActionHandler::loadItem() {
-//    log_->info("bar");
-//    app_.getGUISearchBox()->closeSearchBox();
-//
-//    return false;
-//    log_->info("writing request");
-//    app_.getIPC()->writeRequest("load_item,1");
-//    return false;
-//}
+bool ActionHandler::loadItem(int itemIndex) {
+    log_->info("writing request");
+    app_.getIPC()->writeRequest("load_item," + std::to_string(itemIndex));
+    return false;
+}
 
 //bool ActionHandler::onEscapePress() {
 //    app_.getLogHandler()->info("Escape pressed");

@@ -18,6 +18,8 @@ public:
     // returns if the event should be blocking
     bool handleKeyEvent(int keyCode, int flags, std::string type);
 
+    bool loadItem(int itemIndex);
+
 private:
     ApplicationManager& app_;
     LogHandler* log_;
@@ -25,7 +27,6 @@ private:
     bool openSearchBox();
     bool closeSearchBox();
 
-    bool loadItem();
     bool onEscapePress();
 };
 

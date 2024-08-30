@@ -19,8 +19,6 @@
 class ApplicationManager;
 //class LogHandler;
 
-// TODO: not really a QWidget, but this is 
-// abused for `connect`
 class GUISearchBox : public QWidget {
     Q_OBJECT
 
@@ -46,16 +44,26 @@ public:
 
 protected:
     virtual void closeEvent(QCloseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
 
 private:
+    ApplicationManager& app_;
 
     void filterOptions(const QString &text);
+
+    bool isOpen_;
 
     QLineEdit* searchField_;
     QWidget* qtWidget_;
     QListWidget* optionsList_;
 
-    bool isOpen_;
+    bool mousePressed_;
+    QPoint mouseStartPosition_;
+    QPoint windowStartPosition_;
 
     std::string title;
     std::shared_ptr<LogHandler> log;

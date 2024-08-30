@@ -15,6 +15,7 @@
 
 GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     : title("foo")
+    , app_(appManager)
     , isOpen_(false)
     , searchField_(new QLineEdit())
     , optionsList_(new QListWidget())
@@ -22,6 +23,8 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
 {
 
     LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
+
+    this->setWindowFlags(Qt::FramelessWindowHint);
 
     this->setGeometry(100, 100, 400, 300);
     this->resize(400, 300);
@@ -115,7 +118,8 @@ void GUISearchBox::setOptions(const std::vector<Plugin>& options) {
     for (const auto& plugin : options) {
         QString pluginName = QString::fromStdString(plugin.name);
         QListWidgetItem* item = new QListWidgetItem(pluginName);
-        item->setData(Qt::UserRole, QVariant::fromValue(&plugin)); // Store the plugin pointer if needed
+        item->setData(Qt::UserRole, static_cast<int>(plugin.number));
+        //item->setData(Qt::UserRole, QVariant::fromValue(&plugin)); // Store the plugin pointer if needed
         optionsList_->addItem(item);
     }
 
@@ -169,4 +173,59 @@ void GUISearchBox::handlePluginSelected(const Plugin& plugin) {
     // Handle the selected Plugin object on the C++ side
     LogHandler::getInstance().info("Plugin selected: " + plugin.name);
     // Perform additional actions as needed
+}
+
+void GUISearchBox::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        mousePressed_ = true;
+        mouseStartPosition_ = event->globalPosition().toPoint();
+        windowStartPosition_ = this->frameGeometry().topLeft();
+    }
+}
+
+void GUISearchBox::mouseMoveEvent(QMouseEvent* event) {
+    if (mousePressed_) {
+        QPoint delta = event->globalPosition().toPoint() - mouseStartPosition_;
+        this->move(windowStartPosition_ + delta);
+    }
+}
+
+void GUISearchBox::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        mousePressed_ = false;
+    }
+}
+
+void GUISearchBox::keyPressEvent(QKeyEvent* event) {
+    QWidget::keyPressEvent(event);  // Call the base class implementation
+
+    // Example: Handle specific key presses
+    if (event->key() == Qt::Key_Escape) {
+        // Handle the Escape key, e.g., close the widget
+        closeSearchBox();
+    } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+        // Handle Enter/Return key
+        // Add your logic here
+        LogHandler::getInstance().info("enter pressed");
+        QListWidgetItem* selectedItem = optionsList_->currentItem();
+        LogHandler::getInstance().info("got current item");
+        if (selectedItem && selectedItem->isSelected()) {
+            LogHandler::getInstance().info("is selected");
+            int index = selectedItem->data(Qt::UserRole).toInt();
+            LogHandler::getInstance().info("selected plugin: " + std::to_string(index));
+            ApplicationManager::getInstance().getActionHandler()->loadItem(index);
+            closeSearchBox();
+        }
+    }
+
+    // Log the key press event if needed
+    LogHandler::getInstance().info("Key Pressed: " + std::to_string(event->key()));
+}
+
+// Handle key release events
+void GUISearchBox::keyReleaseEvent(QKeyEvent* event) {
+    QWidget::keyReleaseEvent(event);  // Call the base class implementation
+
+    // Log the key release event if needed
+    LogHandler::getInstance().info("Key Released: " + std::to_string(event->key()));
 }
