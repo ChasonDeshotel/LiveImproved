@@ -57,6 +57,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     CGEventFlags flags = CGEventGetFlags(event);
 
+
+    // TODO: appPID i think needs to be livePID when
+    // injected library
+    //
     // need to capture clicks as well
     if (handler->app_.getGUISearchBox()->isOpen()
         && (eventPID == PID::getInstance().appPID() 
