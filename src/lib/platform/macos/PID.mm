@@ -3,13 +3,13 @@
 #include <Cocoa/Cocoa.h>
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
 
-#include "ApplicationManager.h"
 #include "PID.h"
+#include "LogHandler.h"
 
-PID::PID(ApplicationManager& appManager)
-    : app_(appManager)
-    , log_(appManager.getLogHandler())
+PID::PID()
+    : log_(&LogHandler::getInstance())
     , abletonLivePID(-1)
 {}
 
@@ -54,6 +54,9 @@ pid_t PID::livePID() {
     return findByName(appName);
 }
 
+pid_t PID::appPID() {
+    return getpid();
+}
 
 PID* PID::init() {
     log_->info("PID::Init() called");
@@ -71,4 +74,9 @@ PID* PID::init() {
     #endif
   
     return this;
+}
+
+PID& PID::getInstance() {
+    static PID instance;
+    return instance;
 }
