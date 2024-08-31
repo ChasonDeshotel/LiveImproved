@@ -50,7 +50,7 @@ void EventHandler::focusApplication(pid_t pid) {
     }
 }
 
-NSRect getAppBoundsByPID(pid_t pid) {
+NSRect getLiveBounds() {
     NSRect appBounds = NSMakeRect(0, 0, 0, 0);
 
     CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
@@ -65,7 +65,7 @@ NSRect getAppBoundsByPID(pid_t pid) {
         pid_t windowPidValue;
         CFNumberGetValue(windowPID, kCFNumberIntType, &windowPidValue);
 
-        if (windowPidValue == pid) {
+        if (windowPidValue == PID::getInstance().livePID()) {
             CFDictionaryRef boundsDict = (CFDictionaryRef)CFDictionaryGetValue(windowInfo, kCGWindowBounds);
             CGRect bounds;
             CGRectMakeWithDictionaryRepresentation(boundsDict, &bounds);
@@ -78,6 +78,16 @@ NSRect getAppBoundsByPID(pid_t pid) {
     CFRelease(windowList);
 
     return appBounds;
+}
+
+ERect EventHandler::getLiveBoundsRect() {
+    NSRect appBounds = getLiveBounds();
+    ERect rect;
+    rect.x = static_cast<int>(appBounds.origin.x);
+    rect.y = static_cast<int>(appBounds.origin.y);
+    rect.width = static_cast<int>(appBounds.size.width);
+    rect.height = static_cast<int>(appBounds.size.height);
+    return rect;
 }
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
@@ -111,7 +121,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
             LogHandler::getInstance().info("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
 
             if (isOutsideApp) {
-                NSRect liveBounds = getAppBoundsByPID(PID::getInstance().livePID());
+                NSRect liveBounds = getLiveBounds();
                 bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
                 LogHandler::getInstance().info("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
 

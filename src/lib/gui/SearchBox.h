@@ -18,6 +18,31 @@
 
 class ApplicationManager;
 //class LogHandler;
+//
+class CustomLineEdit : public QLineEdit {
+    Q_OBJECT
+
+public:
+    explicit CustomLineEdit(QWidget *parent = nullptr)
+        : QLineEdit(parent) {
+    }
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override {
+        if (
+              event->key() == Qt::Key_Up
+              || event->key() == Qt::Key_Down
+              || event->key() == Qt::Key_PageUp
+              || event->key() == Qt::Key_PageDown
+            
+            
+            ) {
+            event->ignore();  // Let the event propagate to the parent
+        } else {
+            QLineEdit::keyPressEvent(event);  // Handle other keys normally
+        }
+    }
+};
 
 class GUISearchBox : public QWidget {
     Q_OBJECT

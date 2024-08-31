@@ -17,7 +17,7 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     : title("foo")
     , app_(appManager)
     , isOpen_(false)
-    , searchField_(new QLineEdit())
+    , searchField_(new CustomLineEdit())
     , optionsList_(new QListWidget())
     , qtWidget_(this)
 {
@@ -26,8 +26,21 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
 
     this->setWindowFlags(Qt::FramelessWindowHint);
 
-    this->setGeometry(100, 100, 400, 300);
+    ERect liveBounds = app_.getEventHandler()->getLiveBoundsRect();
+    int widgetWidth = 400;  // Width of the widget
+    int widgetHeight = 300; // Height of the widget
+    int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
+    int yPos = liveBounds.y + (liveBounds.height - widgetHeight) / 2;
+
+    this->setGeometry(xPos, yPos, widgetWidth, widgetHeight);
     this->resize(400, 300);
+
+    optionsList_->setStyleSheet(
+        "QListWidget::item:selected {"
+        "background-color: palette(Highlight);"
+        "color: palette(HighlightedText);"
+        "}"
+    );
 
     QVBoxLayout *layout = new QVBoxLayout(this);
 
@@ -197,15 +210,93 @@ void GUISearchBox::mouseReleaseEvent(QMouseEvent* event) {
 }
 
 void GUISearchBox::keyPressEvent(QKeyEvent* event) {
-    QWidget::keyPressEvent(event);  // Call the base class implementation
+    QWidget::keyPressEvent(event);
 
-    // Example: Handle specific key presses
-    if (event->key() == Qt::Key_Escape) {
-        // Handle the Escape key, e.g., close the widget
+    int itemsPerPage = optionsList_->height() / optionsList_->sizeHintForRow(0);
+
+    if (event->key() == Qt::Key_Up) {
+        LogHandler::getInstance().info("Up pressed");
+
+        int currentIndex = optionsList_->currentRow();
+        if (currentIndex > 0) {
+            for (int i = currentIndex - 1; i >= 0; --i) {
+                if (!optionsList_->item(i)->isHidden()) {
+                    optionsList_->setCurrentRow(i);
+                    break;
+                }
+            }
+        }
+
+    } else if (event->key() == Qt::Key_Down) {
+        LogHandler::getInstance().info("Down pressed");
+
+        int currentIndex = optionsList_->currentRow();
+        if (currentIndex < optionsList_->count() - 1) {
+            for (int i = currentIndex + 1; i < optionsList_->count(); ++i) {
+                if (!optionsList_->item(i)->isHidden()) {
+                    optionsList_->setCurrentRow(i);
+                    break;
+                }
+            }
+        }
+
+    } else if (event->key() == Qt::Key_PageUp) {
+        LogHandler::getInstance().info("PageUp pressed");
+
+        int currentIndex = optionsList_->currentRow();
+        int itemsMoved = 0;
+
+        // Move up by `itemsPerPage` visible items
+        for (int i = currentIndex - 1; i >= 0 && itemsMoved < itemsPerPage; --i) {
+            if (!optionsList_->item(i)->isHidden()) {
+                itemsMoved++;
+                if (itemsMoved == itemsPerPage) {
+                    optionsList_->setCurrentRow(i);
+                }
+            }
+        }
+
+        // If less than `itemsPerPage` items were moved, select the first visible item
+        if (itemsMoved < itemsPerPage) {
+            for (int i = 0; i <= currentIndex; ++i) {
+                if (!optionsList_->item(i)->isHidden()) {
+                    optionsList_->setCurrentRow(i);
+                    break;
+                }
+            }
+        }
+
+    } else if (event->key() == Qt::Key_PageDown) {
+        LogHandler::getInstance().info("PageDown pressed");
+
+        int currentIndex = optionsList_->currentRow();
+        int itemsMoved = 0;
+
+        // Move down by `itemsPerPage` visible items
+        for (int i = currentIndex + 1; i < optionsList_->count() && itemsMoved < itemsPerPage; ++i) {
+            if (!optionsList_->item(i)->isHidden()) {
+                itemsMoved++;
+                if (itemsMoved == itemsPerPage) {
+                    optionsList_->setCurrentRow(i);
+                }
+            }
+        }
+
+        // If less than `itemsPerPage` items were moved, select the last visible item
+        if (itemsMoved < itemsPerPage) {
+            for (int i = optionsList_->count() - 1; i >= currentIndex; --i) {
+                if (!optionsList_->item(i)->isHidden()) {
+                    optionsList_->setCurrentRow(i);
+                    break;
+                }
+            }
+        }
+
+
+    } else if (event->key() == Qt::Key_Escape) {
         closeSearchBox();
+
     } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-        // Handle Enter/Return key
-        // Add your logic here
         LogHandler::getInstance().info("enter pressed");
         QListWidgetItem* selectedItem = optionsList_->currentItem();
         LogHandler::getInstance().info("got current item");

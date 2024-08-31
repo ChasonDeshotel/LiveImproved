@@ -7,6 +7,13 @@ class ApplicationManager;
 class LogHandler;
 class ActionHandler;
 
+struct ERect {
+    int x;
+    int y;
+    int width;
+    int height;
+};
+
 class EventHandler {
 public:
     EventHandler(ApplicationManager& appManager);
@@ -19,6 +26,8 @@ public:
 
     static void focusApplication(pid_t pid);
 
+    ERect getLiveBoundsRect();
+
 private:
     ApplicationManager& app_;
     LogHandler* log_;
@@ -27,6 +36,7 @@ private:
 
     CFMachPortRef eventTap;
     CFRunLoopSourceRef runLoopSource;
+
 };
 
 #endif
