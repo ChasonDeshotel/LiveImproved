@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <QApplication>
 #include <QWidget>
 #include <QVBoxLayout>
@@ -29,13 +31,7 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
 
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
-    ERect liveBounds = app_.getEventHandler()->getLiveBoundsRect();
-    int widgetWidth = 600;  // Width of the widget
-    int widgetHeight = 300; // Height of the widget
-    int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
-    int yPos = liveBounds.y + (liveBounds.height - widgetHeight) / 2;
-
-    this->setGeometry(xPos, yPos, widgetWidth, widgetHeight);
+    setWindowGeometry();
 
     optionsList_->setStyleSheet(
         "QListWidget::item:selected {"
@@ -69,6 +65,29 @@ bool GUISearchBox::isOpen() const {
     return isOpen_;
 }
 
+void GUISearchBox::setWindowGeometry() {
+    // TODO: store conf if the window has been moved
+    // or resized then override these with values
+    // from conf
+    //
+    // TODO: works with dual monitors?
+    // works with two ableton windows open?
+    QScreen *screen = QGuiApplication::primaryScreen();
+    int screenWidth = screen->geometry().width();
+    int screenHeight = screen->geometry().height();
+
+    ERect liveBounds = app_.getEventHandler()->getLiveBoundsRect();
+    int widgetWidth = 600;  // Width of the widget
+    int widgetHeight = 300; // Height of the widget
+    int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
+    int yPos = liveBounds.y + (liveBounds.height - widgetHeight) / 2;
+
+    xPos = std::max(0, std::min(xPos, screenWidth - widgetWidth));
+    yPos = std::max(0, std::min(yPos, screenHeight - widgetHeight));
+
+    this->setGeometry(xPos, yPos, widgetWidth, widgetHeight);
+}
+
 void GUISearchBox::openSearchBox() {
     if (isOpen_) {
         LogHandler::getInstance().info("Search box is already open");
@@ -83,6 +102,7 @@ void GUISearchBox::openSearchBox() {
         }
     }
 
+    setWindowGeometry();
     qtWidget_->show();
     searchField_->setFocus();
     isOpen_ = true;

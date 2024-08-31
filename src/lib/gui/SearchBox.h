@@ -66,6 +66,8 @@ public:
 
     void handlePluginSelected(QListWidgetItem* selectedItem);
 
+    void setWindowGeometry();
+
 protected:
     virtual void closeEvent(QCloseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
