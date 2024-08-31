@@ -56,7 +56,7 @@ bool IPC::init() {
                 writeRequest("READY");
             });
 
-            delay = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
+            delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
             dispatch_after(delay, backgroundQueue, ^{
                 log_->info("refreshing plugin cache");
                 app_.refreshPluginCache();
