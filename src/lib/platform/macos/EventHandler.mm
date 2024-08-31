@@ -50,6 +50,36 @@ void EventHandler::focusApplication(pid_t pid) {
     }
 }
 
+NSRect getAppBoundsByPID(pid_t pid) {
+    NSRect appBounds = NSMakeRect(0, 0, 0, 0);
+
+    CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+    CFIndex count = CFArrayGetCount(windowList);
+
+    for (CFIndex i = 0; i < count; i++) {
+        CFDictionaryRef windowInfo = (CFDictionaryRef)CFArrayGetValueAtIndex(windowList, i);
+
+        CFNumberRef windowPID;
+        windowPID = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowOwnerPID);
+
+        pid_t windowPidValue;
+        CFNumberGetValue(windowPID, kCFNumberIntType, &windowPidValue);
+
+        if (windowPidValue == pid) {
+            CFDictionaryRef boundsDict = (CFDictionaryRef)CFDictionaryGetValue(windowInfo, kCGWindowBounds);
+            CGRect bounds;
+            CGRectMakeWithDictionaryRepresentation(boundsDict, &bounds);
+
+            appBounds = NSRectFromCGRect(bounds);
+            break;
+        }
+    }
+
+    CFRelease(windowList);
+
+    return appBounds;
+}
+
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
@@ -74,17 +104,22 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
             NSRect appBounds = [searchBoxWindow frame];
 
-
             CGPoint mouseLocation = [NSEvent mouseLocation];
-            bool isOutside = !NSPointInRect(mouseLocation, appBounds);
+            bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
 
             LogHandler::getInstance().info("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
             LogHandler::getInstance().info("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
 
-            if (isOutside) {
-                LogHandler::getInstance().info("Click is outside the window, closing window.");
-                handler->app_.getGUISearchBox()->closeSearchBox();
-                return NULL;
+            if (isOutsideApp) {
+                NSRect liveBounds = getAppBoundsByPID(PID::getInstance().livePID());
+                bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
+                LogHandler::getInstance().info("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
+
+                if (isInsideLive) {
+                    LogHandler::getInstance().info("Click is outside app, inside Live, closing window.");
+                    handler->app_.getGUISearchBox()->closeSearchBox();
+                    return NULL;
+                }
             } else {
                 LogHandler::getInstance().info("Click is inside the window, keeping window open.");
             }
