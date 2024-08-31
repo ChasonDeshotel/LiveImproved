@@ -125,51 +125,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
             }
 
         }
-//            // Get the PID of the process that received the event
-//            
-//            // Define the PID of the application you're interested in
-//            pid_t specificAppPID = 12345; // Replace with the actual PID
-//
-//            // Check if the event was targeted at the specific application
-//            if (targetPID == specificAppPID) {
-//                // Perform your logic here, e.g., log, take action, etc.
-//                printf("User clicked into the application with PID %d\n", specificAppPID);
-//            }
-//        }
     }
 
-    // TODO: appPID i think needs to be livePID when
-    // injected library
-    //
-    // need to capture clicks as well
-//    if (handler->app_.getGUISearchBox()->isOpen()
-//        && (eventPID == PID::getInstance().appPID() 
-//        || eventPID == PID::getInstance().livePID())
-//        )
-//    {
-//        handler->log_->info("event pid: " + std::to_string(eventPID));
-//        handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
-//        if (eventPID == PID::getInstance().livePID()) {
-//            EventHandler::focusApplication(PID::getInstance().appPID());
-//        }
-//
-//        // Forward the event to the search box window
-//        NSEvent *event = [NSEvent keyEventWithType:NSEventTypeKeyDown
-//                                           location:NSMakePoint(0, 0)
-//                                      modifierFlags:flags
-//                                          timestamp:[[NSProcessInfo processInfo] systemUptime]
-//                                       windowNumber:[[NSApp mainWindow] windowNumber]
-//                                            context:nil
-//                                         characters:@""
-//                        charactersIgnoringModifiers:@""
-//                                          isARepeat:NO
-//                                            keyCode:keyCode];
-//
-////        GUISearchBoxWindowController* controller = (GUISearchBoxWindowController*)handler->app_.getGUISearchBox()->getWindowController();
-////        [controller.window sendEvent:event];
-//
-//        return NULL;
-//
 //    } else if (eventPID == PID::getInstance().livePID()) {
     if (eventPID == PID::getInstance().livePID()) {
         handler->log_->info("Ableton Live event detected.");
