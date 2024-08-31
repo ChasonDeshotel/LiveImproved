@@ -70,6 +70,15 @@ void GUISearchBox::openSearchBox() {
         LogHandler::getInstance().info("Search box is already open");
         return;
     }
+
+    // Reset the current row to the first visible item
+    for (int i = 0; i < optionsList_->count(); ++i) {
+        if (!optionsList_->item(i)->isHidden()) {
+            optionsList_->setCurrentRow(i);
+            break;
+        }
+    }
+
     qtWidget_->show();
     searchField_->setFocus();
     isOpen_ = true;
@@ -92,6 +101,13 @@ void GUISearchBox::closeSearchBox() {
     qtWidget_->hide();
     searchField_->clear();
     optionsList_->clearSelection();
+    optionsList_->scrollToTop();
+
+    // Additional optional reset: clear any hidden state if necessary
+    for (int i = 0; i < optionsList_->count(); ++i) {
+        optionsList_->item(i)->setHidden(false);  // Ensure all items are visible
+    }
+
     isOpen_ = false;
     ApplicationManager::getInstance().getEventHandler()->focusApplication(PID::getInstance().livePID());
 }
@@ -292,9 +308,32 @@ void GUISearchBox::keyPressEvent(QKeyEvent* event) {
             }
         }
 
+    } else if (event->key() == Qt::Key_Home) {
+        LogHandler::getInstance().info("Home pressed");
+        for (int i = 0; i < optionsList_->count(); ++i) {
+            if (!optionsList_->item(i)->isHidden()) {
+                optionsList_->setCurrentRow(i);
+                break;
+            }
+        }
+
+    } else if (event->key() == Qt::Key_End) {
+        LogHandler::getInstance().info("End pressed");
+        for (int i = optionsList_->count() - 1; i >= 0; --i) {
+            if (!optionsList_->item(i)->isHidden()) {
+                optionsList_->setCurrentRow(i);
+                break;
+            }
+        }
+
+
 
     } else if (event->key() == Qt::Key_Escape) {
-        closeSearchBox();
+        if (searchField_->text().length()) {
+            searchField_->clear();
+        } else {
+            closeSearchBox();
+        }
 
     } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         LogHandler::getInstance().info("enter pressed");
