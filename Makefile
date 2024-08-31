@@ -55,6 +55,7 @@ MODULES =                              \
     lib/ApplicationManager.cpp         \
     lib/LogHandler.cpp                 \
     lib/gui/SearchBox.cpp              \
+    lib/gui/DragTarget.cpp             \
     lib/gui/FocusedWidget.cp           \
     lib/platform/macos/IPC.cpp         \
     lib/platform/macos/PID.mm          \
@@ -95,6 +96,7 @@ MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
 MOC_HEADERS = $(SRC_DIR)/lib/gui/SearchBox.h     \
+              $(SRC_DIR)/lib/gui/DragTarget.h    \
               $(SRC_DIR)/lib/gui/FocusedWidget.h \
 							$(SRC_DIR)/Main.h
 						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
@@ -109,6 +111,7 @@ APP_OBJECTS =                                     \
     $(OBJ_DIR)/lib/ApplicationManager.o           \
     $(OBJ_DIR)/lib/LogHandler.o                   \
     $(OBJ_DIR)/lib/gui/SearchBox.o                \
+    $(OBJ_DIR)/lib/gui/DragTarget.o               \
     $(OBJ_DIR)/lib/gui/FocusedWidget.o            \
     $(OBJ_DIR)/lib/platform/macos/IPC.o           \
     $(OBJ_DIR)/lib/platform/macos/PID.o           \

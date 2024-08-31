@@ -29,6 +29,7 @@ void ApplicationManager::init() {
     keySender_ = new KeySender(*this);
 
     guiSearchBox_ = new GUISearchBox(*this);
+    dragTarget_ = new DragTarget(*this);
 
     logHandler_->info("ApplicatonManager::init() finished");
 }
@@ -59,6 +60,10 @@ KeySender* ApplicationManager::getKeySender() {
 
 GUISearchBox* ApplicationManager::getGUISearchBox() {
     return guiSearchBox_;
+}
+
+DragTarget* ApplicationManager::getDragTarget() {
+    return dragTarget_;
 }
 
 std::vector<Plugin> ApplicationManager::getPlugins() {

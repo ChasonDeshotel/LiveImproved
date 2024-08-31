@@ -40,7 +40,11 @@ bool ActionHandler::handleKeyEvent(CGKeyCode keyCode, CGEventFlags flags, std::s
               app_.refreshPluginCache();
               return false;
             case 23: // 5
-//              app_.getLogHandler()->info(app_.getPluginCacheAsStr());
+              if (app_.getDragTarget()->isOpen()) {
+                  app_.getDragTarget()->closeWindow();
+              } else {
+                  app_.getDragTarget()->openWindow();
+              }
               return false;
             case 53:  // escape
 //              if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
