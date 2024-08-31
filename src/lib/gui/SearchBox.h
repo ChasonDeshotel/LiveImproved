@@ -17,8 +17,7 @@
 #include "LogHandler.h"
 
 class ApplicationManager;
-//class LogHandler;
-//
+
 class CustomLineEdit : public QLineEdit {
     Q_OBJECT
 
@@ -65,7 +64,7 @@ public:
 
     QWidget* getQtWidget() const;
 
-    void handlePluginSelected(const Plugin& plugin);
+    void handlePluginSelected(QListWidgetItem* selectedItem);
 
 protected:
     virtual void closeEvent(QCloseEvent* event) override;
@@ -89,6 +88,8 @@ private:
     bool mousePressed_;
     QPoint mouseStartPosition_;
     QPoint windowStartPosition_;
+
+    void onItemDoubleClicked(QListWidgetItem* item);
 
     std::string title;
     std::shared_ptr<LogHandler> log;

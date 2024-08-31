@@ -24,16 +24,15 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
 
     LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
 
-    this->setWindowFlags(Qt::FramelessWindowHint);
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
     ERect liveBounds = app_.getEventHandler()->getLiveBoundsRect();
-    int widgetWidth = 400;  // Width of the widget
+    int widgetWidth = 600;  // Width of the widget
     int widgetHeight = 300; // Height of the widget
     int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
     int yPos = liveBounds.y + (liveBounds.height - widgetHeight) / 2;
 
     this->setGeometry(xPos, yPos, widgetWidth, widgetHeight);
-    this->resize(400, 300);
 
     optionsList_->setStyleSheet(
         "QListWidget::item:selected {"
@@ -50,9 +49,11 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
 
     this->setLayout(layout);
 
-    QObject::connect(searchField_, &QLineEdit::textChanged, [this](const QString &text) {
+    connect(searchField_, &QLineEdit::textChanged, [this](const QString &text) {
         this->filterOptions(text);
     });
+
+    connect(optionsList_, &QListWidget::itemDoubleClicked, this, &GUISearchBox::onItemDoubleClicked);
 }
 
 GUISearchBox::~GUISearchBox() {}
@@ -170,14 +171,19 @@ void GUISearchBox::filterOptions(const QString &text) {
         QListWidgetItem* item = optionsList_->item(i);
         QString itemText = item->text();
 
+        // Debugging: log the item text
+        LogHandler::getInstance().info("Item text: " + itemText.toStdString());
+
         // Split the item text into words
         QStringList words = itemText.split(' ', Qt::SkipEmptyParts);
 
         // Check if any word starts with the input text
         bool match = false;
         for (const QString& word : words) {
+            LogHandler::getInstance().info("Checking word: " + word.toStdString());
             if (word.startsWith(text, Qt::CaseInsensitive)) {
                 match = true;
+                LogHandler::getInstance().info("Match found: " + word.toStdString());
                 break;
             }
         }
@@ -197,11 +203,12 @@ void GUISearchBox::filterOptions(const QString &text) {
     LogHandler::getInstance().info("Filtered options based on text: " + text.toStdString());
 }
 
-
-void GUISearchBox::handlePluginSelected(const Plugin& plugin) {
+void GUISearchBox::handlePluginSelected(QListWidgetItem* selectedItem) {
     // Handle the selected Plugin object on the C++ side
-    LogHandler::getInstance().info("Plugin selected: " + plugin.name);
-    // Perform additional actions as needed
+    int index = selectedItem->data(Qt::UserRole).toInt();
+    LogHandler::getInstance().info("plugin selected: " + std::to_string(index));
+    ApplicationManager::getInstance().getActionHandler()->loadItem(index);
+    closeSearchBox();
 }
 
 void GUISearchBox::mousePressEvent(QMouseEvent* event) {
@@ -223,6 +230,15 @@ void GUISearchBox::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
         mousePressed_ = false;
     }
+}
+
+void GUISearchBox::onItemDoubleClicked(QListWidgetItem* item) {
+    if (!item) {
+        LogHandler::getInstance().error("No item selected on double-click");
+        return;
+    }
+
+    handlePluginSelected(item);
 }
 
 void GUISearchBox::keyPressEvent(QKeyEvent* event) {
@@ -340,11 +356,7 @@ void GUISearchBox::keyPressEvent(QKeyEvent* event) {
         QListWidgetItem* selectedItem = optionsList_->currentItem();
         LogHandler::getInstance().info("got current item");
         if (selectedItem && selectedItem->isSelected()) {
-            LogHandler::getInstance().info("is selected");
-            int index = selectedItem->data(Qt::UserRole).toInt();
-            LogHandler::getInstance().info("selected plugin: " + std::to_string(index));
-            ApplicationManager::getInstance().getActionHandler()->loadItem(index);
-            closeSearchBox();
+            handlePluginSelected(selectedItem);
         }
     }
 
