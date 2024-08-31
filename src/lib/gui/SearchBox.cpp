@@ -6,6 +6,8 @@
 #include <QKeyEvent>
 #include <QListView>
 #include <QString>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 #include "LogHandler.h"
 #include "ApplicationManager.h"
@@ -19,6 +21,7 @@ GUISearchBox::GUISearchBox(ApplicationManager& appManager)
     , isOpen_(false)
     , searchField_(new CustomLineEdit())
     , optionsList_(new QListWidget())
+    , originalItems_(new QListWidget())
     , qtWidget_(this)
 {
 
@@ -143,6 +146,7 @@ void GUISearchBox::setOptions(const std::vector<Plugin>& options) {
     }
 
     optionsList_->clear();
+    originalItems_->clear();
 
     // Iterate through the options and add them to the QListWidget
     for (const auto& plugin : options) {
@@ -151,56 +155,96 @@ void GUISearchBox::setOptions(const std::vector<Plugin>& options) {
         item->setData(Qt::UserRole, static_cast<int>(plugin.number));
         //item->setData(Qt::UserRole, QVariant::fromValue(&plugin)); // Store the plugin pointer if needed
         optionsList_->addItem(item);
+        originalItems_->addItem(new QListWidgetItem(*item));
     }
 
     LogHandler::getInstance().info("Options set successfully with " + std::to_string(options.size()) + " items.");
 }
 
 void GUISearchBox::filterOptions(const QString &text) {
-    if (!optionsList_) {
-        LogHandler::getInstance().error("optionsList_ is not initialized");
+    if (!optionsList_ || !originalItems_) {
+        LogHandler::getInstance().error("optionsList_ or originalItems_ is not initialized");
         return;
     }
 
     optionsList_->clearSelection();
+    optionsList_->clear();
 
-    int visibleItemCount = 0;
-    QListWidgetItem* lastVisibleItem = nullptr;
+    QListWidgetItem* firstVisibleItem = nullptr;
 
-    for (int i = 0; i < optionsList_->count(); ++i) {
-        QListWidgetItem* item = optionsList_->item(i);
-        QString itemText = item->text();
+    if (text.startsWith("r/")) {
+        if (text.length() == 2) {
+            QListWidgetItem* hintItem = new QListWidgetItem("Regex searching. Use r/<pattern>/");
+            hintItem->setFlags(hintItem->flags() & ~Qt::ItemIsSelectable);  // Make the item unselectable
+            optionsList_->addItem(hintItem);
+            return;
+        }
 
-        // Debugging: log the item text
-        LogHandler::getInstance().info("Item text: " + itemText.toStdString());
+        QString regexPattern = text.mid(2, text.length() - 3);
+        QRegularExpression regex(regexPattern, QRegularExpression::CaseInsensitiveOption);
 
-        // Split the item text into words
-        QStringList words = itemText.split(' ', Qt::SkipEmptyParts);
+        if (!regex.isValid()) {
+            QListWidgetItem* errorItem = new QListWidgetItem("Invalid regex format. Use r/<pattern>/");
+            errorItem->setFlags(errorItem->flags() & ~Qt::ItemIsSelectable);
+            optionsList_->addItem(errorItem);
+            return;
+        }
 
-        // Check if any word starts with the input text
-        bool match = false;
-        for (const QString& word : words) {
-            LogHandler::getInstance().info("Checking word: " + word.toStdString());
-            if (word.startsWith(text, Qt::CaseInsensitive)) {
-                match = true;
-                LogHandler::getInstance().info("Match found: " + word.toStdString());
-                break;
+        for (int i = 0; i < originalItems_->count(); ++i) {
+            QListWidgetItem* item = originalItems_->item(i);
+            QString itemText = item->text();
+
+            QRegularExpressionMatch match = regex.match(itemText);
+
+            if (match.hasMatch()) {
+                optionsList_->addItem(new QListWidgetItem(*item));
+                if (!firstVisibleItem) {
+                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
+                }
             }
         }
+    } else {
+        QString searchText = text.toLower();
+        QStringList searchWords = searchText.split(' ', Qt::SkipEmptyParts);
 
-        item->setHidden(!match);
-        if (match) {
-            visibleItemCount++;
-            lastVisibleItem = item;
+        for (int i = 0; i < originalItems_->count(); ++i) {
+            QListWidgetItem* item = originalItems_->item(i);
+            QString itemText = item->text().toLower();
+
+            QStringList itemWords = itemText.split(' ', Qt::SkipEmptyParts);
+            QString acronym;
+            for (const QString& word : itemWords) {
+                if (!word.isEmpty()) {
+                    acronym += word[0];
+                }
+            }
+
+            bool match = false;
+
+            if (acronym.startsWith(searchText)) {
+                match = true;
+            } else {
+                for (const QString& searchWord : searchWords) {
+                    if (itemText.contains(searchWord)) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                optionsList_->addItem(new QListWidgetItem(*item));
+                if (!firstVisibleItem) {
+                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
+                }
+            }
         }
     }
 
-    // If only one item remains visible, select it
-    if (visibleItemCount == 1 && lastVisibleItem) {
-        optionsList_->setCurrentItem(lastVisibleItem);
+    if (firstVisibleItem) {
+        optionsList_->setCurrentItem(firstVisibleItem);
+        firstVisibleItem->setSelected(true);
     }
-
-    LogHandler::getInstance().info("Filtered options based on text: " + text.toStdString());
 }
 
 void GUISearchBox::handlePluginSelected(QListWidgetItem* selectedItem) {
@@ -363,6 +407,7 @@ void GUISearchBox::keyPressEvent(QKeyEvent* event) {
     } else if (event->key() == Qt::Key_Escape) {
         if (searchField_->text().length()) {
             searchField_->clear();
+            optionsList_->clearSelection();
         } else {
             closeSearchBox();
         }
@@ -370,10 +415,11 @@ void GUISearchBox::keyPressEvent(QKeyEvent* event) {
     } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         LogHandler::getInstance().info("enter pressed");
         QListWidgetItem* selectedItem = optionsList_->currentItem();
-        LogHandler::getInstance().info("got current item");
+
         if (selectedItem && selectedItem->isSelected()) {
             handlePluginSelected(selectedItem);
         }
+
     } else {
         LogHandler::getInstance().info("KEY pressed: " + std::to_string(event->key()));
     }

@@ -78,6 +78,7 @@ private:
     ApplicationManager& app_;
 
     void filterOptions(const QString &text);
+    QListWidget* originalItems_;
 
     bool isOpen_;
 
