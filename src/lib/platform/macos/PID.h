@@ -12,11 +12,11 @@ public:
     PID(const PID&) = delete;
     PID& operator=(const PID&) = delete;
 
-    pid_t findByName(std::string processName);
+    pid_t findWithSysctl();
     pid_t livePID();
     pid_t appPID();
 
-    PID* init();
+    PID* livePIDBlocking();
 
 private:
     PID();

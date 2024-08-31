@@ -3,80 +3,92 @@
 #include <Cocoa/Cocoa.h>
 #include <iostream>
 #include <fstream>
+#include <sys/sysctl.h>
+#include <libproc.h>
+#include <dispatch/dispatch.h>
 #include <unistd.h>
 
+#include "ApplicationManager.h"
 #include "PID.h"
 #include "LogHandler.h"
 
 PID::PID()
-    : log_(&LogHandler::getInstance())
-    , abletonLivePID(-1)
+    : abletonLivePID(-1)
 {}
 
 PID::~PID() {}
 
-pid_t PID::findByName(std::string processName) {
-    log_->info("PID::findByName() called");
+PID& PID::getInstance() {
+    static PID instance;
+    return instance;
+}
+
+pid_t PID::findWithSysctl() {
+    LogHandler::getInstance().info("PID::findWithSysctl() called");
 
     if (abletonLivePID != -1) {
-      log_->info("PID::findByName() - returning cached result");
+      LogHandler::getInstance().info("PID::findByName() - returning cached result");
       return abletonLivePID;
     }
 
-    log_->info("PID::findByName() - searching running applications");
-    NSString *nsProcessName = [NSString stringWithUTF8String:processName.c_str()];
-    NSArray *runningApps = [[NSWorkspace sharedWorkspace] runningApplications];
-    
-    for (NSRunningApplication *app in runningApps) {
-        NSString *executablePath = [[app executableURL] path];
-        if ([executablePath containsString:nsProcessName]) {
-            pid_t PID = [app processIdentifier];
-            log_->info("Ableton Live found with PID: " + std::to_string(PID));
-            abletonLivePID = PID;
-            return PID;
+    int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
+    size_t len;
+
+    // Get the size of the process list
+    if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0) {
+        LogHandler::getInstance().info("sysctl failed to get process list size");
+        return -1;
+    }
+
+    struct kinfo_proc *procs = (struct kinfo_proc *)malloc(len);
+
+    if (sysctl(mib, 4, procs, &len, NULL, 0) < 0) {
+        LogHandler::getInstance().info("sysctl failed to get process list");
+        free(procs);
+        return -1;
+    }
+
+    int procCount = len / sizeof(struct kinfo_proc);
+
+    for (int i = 0; i < procCount; i++) {
+        struct kinfo_proc *proc = &procs[i];
+        LogHandler::getInstance().info(proc->kp_proc.p_comm);
+        if (strcmp(proc->kp_proc.p_comm, "Live") == 0) {
+            pid_t pid = proc->kp_proc.p_pid;
+            free(procs);
+            LogHandler::getInstance().info("Ableton Live found with PID: " + std::to_string(pid));
+            abletonLivePID = pid;
+            return pid;
         }
     }
 
-    log_->info("Failed to get Ableton Live PID");
+    free(procs);
+    LogHandler::getInstance().info("Ableton Live not found");
     return -1;
 }
 
-// TODO: consider looping here, the app is useless without the PID
 pid_t PID::livePID() {
+    LogHandler::getInstance().info("livePID() called");
     if (abletonLivePID != -1) {
-      //log_->info("PID::livePID() - returning cached result");
+      LogHandler::getInstance().info("PID::livePID() - returning cached result");
       return abletonLivePID;
     }
 
-    log_->info("PID::livePID() - finding by name");
-    std::string appName = "Ableton Live 12 Suite";
-
-    return findByName(appName);
+    return findWithSysctl();
 }
 
 pid_t PID::appPID() {
     return getpid();
 }
 
-PID* PID::init() {
-    log_->info("PID::Init() called");
-    std::string appName = "Ableton Live 12 Suite";
+PID* PID::livePIDBlocking() {
+    LogHandler::getInstance().info("PID::Init() called");
 
-    #ifdef INJECTED_LIBRARY
-      findByName(appName);
-    #else
-        #include <unistd.h>
-        while (livePID() == -1) {
-            LogHandler::getInstance().info("Application not found, retrying...");
-            livePID();
-            sleep(1);
-        }
-    #endif
+    while (livePID() == -1) {
+        LogHandler::getInstance().info("Application not found, retrying...");
+        livePID();
+        sleep(1);
+    }
   
     return this;
-}
-
-PID& PID::getInstance() {
-    static PID instance;
-    return instance;
 }

@@ -50,6 +50,8 @@ static void dylib_init() {
 int main(int argc, char *argv[]) {
     LogHandler::getInstance().info("Application started");
 
+    PID::getInstance().livePIDBlocking();
+
     static QApplication app(argc, argv);
 
     @autoreleasepool {
