@@ -7,8 +7,10 @@ INCLUDE =                             \
         -I./src                       \
         -I./src/lib                   \
         -I./src/lib/gui               \
+        -I./src/lib/config            \
         -I./src/lib/platform/macos    \
-        -I./src/lib/types
+        -I./src/lib/types             \
+				-I/usr/local/include
 
 INCLUDE_QT =                              \
            -I$(QT_PATH)/lib/QtWidgets.framework/Versions/A/Headers \
@@ -20,9 +22,11 @@ INCLUDE_QT =                              \
 
 OBJ_DIR = $(BUILD_DIR)/obj
 
-LIBS =                                \
-     -lc++                            \
-     -lSystem
+LIBS =                                      \
+     -lc++                                  \
+     -lSystem                               \
+		 -L/usr/local/Cellar/yaml-cpp/0.8.0/lib \
+     -lyaml-cpp
 
 FRAMEWORKS =                          \
            -framework Cocoa           \
@@ -46,6 +50,7 @@ APP_TARGET     = LiveImproved
 BUNDLE_PATH    = $(BUILD_DIR)/$(APP_TARGET).app
 APP_EXECUTABLE = $(BUNDLE_PATH)/Contents/MacOS/$(APP_TARGET)
 PLIST_PATH     = $(BUNDLE_PATH)/Contents/Info.plist
+LICENSE_PATH   = $(BUNDLE_PATH)/Contents/LICENSE
 
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
@@ -54,6 +59,7 @@ MODULES =                              \
 		lib/types/Plugin.h                 \
     lib/ApplicationManager.cpp         \
     lib/LogHandler.cpp                 \
+    lib/config/ConfigManager.cpp       \
     lib/gui/SearchBox.cpp              \
     lib/gui/DragTarget.cpp             \
     lib/gui/FocusedWidget.cp           \
@@ -69,6 +75,16 @@ TEST_DIR      = ./test
 BOOST_LIBS    = -lboost_unit_test_framework
 BOOST_INCLUDE = /usr/local/Cellar/boost/1.86.0/include/
 TEST_SRC      = $(wildcard $(TEST_DIR)/*.cpp)
+
+# Ensure build directories exist
+create_dirs: $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(OBJ_DIR)/lib/config
+	mkdir -p $(OBJ_DIR)/lib/gui
+	mkdir -p $(OBJ_DIR)/lib/platform/macos
+	mkdir -p $(OBJ_DIR)/lib/types
+	mkdir -p $(OBJ_DIR)/lib/config
+	mkdir -p $(OBJ_DIR)/test
 
 #
 # for building with mock modules
@@ -110,6 +126,7 @@ APP_OBJECTS =                                     \
     $(OBJ_DIR)/Main.o                             \
     $(OBJ_DIR)/lib/ApplicationManager.o           \
     $(OBJ_DIR)/lib/LogHandler.o                   \
+    lib/config/ConfigManager.o                    \
     $(OBJ_DIR)/lib/gui/SearchBox.o                \
     $(OBJ_DIR)/lib/gui/DragTarget.o               \
     $(OBJ_DIR)/lib/gui/FocusedWidget.o            \
@@ -122,10 +139,6 @@ APP_OBJECTS =                                     \
     $(MOC_OBJECTS)
 #    $(MOC_SOURCES:.cpp=.o)
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(OBJ_DIR)/lib/gui
-	mkdir -p $(OBJ_DIR)/lib/platform/macos
 
 
 #
@@ -175,6 +188,7 @@ qtapp: clean $(APP_OBJECTS) generate-plist
 	mv $(APP_TARGET) $(BUNDLE_PATH)/Contents/MacOS/
 	cp -R $(QT_PATH)/lib/QtWidgets.framework $(BUNDLE_PATH)/Contents/MacOS/
 	cp -R $(QT_PATH)/lib/QtCore.framework $(BUNDLE_PATH)/Contents/MacOS/
+	cp LICENSE $(LICENSE_PATH)
 	install_name_tool -add_rpath @executable_path/../Frameworks $(BUNDLE_PATH)/Contents/MacOS/$(APP_TARGET)
 	$(MACDEPLOYQT) $(BUNDLE_PATH)
 
@@ -183,15 +197,19 @@ qtapp: clean $(APP_OBJECTS) generate-plist
 #
 # Rule to build the object files
 # Define build directory creation as a prerequisite for object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | create_dirs
 	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.mm | $(BUILD_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.mm | create_dirs
 	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) -c $< -o $@
 
 # Rule to generate the .moc.cpp file from the .h file
-$(OBJ_DIR)/%.moc.cpp: $(SRC_DIR)/%.h | $(BUILD_DIR)
+$(OBJ_DIR)/%.moc.cpp: $(SRC_DIR)/%.h | create_dirs
 	$(MOC) $< -o $@
+
+# Rule to compile .cpp files to .o files in test
+$(OBJ_DIR)/test/%.o: $(TEST_DIR)/%.cpp | create_dirs
+	$(CC) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 # Rule to compile the .moc.cpp into a .o file
 $(OBJ_DIR)/%.moc.o: $(OBJ_DIR)/%.moc.cpp
@@ -212,11 +230,13 @@ run: $(BUNDLE_PATH)
 test: FORCE
 	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test $(TEST_SRC) $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
 
+test_config_manager: $(OBJ_DIR)/lib/config/ConfigManager.o $(OBJ_DIR)/test/lib_config_ConfigManager.o
+	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test_config_manager $(OBJ_DIR)/lib/config/ConfigManager.o $(OBJ_DIR)/test/lib_config_ConfigManager.o $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
+
+
 .PHONY: FORCE
 FORCE:
 
-run_tests: test
-	$(BUILD_DIR)/test
-
-
+run_tests: test_config_manager
+	./$(BUILD_DIR)/test_config_manager --log_level=all
 
