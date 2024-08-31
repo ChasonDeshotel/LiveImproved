@@ -16,7 +16,7 @@ public:
     void init();
 
     // returns if the event should be blocking
-    bool handleKeyEvent(int keyCode, int flags, std::string type);
+    bool handleKeyEvent(CGKeyCode keyCode, CGEventFlags flags, std::string type);
 
     bool loadItem(int itemIndex);
 

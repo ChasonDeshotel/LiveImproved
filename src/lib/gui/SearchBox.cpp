@@ -244,9 +244,27 @@ void GUISearchBox::onItemDoubleClicked(QListWidgetItem* item) {
 void GUISearchBox::keyPressEvent(QKeyEvent* event) {
     QWidget::keyPressEvent(event);
 
+    if (event->modifiers() & Qt::ShiftModifier) {
+        LogHandler::getInstance().info("Shift modifier is pressed");
+    }
+    if (event->modifiers() & Qt::ControlModifier) {
+        LogHandler::getInstance().info("Control modifier is pressed");
+    }
+    if (event->modifiers() & Qt::AltModifier) {
+        LogHandler::getInstance().info("Alt modifier is pressed");
+    }
+    if (event->modifiers() & Qt::MetaModifier) {
+        LogHandler::getInstance().info("Meta (Command) modifier is pressed");
+    }
+
     int itemsPerPage = optionsList_->height() / optionsList_->sizeHintForRow(0);
 
-    if (event->key() == Qt::Key_Up) {
+    if (event->key() == Qt::Key_F && (event->modifiers() & Qt::ControlModifier)) {
+        LogHandler::getInstance().info("cmd+f pressed");
+        searchField_->setFocus();
+        searchField_->selectAll();
+
+    } else if (event->key() == Qt::Key_Up) {
         LogHandler::getInstance().info("Up pressed");
 
         int currentIndex = optionsList_->currentRow();
@@ -342,8 +360,6 @@ void GUISearchBox::keyPressEvent(QKeyEvent* event) {
             }
         }
 
-
-
     } else if (event->key() == Qt::Key_Escape) {
         if (searchField_->text().length()) {
             searchField_->clear();
@@ -358,7 +374,10 @@ void GUISearchBox::keyPressEvent(QKeyEvent* event) {
         if (selectedItem && selectedItem->isSelected()) {
             handlePluginSelected(selectedItem);
         }
+    } else {
+        LogHandler::getInstance().info("KEY pressed: " + std::to_string(event->key()));
     }
+
 
     // Log the key press event if needed
     LogHandler::getInstance().info("Key Pressed: " + std::to_string(event->key()));

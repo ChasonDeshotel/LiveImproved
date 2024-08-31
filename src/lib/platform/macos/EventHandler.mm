@@ -97,9 +97,13 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     CGEventFlags flags = CGEventGetFlags(event);
 
+    bool isShiftPressed   = (flags & kCGEventFlagMaskShift)     != 0;
+    bool isControlPressed = (flags & kCGEventFlagMaskControl)   != 0;
+    bool isAltPressed     = (flags & kCGEventFlagMaskAlternate) != 0;
+    bool isCommandPressed = (flags & kCGEventFlagMaskCommand)   != 0;
 
     if (handler->app_.getGUISearchBox()->isOpen()) {
-        if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
+        if (eventType == kCGEventLeftMouseUp || eventType == kCGEventRightMouseUp || eventType == kCGEventOtherMouseUp) {
             pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
 
             handler->log_->info("event pid: " + std::to_string(eventPID));
@@ -127,8 +131,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
                 if (isInsideLive) {
                     LogHandler::getInstance().info("Click is outside app, inside Live, closing window.");
-                    handler->app_.getGUISearchBox()->closeSearchBox();
-                    return NULL;
+//                    handler->app_.getGUISearchBox()->closeSearchBox();
+//                    return NULL;
                 }
             } else {
                 LogHandler::getInstance().info("Click is inside the window, keeping window open.");
@@ -141,14 +145,12 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     if (eventPID == PID::getInstance().livePID()) {
         handler->log_->info("Ableton Live event detected.");
 
-    //				CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
-    //				CGEventFlags flags = CGEventGetFlags(event);
-
         int flagsInt = (int)CGEventGetFlags(event);
+        CGEventFlags flags = CGEventGetFlags(event);
         std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
 
 
-        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(static_cast<int>(keyCode), flagsInt, keyUpDown);
+        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyCode, flags, keyUpDown);
 
         if (keyUpDown == "keyDown") {
             handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flagsInt) + " should pass: " + std::to_string(shouldPassEvent));
@@ -169,11 +171,15 @@ void EventHandler::setupQuartzEventTap() {
         return;
     }
 
-    CGEventMask eventMask = (1 << kCGEventKeyDown) | 
-                           (1 << kCGEventKeyUp) | 
-                           (1 << kCGEventLeftMouseDown) | 
-                           (1 << kCGEventRightMouseDown) | 
-                           (1 << kCGEventOtherMouseDown);
+    CGEventMask eventMask = (1 << kCGEventKeyDown)
+                            | (1 << kCGEventKeyUp)
+                            | (1 << kCGEventLeftMouseDown)
+                            | (1 << kCGEventRightMouseDown)
+                            | (1 << kCGEventOtherMouseDown)
+                            | (1 << kCGEventLeftMouseUp)
+                            | (1 << kCGEventRightMouseUp)
+                            | (1 << kCGEventOtherMouseUp)
+                            ;
     CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {

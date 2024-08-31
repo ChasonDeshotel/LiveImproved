@@ -1,5 +1,8 @@
+#include <ApplicationServices/ApplicationServices.h>
+
 #include "ActionHandler.h"
 #include "ApplicationManager.h"
+
 
 ActionHandler::ActionHandler(ApplicationManager& appManager)
     : app_(appManager)
@@ -19,12 +22,12 @@ void ActionHandler::init() {
 // -- should the original event be passed
 // through to the calling function
 // or should the original input be blocked
-bool ActionHandler::handleKeyEvent(int keyCode, int flags, std::string type) {
+bool ActionHandler::handleKeyEvent(CGKeyCode keyCode, CGEventFlags flags, std::string type) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
     if (type == "keyDown") {
 
-        switch (keyCode) {
+        switch (static_cast<int>(keyCode)) {
 //            case 0:  // a
 //                return loadItem();
             case 19:
