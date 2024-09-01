@@ -1,4 +1,5 @@
 #include <ApplicationServices/ApplicationServices.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -9,6 +10,68 @@
 #include "EventHandler.h"
 #include "LogHandler.h"
 #include "PID.h"
+
+std::string keyCodeToString(CGKeyCode keyCode) {
+    // Handle special keys
+    switch (keyCode) {
+        // Function keys
+        case 122: return "F1";        // kVK_F1
+        case 120: return "F2";        // kVK_F2
+        case 99: return "F3";         // kVK_F3
+        case 118: return "F4";        // kVK_F4
+        case 96: return "F5";         // kVK_F5
+        case 97: return "F6";         // kVK_F6
+        case 98: return "F7";         // kVK_F7
+        case 100: return "F8";        // kVK_F8
+        case 101: return "F9";        // kVK_F9
+        case 103: return "F10";       // kVK_F10
+        case 105: return "F11";       // kVK_F11
+        case 107: return "F12";       // kVK_F12
+
+        // Arrow keys
+        case 123: return "Left Arrow";   // kVK_LeftArrow
+        case 124: return "Right Arrow";  // kVK_RightArrow
+        case 125: return "Down Arrow";   // kVK_DownArrow
+        case 126: return "Up Arrow";     // kVK_UpArrow
+
+        // Other special keys
+        case 53: return "Escape";    // kVK_Escape
+        case 48: return "Tab";       // kVK_Tab
+        case 49: return "Space";     // kVK_Space
+        case 36: return "Return";    // kVK_Return
+        case 51: return "Delete";    // kVK_Delete
+        case 115: return "Home";     // kVK_Home
+        case 119: return "End";      // kVK_End
+        case 116: return "Page Up";  // kVK_PageUp
+        case 121: return "Page Down";// kVK_PageDown
+
+        // Other keys
+        case 86: return "+";         // kVK_ANSI_Equal (Shift + =)
+        case 27: return "-";         // kVK_ANSI_Minus
+        //case 30: return "=";         // kVK_ANSI_Equal
+        case 50: return "`";         // kVK_ANSI_Grave
+        case 33: return "[";         // kVK_ANSI_LeftBracket
+        case 30: return "]";         // kVK_ANSI_RightBracket
+        case 42: return "\\";        // kVK_ANSI_Backslash
+        
+        default:
+            // Create a source and event to get the Unicode string
+            UniChar chars[4];
+            UniCharCount length;
+
+            CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+            CGEventRef keyEvent = CGEventCreateKeyboardEvent(source, keyCode, false);
+            if (keyEvent) {
+                CGEventKeyboardGetUnicodeString(keyEvent, sizeof(chars) / sizeof(chars[0]), &length, chars);
+                CFRelease(keyEvent);
+            }
+            CFRelease(source);
+
+            // Convert to std::string
+            return std::string(chars, chars + length);
+    }
+}
+
 
 @class GUISearchBoxWindowController;
 
@@ -149,8 +212,9 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
         CGEventFlags flags = CGEventGetFlags(event);
         std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
 
-
-        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyCode, flags, keyUpDown);
+        std::string keyString = keyCodeToString(keyCode);
+        LogHandler::getInstance().info("translated key: " + keyString);
+        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyString, flags, keyUpDown);
 
         if (keyUpDown == "keyDown") {
             handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flagsInt) + " should pass: " + std::to_string(shouldPassEvent));

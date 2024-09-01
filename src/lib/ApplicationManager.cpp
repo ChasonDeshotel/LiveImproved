@@ -1,10 +1,13 @@
 #include <string>
+#include <cstdlib>
+#include <filesystem>
 
 #include "ApplicationManager.h"
 #include "LogHandler.h"
 #include "PlatformDependent.h"
 #include "ActionHandler.h"
 #include "ResponseParser.h"
+#include "ConfigManager.h"
 
 ApplicationManager::ApplicationManager()
     : logHandler_(&LogHandler::getInstance())
@@ -14,7 +17,12 @@ ApplicationManager::ApplicationManager()
 void ApplicationManager::init() {
     logHandler_->info("ApplicatonManager::init() called");
 
-//    pid_ = (new PID(*this))->init();
+    std::filesystem::path configFilePath =
+        std::filesystem::path(std::string(getenv("HOME")))
+        / "Documents" / "Ableton" / "User Library"
+        / "Remote Scripts" / "LiveImproved" / "config.txt"
+    ;
+    configManager_ = new ConfigManager(configFilePath);
 
     // crashed when chaining
     eventHandler_ = new EventHandler(*this);
@@ -38,9 +46,9 @@ LogHandler* ApplicationManager::getLogHandler() {
     return logHandler_;
 }
 
-//pid_t ApplicationManager::getPID() {
-//    return pid_->livePID();
-//}
+ConfigManager* ApplicationManager::getConfigManager() {
+    return configManager_;
+}
 
 IPC* ApplicationManager::getIPC() {
     return ipc_;

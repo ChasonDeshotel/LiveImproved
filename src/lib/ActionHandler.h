@@ -16,13 +16,17 @@ public:
     void init();
 
     // returns if the event should be blocking
-    bool handleKeyEvent(CGKeyCode keyCode, CGEventFlags flags, std::string type);
+    bool handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type);
 
     bool loadItem(int itemIndex);
 
 private:
     ApplicationManager& app_;
     LogHandler* log_;
+
+    void initializeActionMap();
+    void foobar();
+    void sendKeypress(const std::string& key);
 
     bool openSearchBox();
     bool closeSearchBox();

@@ -4,11 +4,13 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <filesystem>
+#include <cstdlib>
 #include "yaml-cpp/yaml.h"
 
 class ConfigManager {
 public:
-    explicit ConfigManager(const std::string &configFile);
+    explicit ConfigManager(const std::filesystem::path& configFile);
 
     void loadConfig();
     void saveConfig();

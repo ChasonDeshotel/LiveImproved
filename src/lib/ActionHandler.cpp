@@ -1,4 +1,7 @@
 #include <ApplicationServices/ApplicationServices.h>
+#include <unordered_map>
+#include <iostream>
+#include <string>
 
 #include "ActionHandler.h"
 #include "ApplicationManager.h"
@@ -7,7 +10,9 @@
 ActionHandler::ActionHandler(ApplicationManager& appManager)
     : app_(appManager)
     , log_(appManager.getLogHandler())
-{}
+{
+    initializeActionMap();
+}
 
 ActionHandler::~ActionHandler() {}
 
@@ -15,41 +20,94 @@ void ActionHandler::init() {
     // should do the mapping / read config or something
 }
 
+// Helper function to split string by delimiter
+std::pair<std::string, std::string> splitAction(const std::string& action) {
+    std::string delimiter = ",";
+    size_t pos = action.find(delimiter);
+    if (pos == std::string::npos) {
+        return {action, ""}; // No delimiter found
+    }
+    return {action.substr(0, pos), action.substr(pos + delimiter.length())};
+}
+
 // need to block all events when 
 // app_.getGUISearchBox()->isOpen() = true
+
+// Define action methods
+void ActionHandler::foobar() {
+    log_->info("foobar method called!");
+}
+
+void ActionHandler::sendKeypress(const std::string& key) {
+    log_->info("Keypress sent: " + key);
+}
+
+// Define a function type for action handlers
+using ActionHandlerFunction = std::function<void(const std::string&)>;
+
+// Define a map to link action strings to methods
+std::unordered_map<std::string, ActionHandlerFunction> actionMap;
+
+// Initialize the action map
+void ActionHandler::initializeActionMap() {
+    actionMap["foobar"] = [this](const std::string& args) { this->foobar(); };
+    actionMap["keypress"] = [this](const std::string& args) { this->sendKeypress(args); };
+}
 
 // returns: bool: shouldPassEvent
 // -- should the original event be passed
 // through to the calling function
 // or should the original input be blocked
-bool ActionHandler::handleKeyEvent(CGKeyCode keyCode, CGEventFlags flags, std::string type) {
+bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+
+    std::unordered_map<std::string, std::string> remap = app_.getConfigManager()->getRemap();
+
+    for (const auto& pair : remap) {
+        log_->info("key: " + std::string(pair.first) + " value: " + std::string(pair.second));
+    }
+
+    // Find the remap entry
+    auto it = remap.find(keyString);
+    if (it != remap.end()) {
+        std::string action = it->second;
+        // Split the action string into type and arguments
+        auto [actionType, args] = splitAction(action);
+        auto actionHandler = actionMap.find(actionType);
+        if (actionHandler != actionMap.end()) {
+            // Call the corresponding method with arguments
+            actionHandler->second(args);
+        } else {
+            log_->info("No handler found for action type: " + actionType);
+        }
+    } else {
+        log_->info("Key not found in remap: " + keyString);
+    }
+
 
     if (type == "keyDown") {
 
-        switch (static_cast<int>(keyCode)) {
-//            case 0:  // a
-//                return loadItem();
-            case 19:
+        if (keyString == "2") {
               openSearchBox();
               return false;
-            case 20:
+        } else if (keyString == "3") {
               app_.getIPC()->writeRequest("RELOAD");
               return false;
-            case 21:
+        } else if (keyString == "4") {
               app_.refreshPluginCache();
               return false;
-            case 23: // 5
+        } else if (keyString == "5") {
               if (app_.getDragTarget()->isOpen()) {
                   app_.getDragTarget()->closeWindow();
               } else {
                   app_.getDragTarget()->openWindow();
               }
               return false;
-            case 53:  // escape
+        } else if (keyString == "Escape") {
 //              if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
                   closeSearchBox();
                   return false;
+        } else {
 //              } else {
 //                  return true;
 //              }
@@ -84,7 +142,6 @@ bool ActionHandler::handleKeyEvent(CGKeyCode keyCode, CGEventFlags flags, std::s
 //                  return false;
 //              }
 
-            default:
               return true;
         }
 

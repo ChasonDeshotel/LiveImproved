@@ -6,6 +6,7 @@
 
 #include "PlatformDependent.h"
 #include "ActionHandler.h"
+#include "ConfigManager.h"
 #include "LogHandler.h"
 #include "ResponseParser.h"
 #include "EventHandler.h"
@@ -23,7 +24,7 @@ public:
 
     LogHandler* getLogHandler();
 
-//    pid_t getPID();
+    ConfigManager* getConfigManager();
     EventHandler* getEventHandler();
     ActionHandler* getActionHandler();
     KeySender* getKeySender();
@@ -39,14 +40,13 @@ public:
     void refreshPluginCache();
 
 private:
-    // Private constructor to prevent direct instantiation
     ApplicationManager();
 
     ApplicationManager(const ApplicationManager&) = delete;
     ApplicationManager& operator=(const ApplicationManager&) = delete;
 
-    //PID* pid_ = nullptr;
     IPC* ipc_ = nullptr;
+    ConfigManager* configManager_ = nullptr;
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;

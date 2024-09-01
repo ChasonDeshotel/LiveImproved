@@ -28,10 +28,11 @@ LIBS =                                      \
 		 -L/usr/local/Cellar/yaml-cpp/0.8.0/lib \
      -lyaml-cpp
 
-FRAMEWORKS =                          \
-           -framework Cocoa           \
-           -framework CoreFoundation  \
-           -framework CoreGraphics
+FRAMEWORKS =                              \
+           -framework Cocoa               \
+           -framework CoreFoundation      \
+           -framework CoreGraphics        \
+           -framework ApplicationServices
 
 FRAMEWORKS_QT =                             \
               -F $(HOME)/Qt/6.7.2/macos/lib \
@@ -54,20 +55,20 @@ LICENSE_PATH   = $(BUNDLE_PATH)/Contents/LICENSE
 
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
-MODULES =                              \
-    Main.mm                            \
-		lib/types/Plugin.h                 \
-    lib/ApplicationManager.cpp         \
-    lib/LogHandler.cpp                 \
-    lib/config/ConfigManager.cpp       \
-    lib/gui/SearchBox.cpp              \
-    lib/gui/DragTarget.cpp             \
-    lib/gui/FocusedWidget.cp           \
-    lib/platform/macos/IPC.cpp         \
-    lib/platform/macos/PID.mm          \
-    lib/platform/macos/EventHandler.mm \
-    lib/platform/macos/KeySender.mm    \
-    lib/ActionHandler.cpp              \
+MODULES =                               \
+    Main.mm                             \
+    lib/types/Plugin.h                  \
+    lib/ApplicationManager.cpp          \
+    lib/LogHandler.cpp                  \
+    lib/config/ConfigManager.cpp        \
+    lib/gui/SearchBox.cpp               \
+    lib/gui/DragTarget.cpp              \
+    lib/gui/FocusedWidget.cp            \
+    lib/platform/macos/IPC.cpp          \
+    lib/platform/macos/PID.mm           \
+    lib/platform/macos/EventHandler.mm  \
+    lib/platform/macos/KeySender.mm     \
+    lib/ActionHandler.cpp               \
     lib/ResponseParser.cpp
 
 # for running tests
@@ -126,7 +127,7 @@ APP_OBJECTS =                                     \
     $(OBJ_DIR)/Main.o                             \
     $(OBJ_DIR)/lib/ApplicationManager.o           \
     $(OBJ_DIR)/lib/LogHandler.o                   \
-    lib/config/ConfigManager.o                    \
+    $(OBJ_DIR)/lib/config/ConfigManager.o         \
     $(OBJ_DIR)/lib/gui/SearchBox.o                \
     $(OBJ_DIR)/lib/gui/DragTarget.o               \
     $(OBJ_DIR)/lib/gui/FocusedWidget.o            \
@@ -182,7 +183,8 @@ generate-plist:
 	@echo '</dict>' >> $(PLIST_PATH)
 	@echo '</plist>' >> $(PLIST_PATH)
 
-qtapp: clean $(APP_OBJECTS) generate-plist
+qtapp: $(APP_OBJECTS) generate-plist
+	@echo 'qtapp'
 	$(CC) $(APP_OBJECTS) -o $(APP_TARGET) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) $(LIBS) $(FRAMEWORKS) $(FRAMEWORKS_QT) -headerpad_max_install_names
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 	mv $(APP_TARGET) $(BUNDLE_PATH)/Contents/MacOS/
@@ -198,13 +200,16 @@ qtapp: clean $(APP_OBJECTS) generate-plist
 # Rule to build the object files
 # Define build directory creation as a prerequisite for object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | create_dirs
+	@echo 'cpp'
 	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.mm | create_dirs
+	@echo 'o'
 	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_QT) -c $< -o $@
 
 # Rule to generate the .moc.cpp file from the .h file
 $(OBJ_DIR)/%.moc.cpp: $(SRC_DIR)/%.h | create_dirs
+	@echo 'moc'
 	$(MOC) $< -o $@
 
 # Rule to compile .cpp files to .o files in test

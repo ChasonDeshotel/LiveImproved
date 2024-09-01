@@ -1,17 +1,22 @@
+#include "LogHandler.h"
 #include "ConfigManager.h"
 #include <fstream>
 #include <iostream>
+#include <filesystem>
+#include <cstdlib>
 
-ConfigManager::ConfigManager(const std::string &configFile)
+ConfigManager::ConfigManager(const std::filesystem::path& configFile)
     : configFile_(configFile) {
     loadConfig();
+
+    LogHandler::getInstance().info("\n\n\n\n\n\n" + configFile.string());
 }
 
 void ConfigManager::loadConfig() {
     try {
         applyConfig(YAML::LoadFile(configFile_));
     } catch (const std::exception &e) {
-        std::cerr << "Error loading config: " << e.what() << std::endl;
+        LogHandler::getInstance().info("Error loading config: " + std::string(e.what()));
     }
 }
 
@@ -129,6 +134,7 @@ void ConfigManager::setInitRetries(int retries) {
 }
 
 std::unordered_map<std::string, std::string> ConfigManager::getRemap() const {
+    LogHandler::getInstance().info("get remap caled");
     return remap_;
 }
 
