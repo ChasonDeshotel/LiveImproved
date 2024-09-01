@@ -17,6 +17,8 @@ public:
 
     // returns if the event should be blocking
     bool handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type);
+    
+    void handleDoubleRightClick();
 
     bool loadItem(int itemIndex);
 

@@ -1,10 +1,12 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <Cocoa/Cocoa.h>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <objc/runtime.h>
-#include <Cocoa/Cocoa.h>
+#include <chrono>
+#include <optional>
 
 #include "ApplicationManager.h"
 #include "EventHandler.h"
@@ -55,7 +57,6 @@ std::string keyCodeToString(CGKeyCode keyCode) {
         case 42: return "\\";        // kVK_ANSI_Backslash
         
         default:
-            // Create a source and event to get the Unicode string
             UniChar chars[4];
             UniCharCount length;
 
@@ -67,11 +68,9 @@ std::string keyCodeToString(CGKeyCode keyCode) {
             }
             CFRelease(source);
 
-            // Convert to std::string
             return std::string(chars, chars + length);
     }
 }
-
 
 @class GUISearchBoxWindowController;
 
@@ -153,10 +152,39 @@ ERect EventHandler::getLiveBoundsRect() {
     return rect;
 }
 
+std::optional<std::chrono::steady_clock::time_point> lastRightClickTime;
+// TODO: move to config
+const int doubleClickThresholdMs = 300;
+
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
+    // 40 is weird. The normal flag didn't work
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
+
+    // double-right-click
+    if (eventType == kCGEventRightMouseDown && eventPID == PID::getInstance().livePID()) {
+        handler->log_->info("Ableton Live click event detected.");
+        handler->log_->info("right click event");
+        auto now = std::chrono::steady_clock::now();
+
+        if (lastRightClickTime.has_value()) {
+            auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
+            handler->log_->info("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
+
+            if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
+                handler->log_->info("double right click");
+                handler->app_.getActionHandler()->handleDoubleRightClick();
+                return NULL;
+            }
+        } else {
+            handler->log_->info("First right click detected, skipping double-click check");
+        }
+
+        lastRightClickTime = now;
+        return event;
+    }
+
     CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     CGEventFlags flags = CGEventGetFlags(event);
 
@@ -204,9 +232,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
         }
     }
 
-//    } else if (eventPID == PID::getInstance().livePID()) {
-    if (eventPID == PID::getInstance().livePID()) {
-        handler->log_->info("Ableton Live event detected.");
+    if (eventType == kCGEventKeyDown && eventPID == PID::getInstance().livePID()) {
+        handler->log_->info("Ableton Live keydown event detected.");
 
         int flagsInt = (int)CGEventGetFlags(event);
         CGEventFlags flags = CGEventGetFlags(event);
@@ -256,15 +283,4 @@ void EventHandler::setupQuartzEventTap() {
     CGEventTapEnable(eventTap, true);
     log_->info("Quartz event tap is active!");
 
-    // blocking mode
-    //CFRunLoopRun();
-    
-    // non-blocking
-    //while (true) {
-    //    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, false);  // 0.1-second timeout
-
-    //    app.getIPC()->init();
-    //    // Additional non-blocking tasks can be done here
-    //}
 }
-

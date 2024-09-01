@@ -5,6 +5,7 @@
 
 #include "ActionHandler.h"
 #include "ApplicationManager.h"
+#include "ContextMenu.h"
 
 
 ActionHandler::ActionHandler(ApplicationManager& appManager)
@@ -54,6 +55,12 @@ void ActionHandler::initializeActionMap() {
     actionMap["keypress"] = [this](const std::string& args) { this->sendKeypress(args); };
 }
 
+void ActionHandler::handleDoubleRightClick() {
+    ContextMenu* menu = new ContextMenu(nullptr);
+    menu->move(QCursor::pos());
+    menu->exec();
+}
+
 // returns: bool: shouldPassEvent
 // -- should the original event be passed
 // through to the calling function
@@ -62,10 +69,6 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
     std::unordered_map<std::string, std::string> remap = app_.getConfigManager()->getRemap();
-
-    for (const auto& pair : remap) {
-        log_->info("key: " + std::string(pair.first) + " value: " + std::string(pair.second));
-    }
 
     // Find the remap entry
     auto it = remap.find(keyString);
@@ -87,7 +90,13 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 
     if (type == "keyDown") {
 
-        if (keyString == "2") {
+        if (keyString == "1") {
+              log_->info("menu triggered");
+              ContextMenu* menu = new ContextMenu(nullptr);
+              menu->move(QCursor::pos());
+              menu->show();
+              return false;
+        } else if (keyString == "2") {
               openSearchBox();
               return false;
         } else if (keyString == "3") {

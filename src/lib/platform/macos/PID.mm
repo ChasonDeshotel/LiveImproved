@@ -24,10 +24,10 @@ PID& PID::getInstance() {
 }
 
 pid_t PID::findWithSysctl() {
-    LogHandler::getInstance().info("PID::findWithSysctl() called");
+//    LogHandler::getInstance().info("PID::findWithSysctl() called");
 
     if (abletonLivePID != -1) {
-      LogHandler::getInstance().info("PID::findByName() - returning cached result");
+//      LogHandler::getInstance().info("PID::findByName() - returning cached result");
       return abletonLivePID;
     }
 
@@ -52,7 +52,7 @@ pid_t PID::findWithSysctl() {
 
     for (int i = 0; i < procCount; i++) {
         struct kinfo_proc *proc = &procs[i];
-        LogHandler::getInstance().info(proc->kp_proc.p_comm);
+//        LogHandler::getInstance().info(proc->kp_proc.p_comm);
         if (strcmp(proc->kp_proc.p_comm, "Live") == 0) {
             pid_t pid = proc->kp_proc.p_pid;
             free(procs);
@@ -70,7 +70,7 @@ pid_t PID::findWithSysctl() {
 pid_t PID::livePID() {
     LogHandler::getInstance().info("livePID() called");
     if (abletonLivePID != -1) {
-      LogHandler::getInstance().info("PID::livePID() - returning cached result");
+//      LogHandler::getInstance().info("PID::livePID() - returning cached result");
       return abletonLivePID;
     }
 
