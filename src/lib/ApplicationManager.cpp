@@ -13,8 +13,7 @@
 
 ApplicationManager::ApplicationManager()
     : logHandler_(&LogHandler::getInstance())
-{
-}
+{}
 
 int main(int argc, char *argv[]) {
     ApplicationManager& appManager = ApplicationManager::getInstance();
