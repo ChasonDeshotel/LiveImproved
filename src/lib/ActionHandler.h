@@ -21,13 +21,13 @@ public:
     void handleDoubleRightClick();
 
     bool loadItem(int itemIndex);
+    bool loadItemByName(std::string itemName);
 
 private:
     ApplicationManager& app_;
     LogHandler* log_;
 
     void initializeActionMap();
-    void foobar();
     void sendKeypress(const std::string& key);
 
     bool openSearchBox();

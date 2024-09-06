@@ -7,7 +7,6 @@
 #include "ApplicationManager.h"
 #include "ContextMenu.h"
 
-
 ActionHandler::ActionHandler(ApplicationManager& appManager)
     : app_(appManager)
     , log_(appManager.getLogHandler())
@@ -34,15 +33,6 @@ std::pair<std::string, std::string> splitAction(const std::string& action) {
 // need to block all events when 
 // app_.getGUISearchBox()->isOpen() = true
 
-// Define action methods
-void ActionHandler::foobar() {
-    log_->info("foobar method called!");
-}
-
-void ActionHandler::sendKeypress(const std::string& key) {
-    log_->info("Keypress sent: " + key);
-}
-
 // Define a function type for action handlers
 using ActionHandlerFunction = std::function<void(const std::string&)>;
 
@@ -51,15 +41,58 @@ std::unordered_map<std::string, ActionHandlerFunction> actionMap;
 
 // Initialize the action map
 void ActionHandler::initializeActionMap() {
-    actionMap["foobar"] = [this](const std::string& args) { this->foobar(); };
+    // TODO: case insensitive
+    // TODO: multiple args (plugin,Sylenth,Serum)
+    actionMap["gui-searchbox"] = [this](const std::string& args) { app_.getGUISearchBox()->openSearchBox(); };
+    actionMap["write-request"] = [this](const std::string& args) { app_.getIPC()->writeRequest(args); };
+
     actionMap["keypress"] = [this](const std::string& args) { this->sendKeypress(args); };
+    actionMap["plugin"]   = [this](const std::string& args) { this->loadItemByName(args); };
 }
 
-void ActionHandler::handleDoubleRightClick() {
-    ContextMenu* menu = new ContextMenu(nullptr);
-    menu->move(QCursor::pos());
-    menu->exec();
+void ActionHandler::sendKeypress(const std::string& key) {
+    log_->info("Keypress sent: " + key);
 }
+
+// TODO: move to GUISearchBox?
+bool ActionHandler::openSearchBox() {
+    app_.getGUISearchBox()->openSearchBox();
+    return false;
+}
+
+// TODO: move to GUISearchBox?
+bool ActionHandler::closeSearchBox() {
+    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchTextLength()) {
+        app_.getGUISearchBox()->clearSearchText();
+    } else {
+        app_.getGUISearchBox()->closeSearchBox();
+    }
+    return false;
+}
+
+bool ActionHandler::loadItem(int itemIndex) {
+    log_->info("writing request");
+    app_.getIPC()->writeRequest("load_item," + std::to_string(itemIndex));
+    return false;
+}
+
+bool ActionHandler::loadItemByName(std::string itemName) {
+    log_->info("writing request");
+
+    for (const auto& plugin : app_.getPlugins()) {
+        if (itemName == plugin.name) {
+          //item->setData(Qt::UserRole, static_cast<int>(plugin.number));
+          app_.getIPC()->writeRequest("load_item," + std::to_string(plugin.number));
+        }
+    }
+    return false;
+}
+
+//bool ActionHandler::onEscapePress() {
+//    app_.getLogHandler()->info("Escape pressed");
+//    app_.getIPC()->readResponse();
+//    return true;
+//}
 
 // returns: bool: shouldPassEvent
 // -- should the original event be passed
@@ -96,9 +129,6 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
               menu->move(QCursor::pos());
               menu->show();
               return false;
-        } else if (keyString == "2") {
-              openSearchBox();
-              return false;
         } else if (keyString == "3") {
               app_.getIPC()->writeRequest("RELOAD");
               return false;
@@ -113,9 +143,8 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
               }
               return false;
         } else if (keyString == "Escape") {
-//              if (app_.getGUISearchBox() && app_.getGUISearchBox()->isOpen()) {
-                  closeSearchBox();
-                  return false;
+              closeSearchBox();
+              return false;
         } else {
 //              } else {
 //                  return true;
@@ -169,6 +198,12 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
     return true;
 }
 
+void ActionHandler::handleDoubleRightClick() {
+    ContextMenu* menu = new ContextMenu(nullptr);
+    menu->move(QCursor::pos());
+    menu->exec();
+}
+
 // move to ActionHandler
 //				introspect();
 //        if (type == kCGEventKeyDown && keyCode == 18 && (CGEventGetFlags(event))) {
@@ -193,31 +228,4 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 //		return event;
 //}
 
-
-bool ActionHandler::openSearchBox() {
-    app_.getGUISearchBox()->openSearchBox();
-    return false;
-}
-
-bool ActionHandler::closeSearchBox() {
-    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchTextLength()) {
-        app_.getGUISearchBox()->clearSearchText();
-    } else {
-        app_.getGUISearchBox()->closeSearchBox();
-    }
-    return false;
-}
-
-
-bool ActionHandler::loadItem(int itemIndex) {
-    log_->info("writing request");
-    app_.getIPC()->writeRequest("load_item," + std::to_string(itemIndex));
-    return false;
-}
-
-//bool ActionHandler::onEscapePress() {
-//    app_.getLogHandler()->info("Escape pressed");
-//    app_.getIPC()->readResponse();
-//    return true;
-//}
 
