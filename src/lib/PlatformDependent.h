@@ -8,6 +8,7 @@
 #include "PID.h"
 #include "EventHandler.h"
 #include "KeySender.h"
+#include "PlatformInitializer.h"
 #endif
 
 #endif

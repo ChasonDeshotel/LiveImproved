@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <filesystem>
 
+#include <QApplication>
+
 #include "ApplicationManager.h"
 #include "LogHandler.h"
 #include "PlatformDependent.h"
@@ -14,6 +16,27 @@ ApplicationManager::ApplicationManager()
 {
 }
 
+int main(int argc, char *argv[]) {
+    ApplicationManager& appManager = ApplicationManager::getInstance();
+
+    appManager.getLogHandler()->info("Application started");
+    appManager.getLogHandler()->info("int main()");
+
+    static QApplication app(argc, argv);
+
+    appManager.init();
+    appManager.getLogHandler()->info("ApplicatonManager::init() called");
+
+    // block until Live is running
+    PID::getInstance().livePIDBlocking();
+
+    PlatformInitializer::init();
+
+    appManager.getEventHandler()->setupQuartzEventTap();
+
+    PlatformInitializer::run();
+}
+
 void ApplicationManager::init() {
     logHandler_->info("ApplicatonManager::init() called");
 
@@ -22,22 +45,16 @@ void ApplicationManager::init() {
         / "Documents" / "Ableton" / "User Library"
         / "Remote Scripts" / "LiveImproved" / "config.txt"
     ;
-    configManager_ = new ConfigManager(configFilePath);
+    configManager_  = new ConfigManager(configFilePath);
 
-    // crashed when chaining
-    eventHandler_ = new EventHandler(*this);
-    eventHandler_->init(); // start event loop
-
-    ipc_ = new IPC(*this);
-    ipc_->init();
-
+    eventHandler_   = new EventHandler(*this);
+    ipc_            = new IPC(*this);
     responseParser_ = new ResponseParser(*this);
+    actionHandler_  = new ActionHandler(*this);
+    keySender_      = new KeySender(*this);
 
-    actionHandler_ = new ActionHandler(*this);
-    keySender_ = new KeySender(*this);
-
-    guiSearchBox_ = new GUISearchBox(*this);
-    dragTarget_ = new DragTarget(*this);
+    guiSearchBox_   = new GUISearchBox(*this);
+    dragTarget_     = new DragTarget(*this);
 
     logHandler_->info("ApplicatonManager::init() finished");
 }

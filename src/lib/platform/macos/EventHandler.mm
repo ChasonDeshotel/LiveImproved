@@ -90,13 +90,6 @@ EventHandler::~EventHandler() {
     }
 }
 
-void EventHandler::init() {
-    log_->info("EventHandler::Init() called");
-  
-    app_.getEventHandler()->setupQuartzEventTap();
-
-}
-
 // should not use this, instead dispatch async
 void EventHandler::runPlatform() {
     [[NSApplication sharedApplication] run];

@@ -55,21 +55,21 @@ LICENSE_PATH   = $(BUNDLE_PATH)/Contents/LICENSE
 
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
-MODULES =                               \
-    Main.mm                             \
-    lib/types/Plugin.h                  \
-    lib/ApplicationManager.cpp          \
-    lib/LogHandler.cpp                  \
-    lib/config/ConfigManager.cpp        \
-    lib/gui/ContextMenu.cpp             \
-    lib/gui/SearchBox.cpp               \
-    lib/gui/DragTarget.cpp              \
-    lib/gui/FocusedWidget.cp            \
-    lib/platform/macos/IPC.cpp          \
-    lib/platform/macos/PID.mm           \
-    lib/platform/macos/EventHandler.mm  \
-    lib/platform/macos/KeySender.mm     \
-    lib/ActionHandler.cpp               \
+MODULES =                                    \
+    lib/types/Plugin.h                       \
+    lib/ApplicationManager.cpp               \
+    lib/LogHandler.cpp                       \
+    lib/config/ConfigManager.cpp             \
+    lib/gui/ContextMenu.cpp                  \
+    lib/gui/SearchBox.cpp                    \
+    lib/gui/DragTarget.cpp                   \
+    lib/gui/FocusedWidget.cp                 \
+    lib/platform/macos/PlatformInitalizer.mm \
+    lib/platform/macos/IPC.cpp               \
+    lib/platform/macos/PID.mm                \
+    lib/platform/macos/EventHandler.mm       \
+    lib/platform/macos/KeySender.mm          \
+    lib/ActionHandler.cpp                    \
     lib/ResponseParser.cpp
 
 # for running tests
@@ -116,8 +116,7 @@ MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 MOC_HEADERS = $(SRC_DIR)/lib/gui/SearchBox.h     \
               $(SRC_DIR)/lib/gui/ContextMenu.h   \
               $(SRC_DIR)/lib/gui/DragTarget.h    \
-              $(SRC_DIR)/lib/gui/FocusedWidget.h \
-							$(SRC_DIR)/Main.h
+              $(SRC_DIR)/lib/gui/FocusedWidget.h
 						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
 
 MOC_SOURCES = $(MOC_HEADERS:$(SRC_DIR)/%.h=$(OBJ_DIR)/%.moc.cpp)
@@ -125,21 +124,21 @@ MOC_SOURCES = $(MOC_HEADERS:$(SRC_DIR)/%.h=$(OBJ_DIR)/%.moc.cpp)
 MOC_OBJECTS = $(MOC_SOURCES:.cpp=.o)
 
 # explicitly list so clean doesn't nuke .mm's
-APP_OBJECTS =                                     \
-    $(OBJ_DIR)/Main.o                             \
-    $(OBJ_DIR)/lib/ApplicationManager.o           \
-    $(OBJ_DIR)/lib/LogHandler.o                   \
-    $(OBJ_DIR)/lib/config/ConfigManager.o         \
-    $(OBJ_DIR)/lib/gui/ContextMenu.o              \
-    $(OBJ_DIR)/lib/gui/SearchBox.o                \
-    $(OBJ_DIR)/lib/gui/DragTarget.o               \
-    $(OBJ_DIR)/lib/gui/FocusedWidget.o            \
-    $(OBJ_DIR)/lib/platform/macos/IPC.o           \
-    $(OBJ_DIR)/lib/platform/macos/PID.o           \
-    $(OBJ_DIR)/lib/platform/macos/EventHandler.o  \
-    $(OBJ_DIR)/lib/platform/macos/KeySender.o     \
-    $(OBJ_DIR)/lib/ActionHandler.o                \
-    $(OBJ_DIR)/lib/ResponseParser.o               \
+APP_OBJECTS =                                           \
+    $(OBJ_DIR)/lib/ApplicationManager.o                 \
+    $(OBJ_DIR)/lib/LogHandler.o                         \
+    $(OBJ_DIR)/lib/config/ConfigManager.o               \
+    $(OBJ_DIR)/lib/gui/ContextMenu.o                    \
+    $(OBJ_DIR)/lib/gui/SearchBox.o                      \
+    $(OBJ_DIR)/lib/gui/DragTarget.o                     \
+    $(OBJ_DIR)/lib/gui/FocusedWidget.o                  \
+    $(OBJ_DIR)/lib/platform/macos/PlatformInitializer.o \
+    $(OBJ_DIR)/lib/platform/macos/IPC.o                 \
+    $(OBJ_DIR)/lib/platform/macos/PID.o                 \
+    $(OBJ_DIR)/lib/platform/macos/EventHandler.o        \
+    $(OBJ_DIR)/lib/platform/macos/KeySender.o           \
+    $(OBJ_DIR)/lib/ActionHandler.o                      \
+    $(OBJ_DIR)/lib/ResponseParser.o                     \
     $(MOC_OBJECTS)
 #    $(MOC_SOURCES:.cpp=.o)
 

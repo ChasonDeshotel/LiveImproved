@@ -68,7 +68,7 @@ pid_t PID::findWithSysctl() {
 }
 
 pid_t PID::livePID() {
-    LogHandler::getInstance().info("livePID() called");
+//    LogHandler::getInstance().info("livePID() called");
     if (abletonLivePID != -1) {
 //      LogHandler::getInstance().info("PID::livePID() - returning cached result");
       return abletonLivePID;

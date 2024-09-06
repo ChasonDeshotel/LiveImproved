@@ -19,8 +19,6 @@ public:
     EventHandler(ApplicationManager& appManager);
     ~EventHandler();
 
-    void init();
-
     void setupQuartzEventTap();
     void runPlatform();
 
