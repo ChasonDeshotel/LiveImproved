@@ -13,6 +13,7 @@
 #include "LogHandler.h"
 #include "PID.h"
 
+// TODO: unsuckify this
 std::string keyCodeToString(CGKeyCode keyCode) {
     // Handle special keys
     switch (keyCode) {
@@ -155,29 +156,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     // 40 is weird. The normal flag didn't work
 		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
-    // double-right-click
-    if (eventType == kCGEventRightMouseDown && eventPID == PID::getInstance().livePID()) {
-        handler->log_->info("Ableton Live click event detected.");
-        handler->log_->info("right click event");
-        auto now = std::chrono::steady_clock::now();
-
-        if (lastRightClickTime.has_value()) {
-            auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
-            handler->log_->info("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
-
-            if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
-                handler->log_->info("double right click");
-                handler->app_.getActionHandler()->handleDoubleRightClick();
-                return NULL;
-            }
-        } else {
-            handler->log_->info("First right click detected, skipping double-click check");
-        }
-
-        lastRightClickTime = now;
-        return event;
-    }
-
     CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     CGEventFlags flags = CGEventGetFlags(event);
 
@@ -185,6 +163,48 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     bool isControlPressed = (flags & kCGEventFlagMaskControl)   != 0;
     bool isAltPressed     = (flags & kCGEventFlagMaskAlternate) != 0;
     bool isCommandPressed = (flags & kCGEventFlagMaskCommand)   != 0;
+
+    if (eventPID == PID::getInstance().livePID()) {
+        // double-right-click
+        if (eventType == kCGEventRightMouseDown) {
+            handler->log_->info("Ableton Live right click event detected.");
+            //handler->log_->info("right click event");
+            auto now = std::chrono::steady_clock::now();
+
+            if (lastRightClickTime.has_value()) {
+                auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
+                handler->log_->info("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
+
+                if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
+                    //handler->log_->info("double right click");
+                    handler->app_.getActionHandler()->handleDoubleRightClick();
+                    return NULL;
+                }
+            } else {
+                // handler->log_->info("First right click detected, skipping double-click check");
+            }
+
+            lastRightClickTime = now;
+            return event;
+
+        } else if (eventType == kCGEventKeyDown) {
+            handler->log_->info("Ableton Live keydown event detected.");
+
+            int flagsInt = (int)CGEventGetFlags(event);
+            CGEventFlags flags = CGEventGetFlags(event);
+            std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
+
+            std::string keyString = keyCodeToString(keyCode);
+            LogHandler::getInstance().info("translated key: " + keyString);
+            bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyString, flags, keyUpDown);
+
+            if (keyUpDown == "keyDown") {
+                handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flagsInt) + " should pass: " + std::to_string(shouldPassEvent));
+            }
+
+            return shouldPassEvent ? event : NULL;
+        }
+    }
 
     if (handler->app_.getGUISearchBox()->isOpen()) {
         if (eventType == kCGEventLeftMouseUp || eventType == kCGEventRightMouseUp || eventType == kCGEventOtherMouseUp) {
@@ -225,24 +245,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
         }
     }
 
-    if (eventType == kCGEventKeyDown && eventPID == PID::getInstance().livePID()) {
-        handler->log_->info("Ableton Live keydown event detected.");
-
-        int flagsInt = (int)CGEventGetFlags(event);
-        CGEventFlags flags = CGEventGetFlags(event);
-        std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
-
-        std::string keyString = keyCodeToString(keyCode);
-        LogHandler::getInstance().info("translated key: " + keyString);
-        bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyString, flags, keyUpDown);
-
-        if (keyUpDown == "keyDown") {
-            handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flagsInt) + " should pass: " + std::to_string(shouldPassEvent));
-        }
-
-        return shouldPassEvent ? event : NULL;
-    }
-
     return event;
 }
 
@@ -251,7 +253,7 @@ void EventHandler::setupQuartzEventTap() {
     log_->info("EventHandler::setupQuartEventTap() called");
 
     if (PID::getInstance().livePID() == -1) {
-        log_->info("Ableton Live not found.");
+        log_->info("EventHandler: Ableton Live not found.");
         return;
     }
 
@@ -267,13 +269,13 @@ void EventHandler::setupQuartzEventTap() {
     CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
-        log_->info("Failed to create event tap.");
+        log_->info("EventHandler: Failed to create event tap.");
         return;
     }
 
     CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
-    log_->info("Quartz event tap is active!");
+    log_->info("EventHandler: Quartz event tap is active!");
 
 }
