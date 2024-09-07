@@ -7,10 +7,13 @@
 #include "PlatformDependent.h"
 #include "ActionHandler.h"
 #include "ConfigManager.h"
+#include "ConfigMenu.h"
 #include "LogHandler.h"
 #include "ResponseParser.h"
 #include "EventHandler.h"
 #include "SearchBox.h"
+#include "ContextMenu.h"
+#include "InvisibleWindow.h"
 #include "DragTarget.h"
 
 class ApplicationManager {
@@ -25,11 +28,14 @@ public:
     LogHandler* getLogHandler();
 
     ConfigManager* getConfigManager();
+    ConfigMenu* getConfigMenu();
     EventHandler* getEventHandler();
     ActionHandler* getActionHandler();
     KeySender* getKeySender();
     IPC* getIPC();
     GUISearchBox* getGUISearchBox();
+    ContextMenu* getContextMenu();
+    InvisibleWindow* getInvisibleWindow();
     DragTarget* getDragTarget();
     ResponseParser* getResponseParser();
 
@@ -47,10 +53,13 @@ private:
 
     IPC* ipc_ = nullptr;
     ConfigManager* configManager_ = nullptr;
+    ConfigMenu* configMenu_ = nullptr;
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
     GUISearchBox* guiSearchBox_;
+    ContextMenu* contextMenu_;
+    InvisibleWindow* invisibleWindow_;
     DragTarget* dragTarget_;
     ResponseParser* responseParser_ = nullptr;
 

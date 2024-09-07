@@ -23,6 +23,8 @@ public:
     void runPlatform();
 
     static void focusApplication(pid_t pid);
+    static void focusLim();
+    static void focusLive();
 
     ERect getLiveBoundsRect();
 

@@ -31,7 +31,7 @@ private:
     void sendKeypress(const std::string& key);
 
     bool openSearchBox();
-    bool closeSearchBox();
+    bool closeWindows();
 
     bool onEscapePress();
 };

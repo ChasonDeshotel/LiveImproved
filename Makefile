@@ -60,7 +60,9 @@ MODULES =                                    \
     lib/ApplicationManager.cpp               \
     lib/LogHandler.cpp                       \
     lib/config/ConfigManager.cpp             \
+    lib/config/ConfigMenu.cpp                \
     lib/gui/ContextMenu.cpp                  \
+    lib/gui/InvisibleWindow.cpp              \
     lib/gui/SearchBox.cpp                    \
     lib/gui/DragTarget.cpp                   \
     lib/gui/FocusedWidget.cp                 \
@@ -113,9 +115,10 @@ QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
-MOC_HEADERS = $(SRC_DIR)/lib/gui/SearchBox.h     \
-              $(SRC_DIR)/lib/gui/ContextMenu.h   \
-              $(SRC_DIR)/lib/gui/DragTarget.h    \
+MOC_HEADERS = $(SRC_DIR)/lib/gui/SearchBox.h       \
+              $(SRC_DIR)/lib/gui/ContextMenu.h     \
+              $(SRC_DIR)/lib/gui/InvisibleWindow.h \
+              $(SRC_DIR)/lib/gui/DragTarget.h      \
               $(SRC_DIR)/lib/gui/FocusedWidget.h
 						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
 
@@ -128,7 +131,9 @@ APP_OBJECTS =                                           \
     $(OBJ_DIR)/lib/ApplicationManager.o                 \
     $(OBJ_DIR)/lib/LogHandler.o                         \
     $(OBJ_DIR)/lib/config/ConfigManager.o               \
+    $(OBJ_DIR)/lib/config/ConfigMenu.o                  \
     $(OBJ_DIR)/lib/gui/ContextMenu.o                    \
+    $(OBJ_DIR)/lib/gui/InvisibleWindow.o                \
     $(OBJ_DIR)/lib/gui/SearchBox.o                      \
     $(OBJ_DIR)/lib/gui/DragTarget.o                     \
     $(OBJ_DIR)/lib/gui/FocusedWidget.o                  \

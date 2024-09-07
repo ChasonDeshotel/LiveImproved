@@ -5,6 +5,7 @@
 #include <QMenu>
 #include <QMap>
 #include <QStringList>
+#include <QKeyEvent>
 
 class ContextMenu : public QMenu {
     Q_OBJECT
@@ -12,12 +13,26 @@ class ContextMenu : public QMenu {
 public:
     explicit ContextMenu(QWidget *parent = nullptr);
 
-//protected:
-//    void contextMenuEvent(QContextMenuEvent *event) override;
-//
+    void openMenu();
+    void closeMenu();
+    bool isOpen() const;
+    QMenu* getActiveMenu() const;
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+    // void contextMenuEvent(QContextMenuEvent *event) override;
+
 private:
     void buildMenu(const QStringList &menuItems);
     QMap<QString, QMenu*> submenus;
+
+//    QAction* findNextAction(QAction* currentAction, bool forward);
+
+    bool isOpen_;
+
+//    QMenu* activeMenu_;
+
+//    void connectMenuSignals(QMenu *menu);
 };
 
 #endif

@@ -61,11 +61,15 @@ bool ActionHandler::openSearchBox() {
 }
 
 // TODO: move to GUISearchBox?
-bool ActionHandler::closeSearchBox() {
-    if (app_.getGUISearchBox()->isOpen() && app_.getGUISearchBox()->getSearchTextLength()) {
-        app_.getGUISearchBox()->clearSearchText();
-    } else {
-        app_.getGUISearchBox()->closeSearchBox();
+bool ActionHandler::closeWindows() {
+    if (app_.getContextMenu()->isOpen()) {
+        app_.getContextMenu()->closeMenu();
+    } else if (app_.getGUISearchBox()->isOpen()) {
+        if (app_.getGUISearchBox()->getSearchTextLength()) {
+            app_.getGUISearchBox()->clearSearchText();
+        } else {
+            app_.getGUISearchBox()->closeSearchBox();
+        }
     }
     return false;
 }
@@ -143,7 +147,7 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
               }
               return false;
         } else if (keyString == "Escape") {
-              closeSearchBox();
+              closeWindows();
               return false;
         } else {
 //              } else {
@@ -199,9 +203,7 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 }
 
 void ActionHandler::handleDoubleRightClick() {
-    ContextMenu* menu = new ContextMenu(nullptr);
-    menu->move(QCursor::pos());
-    menu->exec();
+    app_.getContextMenu()->openMenu();
 }
 
 // move to ActionHandler

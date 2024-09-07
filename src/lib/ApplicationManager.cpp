@@ -10,6 +10,7 @@
 #include "ActionHandler.h"
 #include "ResponseParser.h"
 #include "ConfigManager.h"
+#include "ConfigMenu.h"
 
 ApplicationManager::ApplicationManager()
     : logHandler_(&LogHandler::getInstance())
@@ -46,6 +47,13 @@ void ApplicationManager::init() {
     ;
     configManager_  = new ConfigManager(configFilePath);
 
+    std::filesystem::path configMenuPath =
+        std::filesystem::path(std::string(getenv("HOME")))
+        / "Documents" / "Ableton" / "User Library"
+        / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
+    ;
+    configMenu_     = new ConfigMenu(configMenuPath);
+
     eventHandler_   = new EventHandler(*this);
     ipc_            = new IPC(*this);
     responseParser_ = new ResponseParser(*this);
@@ -53,6 +61,8 @@ void ApplicationManager::init() {
     keySender_      = new KeySender(*this);
 
     guiSearchBox_   = new GUISearchBox(*this);
+    contextMenu_    = new ContextMenu(nullptr);
+    invisibleWindow_ = new InvisibleWindow(nullptr);
     dragTarget_     = new DragTarget(*this);
 
     logHandler_->info("ApplicatonManager::init() finished");
@@ -64,6 +74,10 @@ LogHandler* ApplicationManager::getLogHandler() {
 
 ConfigManager* ApplicationManager::getConfigManager() {
     return configManager_;
+}
+
+ConfigMenu* ApplicationManager::getConfigMenu() {
+    return configMenu_;
 }
 
 IPC* ApplicationManager::getIPC() {
@@ -84,6 +98,14 @@ KeySender* ApplicationManager::getKeySender() {
 
 GUISearchBox* ApplicationManager::getGUISearchBox() {
     return guiSearchBox_;
+}
+
+ContextMenu* ApplicationManager::getContextMenu() {
+    return contextMenu_;
+}
+
+InvisibleWindow* ApplicationManager::getInvisibleWindow() {
+    return invisibleWindow_;
 }
 
 DragTarget* ApplicationManager::getDragTarget() {

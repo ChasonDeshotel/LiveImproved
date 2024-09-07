@@ -8,6 +8,8 @@
 #include <chrono>
 #include <optional>
 
+#include <Qt>
+
 #include "ApplicationManager.h"
 #include "EventHandler.h"
 #include "LogHandler.h"
@@ -73,6 +75,23 @@ std::string keyCodeToString(CGKeyCode keyCode) {
     }
 }
 
+Qt::Key convertMacKeycodeToQtKey(int macKeyCode) {
+    switch (macKeyCode) {
+        case 0x24: return Qt::Key_Return;  // Enter/Return key
+        case 0x35: return Qt::Key_Escape;  // Escape key
+        case 0x7B: return Qt::Key_Left;    // Left arrow key
+        case 0x7C: return Qt::Key_Right;   // Right arrow key
+        case 0x7D: return Qt::Key_Down;    // Down arrow key
+        case 0x7E: return Qt::Key_Up;      // Up arrow key
+        case 0x04: return Qt::Key_H;       // 'H' key (left in Vim)
+        case 0x26: return Qt::Key_J;       // 'J' key (down in Vim)
+        case 0x28: return Qt::Key_K;       // 'K' key (up in Vim)
+        case 0x25: return Qt::Key_L;       // 'L' key (right in Vim)
+        // Add other key mappings as needed
+        default: return Qt::Key_unknown;   // Unknown key
+    }
+}
+
 @class GUISearchBoxWindowController;
 
 EventHandler::EventHandler(ApplicationManager& appManager)
@@ -96,12 +115,26 @@ void EventHandler::runPlatform() {
     [[NSApplication sharedApplication] run];
 }
 
+void EventHandler::focusLim() {
+    EventHandler::focusApplication(PID::getInstance().appPID());
+}
+
+void EventHandler::focusLive() {
+    EventHandler::focusApplication(PID::getInstance().livePID());
+}
+
 void EventHandler::focusApplication(pid_t pid) {
     NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-            
+    
     if (app) {
-        LogHandler::getInstance().info("bringing app into focus: " + std::to_string(PID::getInstance().appPID()));
+        // Check if the application is already active
+        NSRunningApplication *currentApp = [NSRunningApplication currentApplication];
+        if ([currentApp processIdentifier] == pid) {
+            LogHandler::getInstance().info("Application is already in focus: " + std::to_string(pid));
+            return;
+        }
 
+        LogHandler::getInstance().info("Bringing app into focus: " + std::to_string(pid));
         [app activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
     }
 }
@@ -164,7 +197,27 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     bool isAltPressed     = (flags & kCGEventFlagMaskAlternate) != 0;
     bool isCommandPressed = (flags & kCGEventFlagMaskCommand)   != 0;
 
+//    if (handler->app_.getInvisibleWindow()->isOpen() && (eventType == kCGEventKeyDown || eventType == kCGEventKeyUp)) {
+//        int keycode = (int)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+//
+//        Qt::Key qtKey = convertMacKeycodeToQtKey(keycode);
+//        QEvent::Type qEventType = (eventType == kCGEventKeyDown) ? QEvent::KeyPress : QEvent::KeyRelease;
+//        QKeyEvent *keyEvent = new QKeyEvent(qEventType, qtKey, Qt::NoModifier);
+//
+////        QCoreApplication::postEvent(handler->app_.getContextMenu()->getActiveMenu(), keyEvent);
+//        QCoreApplication::postEvent(handler->app_.getInvisibleWindow(), keyEvent);
+//
+//        handler->log_->info("event detected with menu open");
+//
+//        return NULL;
+//    }
+
     if (eventPID == PID::getInstance().livePID()) {
+        if (handler->app_.getContextMenu()->isOpen()) {
+            handler->log_->info("Ableton Live event menu open");
+        }
+
+
         // double-right-click
         if (eventType == kCGEventRightMouseDown) {
             handler->log_->info("Ableton Live right click event detected.");
