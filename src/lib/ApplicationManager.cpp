@@ -16,6 +16,20 @@ ApplicationManager::ApplicationManager()
     : logHandler_(&LogHandler::getInstance())
 {}
 
+#ifdef INJECTED_LIBRARY
+
+__attribute__((constructor))
+static void dylib_init() {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        LogHandler::getInstance().info("injected successfully");
+
+        ApplicationManager& appManager = ApplicationManager::getInstance();
+        appManager.init();
+    });
+}
+
+#else
+
 int main(int argc, char *argv[]) {
     ApplicationManager& appManager = ApplicationManager::getInstance();
 
@@ -36,6 +50,8 @@ int main(int argc, char *argv[]) {
 
     PlatformInitializer::run();
 }
+
+#endif
 
 void ApplicationManager::init() {
     logHandler_->info("ApplicatonManager::init() called");
