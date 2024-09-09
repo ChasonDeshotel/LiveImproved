@@ -14,7 +14,7 @@
 #include "LogHandler.h"
 #include "ApplicationManager.h"
 #include "SearchBox.h"
-#include "Plugin.h"
+#include "Types.h"
 #include "PID.h"
 
 GUISearchBox::GUISearchBox(ApplicationManager& appManager)

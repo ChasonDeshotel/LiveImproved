@@ -1,5 +1,5 @@
-#ifndef TYPES_MENU_H
-#define TYPES_MENU_H
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <vector>
 #include <string>
@@ -15,6 +15,13 @@ struct MenuItem {
 struct MenuCategory {
     std::string name;
     std::vector<MenuItem> items;
+};
+
+struct Plugin {
+    int number;
+    std::string name;
+    std::string type;
+    std::string uri;
 };
 
 #endif

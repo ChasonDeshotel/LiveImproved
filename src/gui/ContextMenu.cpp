@@ -22,7 +22,7 @@
 #include "ContextMenu.h"
 #include "LogHandler.h"
 #include "PID.h"
-#include "Menu.h"
+#include "Types.h"
 
 ContextMenu::ContextMenu(QWidget *parent)
     : QMenu(parent)

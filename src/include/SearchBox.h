@@ -7,7 +7,7 @@
 
 #include "FocusedWidget.h"
 
-#include "Plugin.h"
+#include "Types.h"
 
 #include <QWidget>
 #include <QLineEdit>

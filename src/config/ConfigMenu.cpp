@@ -12,7 +12,7 @@
 
 #include "LogHandler.h"
 #include "ConfigMenu.h"
-#include "Menu.h"
+#include "Types.h"
 
 #include "yaml-cpp/yaml.h"
 

@@ -2,7 +2,7 @@
 #define CONFIG_MENU_H
 
 #include "yaml-cpp/yaml.h"
-#include "Menu.h"
+#include "Types.h"
 
 class ConfigMenu {
 public:

@@ -6,7 +6,7 @@
 #include <QMap>
 #include <QStringList>
 #include <QKeyEvent>
-#include "Menu.h"
+#include "Types.h"
 
 class ContextMenu : public QMenu {
     Q_OBJECT

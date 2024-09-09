@@ -6,7 +6,7 @@
 
 #include "ResponseParser.h"
 #include "ApplicationManager.h"
-#include "Plugin.h"
+#include "Types.h"
 
 ResponseParser::ResponseParser(ApplicationManager& appManager)
     : app_(appManager)
