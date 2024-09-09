@@ -15,6 +15,7 @@ public:
     void close() override;
 
     bool isOpen() const;
+    void setIsOpen(bool isOpen);
 
 private:
     std::vector<MenuItem> menuItems_;

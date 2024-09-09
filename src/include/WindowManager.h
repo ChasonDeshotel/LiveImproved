@@ -2,7 +2,6 @@
 #define WINDOW_MANAGER_H
 
 #include "Types.h"
-#include "IWindow.h"
 
 #include <unordered_map>
 #include <string>
@@ -28,7 +27,7 @@ public:
 
 private:
     // Factory function to create window instances based on window name
-    std::shared_ptr<IWindow> createWindowInstance(const std::string& windowName);
+    std::unique_ptr<IWindow> createWindowInstance(const std::string& windowName);
 
     std::unordered_map<std::string, WindowData> windows_;  // Manage window instances and callbacks
     std::unordered_map<std::string, bool> windowStates_;

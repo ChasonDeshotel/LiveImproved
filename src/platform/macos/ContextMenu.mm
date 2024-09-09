@@ -1,93 +1,112 @@
 #import <Cocoa/Cocoa.h>
+#include "ApplicationManager.h"
 #include "ContextMenu.h"
 #include "ConfigMenu.h"
 #include "Types.h"
 #include "LogHandler.h"
 
+// TODO: A better approach would be to make actionCallback an
+// instance variable in ContextMenuGenerator, removing the static context.
 static std::function<void(const std::string&)> actionCallback;  // Store the callback
 
-@interface ContextMenuGenerator : NSObject
+@interface ContextMenuGenerator : NSObject <NSMenuDelegate>
 
-// Method to create a context menu from a vector of MenuItem and a callback for actions
-+ (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items
-                           actionCallback:(std::function<void(const std::string&)>)callback;
+@property (nonatomic, strong) ContextMenuGenerator *menuDelegate;
+@property (nonatomic, strong) NSMenu *contextMenu;
+
+- (instancetype)initWithContextMenu:(ContextMenu *)contextMenu;
+
+- (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items
+                         actionCallback:(std::function<void(const std::string&)>)callback;
 
 @end
 
-
-ContextMenu::ContextMenu(std::function<void(const std::string&)> callback)
-    : menuItems_()
-    , actionCallback_(callback) {
-
-    MenuItem foo;
-    foo.label = "new";
-    foo.action = "bar";
-    MenuItem bar;
-    bar.label = "new";
-    bar.action = "bar";
-
-    menuItems_ = {
-        foo
-        , bar
-    };
-
-    LogHandler::getInstance().info("Initialized menuItems with size: " + std::to_string(menuItems_.size()));
-
-}
-
-// Open method - shows the menu
-void ContextMenu::open() {
-    LogHandler::getInstance().info("open called");
-
-    if (!isOpen_) {
-        if (![NSThread isMainThread]) {
-            LogHandler::getInstance().info("dispatching");
-            LogHandler::getInstance().info("menuItems size: " + std::to_string(menuItems_.size()));
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSMenu *contextMenu = [ContextMenuGenerator createContextMenuWithItems:menuItems_ actionCallback:actionCallback_];
-                NSPoint mouseLocation = [NSEvent mouseLocation];
-                [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
-            });
-            return;
-        } else {
-            LogHandler::getInstance().info("Already on main thread, creating context menu");
-            LogHandler::getInstance().info("menuItems size: " + std::to_string(menuItems_.size()));
-            NSMenu *contextMenu = [ContextMenuGenerator createContextMenuWithItems:menuItems_ actionCallback:actionCallback_];
-            NSPoint mouseLocation = [NSEvent mouseLocation];
-            [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
-        }
-  
-        isOpen_ = true;
-    }
-}
-
-// Close method - logic to handle closing the menu (if needed)
-void ContextMenu::close() {
-    if (isOpen_) {
-        // Add any specific close logic if required for your context menu
-//        if (contextMenu) {
-//            LogHandler::getInstance().info("cancel tracking");
-//            [contextMenu cancelTracking];
-//        }
-        isOpen_ = false;
-    }
-}
-
-// Check if the menu is currently open
-bool ContextMenu::isOpen() const {
-    return isOpen_;
-}
-
 @implementation ContextMenuGenerator
 
-// Recursive helper function to populate the menu with items
-+ (void)addMenuItems:(NSMenu *)menu fromItems:(const std::vector<MenuItem>&)items {
-    LogHandler::getInstance().info("add item");
-    LogHandler::getInstance().info("addMenuItems size: " + std::to_string(items.size()));
+- (instancetype)initWithContextMenu:(ContextMenu *)contextMenu {
+    self = [super init];
+    if (self) {
+        // Register for app-related notifications
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidResignActive:)
+                                                     name:NSApplicationDidResignActiveNotification
+                                                   object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillTerminate:)
+                                                     name:NSApplicationWillTerminateNotification
+                                                   object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(windowDidMiniaturize:)
+                                                     name:NSWindowDidMiniaturizeNotification
+                                                   object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(windowDidResignKey:)
+                                                     name:NSWindowDidResignKeyNotification
+                                                   object:nil];
+    }
+    return self;
+}
+
+- (void)applicationDidResignActive:(NSNotification *)notification {
+    if (self.contextMenu) {
+        LogHandler::getInstance().info("App became inactive, closing the menu");
+        [self closeMenu];
+    }
+}
+
+- (void)applicationWillTerminate:(NSNotification *)notification {
+    if (self.contextMenu) {
+        LogHandler::getInstance().info("App terminating, closing the menu");
+        [self closeMenu];
+    }
+}
+
+- (void)windowDidMiniaturize:(NSNotification *)notification {
+    if (self.contextMenu) {
+        LogHandler::getInstance().info("Window minimized, closing the menu");
+        [self closeMenu];
+    }
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification {
+    if (self.contextMenu) {
+        LogHandler::getInstance().info("Window lost focus, closing the menu");
+        [self closeMenu];
+    }
+}
+
+- (void)menuDidClose:(NSMenu *)menu {
+    if (self.contextMenu) {
+        LogHandler::getInstance().info("Menu closed");
+        [self closeMenu];
+    }
+}
+
+- (void)closeMenu {
+    if (self.contextMenu) {
+        [self.contextMenu cancelTracking];
+        self.contextMenu = nil;
+    }
+    ApplicationManager::getInstance().getWindowManager()->closeWindow("ContextMenu");
+}
+
+- (void)menuItemAction:(id)sender {
+    NSMenuItem *menuItem = (NSMenuItem *)sender;
+    NSString *action = (NSString *)menuItem.representedObject;
+    
+    // Trigger the callback with the action
+    if (actionCallback) {
+        actionCallback([action UTF8String]);
+    }
+}
+
+- (void)addMenuItems:(NSMenu *)menu fromItems:(const std::vector<MenuItem>&)items {
+//    LogHandler::getInstance().info("addMenuItems size: " + std::to_string(items.size()));
     for (const auto& item : items) {
-        LogHandler::getInstance().info("item iter");
         if (item.children.empty()) {
-            LogHandler::getInstance().info("no children");
             // Regular menu item with an action
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:item.label.c_str()]
                                                               action:@selector(menuItemAction:)
@@ -96,7 +115,6 @@ bool ContextMenu::isOpen() const {
             [menuItem setTarget:self];  // Set the target for the action
             [menu addItem:menuItem];
         } else {
-            LogHandler::getInstance().info("has children");
             // Submenu
             NSMenuItem *submenuItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:item.label.c_str()]
                                                                  action:nil
@@ -109,26 +127,57 @@ bool ContextMenu::isOpen() const {
     }
 }
 
-// Main method to create a context menu with items and a callback for actions
-+ (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items
+- (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items
                          actionCallback:(std::function<void(const std::string&)>)callback {
+
     LogHandler::getInstance().info("create menu");
     actionCallback = callback;  // Store the callback function
-    NSMenu *menu = [[NSMenu alloc] initWithTitle:@"Context Menu"];  // Create the menu
-    [self addMenuItems:menu fromItems:items];  // Populate the menu
-    return menu;
-}
 
-// Action triggered by menu items
-+ (void)menuItemAction:(id)sender {
-    NSMenuItem *menuItem = (NSMenuItem *)sender;
-    NSString *action = (NSString *)menuItem.representedObject;
-    
-    // Trigger the callback with the action
-    if (actionCallback) {
-        actionCallback([action UTF8String]);
+    if (!self.contextMenu) {
+        self.contextMenu = [[NSMenu alloc] initWithTitle:@"Context Menu"];
+
+        // Set self as the delegate to handle menu close events
+        [self.contextMenu setDelegate:self];
     }
+    [self addMenuItems:self.contextMenu fromItems:items];
+
+    return self.contextMenu;
 }
 
 @end
 
+ContextMenu::ContextMenu(std::function<void(const std::string&)> callback)
+    : menuItems_()
+    , actionCallback_(callback) {
+
+    menuItems_ = ApplicationManager::getInstance().getConfigMenu()->getMenuData();
+}
+
+// NOTE: do not call directly - use WindowManager
+void ContextMenu::open() {
+    LogHandler::getInstance().info("open called");
+
+    if (![NSThread isMainThread]) {
+        LogHandler::getInstance().info("dispatching");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
+            NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_ 
+                                                            actionCallback:actionCallback_];
+            NSPoint mouseLocation = [NSEvent mouseLocation];
+            [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
+        });
+        return;
+    } else {
+        LogHandler::getInstance().info("Already on main thread, creating context menu");
+        ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
+        NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_ 
+                                                        actionCallback:actionCallback_];
+        NSPoint mouseLocation = [NSEvent mouseLocation];
+        [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
+    }
+}
+
+void ContextMenu::close() {
+    ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
+    [menuGenerator closeMenu];
+}
