@@ -2,14 +2,9 @@ CC = clang++
 
 CXXFLAGS = -std=c++17
 	
-INCLUDE =                             \
-        -I./mock                      \
-        -I./src                       \
-        -I./src/                  \
-        -I./src/gui               \
-        -I./src/config            \
-        -I./src/platform/macos    \
-        -I./src/types             \
+INCLUDE =                         \
+        -I./mock                  \
+        -I./src/include           \
 				-I/usr/local/include
 
 INCLUDE_QT =                              \

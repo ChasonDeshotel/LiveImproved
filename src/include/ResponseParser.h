@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "types/Plugin.h"
+#include "Plugin.h"
 
 class ApplicationManager;
 

@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <QApplication>
+#include <QVBoxLayout>
 #include <QWidgetAction>
 #include <QWindow>
 #include <QAction>
@@ -123,21 +124,9 @@ void ContextMenu::keyPressEvent(QKeyEvent *event) {
 //    return menu;
 //}
 
-void ContextMenu::buildMenu() {
-
-// Assuming the structure of MenuCategory and MenuItem
-struct MenuItem {
-    std::string label;
-    std::string action;
-};
-
-struct MenuCategory {
-    std::string name;
-    std::vector<MenuItem> items;
-};
-
 // Function to create QWindow from vector of MenuCategories
-QWindow* createWindowFromMenuCategories(const std::vector<MenuCategory>& categories) {
+void ContextMenu::buildMenu(const std::vector<MenuCategory>& categories) {
+//QWindow* createWindowFromMenuCategories(const std::vector<MenuCategory>& categories) {
     QWidget* mainWidget = new QWidget();  // Main container widget
     QVBoxLayout* layout = new QVBoxLayout();  // Vertical layout for categories
 
@@ -161,39 +150,38 @@ QWindow* createWindowFromMenuCategories(const std::vector<MenuCategory>& categor
     mainWidget->setLayout(layout);  // Set layout for the widget
     mainWidget->show();  // Show the widget as a window
 
-    return mainWidget->windowHandle();  // Return the window handle
+//    return mainWidget->windowHandle();  // Return the window handle
 }
 
-int main(int argc, char* argv[]) {
-    QApplication app(argc, argv);
-
-    // Example menu categories
-    std::vector<MenuCategory> categories = {
-        {"Saturation", {{"Amplitube", "AmpliTube 5 VST3"}, {"Bias Amp", "BIAS AMP 2 VST"}}},
-        {"Mastering", {{"Elephant", "Elephant VST3"}, {"ChannelStrip", "ChannelStrip AU"}}}
-    };
-
-    QWindow* window = createWindowFromMenuCategories(categories);
-    window->show();
-
-    return app.exec();
-}
-
-
+//int main(int argc, char* argv[]) {
+//    QApplication app(argc, argv);
+//
+//    // Example menu categories
+//    std::vector<MenuCategory> categories = {
+//        {"Saturation", {{"Amplitube", "AmpliTube 5 VST3"}, {"Bias Amp", "BIAS AMP 2 VST"}}},
+//        {"Mastering", {{"Elephant", "Elephant VST3"}, {"ChannelStrip", "ChannelStrip AU"}}}
+//    };
+//
+//    QWindow* window = createWindowFromMenuCategories(categories);
+//    window->show();
+//
+//    return app.exec();
+//}
 
 
-    std::vector<MenuCategory> menuData = ApplicationManager::getInstance().getConfigMenu()->getMenuData();
-    QMenu *currentMenu = this;  // Use QMenu* instead of ContextMenu*
-    for (const auto& category : menuData) {
-        currentMenu->addSeparator();
-        QString submenuName = QString::fromStdString(category.name);
-        QMenu *submenu = new QMenu(submenuName, this);
 
-        submenus[submenuName] = submenu;
-        currentMenu->addMenu(submenu);
-        currentMenu = submenu;
-    }
-}
+//std::vector<MenuCategory> menuData = ApplicationManager::getInstance().getConfigMenu()->getMenuData();
+//    QMenu *currentMenu = this;  // Use QMenu* instead of ContextMenu*
+//    for (const auto& category : menuData) {
+//        currentMenu->addSeparator();
+//        QString submenuName = QString::fromStdString(category.name);
+//        QMenu *submenu = new QMenu(submenuName, this);
+//
+//        submenus[submenuName] = submenu;
+//        currentMenu->addMenu(submenu);
+//        currentMenu = submenu;
+//    }
+//}
 
 //void ContextMenu::buildMenu(const QStringList &menuItems) {
 //    QMenu *currentMenu = this;  // Use QMenu* instead of ContextMenu*
