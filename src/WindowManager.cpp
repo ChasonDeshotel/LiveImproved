@@ -34,16 +34,14 @@ void WindowManager::openWindow(const std::string& windowName) {
     // If the window isn't registered, register it with a default callback
     if (it == windows_.end()) {
         LogHandler::getInstance().info("window not registered, registering...");
-        registerWindow(windowName, []() {
-            // Default callback if none is provided
-        });
-        it = windows_.find(windowName);  // Re-fetch the iterator
+        registerWindow(windowName, []() {});
+        it = windows_.find(windowName); // Re-fetch the iterator
     }
 
     // Call the stored callback if one was provided
-    //if (it->second.callback) {
-    //    it->second.callback();
-    //}
+    if (it->second.callback) {
+        it->second.callback();
+    }
 
     // Open the window if it's not already open
     LogHandler::getInstance().info("Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
@@ -59,26 +57,14 @@ void WindowManager::openWindow(const std::string& windowName) {
 void WindowManager::closeWindow(const std::string& windowName) {
     LogHandler::getInstance().info("WM close called");
 
-    windowStates_[windowName] = false;
-    LogHandler::getInstance().info("updated window state to close");
 
     auto it = windows_.find(windowName);
     if (it != windows_.end() && windowStates_[windowName]) {
         it->second.window->close();
     }
     windowStates_[windowName] = false;
+    LogHandler::getInstance().info("updated window state to close");
     LogHandler::getInstance().info("close - Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
-//    if (it != windows_.end()) {
-//        LogHandler::getInstance().info("Window exists");
-//    } else {
-//        LogHandler::getInstance().error("Window not found: " + windowName);
-//    }
-//
-//    if (windowStates_[windowName]) {
-//        LogHandler::getInstance().info("Window is open");
-//    } else {
-//        LogHandler::getInstance().info("Window is already closed");
-//    }
 }
 
 // Check if a window is open
@@ -86,4 +72,3 @@ bool WindowManager::isWindowOpen(const std::string& windowName) const {
     auto it = windowStates_.find(windowName);
     return (it != windowStates_.end() && it->second);
 }
-

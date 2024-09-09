@@ -11,6 +11,7 @@ static std::function<void(const std::string&)> actionCallback;  // Store the cal
 
 @interface ContextMenuGenerator : NSObject <NSMenuDelegate>
 
+//TODO: probably cruft
 @property (nonatomic, strong) ContextMenuGenerator *menuDelegate;
 @property (nonatomic, strong) NSMenu *contextMenu;
 
@@ -86,20 +87,30 @@ static std::function<void(const std::string&)> actionCallback;  // Store the cal
 }
 
 - (void)closeMenu {
-    if (self.contextMenu) {
-        [self.contextMenu cancelTracking];
-        self.contextMenu = nil;
-    }
+//    if (self.contextMenu) {
+//        [self.contextMenu cancelTracking];
+//        self.contextMenu = nil;
+//    }
     ApplicationManager::getInstance().getWindowManager()->closeWindow("ContextMenu");
 }
 
 - (void)menuItemAction:(id)sender {
+    LogHandler::getInstance().info("action: ");
+    LogHandler::getInstance().info("Target self: " + std::to_string((uintptr_t)self));
     NSMenuItem *menuItem = (NSMenuItem *)sender;
     NSString *action = (NSString *)menuItem.representedObject;
     
+    std::string actionString = [action UTF8String];
+    LogHandler::getInstance().info("action: " + actionString);
+
     // Trigger the callback with the action
     if (actionCallback) {
         actionCallback([action UTF8String]);
+    } else {
+        std::string actionString = [action UTF8String];
+//        ApplicationManager::getInstance().getActionHandler()->
+        LogHandler::getInstance().info("action: " + actionString);
+
     }
 }
 
@@ -111,8 +122,16 @@ static std::function<void(const std::string&)> actionCallback;  // Store the cal
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:item.label.c_str()]
                                                               action:@selector(menuItemAction:)
                                                        keyEquivalent:@""];
+            if ([menuItem action] == @selector(menuItemAction:)) {
+                LogHandler::getInstance().info("Action correctly set to menuItemAction:");
+            } else {
+                LogHandler::getInstance().error("Failed to set action to menuItemAction:");
+            }
             menuItem.representedObject = [NSString stringWithUTF8String:item.action.c_str()];  // Pass action
+            std::string actionString = item.action.c_str();
+            LogHandler::getInstance().error("action str: " + actionString);
             [menuItem setTarget:self];  // Set the target for the action
+            LogHandler::getInstance().info("Target set to self: " + std::to_string((uintptr_t)self));
             [menu addItem:menuItem];
         } else {
             // Submenu
@@ -130,7 +149,6 @@ static std::function<void(const std::string&)> actionCallback;  // Store the cal
 - (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items
                          actionCallback:(std::function<void(const std::string&)>)callback {
 
-    LogHandler::getInstance().info("create menu");
     actionCallback = callback;  // Store the callback function
 
     if (!self.contextMenu) {
@@ -155,12 +173,11 @@ ContextMenu::ContextMenu(std::function<void(const std::string&)> callback)
 
 // NOTE: do not call directly - use WindowManager
 void ContextMenu::open() {
-    LogHandler::getInstance().info("open called");
-
     if (![NSThread isMainThread]) {
         LogHandler::getInstance().info("dispatching");
         dispatch_async(dispatch_get_main_queue(), ^{
             ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
+            this->menuGenerator_ = menuGenerator;
             NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_ 
                                                             actionCallback:actionCallback_];
             NSPoint mouseLocation = [NSEvent mouseLocation];
@@ -170,6 +187,7 @@ void ContextMenu::open() {
     } else {
         LogHandler::getInstance().info("Already on main thread, creating context menu");
         ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
+        this->menuGenerator_ = menuGenerator;
         NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_ 
                                                         actionCallback:actionCallback_];
         NSPoint mouseLocation = [NSEvent mouseLocation];
@@ -178,6 +196,10 @@ void ContextMenu::open() {
 }
 
 void ContextMenu::close() {
-    ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
-    [menuGenerator closeMenu];
+    LogHandler::getInstance().info("C++ close called");
+    if (menuGenerator_ && menuGenerator_.contextMenu) {
+// TODO: this prevents actions from being fired but is 
+// necessary to close with keyboard
+//        [menuGenerator_.contextMenu cancelTracking];
+    }
 }
