@@ -46,7 +46,7 @@ ContextMenu::ContextMenu(QWidget *parent)
         "/Menu2", "Foo", "Bar", "//Submenu2", "Test", "///Submenu2Submenu", "AnotherItem"
     };
 
-    buildMenu();
+    //buildMenu();
 }
 
 //void ContextMenu::connectMenuSignals(QMenu *menu) {
@@ -124,34 +124,37 @@ void ContextMenu::keyPressEvent(QKeyEvent *event) {
 //    return menu;
 //}
 
-// Function to create QWindow from vector of MenuCategories
-void ContextMenu::buildMenu(const std::vector<MenuCategory>& categories) {
-//QWindow* createWindowFromMenuCategories(const std::vector<MenuCategory>& categories) {
-    QWidget* mainWidget = new QWidget();  // Main container widget
-    QVBoxLayout* layout = new QVBoxLayout();  // Vertical layout for categories
-
-    // Iterate through each category and add buttons for each item
-    for (const auto& category : categories) {
-        QLabel* categoryLabel = new QLabel(QString::fromStdString(category.name));
-        layout->addWidget(categoryLabel);  // Add category label
-
-        for (const auto& item : category.items) {
-            QPushButton* button = new QPushButton(QString::fromStdString(item.label));
-            layout->addWidget(button);
-
-            // Connect the button to an action
-            QObject::connect(button, &QPushButton::clicked, [item]() {
-                // Example action: Show a message box with the action
-                QMessageBox::information(nullptr, "Action", QString::fromStdString(item.action));
-            });
-        }
-    }
-
-    mainWidget->setLayout(layout);  // Set layout for the widget
-    mainWidget->show();  // Show the widget as a window
-
-//    return mainWidget->windowHandle();  // Return the window handle
+void ContextMenu::buildMenu(const std::vector<MenuItem>& menuData) {
 }
+
+// Function to create QWindow from vector of MenuCategories
+//void ContextMenu::buildMenu(const std::vector<MenuCategory>& categories) {
+////QWindow* createWindowFromMenuCategories(const std::vector<MenuCategory>& categories) {
+//    QWidget* mainWidget = new QWidget();  // Main container widget
+//    QVBoxLayout* layout = new QVBoxLayout();  // Vertical layout for categories
+//
+//    // Iterate through each category and add buttons for each item
+//    for (const auto& category : categories) {
+//        QLabel* categoryLabel = new QLabel(QString::fromStdString(category.name));
+//        layout->addWidget(categoryLabel);  // Add category label
+//
+//        for (const auto& item : category.items) {
+//            QPushButton* button = new QPushButton(QString::fromStdString(item.label));
+//            layout->addWidget(button);
+//
+//            // Connect the button to an action
+//            QObject::connect(button, &QPushButton::clicked, [item]() {
+//                // Example action: Show a message box with the action
+//                QMessageBox::information(nullptr, "Action", QString::fromStdString(item.action));
+//            });
+//        }
+//    }
+//
+//    mainWidget->setLayout(layout);  // Set layout for the widget
+//    mainWidget->show();  // Show the widget as a window
+//
+////    return mainWidget->windowHandle();  // Return the window handle
+//}
 
 //int main(int argc, char* argv[]) {
 //    QApplication app(argc, argv);

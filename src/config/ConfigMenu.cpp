@@ -27,22 +27,21 @@ ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
 
     LogHandler::getInstance().info("\n\n\n\n\n\n" + configFile.string());
 }
-void outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
+
+void ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
     out << YAML::BeginMap;
     out << YAML::Key << "label" << YAML::Value << item.label;
 
-    // Check if this item has a subcategory
-    if (item.subCategory) {
-        out << YAML::Key << "subcategory" << YAML::BeginMap;
-        out << YAML::Key << "items" << YAML::Value << YAML::BeginSeq;
+    // Check if this item has children (a submenu)
+    if (!item.children.empty()) {
+        out << YAML::Key << "children" << YAML::BeginSeq;
 
-        // Recursively output subcategory items
-        for (const auto& subItem : item.subCategory->items) {
-            outputItemToYAML(out, subItem);
+        // Recursively output child items
+        for (const auto& childItem : item.children) {
+            outputItemToYAML(out, childItem);
         }
 
         out << YAML::EndSeq;
-        out << YAML::EndMap;
     } else {
         // If it's a regular item, output its action
         out << YAML::Key << "action" << YAML::Value << item.action;
@@ -50,27 +49,14 @@ void outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
 
     out << YAML::EndMap;
 }
-void outputCategoryToYAML(YAML::Emitter& out, const MenuCategory& category) {
-    out << YAML::BeginMap;
-    out << YAML::Key << "name" << YAML::Value << category.name;
-    out << YAML::Key << "items" << YAML::Value << YAML::BeginSeq;
 
-    for (const auto& item : category.items) {
-        outputItemToYAML(out, item);
-    }
-
-    out << YAML::EndSeq;
-    out << YAML::EndMap;
-}
-
-// Helper function to find an existing category by name
-// Main function to output all categories to YAML
-void ConfigMenu::saveToYAML(const std::vector<MenuCategory>& menuData, const std::filesystem::path& filePath) {
+void ConfigMenu::saveToYAML(const std::vector<MenuItem>& menuData, const std::filesystem::path& filePath) {
     YAML::Emitter out;
     out << YAML::BeginSeq;
 
-    for (const auto& category : menuData) {
-        outputCategoryToYAML(out, category);
+    // Iterate over top-level menu items
+    for (const auto& item : menuData) {
+        outputItemToYAML(out, item);
     }
 
     out << YAML::EndSeq;
@@ -81,23 +67,13 @@ void ConfigMenu::saveToYAML(const std::vector<MenuCategory>& menuData, const std
     fout.close();
 }
 
-MenuCategory* findCategoryByName(std::vector<MenuCategory>& menuData, const std::string& name) {
-    auto it = std::find_if(menuData.begin(), menuData.end(), [&name](const MenuCategory& category) {
-        return category.name == name;
-    });
-    if (it != menuData.end()) {
-        return &(*it);  // Return a pointer to the existing category
-    }
-    return nullptr;  // Return nullptr if the category doesn't exist
-}
-
-std::vector<MenuCategory> ConfigMenu::getMenuData() {
+std::vector<MenuItem> ConfigMenu::getMenuData() {
     return menuData_;
 }
 
 void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
 
-    std::vector<MenuCategory> menuData;
+    std::vector<MenuItem> menuData;  // Now a vector of MenuItem
     QString qFilePath = QString::fromStdString(filePath.string());
 
     QFile file(qFilePath);
@@ -107,8 +83,8 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
     }
 
     QTextStream in(&file);
-    MenuCategory* currentCategory = nullptr;
-    std::vector<MenuCategory*> categoryStack;  // Stack to keep track of nested submenus
+    MenuItem* currentItem = nullptr;  // Now we track current MenuItem
+    std::vector<MenuItem*> categoryStack;  // Stack to keep track of nested submenus
 
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
@@ -117,87 +93,76 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
             // Skip comments
             continue;
         } else if (line.startsWith("--")) {
-            // Handle separators by adding them as an item
-            if (currentCategory != nullptr) {
+            // Handle separators
+            if (currentItem != nullptr) {
                 MenuItem separator;
                 separator.label = "--";
                 separator.action = "separator";
-                currentCategory->items.push_back(separator);  // Add separator to main category
+                currentItem->children.push_back(separator);  // Add separator to current item
             }
         } else if (line.startsWith("..")) {
             // Go up one level in the category stack
             if (categoryStack.size() > 1) {
                 categoryStack.pop_back();
-                currentCategory = categoryStack.back();
+                currentItem = categoryStack.back();
             } else {
-                currentCategory = nullptr;  // Go back to top level if stack is empty
+                currentItem = nullptr;  // Go back to top level if stack is empty
             }
         } else if (line.startsWith("/")) {
-            // Determine submenu depth by counting '/'
+            // Handle top-level categories or submenus
             std::string lineStr = line.toStdString();
             std::regex topLevelCategoryRegex("^/(?!nocategory)[^/](.*)");
             std::smatch matches;
 
             if (std::regex_search(lineStr, matches, topLevelCategoryRegex)) {
                 if (matches.size() > 0) {
-                    LogHandler::getInstance().info("\n\nmatch");
                     QString categoryName = QString::fromStdString(matches[0].str());
-                    // Find or create the top-level category
-                    currentCategory = findCategoryByName(menuData, categoryName.toStdString());
-                    if (!currentCategory) {
-                        // Create a new category if it doesn't exist
-                        MenuCategory newCategory;
-                        newCategory.name = categoryName.toStdString();
-                        menuData.push_back(newCategory);
-                        currentCategory = &menuData.back();
-                    }
+
+                    // Find or create a new top-level item
+                    MenuItem newItem;
+                    newItem.label = categoryName.toStdString();
+                    newItem.action = "category";  // Category items can have no action
+
+                    menuData.push_back(newItem);  // Add to top-level menu
+                    currentItem = &menuData.back();
                     categoryStack.clear();
-                    categoryStack.push_back(currentCategory);
+                    categoryStack.push_back(currentItem);
                 }
-
             } else if (line.startsWith("/nocategory")) {
-                // Reset to the top-level category
-                currentCategory = nullptr;
+                // Reset to the top level
+                currentItem = nullptr;
                 categoryStack.clear();
-
             } else if (line.startsWith("//")) {
-                // Handle subcategory (two slashes for subcategory depth)
-                LogHandler::getInstance().info("\n\nstarts with //");
-                QString subCategoryName = line.section('/', 2, 2);  // Extract the subcategory name
+                // Handle subcategories
+                QString subCategoryName = line.section('/', 2, 2);
 
-                // Create a subcategory directly inside the current category's items
+                // Create a submenu item
                 MenuItem subCategoryItem;
                 subCategoryItem.label = subCategoryName.toStdString();
-                subCategoryItem.subCategory = std::make_shared<MenuCategory>();  // Create subcategory within item
-                subCategoryItem.subCategory->name = subCategoryName.toStdString();
+                subCategoryItem.action = "category";  // Subcategory items can also have no action
 
-                LogHandler::getInstance().info("Parsed subcategory: " + subCategoryName.toStdString());
-
-                // Add subcategory item to the parent category
-                currentCategory->items.push_back(subCategoryItem);
-
-                // Set the current subcategory for adding its items
-                currentCategory = subCategoryItem.subCategory.get();
-                categoryStack.push_back(currentCategory);
+                currentItem->children.push_back(subCategoryItem);  // Add to current item
+                currentItem = &currentItem->children.back();  // Set as the current item
+                categoryStack.push_back(currentItem);
             }
-        } else if (!line.isEmpty() && currentCategory != nullptr) {
-            // Read label and action for the current category
+        } else if (!line.isEmpty() && currentItem != nullptr) {
+            // Regular menu items
             MenuItem item;
             item.label = line.toStdString();
             item.action = in.readLine().trimmed().toStdString();
-            currentCategory->items.push_back(item);  // Add item to main or subcategory
+            currentItem->children.push_back(item);  // Add item to current menu
         }
     }
 
     file.close();
 
-    menuData_ = menuData;
+    menuData_ = menuData;  // Update the class variable
 
+    // Save to YAML as before
     std::filesystem::path configMenuFilePath =
         std::filesystem::path(std::string(getenv("HOME")))
         / "Documents" / "Ableton" / "User Library"
-        / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
-    ;
+        / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
     saveToYAML(menuData, configMenuFilePath);
 }
 

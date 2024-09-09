@@ -56,6 +56,8 @@ int main(int argc, char *argv[]) {
 void ApplicationManager::init() {
     logHandler_->info("ApplicatonManager::init() called");
 
+    windowManager_  = new WindowManager();
+
     std::filesystem::path configFilePath =
         std::filesystem::path(std::string(getenv("HOME")))
         / "Documents" / "Ableton" / "User Library"
@@ -77,8 +79,6 @@ void ApplicationManager::init() {
     keySender_      = new KeySender(*this);
 
     guiSearchBox_   = new GUISearchBox(*this);
-    contextMenu_    = new ContextMenu(nullptr);
-    invisibleWindow_ = new InvisibleWindow(nullptr);
     dragTarget_     = new DragTarget(*this);
 
     logHandler_->info("ApplicatonManager::init() finished");
@@ -86,6 +86,10 @@ void ApplicationManager::init() {
 
 LogHandler* ApplicationManager::getLogHandler() {
     return logHandler_;
+}
+
+WindowManager* ApplicationManager::getWindowManager() {
+    return windowManager_;
 }
 
 ConfigManager* ApplicationManager::getConfigManager() {
@@ -114,14 +118,6 @@ KeySender* ApplicationManager::getKeySender() {
 
 GUISearchBox* ApplicationManager::getGUISearchBox() {
     return guiSearchBox_;
-}
-
-ContextMenu* ApplicationManager::getContextMenu() {
-    return contextMenu_;
-}
-
-InvisibleWindow* ApplicationManager::getInvisibleWindow() {
-    return invisibleWindow_;
 }
 
 DragTarget* ApplicationManager::getDragTarget() {

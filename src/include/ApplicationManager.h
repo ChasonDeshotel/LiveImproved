@@ -5,6 +5,7 @@
 #include <numeric>
 
 #include "PlatformDependent.h"
+#include "WindowManager.h"
 #include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
@@ -12,8 +13,6 @@
 #include "ResponseParser.h"
 #include "EventHandler.h"
 #include "SearchBox.h"
-#include "ContextMenu.h"
-#include "InvisibleWindow.h"
 #include "DragTarget.h"
 
 class ApplicationManager {
@@ -26,6 +25,7 @@ public:
     void init();
 
     LogHandler* getLogHandler();
+    WindowManager* getWindowManager();
 
     ConfigManager* getConfigManager();
     ConfigMenu* getConfigMenu();
@@ -34,8 +34,6 @@ public:
     KeySender* getKeySender();
     IPC* getIPC();
     GUISearchBox* getGUISearchBox();
-    ContextMenu* getContextMenu();
-    InvisibleWindow* getInvisibleWindow();
     DragTarget* getDragTarget();
     ResponseParser* getResponseParser();
 
@@ -52,14 +50,13 @@ private:
     ApplicationManager& operator=(const ApplicationManager&) = delete;
 
     IPC* ipc_ = nullptr;
+    WindowManager* windowManager_ = nullptr;
     ConfigManager* configManager_ = nullptr;
     ConfigMenu* configMenu_ = nullptr;
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
     GUISearchBox* guiSearchBox_;
-    ContextMenu* contextMenu_;
-    InvisibleWindow* invisibleWindow_;
     DragTarget* dragTarget_;
     ResponseParser* responseParser_ = nullptr;
 

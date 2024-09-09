@@ -213,7 +213,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 //    }
 
     if (eventPID == PID::getInstance().livePID()) {
-        if (handler->app_.getContextMenu()->isOpen()) {
+        if (handler->app_.getWindowManager()->isWindowOpen("ContextMenu")) {
             handler->log_->info("Ableton Live event menu open");
         }
 

@@ -1,6 +1,8 @@
 #ifndef CONFIG_MENU_H
 #define CONFIG_MENU_H
 
+#include <filesystem>
+
 #include "yaml-cpp/yaml.h"
 #include "Types.h"
 
@@ -16,13 +18,13 @@ public:
 
     void parseLESMenuConfig(const std::filesystem::path& filePath);
 
-    std::vector<MenuCategory> getMenuData();
+    std::vector<MenuItem> getMenuData();
 
 private:
-    std::vector<MenuCategory> menuData_;
+    std::vector<MenuItem> menuData_;
 
-    void saveToYAML(const std::vector<MenuCategory>& menuData, const std::filesystem::path& filePath);
-    void saveCategoryToYAML(YAML::Emitter& out, const MenuCategory& category);
+    void saveToYAML(const std::vector<MenuItem>& menuData, const std::filesystem::path& filePath);
+    void outputItemToYAML(YAML::Emitter& out, const MenuItem& item);
     void applyConfig(const YAML::Node& config);
 
     std::string configFile_;

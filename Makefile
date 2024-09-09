@@ -50,18 +50,17 @@ LICENSE_PATH   = $(BUNDLE_PATH)/Contents/LICENSE
 
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
-MODULES =                                    \
-    types/Plugin.h                       \
+MODULES =                                \
     ApplicationManager.cpp               \
     LogHandler.cpp                       \
+		WindowManager.cpp                    \
     config/ConfigManager.cpp             \
     config/ConfigMenu.cpp                \
-    gui/ContextMenu.cpp                  \
-    gui/InvisibleWindow.cpp              \
     gui/SearchBox.cpp                    \
     gui/DragTarget.cpp                   \
     gui/FocusedWidget.cp                 \
     platform/macos/PlatformInitalizer.mm \
+    platform/macos/ContextMenu.mm        \
     platform/macos/IPC.cpp               \
     platform/macos/PID.mm                \
     platform/macos/EventHandler.mm       \
@@ -78,11 +77,11 @@ TEST_SRC      = $(wildcard $(TEST_DIR)/*.cpp)
 # Ensure build directories exist
 create_dirs: $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)
-	mkdir -p $(OBJ_DIR)/lib/config
-	mkdir -p $(OBJ_DIR)/lib/gui
-	mkdir -p $(OBJ_DIR)/lib/platform/macos
-	mkdir -p $(OBJ_DIR)/lib/types
-	mkdir -p $(OBJ_DIR)/lib/config
+	mkdir -p $(OBJ_DIR)/config
+	mkdir -p $(OBJ_DIR)/include
+	mkdir -p $(OBJ_DIR)/gui
+	mkdir -p $(OBJ_DIR)/platform/macos
+	mkdir -p $(OBJ_DIR)/config
 	mkdir -p $(OBJ_DIR)/test
 
 #
@@ -110,11 +109,10 @@ QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
-MOC_HEADERS = $(SRC_DIR)/gui/SearchBox.h       \
-              $(SRC_DIR)/gui/ContextMenu.h     \
-              $(SRC_DIR)/gui/InvisibleWindow.h \
-              $(SRC_DIR)/gui/DragTarget.h      \
-              $(SRC_DIR)/gui/FocusedWidget.h
+MOC_HEADERS = $(SRC_DIR)/include/SearchBox.h       \
+              $(SRC_DIR)/include/ContextMenu.h     \
+              $(SRC_DIR)/include/DragTarget.h      \
+              $(SRC_DIR)/include/FocusedWidget.h
 						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
 
 MOC_SOURCES = $(MOC_HEADERS:$(SRC_DIR)/%.h=$(OBJ_DIR)/%.moc.cpp)
@@ -122,17 +120,17 @@ MOC_SOURCES = $(MOC_HEADERS:$(SRC_DIR)/%.h=$(OBJ_DIR)/%.moc.cpp)
 MOC_OBJECTS = $(MOC_SOURCES:.cpp=.o)
 
 # explicitly list so clean doesn't nuke .mm's
-APP_OBJECTS =                                           \
+APP_OBJECTS =                                       \
     $(OBJ_DIR)/ApplicationManager.o                 \
     $(OBJ_DIR)/LogHandler.o                         \
+    $(OBJ_DIR)/WindowManager.o                      \
     $(OBJ_DIR)/config/ConfigManager.o               \
     $(OBJ_DIR)/config/ConfigMenu.o                  \
-    $(OBJ_DIR)/gui/ContextMenu.o                    \
-    $(OBJ_DIR)/gui/InvisibleWindow.o                \
     $(OBJ_DIR)/gui/SearchBox.o                      \
     $(OBJ_DIR)/gui/DragTarget.o                     \
     $(OBJ_DIR)/gui/FocusedWidget.o                  \
     $(OBJ_DIR)/platform/macos/PlatformInitializer.o \
+    $(OBJ_DIR)/platform/macos/ContextMenu.o         \
     $(OBJ_DIR)/platform/macos/IPC.o                 \
     $(OBJ_DIR)/platform/macos/PID.o                 \
     $(OBJ_DIR)/platform/macos/EventHandler.o        \

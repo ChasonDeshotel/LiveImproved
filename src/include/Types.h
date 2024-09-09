@@ -4,17 +4,26 @@
 #include <vector>
 #include <string>
 
-struct MenuCategory;
+class IWindow {
+public:
+    virtual ~IWindow() = default;
+    virtual void open() = 0;
+    virtual void close() = 0;
+};
+
+enum class Window {
+    ContextMenu
+};
+
+struct WindowData {
+    std::shared_ptr<IWindow> window;
+    std::function<void()> callback;
+};
 
 struct MenuItem {
     std::string label;
     std::string action;
-    std::shared_ptr<MenuCategory> subCategory = nullptr;
-};
-
-struct MenuCategory {
-    std::string name;
-    std::vector<MenuItem> items;
+    std::vector<MenuItem> children;
 };
 
 struct Plugin {

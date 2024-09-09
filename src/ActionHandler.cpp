@@ -62,8 +62,9 @@ bool ActionHandler::openSearchBox() {
 
 // TODO: move to GUISearchBox?
 bool ActionHandler::closeWindows() {
-    if (app_.getContextMenu()->isOpen()) {
-        app_.getContextMenu()->closeMenu();
+//    if (app_.getContextMenu()->isOpen()) {
+//        app_.getContextMenu()->closeMenu();
+    if (false) {
     } else if (app_.getGUISearchBox()->isOpen()) {
         if (app_.getGUISearchBox()->getSearchTextLength()) {
             app_.getGUISearchBox()->clearSearchText();
@@ -129,9 +130,9 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 
         if (keyString == "1") {
               log_->info("menu triggered");
-              ContextMenu* menu = new ContextMenu(nullptr);
-              menu->move(QCursor::pos());
-              menu->show();
+              //ContextMenu* menu = new ContextMenu(nullptr);
+              //menu->move(QCursor::pos());
+              //menu->show();
               return false;
         } else if (keyString == "3") {
               app_.getIPC()->writeRequest("RELOAD");
@@ -145,6 +146,12 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
               } else {
                   app_.getDragTarget()->openWindow();
               }
+              return false;
+        } else if (keyString == "8") {
+              app_.getWindowManager()->openWindow("ContextMenu");
+              return false;
+        } else if (keyString == "7") {
+              app_.getWindowManager()->closeWindow("ContextMenu");
               return false;
         } else if (keyString == "Escape") {
               closeWindows();
@@ -203,7 +210,7 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 }
 
 void ActionHandler::handleDoubleRightClick() {
-    app_.getContextMenu()->openMenu();
+//    app_.getContextMenu()->openMenu();
 }
 
 // move to ActionHandler
