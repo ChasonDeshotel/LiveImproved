@@ -5,11 +5,11 @@ CXXFLAGS = -std=c++17
 INCLUDE =                             \
         -I./mock                      \
         -I./src                       \
-        -I./src/lib                   \
-        -I./src/lib/gui               \
-        -I./src/lib/config            \
-        -I./src/lib/platform/macos    \
-        -I./src/lib/types             \
+        -I./src/                  \
+        -I./src/gui               \
+        -I./src/config            \
+        -I./src/platform/macos    \
+        -I./src/types             \
 				-I/usr/local/include
 
 INCLUDE_QT =                              \
@@ -56,23 +56,23 @@ LICENSE_PATH   = $(BUNDLE_PATH)/Contents/LICENSE
 LIVE          = /Applications/Ableton\ Live\ 12\ Suite.app
 
 MODULES =                                    \
-    lib/types/Plugin.h                       \
-    lib/ApplicationManager.cpp               \
-    lib/LogHandler.cpp                       \
-    lib/config/ConfigManager.cpp             \
-    lib/config/ConfigMenu.cpp                \
-    lib/gui/ContextMenu.cpp                  \
-    lib/gui/InvisibleWindow.cpp              \
-    lib/gui/SearchBox.cpp                    \
-    lib/gui/DragTarget.cpp                   \
-    lib/gui/FocusedWidget.cp                 \
-    lib/platform/macos/PlatformInitalizer.mm \
-    lib/platform/macos/IPC.cpp               \
-    lib/platform/macos/PID.mm                \
-    lib/platform/macos/EventHandler.mm       \
-    lib/platform/macos/KeySender.mm          \
-    lib/ActionHandler.cpp                    \
-    lib/ResponseParser.cpp
+    types/Plugin.h                       \
+    ApplicationManager.cpp               \
+    LogHandler.cpp                       \
+    config/ConfigManager.cpp             \
+    config/ConfigMenu.cpp                \
+    gui/ContextMenu.cpp                  \
+    gui/InvisibleWindow.cpp              \
+    gui/SearchBox.cpp                    \
+    gui/DragTarget.cpp                   \
+    gui/FocusedWidget.cp                 \
+    platform/macos/PlatformInitalizer.mm \
+    platform/macos/IPC.cpp               \
+    platform/macos/PID.mm                \
+    platform/macos/EventHandler.mm       \
+    platform/macos/KeySender.mm          \
+    ActionHandler.cpp                    \
+    ResponseParser.cpp
 
 # for running tests
 TEST_DIR      = ./test
@@ -115,11 +115,11 @@ QT_PATH     = $(HOME)/Qt/6.7.2/macos
 MOC         = $(QT_PATH)/libexec/moc
 MACDEPLOYQT = $(QT_PATH)/bin/macdeployqt
 
-MOC_HEADERS = $(SRC_DIR)/lib/gui/SearchBox.h       \
-              $(SRC_DIR)/lib/gui/ContextMenu.h     \
-              $(SRC_DIR)/lib/gui/InvisibleWindow.h \
-              $(SRC_DIR)/lib/gui/DragTarget.h      \
-              $(SRC_DIR)/lib/gui/FocusedWidget.h
+MOC_HEADERS = $(SRC_DIR)/gui/SearchBox.h       \
+              $(SRC_DIR)/gui/ContextMenu.h     \
+              $(SRC_DIR)/gui/InvisibleWindow.h \
+              $(SRC_DIR)/gui/DragTarget.h      \
+              $(SRC_DIR)/gui/FocusedWidget.h
 						#	$(SRC_DIR)/lib/platform/macos/EventHandlerThread.h
 
 MOC_SOURCES = $(MOC_HEADERS:$(SRC_DIR)/%.h=$(OBJ_DIR)/%.moc.cpp)
@@ -128,22 +128,22 @@ MOC_OBJECTS = $(MOC_SOURCES:.cpp=.o)
 
 # explicitly list so clean doesn't nuke .mm's
 APP_OBJECTS =                                           \
-    $(OBJ_DIR)/lib/ApplicationManager.o                 \
-    $(OBJ_DIR)/lib/LogHandler.o                         \
-    $(OBJ_DIR)/lib/config/ConfigManager.o               \
-    $(OBJ_DIR)/lib/config/ConfigMenu.o                  \
-    $(OBJ_DIR)/lib/gui/ContextMenu.o                    \
-    $(OBJ_DIR)/lib/gui/InvisibleWindow.o                \
-    $(OBJ_DIR)/lib/gui/SearchBox.o                      \
-    $(OBJ_DIR)/lib/gui/DragTarget.o                     \
-    $(OBJ_DIR)/lib/gui/FocusedWidget.o                  \
-    $(OBJ_DIR)/lib/platform/macos/PlatformInitializer.o \
-    $(OBJ_DIR)/lib/platform/macos/IPC.o                 \
-    $(OBJ_DIR)/lib/platform/macos/PID.o                 \
-    $(OBJ_DIR)/lib/platform/macos/EventHandler.o        \
-    $(OBJ_DIR)/lib/platform/macos/KeySender.o           \
-    $(OBJ_DIR)/lib/ActionHandler.o                      \
-    $(OBJ_DIR)/lib/ResponseParser.o                     \
+    $(OBJ_DIR)/ApplicationManager.o                 \
+    $(OBJ_DIR)/LogHandler.o                         \
+    $(OBJ_DIR)/config/ConfigManager.o               \
+    $(OBJ_DIR)/config/ConfigMenu.o                  \
+    $(OBJ_DIR)/gui/ContextMenu.o                    \
+    $(OBJ_DIR)/gui/InvisibleWindow.o                \
+    $(OBJ_DIR)/gui/SearchBox.o                      \
+    $(OBJ_DIR)/gui/DragTarget.o                     \
+    $(OBJ_DIR)/gui/FocusedWidget.o                  \
+    $(OBJ_DIR)/platform/macos/PlatformInitializer.o \
+    $(OBJ_DIR)/platform/macos/IPC.o                 \
+    $(OBJ_DIR)/platform/macos/PID.o                 \
+    $(OBJ_DIR)/platform/macos/EventHandler.o        \
+    $(OBJ_DIR)/platform/macos/KeySender.o           \
+    $(OBJ_DIR)/ActionHandler.o                      \
+    $(OBJ_DIR)/ResponseParser.o                     \
     $(MOC_OBJECTS)
 #    $(MOC_SOURCES:.cpp=.o)
 
@@ -242,8 +242,8 @@ run: $(BUNDLE_PATH)
 test: FORCE
 	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test $(TEST_SRC) $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
 
-test_config_manager: $(OBJ_DIR)/lib/config/ConfigManager.o $(OBJ_DIR)/test/lib_config_ConfigManager.o
-	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test_config_manager $(OBJ_DIR)/lib/config/ConfigManager.o $(OBJ_DIR)/test/lib_config_ConfigManager.o $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
+test_config_manager: $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o
+	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test_config_manager $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
 
 
 .PHONY: FORCE
