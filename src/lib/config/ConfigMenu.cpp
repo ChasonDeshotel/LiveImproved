@@ -91,7 +91,9 @@ MenuCategory* findCategoryByName(std::vector<MenuCategory>& menuData, const std:
     return nullptr;  // Return nullptr if the category doesn't exist
 }
 
-
+std::vector<MenuCategory> ConfigMenu::getMenuData() {
+    return menuData_;
+}
 
 void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
 
@@ -188,6 +190,8 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
     }
 
     file.close();
+
+    menuData_ = menuData;
 
     std::filesystem::path configMenuFilePath =
         std::filesystem::path(std::string(getenv("HOME")))

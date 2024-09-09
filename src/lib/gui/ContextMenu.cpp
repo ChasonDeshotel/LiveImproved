@@ -1,15 +1,27 @@
+#include <fstream>
+#include <iostream>
+
 #include <QApplication>
-#include <QMainWindow>
+#include <QWidgetAction>
+#include <QWindow>
 #include <QAction>
 #include <QCursor>
-#include <QDebug>
 #include <QWidget>
-#include <QWidgetAction>
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include <QMenu>
+#include <QMenuBar>
+
+#include <yaml-cpp/yaml.h>
 
 #include "ApplicationManager.h"
 #include "ContextMenu.h"
 #include "LogHandler.h"
 #include "PID.h"
+#include "Menu.h"
 
 ContextMenu::ContextMenu(QWidget *parent)
     : QMenu(parent)
@@ -33,7 +45,7 @@ ContextMenu::ContextMenu(QWidget *parent)
         "/Menu2", "Foo", "Bar", "//Submenu2", "Test", "///Submenu2Submenu", "AnotherItem"
     };
 
-    buildMenu(menuItems);
+    buildMenu();
 }
 
 //void ContextMenu::connectMenuSignals(QMenu *menu) {
@@ -83,66 +95,165 @@ void ContextMenu::keyPressEvent(QKeyEvent *event) {
 //    return actions.at(nextIndex);
 //}
 
-
-void ContextMenu::buildMenu(const QStringList &menuItems) {
-    QMenu *currentMenu = this;  // Use QMenu* instead of ContextMenu*
-
-    QMap<QString, QMenu*> submenus;
-
-//    QLineEdit *searchBox = new QLineEdit(this);
-//    searchBox->setPlaceholderText("Search...");
+//QMenu* ContextMenu::createMenuFromYAML(const YAML::Node& node, QWidget* parent) {
+//    QMenu* menu = new QMenu(node["name"].as<std::string>().c_str(), parent);
 //
-//    // Create a QWidgetAction to hold the QLineEdit
-//    QWidgetAction *searchAction = new QWidgetAction(this);
-//    searchAction->setDefaultWidget(searchBox);
+//    // Iterate through the items
+//    for (const auto& item : node["items"]) {
+//        std::string label = item["label"].as<std::string>();
 //
-//    this->addAction(searchAction);
+//        if (label == "--") {
+//            // Add a separator if the label is "--"
+//            menu->addSeparator();
+//        } else if (item["subcategory"]) {
+//            // If the item has a subcategory, create a submenu recursively
+//            QMenu* submenu = createMenuFromYAML(item["subcategory"], menu);
+//            menu->addMenu(submenu);
+//        } else {
+//            // Otherwise, add an action
+//            QAction* action = new QAction(label.c_str(), menu);
+//            QObject::connect(action, &QAction::triggered, [item]() {
+//                std::string actionCommand = item["action"].as<std::string>();
+//                std::cout << "Action triggered: " << actionCommand << std::endl;
+//            });
+//            menu->addAction(action);
+//        }
+//    }
 //
-//    connect(searchBox, &QLineEdit::textChanged, this, [this](const QString &text) {
-//        // Implement search/filter logic here
-//        qDebug() << "Searching for: " << text;
-//    });
+//    return menu;
+//}
 
+void ContextMenu::buildMenu() {
 
-    for (const QString &item : menuItems) {
-        if (item == "--") {
-            currentMenu->addSeparator();
-        } else if (item.startsWith("///")) {
-            QString submenuName = item.mid(3);
-            QMenu *submenu = new QMenu(submenuName, this);
+// Assuming the structure of MenuCategory and MenuItem
+struct MenuItem {
+    std::string label;
+    std::string action;
+};
 
-            //connectMenuSignals(this);
+struct MenuCategory {
+    std::string name;
+    std::vector<MenuItem> items;
+};
 
-            submenus[submenuName] = submenu;
-            currentMenu->addMenu(submenu);
-            currentMenu = submenu;
-        } else if (item.startsWith("//")) {
-            QString submenuName = item.mid(2);
-            QMenu *submenu = new QMenu(submenuName, this);
+// Function to create QWindow from vector of MenuCategories
+QWindow* createWindowFromMenuCategories(const std::vector<MenuCategory>& categories) {
+    QWidget* mainWidget = new QWidget();  // Main container widget
+    QVBoxLayout* layout = new QVBoxLayout();  // Vertical layout for categories
 
-            //connectMenuSignals(this);
+    // Iterate through each category and add buttons for each item
+    for (const auto& category : categories) {
+        QLabel* categoryLabel = new QLabel(QString::fromStdString(category.name));
+        layout->addWidget(categoryLabel);  // Add category label
 
-            submenus[submenuName] = submenu;
-            currentMenu->addMenu(submenu);
-            currentMenu = submenu;
-        } else if (item.startsWith("/")) {
-            QString submenuName = item.mid(1);
-            QMenu *submenu = new QMenu(submenuName, this);
+        for (const auto& item : category.items) {
+            QPushButton* button = new QPushButton(QString::fromStdString(item.label));
+            layout->addWidget(button);
 
-            //connectMenuSignals(this);
-
-            submenus[submenuName] = submenu;
-            currentMenu->addMenu(submenu);
-            currentMenu = submenu;
-        } else {
-            QAction *action = new QAction(item, this);
-            currentMenu->addAction(action);
-            connect(action, &QAction::triggered, this, [item] {
-                qDebug() << item << "triggered";
+            // Connect the button to an action
+            QObject::connect(button, &QPushButton::clicked, [item]() {
+                // Example action: Show a message box with the action
+                QMessageBox::information(nullptr, "Action", QString::fromStdString(item.action));
             });
         }
     }
+
+    mainWidget->setLayout(layout);  // Set layout for the widget
+    mainWidget->show();  // Show the widget as a window
+
+    return mainWidget->windowHandle();  // Return the window handle
 }
+
+int main(int argc, char* argv[]) {
+    QApplication app(argc, argv);
+
+    // Example menu categories
+    std::vector<MenuCategory> categories = {
+        {"Saturation", {{"Amplitube", "AmpliTube 5 VST3"}, {"Bias Amp", "BIAS AMP 2 VST"}}},
+        {"Mastering", {{"Elephant", "Elephant VST3"}, {"ChannelStrip", "ChannelStrip AU"}}}
+    };
+
+    QWindow* window = createWindowFromMenuCategories(categories);
+    window->show();
+
+    return app.exec();
+}
+
+
+
+
+    std::vector<MenuCategory> menuData = ApplicationManager::getInstance().getConfigMenu()->getMenuData();
+    QMenu *currentMenu = this;  // Use QMenu* instead of ContextMenu*
+    for (const auto& category : menuData) {
+        currentMenu->addSeparator();
+        QString submenuName = QString::fromStdString(category.name);
+        QMenu *submenu = new QMenu(submenuName, this);
+
+        submenus[submenuName] = submenu;
+        currentMenu->addMenu(submenu);
+        currentMenu = submenu;
+    }
+}
+
+//void ContextMenu::buildMenu(const QStringList &menuItems) {
+//    QMenu *currentMenu = this;  // Use QMenu* instead of ContextMenu*
+//
+//    QMap<QString, QMenu*> submenus;
+//
+////    QLineEdit *searchBox = new QLineEdit(this);
+////    searchBox->setPlaceholderText("Search...");
+////
+////    // Create a QWidgetAction to hold the QLineEdit
+////    QWidgetAction *searchAction = new QWidgetAction(this);
+////    searchAction->setDefaultWidget(searchBox);
+////
+////    this->addAction(searchAction);
+////
+////    connect(searchBox, &QLineEdit::textChanged, this, [this](const QString &text) {
+////        // Implement search/filter logic here
+////        qDebug() << "Searching for: " << text;
+////    });
+//
+//
+//    for (const QString &item : menuItems) {
+//        if (item == "--") {
+//            currentMenu->addSeparator();
+//        } else if (item.startsWith("///")) {
+//            QString submenuName = item.mid(3);
+//            QMenu *submenu = new QMenu(submenuName, this);
+//
+//            //connectMenuSignals(this);
+//
+//            submenus[submenuName] = submenu;
+//            currentMenu->addMenu(submenu);
+//            currentMenu = submenu;
+//        } else if (item.startsWith("//")) {
+//            QString submenuName = item.mid(2);
+//            QMenu *submenu = new QMenu(submenuName, this);
+//
+//            //connectMenuSignals(this);
+//
+//            submenus[submenuName] = submenu;
+//            currentMenu->addMenu(submenu);
+//            currentMenu = submenu;
+//        } else if (item.startsWith("/")) {
+//            QString submenuName = item.mid(1);
+//            QMenu *submenu = new QMenu(submenuName, this);
+//
+//            //connectMenuSignals(this);
+//
+//            submenus[submenuName] = submenu;
+//            currentMenu->addMenu(submenu);
+//            currentMenu = submenu;
+//        } else {
+//            QAction *action = new QAction(item, this);
+//            currentMenu->addAction(action);
+//            connect(action, &QAction::triggered, this, [item] {
+//                qDebug() << item << "triggered";
+//            });
+//        }
+//    }
+//}
 
 
 

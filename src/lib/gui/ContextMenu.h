@@ -6,6 +6,7 @@
 #include <QMap>
 #include <QStringList>
 #include <QKeyEvent>
+#include "Menu.h"
 
 class ContextMenu : public QMenu {
     Q_OBJECT
@@ -17,13 +18,16 @@ public:
     void closeMenu();
     bool isOpen() const;
     QMenu* getActiveMenu() const;
+//    QMenu* createMenuFromYAML(const YAML::Node& node, QWidget* parent);
+
+    QMenu* createMenu(const std::vector<MenuCategory> menuData, QWidget* parent);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     // void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-    void buildMenu(const QStringList &menuItems);
+    void buildMenu();
     QMap<QString, QMenu*> submenus;
 
 //    QAction* findNextAction(QAction* currentAction, bool forward);
