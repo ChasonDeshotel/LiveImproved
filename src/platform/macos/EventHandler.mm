@@ -213,12 +213,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 //    }
 
     if (eventPID == PID::getInstance().livePID()) {
-        if (handler->app_.getWindowManager()->isWindowOpen("ContextMenu")) {
-            handler->log_->info("Ableton Live event menu open");
-        }
-
-
-        // double-right-click
+        // double-right-click menu
         if (eventType == kCGEventRightMouseDown) {
             handler->log_->info("Ableton Live right click event detected.");
             //handler->log_->info("right click event");

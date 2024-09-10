@@ -33,4 +33,13 @@ struct Plugin {
     std::string uri;
 };
 
+enum Modifier {
+    // macOS values
+    None    = 0
+    , Shift   = 0x00020000
+    , Ctrl    = 0x00040000
+    , Alt     = 0x00080000
+    , Cmd     = 0x00100000
+};
+
 #endif
