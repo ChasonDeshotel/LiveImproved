@@ -112,14 +112,15 @@ void ActionHandler::handleAction(const std::string action) {
 bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key string: " + keyString + ", Modifiers: " + std::to_string(flags));
     bool isShiftPressed = (flags & Shift) != 0;
-    app_.getLogHandler()->info("isShiftPressed: " + std::to_string(isShiftPressed));
     bool isCtrlPressed = (flags & Ctrl) != 0;
-    app_.getLogHandler()->info("isCtrlPressed: " + std::to_string(isCtrlPressed));
     bool isCmdPressed = (flags & Cmd) != 0;
-    app_.getLogHandler()->info("isCmdPressed: " + std::to_string(isCmdPressed));
     bool isAltPressed = (flags & Alt) != 0;
+
+    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key string: " + keyString + ", Modifiers: " + std::to_string(flags));
+    app_.getLogHandler()->info("isShiftPressed: " + std::to_string(isShiftPressed));
+    app_.getLogHandler()->info("isCtrlPressed: " + std::to_string(isCtrlPressed));
+    app_.getLogHandler()->info("isCmdPressed: " + std::to_string(isCmdPressed));
     app_.getLogHandler()->info("isAltPressed: " + std::to_string(isAltPressed));
 
     std::unordered_map<std::string, std::string> remap = app_.getConfigManager()->getRemap();
