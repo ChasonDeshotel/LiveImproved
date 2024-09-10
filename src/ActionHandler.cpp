@@ -21,7 +21,7 @@ void ActionHandler::init() {
 }
 
 // Helper function to split string by delimiter
-std::pair<std::string, std::string> splitAction(const std::string& action) {
+std::pair<std::string, std::string> splitString(const std::string& action) {
     std::string delimiter = ",";
     size_t pos = action.find(delimiter);
     if (pos == std::string::npos) {
@@ -62,10 +62,9 @@ bool ActionHandler::openSearchBox() {
 
 // TODO: move to GUISearchBox?
 bool ActionHandler::closeWindows() {
-//    if (app_.getContextMenu()->isOpen()) {
-//        app_.getContextMenu()->closeMenu();
-    if (false) {
-    } else if (app_.getGUISearchBox()->isOpen()) {
+    app_.getWindowManager()->closeWindow("ContextMenu");
+
+    if (app_.getGUISearchBox()->isOpen()) {
         if (app_.getGUISearchBox()->getSearchTextLength()) {
             app_.getGUISearchBox()->clearSearchText();
         } else {
@@ -76,14 +75,11 @@ bool ActionHandler::closeWindows() {
 }
 
 bool ActionHandler::loadItem(int itemIndex) {
-    log_->info("writing request");
     app_.getIPC()->writeRequest("load_item," + std::to_string(itemIndex));
     return false;
 }
 
 bool ActionHandler::loadItemByName(std::string itemName) {
-    log_->info("writing request");
-
     for (const auto& plugin : app_.getPlugins()) {
         if (itemName == plugin.name) {
           //item->setData(Qt::UserRole, static_cast<int>(plugin.number));
@@ -93,11 +89,19 @@ bool ActionHandler::loadItemByName(std::string itemName) {
     return false;
 }
 
-//bool ActionHandler::onEscapePress() {
-//    app_.getLogHandler()->info("Escape pressed");
-//    app_.getIPC()->readResponse();
-//    return true;
-//}
+// TODO: find a better syntax to send multiple commands
+// maybe action.args,action2.args2
+void ActionHandler::handleAction(const std::string action) {
+    log_->info("handleAction called");
+    auto [actionType, args] = splitString(action);
+    auto actionHandler = actionMap.find(actionType);
+    if (actionHandler != actionMap.end()) {
+        // Call the corresponding method with arguments
+        actionHandler->second(args);
+    } else {
+        log_->info("No handler found for action type: " + actionType);
+    }
+}
 
 // returns: bool: shouldPassEvent
 // -- should the original event be passed
@@ -108,31 +112,16 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 
     std::unordered_map<std::string, std::string> remap = app_.getConfigManager()->getRemap();
 
-    // Find the remap entry
+    // key remaps
     auto it = remap.find(keyString);
     if (it != remap.end()) {
-        std::string action = it->second;
-        // Split the action string into type and arguments
-        auto [actionType, args] = splitAction(action);
-        auto actionHandler = actionMap.find(actionType);
-        if (actionHandler != actionMap.end()) {
-            // Call the corresponding method with arguments
-            actionHandler->second(args);
-        } else {
-            log_->info("No handler found for action type: " + actionType);
-        }
+        handleAction(it->second);
     } else {
         log_->info("Key not found in remap: " + keyString);
     }
 
-
     if (type == "keyDown") {
-
         if (keyString == "1") {
-              log_->info("menu triggered");
-              //ContextMenu* menu = new ContextMenu(nullptr);
-              //menu->move(QCursor::pos());
-              //menu->show();
               return false;
         } else if (keyString == "3") {
               app_.getIPC()->writeRequest("RELOAD");
@@ -210,7 +199,7 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 }
 
 void ActionHandler::handleDoubleRightClick() {
-//    app_.getContextMenu()->openMenu();
+    app_.getWindowManager()->openWindow("ContextMenu");
 }
 
 // move to ActionHandler

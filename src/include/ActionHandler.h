@@ -15,6 +15,7 @@ public:
 
     void init();
 
+    void handleAction(std::string);
     // returns if the event should be blocking
     bool handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type);
     

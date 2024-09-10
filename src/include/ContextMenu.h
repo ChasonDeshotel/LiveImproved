@@ -25,7 +25,7 @@ public:
 
 private:
     std::vector<MenuItem> menuItems_;
-    std::function<void(const std::string&)> actionCallback_;
+    std::function<void(const std::string&)> overrideCallback_;
     bool isOpen_ = false;
 
     #ifdef __OBJC__

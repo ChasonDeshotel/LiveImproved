@@ -13,14 +13,13 @@ public:
     template<typename T>
     void registerWindowFactory(const std::string& windowName);
 
-    // Add a window to the manager
     void registerWindow(const std::string& windowName, std::function<void()> callback = nullptr);
 
-    // Open a window if it exists
     void openWindow(const std::string& windowName);
 
-    // Close a window if it exists
     void closeWindow(const std::string& windowName);
+
+    void toggleWindow(const std::string& windowName);
 
     // Check if a window is open
     bool isWindowOpen(const std::string& windowName) const;
