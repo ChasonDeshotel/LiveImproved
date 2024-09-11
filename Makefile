@@ -1,9 +1,9 @@
 CC = clang++
 
-CXXFLAGS = -std=c++20                             \
-         -DJUCE_APP_CONFIG_HEADER=\"$(PWD)/src/include/AppConfig.h\" \
-         -DDEBUG                                  \
-				 -ObjC++                                  \
+CXXFLAGS = -std=c++20                                                     \
+         -DJUCE_APP_CONFIG_HEADER=\"$(PWD)/src/include/juce/AppConfig.h\" \
+         -DDEBUG                                                          \
+         -ObjC++                                                          \
          -arch x86_64
 	
 INCLUDE =                                                   \
@@ -41,7 +41,7 @@ FRAMEWORKS =                              \
 
 SRC_DIR       = ./src
 BUILD_DIR     = ./build
-JUCE_DIR      = ./juce/modules
+JUCE_DIR      = ./lib/juce/modules
 
 # building as library
 DYLIB         = $(BUILD_DIR)/LiveImproved.dylib
