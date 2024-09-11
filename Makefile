@@ -136,10 +136,6 @@ APP_OBJECTS =                                       \
     $(OBJ_DIR)/ActionHandler.o                      \
     $(OBJ_DIR)/ResponseParser.o                     \
 		$(JUCE_OBJS)
-#    $(MOC_OBJECTS)
-#    $(MOC_SOURCES:.cpp=.o)
-
-
 
 #
 # build library-style
@@ -181,7 +177,6 @@ generate-plist:
 	@echo '  <string>1</string>' >> $(PLIST_PATH)
 	@echo '</dict>' >> $(PLIST_PATH)
 	@echo '</plist>' >> $(PLIST_PATH)
-
 
 juce: $(APP_OBJECTS) generate-plist
 	@echo 'app obj'
