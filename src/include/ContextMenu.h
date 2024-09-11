@@ -15,6 +15,7 @@ class ContextMenu : public IWindow {
 public:
     ContextMenu(std::function<void(const std::string&)> callback = nullptr);
 
+    void* getWindowHandle() const override;
     void open() override;
     void close() override;
 

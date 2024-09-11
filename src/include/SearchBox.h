@@ -29,6 +29,9 @@ public:
     void clearSearchText();
 
     void textEditorTextChanged(juce::TextEditor& editor) override;
+
+    void* getWindowHandle() const override;
+
 protected:
     // JUCE overrides for layout and input handling
     void resized() override;

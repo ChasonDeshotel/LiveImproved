@@ -15,6 +15,8 @@ public:
 
     void registerWindow(const std::string& windowName, std::function<void()> callback = nullptr);
 
+    void* getWindowHandle(const std::string& windowName) const;
+
     void openWindow(const std::string& windowName);
 
     void closeWindow(const std::string& windowName);

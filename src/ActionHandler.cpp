@@ -62,6 +62,7 @@ void ActionHandler::sendKeypress(const std::string& key) {
 
 bool ActionHandler::closeWindows() {
     app_.getWindowManager()->closeWindow("ContextMenu");
+    app_.getWindowManager()->closeWindow("SearchBox");
 
 //    if (app_.getGUISearchBox()->isOpen()) {
 //        if (app_.getGUISearchBox()->getSearchTextLength()) {

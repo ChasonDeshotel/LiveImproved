@@ -9,6 +9,7 @@ public:
     virtual ~IWindow() = default;
     virtual void open() = 0;
     virtual void close() = 0;
+    virtual void* getWindowHandle() const = 0;
 };
 
 enum class Window {

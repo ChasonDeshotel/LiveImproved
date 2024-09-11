@@ -121,9 +121,39 @@ void SearchBox::open() {
 }
 
 void SearchBox::close() {
-    setVisible(false);
-    searchField_.clear();
+    if (juce::MessageManager::getInstance()->isThisTheMessageThread()) {
+        setVisible(false);
+        //window->closeButtonPressed();
+        searchField_.clear();
+    } else {
+        juce::MessageManager::callAsync([this]() {
+            setVisible(false);
+            //window->closeButtonPressed();
+            searchField_.clear();
+        });
+    }
 }
+
+void* SearchBox::getWindowHandle() const {
+    void* handle = nullptr;
+
+    if (juce::MessageManager::getInstance()->isThisTheMessageThread()) {
+        handle = (void*)Component::getWindowHandle();
+    } else {
+        juce::WaitableEvent event;
+
+        juce::MessageManager::callAsync([this, &handle, &event]() {
+            handle = (void*)Component::getWindowHandle();
+            LogHandler::getInstance().info("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle)));
+            event.signal();
+        });
+
+        event.wait();
+    }
+
+    return handle;
+}
+
 
 //std::string SearchBox::getSearchText() const {
 //    if (searchField_) {
@@ -271,7 +301,7 @@ void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, in
         g.fillAll(juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::TextEditor::highlightColourId));
     }
 
-    g.setColour(juce::Colours::black);
+    g.setColour(juce::Colours::white);
     if (rowNumber < filteredOptions_.size()) {
         const auto& plugin = filteredOptions_[rowNumber];  // Get the plugin for this row
         g.drawText(plugin.name, 0, 0, width, height, juce::Justification::centredLeft);  // Draw plugin name

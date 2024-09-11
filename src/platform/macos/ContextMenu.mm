@@ -184,3 +184,7 @@ void ContextMenu::close() {
 //        [menuGenerator_.contextMenu cancelTracking];
     }
 }
+
+void* ContextMenu::getWindowHandle() const {
+    return nullptr;
+}
