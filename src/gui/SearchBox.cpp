@@ -1,15 +1,5 @@
+#include <JuceHeader.h>
 #include <algorithm>
-
-#include <QApplication>
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QLineEdit>
-#include <QLabel>
-#include <QKeyEvent>
-#include <QListView>
-#include <QString>
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
 
 #include "LogHandler.h"
 #include "ApplicationManager.h"
@@ -17,442 +7,466 @@
 #include "Types.h"
 #include "PID.h"
 
-GUISearchBox::GUISearchBox(ApplicationManager& appManager)
-    : title("foo")
-    , app_(appManager)
-    , isOpen_(false)
-    , searchField_(new CustomLineEdit())
-    , optionsList_(new QListWidget())
-    , originalItems_(new QListWidget())
-    , qtWidget_(this)
-{
+class PluginListModel : public juce::ListBoxModel {
+public:
+    PluginListModel()
+        : plugins_(ApplicationManager::getInstance().getPlugins()) {}
 
-    LogHandler::getInstance().info("Creating GUISearchBoxWindowController");
+    int getNumRows() override {
+        return static_cast<int>(plugins_.size());
+    }
 
-    this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override {
+        if (rowIsSelected)
+            g.fillAll(juce::Colours::lightblue);
+
+        g.setColour(juce::Colours::black);
+        if (rowNumber < plugins_.size()) {
+            auto& plugin = plugins_[rowNumber];
+            g.drawText(plugin.name, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
+        }
+    }
+
+    void listBoxItemClicked(int row, const juce::MouseEvent&) override {
+        if (row >= 0 && row < plugins_.size()) {
+            selectedPlugin_ = &plugins_[row];
+            juce::Logger::writeToLog("Selected plugin: " + selectedPlugin_->name);
+        }
+    }
+
+    const Plugin* getSelectedPlugin() const {
+        return selectedPlugin_;
+    }
+
+private:
+    const std::vector<Plugin>& plugins_;
+    const Plugin* selectedPlugin_ = nullptr;
+};
+
+SearchBox::SearchBox()
+    : TopLevelWindow("SearchBox", true)
+    , app_(ApplicationManager::getInstance()) {
+
+    LogHandler::getInstance().info("Creating SearchBoxWindowController");
+
+    pluginListModel_ = std::make_unique<PluginListModel>();
+    listBox_.setModel(pluginListModel_.get());
+    listBox_.setRowHeight(30);
+    addAndMakeVisible(listBox_);
+
+
+    setUsingNativeTitleBar(false);
+    setAlwaysOnTop(true);
+
+    searchField_.setMultiLine(false);
+    searchField_.setReturnKeyStartsNewLine(false);
+//    searchField_.setTextToShowWhenEmpty("Type to search...", juce::Colours::grey);
+    searchField_.addListener(this);
+    addAndMakeVisible(searchField_);
+
+    // Configure the options list (ListBox in JUCE)
+//    optionsList_.setModel(this);
+//    addAndMakeVisible(optionsList_);
 
     setWindowGeometry();
-
-    optionsList_->setStyleSheet(
-        "QListWidget::item:selected {"
-        "background-color: palette(Highlight);"
-        "color: palette(HighlightedText);"
-        "}"
-    );
-
-    QVBoxLayout *layout = new QVBoxLayout(this);
-
-    searchField_->setFocusPolicy(Qt::StrongFocus);
-    layout->addWidget(searchField_);
-    layout->addWidget(optionsList_);
-
-    this->setLayout(layout);
-
-    connect(searchField_, &QLineEdit::textChanged, [this](const QString &text) {
-        this->filterOptions(text);
-    });
-
-    connect(optionsList_, &QListWidget::itemDoubleClicked, this, &GUISearchBox::onItemDoubleClicked);
 }
 
-GUISearchBox::~GUISearchBox() {}
+SearchBox::~SearchBox() {}
 
-QWidget* GUISearchBox::getQtWidget() const {
-    return qtWidget_;
+void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
+    if (&editor == &searchField_) {
+        LogHandler::getInstance().info("Search text changed: " + editor.getText().toStdString());
+        // Handle the text change (e.g., update search results)
+    }
 }
 
-bool GUISearchBox::isOpen() const {
-    return isOpen_;
-}
-
-void GUISearchBox::setWindowGeometry() {
+void SearchBox::setWindowGeometry() {
     // TODO: store conf if the window has been moved
     // or resized then override these with values
     // from conf
     //
     // TODO: works with dual monitors?
     // works with two ableton windows open?
-    QScreen *screen = QGuiApplication::primaryScreen();
-    int screenWidth = screen->geometry().width();
-    int screenHeight = screen->geometry().height();
+    // Get the primary screen's dimensions
+    auto* primaryDisplay = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay();
 
-    ERect liveBounds = app_.getEventHandler()->getLiveBoundsRect();
-    int widgetWidth = 600;  // Width of the widget
-    int widgetHeight = 300; // Height of the widget
-    int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
-    int yPos = liveBounds.y + (liveBounds.height - widgetHeight) / 2;
+    if (primaryDisplay != nullptr)
+    {
+        int screenWidth = primaryDisplay->totalArea.getWidth();
+        int screenHeight = primaryDisplay->totalArea.getHeight();
 
-    xPos = std::max(0, std::min(xPos, screenWidth - widgetWidth));
-    yPos = std::max(0, std::min(yPos, screenHeight - widgetHeight));
+        // Get Ableton Live's window bounds (assuming you have this method)
+        ERect liveBounds = app_.getEventHandler()->getLiveBoundsRect();
+        int widgetWidth = 600;  // Width of the widget
+        int widgetHeight = 300; // Height of the widget
 
-    this->setGeometry(xPos, yPos, widgetWidth, widgetHeight);
-}
+        // Center the widget inside Ableton Live's bounds
+        int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
+        int yPos = liveBounds.y + (liveBounds.height - widgetHeight) / 2;
 
-void GUISearchBox::openSearchBox() {
-    if (isOpen_) {
-        LogHandler::getInstance().info("Search box is already open");
-        return;
-    }
+        // Ensure the window is within the screen boundaries
+        xPos = std::max(0, std::min(xPos, screenWidth - widgetWidth));
+        yPos = std::max(0, std::min(yPos, screenHeight - widgetHeight));
 
-    // Reset the current row to the first visible item
-    for (int i = 0; i < optionsList_->count(); ++i) {
-        if (!optionsList_->item(i)->isHidden()) {
-            optionsList_->setCurrentRow(i);
-            break;
-        }
-    }
-
-    setWindowGeometry();
-    qtWidget_->show();
-    searchField_->setFocus();
-    isOpen_ = true;
-    qtWidget_->raise();        // Raises the widget to the top of the stack
-    qtWidget_->activateWindow();
-    ApplicationManager::getInstance().getEventHandler()->focusApplication(PID::getInstance().appPID());
-}
-
-void GUISearchBox::closeEvent(QCloseEvent* event) {
-    closeSearchBox();
-    QWidget::closeEvent(event);
-    ApplicationManager::getInstance().getEventHandler()->focusApplication(PID::getInstance().appPID());
-}
-
-void GUISearchBox::closeSearchBox() {
-    if (!isOpen_) {
-        LogHandler::getInstance().info("Search box is not open");
-        return;
-    }
-    qtWidget_->hide();
-    searchField_->clear();
-    optionsList_->clearSelection();
-    optionsList_->scrollToTop();
-
-    // Additional optional reset: clear any hidden state if necessary
-    for (int i = 0; i < optionsList_->count(); ++i) {
-        optionsList_->item(i)->setHidden(false);  // Ensure all items are visible
-    }
-
-    isOpen_ = false;
-    ApplicationManager::getInstance().getEventHandler()->focusApplication(PID::getInstance().livePID());
-}
-
-void GUISearchBox::clearSearchText() {
-    searchField_->clear();
-    optionsList_->clearSelection();
-}
-
-std::string GUISearchBox::getSearchText() const {
-    if (searchField_) {
-        return searchField_->text().toStdString();
-    } else {
-        LogHandler::getInstance().error("searchField_ is not initialized");
-        return "";
+        // Set the position and size of the window
+        setBounds(xPos, yPos, widgetWidth, widgetHeight);
     }
 }
 
-size_t GUISearchBox::getSearchTextLength() const {
-    if (searchField_) {
-        return searchField_->text().length();
-    } else {
-        LogHandler::getInstance().error("searchField_ is not initialized");
-        return 0;
+void SearchBox::open() {
+    listBox_.selectRow(0);
+    setVisible(true);
+    searchField_.grabKeyboardFocus();
+    toFront(true);
+}
+
+void SearchBox::close() {
+    setVisible(false);
+    searchField_.clear();
+}
+
+//std::string SearchBox::getSearchText() const {
+//    if (searchField_) {
+//        return searchField_->text().toStdString();
+//    } else {
+//        LogHandler::getInstance().error("searchField_ is not initialized");
+//        return "";
+//    }
+//}
+
+//size_t SearchBox::getSearchTextLength() const {
+//    if (searchField_) {
+//        return searchField_->text().length();
+//    } else {
+//        LogHandler::getInstance().error("searchField_ is not initialized");
+//        return 0;
+//    }
+//}
+
+//void SearchBox::setOptions(const std::vector<Plugin>& options) {
+//    // Update the options and filteredOptions_ with the provided list of plugins
+//    options_ = options;
+//    filteredOptions_ = options_;  // Initially, all options are visible
+//
+//    // Tell the ListBox to refresh and display the new content
+//    listBox_.updateContent();
+//
+//    LogHandler::getInstance().info("Options set successfully with " + std::to_string(options.size()) + " items.");
+//}
+
+//void SearchBox::filterOptions(const QString &text) {
+//    if (!optionsList_ || !originalItems_) {
+//        LogHandler::getInstance().error("optionsList_ or originalItems_ is not initialized");
+//        return;
+//    }
+//
+//    optionsList_->clearSelection();
+//    optionsList_->clear();
+//
+//    QListWidgetItem* firstVisibleItem = nullptr;
+//
+//    if (text.startsWith("r/")) {
+//        if (text.length() == 2) {
+//            QListWidgetItem* hintItem = new QListWidgetItem("Regex searching. Use r/<pattern>/");
+//            hintItem->setFlags(hintItem->flags() & ~Qt::ItemIsSelectable);  // Make the item unselectable
+//            optionsList_->addItem(hintItem);
+//            return;
+//        }
+//
+//        QString regexPattern = text.mid(2, text.length() - 3);
+//        QRegularExpression regex(regexPattern, QRegularExpression::CaseInsensitiveOption);
+//
+//        if (!regex.isValid()) {
+//            QListWidgetItem* errorItem = new QListWidgetItem("Invalid regex format. Use r/<pattern>/");
+//            errorItem->setFlags(errorItem->flags() & ~Qt::ItemIsSelectable);
+//            optionsList_->addItem(errorItem);
+//            return;
+//        }
+//
+//        for (int i = 0; i < originalItems_->count(); ++i) {
+//            QListWidgetItem* item = originalItems_->item(i);
+//            QString itemText = item->text();
+//
+//            QRegularExpressionMatch match = regex.match(itemText);
+//
+//            if (match.hasMatch()) {
+//                optionsList_->addItem(new QListWidgetItem(*item));
+//                if (!firstVisibleItem) {
+//                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
+//                }
+//            }
+//        }
+//    } else {
+//        QString searchText = text.toLower();
+//        QStringList searchWords = searchText.split(' ', Qt::SkipEmptyParts);
+//
+//        for (int i = 0; i < originalItems_->count(); ++i) {
+//            QListWidgetItem* item = originalItems_->item(i);
+//            QString itemText = item->text().toLower();
+//
+//            QStringList itemWords = itemText.split(' ', Qt::SkipEmptyParts);
+//            QString acronym;
+//            for (const QString& word : itemWords) {
+//                if (!word.isEmpty()) {
+//                    acronym += word[0];
+//                }
+//            }
+//
+//            bool match = false;
+//
+//            if (acronym.startsWith(searchText)) {
+//                match = true;
+//            } else {
+//                for (const QString& searchWord : searchWords) {
+//                    if (itemText.contains(searchWord)) {
+//                        match = true;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            if (match) {
+//                optionsList_->addItem(new QListWidgetItem(*item));
+//                if (!firstVisibleItem) {
+//                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
+//                }
+//            }
+//        }
+//    }
+//
+//    if (firstVisibleItem) {
+//        optionsList_->setCurrentItem(firstVisibleItem);
+//        firstVisibleItem->setSelected(true);
+//    }
+//}
+
+void SearchBox::handlePluginSelected(int selectedRow) {
+    if (selectedRow >= 0 && selectedRow < filteredOptions_.size()) {
+        int index = filteredOptions_[selectedRow].number;
+        LogHandler::getInstance().info("Plugin selected: " + std::to_string(index));
+        ApplicationManager::getInstance().getActionHandler()->loadItem(index);
+        ApplicationManager::getInstance().getWindowManager()->closeWindow("SearchBox");
+    }
+}
+int SearchBox::getNumRows() {
+    return static_cast<int>(filteredOptions_.size());
+}
+
+void SearchBox::paint(juce::Graphics& g) {
+    // Clear the background
+    g.fillAll(juce::Colours::white);
+
+    // Set the color for drawing
+    g.setColour(juce::Colours::black);
+
+    // Example: draw a rectangle
+    g.drawRect(getLocalBounds(), 1);
+
+    // Optionally, draw text or other graphics
+    g.drawText("SearchBox", getLocalBounds(), juce::Justification::centred, true);
+}
+
+void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) {
+    if (rowIsSelected) {
+        g.fillAll(juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::TextEditor::highlightColourId));
+    }
+
+    g.setColour(juce::Colours::black);
+    if (rowNumber < filteredOptions_.size()) {
+        const auto& plugin = filteredOptions_[rowNumber];  // Get the plugin for this row
+        g.drawText(plugin.name, 0, 0, width, height, juce::Justification::centredLeft);  // Draw plugin name
     }
 }
 
-void GUISearchBox::setOptions(const std::vector<Plugin>& options) {
-    if (!optionsList_) {
-        LogHandler::getInstance().error("optionsList_ is not initialized");
-        return;
-    }
-
-    optionsList_->clear();
-    originalItems_->clear();
-
-    // Iterate through the options and add them to the QListWidget
-    for (const auto& plugin : options) {
-        QString pluginName = QString::fromStdString(plugin.name);
-        QListWidgetItem* item = new QListWidgetItem(pluginName);
-        item->setData(Qt::UserRole, static_cast<int>(plugin.number));
-        //item->setData(Qt::UserRole, QVariant::fromValue(&plugin)); // Store the plugin pointer if needed
-        optionsList_->addItem(item);
-        originalItems_->addItem(new QListWidgetItem(*item));
-    }
-
-    LogHandler::getInstance().info("Options set successfully with " + std::to_string(options.size()) + " items.");
+void SearchBox::listBoxItemClicked(int row, const juce::MouseEvent&) {
+    handlePluginSelected(row);
 }
 
-void GUISearchBox::filterOptions(const QString &text) {
-    if (!optionsList_ || !originalItems_) {
-        LogHandler::getInstance().error("optionsList_ or originalItems_ is not initialized");
-        return;
-    }
-
-    optionsList_->clearSelection();
-    optionsList_->clear();
-
-    QListWidgetItem* firstVisibleItem = nullptr;
-
-    if (text.startsWith("r/")) {
-        if (text.length() == 2) {
-            QListWidgetItem* hintItem = new QListWidgetItem("Regex searching. Use r/<pattern>/");
-            hintItem->setFlags(hintItem->flags() & ~Qt::ItemIsSelectable);  // Make the item unselectable
-            optionsList_->addItem(hintItem);
-            return;
-        }
-
-        QString regexPattern = text.mid(2, text.length() - 3);
-        QRegularExpression regex(regexPattern, QRegularExpression::CaseInsensitiveOption);
-
-        if (!regex.isValid()) {
-            QListWidgetItem* errorItem = new QListWidgetItem("Invalid regex format. Use r/<pattern>/");
-            errorItem->setFlags(errorItem->flags() & ~Qt::ItemIsSelectable);
-            optionsList_->addItem(errorItem);
-            return;
-        }
-
-        for (int i = 0; i < originalItems_->count(); ++i) {
-            QListWidgetItem* item = originalItems_->item(i);
-            QString itemText = item->text();
-
-            QRegularExpressionMatch match = regex.match(itemText);
-
-            if (match.hasMatch()) {
-                optionsList_->addItem(new QListWidgetItem(*item));
-                if (!firstVisibleItem) {
-                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
-                }
-            }
-        }
-    } else {
-        QString searchText = text.toLower();
-        QStringList searchWords = searchText.split(' ', Qt::SkipEmptyParts);
-
-        for (int i = 0; i < originalItems_->count(); ++i) {
-            QListWidgetItem* item = originalItems_->item(i);
-            QString itemText = item->text().toLower();
-
-            QStringList itemWords = itemText.split(' ', Qt::SkipEmptyParts);
-            QString acronym;
-            for (const QString& word : itemWords) {
-                if (!word.isEmpty()) {
-                    acronym += word[0];
-                }
-            }
-
-            bool match = false;
-
-            if (acronym.startsWith(searchText)) {
-                match = true;
-            } else {
-                for (const QString& searchWord : searchWords) {
-                    if (itemText.contains(searchWord)) {
-                        match = true;
-                        break;
-                    }
-                }
-            }
-
-            if (match) {
-                optionsList_->addItem(new QListWidgetItem(*item));
-                if (!firstVisibleItem) {
-                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
-                }
-            }
-        }
-    }
-
-    if (firstVisibleItem) {
-        optionsList_->setCurrentItem(firstVisibleItem);
-        firstVisibleItem->setSelected(true);
-    }
+void SearchBox::resized() {
+    // Set the bounds for search field and options list
+    auto bounds = getLocalBounds();
+    searchField_.setBounds(bounds.removeFromTop(30));
+    listBox_.setBounds(bounds);
 }
 
-void GUISearchBox::handlePluginSelected(QListWidgetItem* selectedItem) {
-    // Handle the selected Plugin object on the C++ side
-    int index = selectedItem->data(Qt::UserRole).toInt();
-    LogHandler::getInstance().info("plugin selected: " + std::to_string(index));
-    ApplicationManager::getInstance().getActionHandler()->loadItem(index);
-    closeSearchBox();
-}
+//void SearchBox::mousePressEvent(QMouseEvent* event) {
+//    if (event->button() == Qt::LeftButton) {
+//        mousePressed_ = true;
+//        mouseStartPosition_ = event->globalPosition().toPoint();
+//        windowStartPosition_ = this->frameGeometry().topLeft();
+//    }
+//}
 
-void GUISearchBox::mousePressEvent(QMouseEvent* event) {
-    if (event->button() == Qt::LeftButton) {
-        mousePressed_ = true;
-        mouseStartPosition_ = event->globalPosition().toPoint();
-        windowStartPosition_ = this->frameGeometry().topLeft();
-    }
-}
+//void SearchBox::mouseMoveEvent(QMouseEvent* event) {
+//    if (mousePressed_) {
+//        QPoint delta = event->globalPosition().toPoint() - mouseStartPosition_;
+//        this->move(windowStartPosition_ + delta);
+//    }
+//}
+//
+//void SearchBox::mouseReleaseEvent(QMouseEvent* event) {
+//    if (event->button() == Qt::LeftButton) {
+//        mousePressed_ = false;
+//    }
+//}
 
-void GUISearchBox::mouseMoveEvent(QMouseEvent* event) {
-    if (mousePressed_) {
-        QPoint delta = event->globalPosition().toPoint() - mouseStartPosition_;
-        this->move(windowStartPosition_ + delta);
-    }
-}
+//void SearchBox::onItemDoubleClicked(QListWidgetItem* item) {
+//    if (!item) {
+//        LogHandler::getInstance().error("No item selected on double-click");
+//        return;
+//    }
+//
+//    handlePluginSelected(item);
+//}
 
-void GUISearchBox::mouseReleaseEvent(QMouseEvent* event) {
-    if (event->button() == Qt::LeftButton) {
-        mousePressed_ = false;
-    }
-}
-
-void GUISearchBox::onItemDoubleClicked(QListWidgetItem* item) {
-    if (!item) {
-        LogHandler::getInstance().error("No item selected on double-click");
-        return;
-    }
-
-    handlePluginSelected(item);
-}
-
-void GUISearchBox::keyPressEvent(QKeyEvent* event) {
-    QWidget::keyPressEvent(event);
-
-    if (event->modifiers() & Qt::ShiftModifier) {
-        LogHandler::getInstance().info("Shift modifier is pressed");
-    }
-    if (event->modifiers() & Qt::ControlModifier) {
-        LogHandler::getInstance().info("Control modifier is pressed");
-    }
-    if (event->modifiers() & Qt::AltModifier) {
-        LogHandler::getInstance().info("Alt modifier is pressed");
-    }
-    if (event->modifiers() & Qt::MetaModifier) {
-        LogHandler::getInstance().info("Meta (Command) modifier is pressed");
-    }
-
-    int itemsPerPage = optionsList_->height() / optionsList_->sizeHintForRow(0);
-
-    if (event->key() == Qt::Key_F && (event->modifiers() & Qt::ControlModifier)) {
-        LogHandler::getInstance().info("cmd+f pressed");
-        searchField_->setFocus();
-        searchField_->selectAll();
-
-    } else if (event->key() == Qt::Key_Up) {
-        LogHandler::getInstance().info("Up pressed");
-
-        int currentIndex = optionsList_->currentRow();
-        if (currentIndex > 0) {
-            for (int i = currentIndex - 1; i >= 0; --i) {
-                if (!optionsList_->item(i)->isHidden()) {
-                    optionsList_->setCurrentRow(i);
-                    break;
-                }
-            }
-        }
-
-    } else if (event->key() == Qt::Key_Down) {
-        LogHandler::getInstance().info("Down pressed");
-
-        int currentIndex = optionsList_->currentRow();
-        if (currentIndex < optionsList_->count() - 1) {
-            for (int i = currentIndex + 1; i < optionsList_->count(); ++i) {
-                if (!optionsList_->item(i)->isHidden()) {
-                    optionsList_->setCurrentRow(i);
-                    break;
-                }
-            }
-        }
-
-    } else if (event->key() == Qt::Key_PageUp) {
-        LogHandler::getInstance().info("PageUp pressed");
-
-        int currentIndex = optionsList_->currentRow();
-        int itemsMoved = 0;
-
-        // Move up by `itemsPerPage` visible items
-        for (int i = currentIndex - 1; i >= 0 && itemsMoved < itemsPerPage; --i) {
-            if (!optionsList_->item(i)->isHidden()) {
-                itemsMoved++;
-                if (itemsMoved == itemsPerPage) {
-                    optionsList_->setCurrentRow(i);
-                }
-            }
-        }
-
-        // If less than `itemsPerPage` items were moved, select the first visible item
-        if (itemsMoved < itemsPerPage) {
-            for (int i = 0; i <= currentIndex; ++i) {
-                if (!optionsList_->item(i)->isHidden()) {
-                    optionsList_->setCurrentRow(i);
-                    break;
-                }
-            }
-        }
-
-    } else if (event->key() == Qt::Key_PageDown) {
-        LogHandler::getInstance().info("PageDown pressed");
-
-        int currentIndex = optionsList_->currentRow();
-        int itemsMoved = 0;
-
-        // Move down by `itemsPerPage` visible items
-        for (int i = currentIndex + 1; i < optionsList_->count() && itemsMoved < itemsPerPage; ++i) {
-            if (!optionsList_->item(i)->isHidden()) {
-                itemsMoved++;
-                if (itemsMoved == itemsPerPage) {
-                    optionsList_->setCurrentRow(i);
-                }
-            }
-        }
-
-        // If less than `itemsPerPage` items were moved, select the last visible item
-        if (itemsMoved < itemsPerPage) {
-            for (int i = optionsList_->count() - 1; i >= currentIndex; --i) {
-                if (!optionsList_->item(i)->isHidden()) {
-                    optionsList_->setCurrentRow(i);
-                    break;
-                }
-            }
-        }
-
-    } else if (event->key() == Qt::Key_Home) {
-        LogHandler::getInstance().info("Home pressed");
-        for (int i = 0; i < optionsList_->count(); ++i) {
-            if (!optionsList_->item(i)->isHidden()) {
-                optionsList_->setCurrentRow(i);
-                break;
-            }
-        }
-
-    } else if (event->key() == Qt::Key_End) {
-        LogHandler::getInstance().info("End pressed");
-        for (int i = optionsList_->count() - 1; i >= 0; --i) {
-            if (!optionsList_->item(i)->isHidden()) {
-                optionsList_->setCurrentRow(i);
-                break;
-            }
-        }
-
-    } else if (event->key() == Qt::Key_Escape) {
-        if (searchField_->text().length()) {
-            searchField_->clear();
-            optionsList_->clearSelection();
-        } else {
-            closeSearchBox();
-        }
-
-    } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-        LogHandler::getInstance().info("enter pressed");
-        QListWidgetItem* selectedItem = optionsList_->currentItem();
-
-        if (selectedItem && selectedItem->isSelected()) {
-            handlePluginSelected(selectedItem);
-        }
-
-    } else {
-        LogHandler::getInstance().info("KEY pressed: " + std::to_string(event->key()));
-    }
-
-
-    // Log the key press event if needed
-    LogHandler::getInstance().info("Key Pressed: " + std::to_string(event->key()));
-}
-
-// Handle key release events
-void GUISearchBox::keyReleaseEvent(QKeyEvent* event) {
-    QWidget::keyReleaseEvent(event);  // Call the base class implementation
-
-    // Log the key release event if needed
-    LogHandler::getInstance().info("Key Released: " + std::to_string(event->key()));
-}
+//void SearchBox::keyPressEvent(QKeyEvent* event) {
+//    QWidget::keyPressEvent(event);
+//
+//    if (event->modifiers() & Qt::ShiftModifier) {
+//        LogHandler::getInstance().info("Shift modifier is pressed");
+//    }
+//    if (event->modifiers() & Qt::ControlModifier) {
+//        LogHandler::getInstance().info("Control modifier is pressed");
+//    }
+//    if (event->modifiers() & Qt::AltModifier) {
+//        LogHandler::getInstance().info("Alt modifier is pressed");
+//    }
+//    if (event->modifiers() & Qt::MetaModifier) {
+//        LogHandler::getInstance().info("Meta (Command) modifier is pressed");
+//    }
+//
+//    int itemsPerPage = optionsList_->height() / optionsList_->sizeHintForRow(0);
+//
+//    if (event->key() == Qt::Key_F && (event->modifiers() & Qt::ControlModifier)) {
+//        LogHandler::getInstance().info("cmd+f pressed");
+//        searchField_->setFocus();
+//        searchField_->selectAll();
+//
+//    } else if (event->key() == Qt::Key_Up) {
+//        LogHandler::getInstance().info("Up pressed");
+//
+//        int currentIndex = optionsList_->currentRow();
+//        if (currentIndex > 0) {
+//            for (int i = currentIndex - 1; i >= 0; --i) {
+//                if (!optionsList_->item(i)->isHidden()) {
+//                    optionsList_->setCurrentRow(i);
+//                    break;
+//                }
+//            }
+//        }
+//
+//    } else if (event->key() == Qt::Key_Down) {
+//        LogHandler::getInstance().info("Down pressed");
+//
+//        int currentIndex = optionsList_->currentRow();
+//        if (currentIndex < optionsList_->count() - 1) {
+//            for (int i = currentIndex + 1; i < optionsList_->count(); ++i) {
+//                if (!optionsList_->item(i)->isHidden()) {
+//                    optionsList_->setCurrentRow(i);
+//                    break;
+//                }
+//            }
+//        }
+//
+//    } else if (event->key() == Qt::Key_PageUp) {
+//        LogHandler::getInstance().info("PageUp pressed");
+//
+//        int currentIndex = optionsList_->currentRow();
+//        int itemsMoved = 0;
+//
+//        // Move up by `itemsPerPage` visible items
+//        for (int i = currentIndex - 1; i >= 0 && itemsMoved < itemsPerPage; --i) {
+//            if (!optionsList_->item(i)->isHidden()) {
+//                itemsMoved++;
+//                if (itemsMoved == itemsPerPage) {
+//                    optionsList_->setCurrentRow(i);
+//                }
+//            }
+//        }
+//
+//        // If less than `itemsPerPage` items were moved, select the first visible item
+//        if (itemsMoved < itemsPerPage) {
+//            for (int i = 0; i <= currentIndex; ++i) {
+//                if (!optionsList_->item(i)->isHidden()) {
+//                    optionsList_->setCurrentRow(i);
+//                    break;
+//                }
+//            }
+//        }
+//
+//    } else if (event->key() == Qt::Key_PageDown) {
+//        LogHandler::getInstance().info("PageDown pressed");
+//
+//        int currentIndex = optionsList_->currentRow();
+//        int itemsMoved = 0;
+//
+//        // Move down by `itemsPerPage` visible items
+//        for (int i = currentIndex + 1; i < optionsList_->count() && itemsMoved < itemsPerPage; ++i) {
+//            if (!optionsList_->item(i)->isHidden()) {
+//                itemsMoved++;
+//                if (itemsMoved == itemsPerPage) {
+//                    optionsList_->setCurrentRow(i);
+//                }
+//            }
+//        }
+//
+//        // If less than `itemsPerPage` items were moved, select the last visible item
+//        if (itemsMoved < itemsPerPage) {
+//            for (int i = optionsList_->count() - 1; i >= currentIndex; --i) {
+//                if (!optionsList_->item(i)->isHidden()) {
+//                    optionsList_->setCurrentRow(i);
+//                    break;
+//                }
+//            }
+//        }
+//
+//    } else if (event->key() == Qt::Key_Home) {
+//        LogHandler::getInstance().info("Home pressed");
+//        for (int i = 0; i < optionsList_->count(); ++i) {
+//            if (!optionsList_->item(i)->isHidden()) {
+//                optionsList_->setCurrentRow(i);
+//                break;
+//            }
+//        }
+//
+//    } else if (event->key() == Qt::Key_End) {
+//        LogHandler::getInstance().info("End pressed");
+//        for (int i = optionsList_->count() - 1; i >= 0; --i) {
+//            if (!optionsList_->item(i)->isHidden()) {
+//                optionsList_->setCurrentRow(i);
+//                break;
+//            }
+//        }
+//
+//    } else if (event->key() == Qt::Key_Escape) {
+//        if (searchField_->text().length()) {
+//            searchField_->clear();
+//            optionsList_->clearSelection();
+//        } else {
+//            closeSearchBox();
+//        }
+//
+//    } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+//        LogHandler::getInstance().info("enter pressed");
+//        QListWidgetItem* selectedItem = optionsList_->currentItem();
+//
+//        if (selectedItem && selectedItem->isSelected()) {
+//            handlePluginSelected(selectedItem);
+//        }
+//
+//    } else {
+//        LogHandler::getInstance().info("KEY pressed: " + std::to_string(event->key()));
+//    }
+//
+//
+//    // Log the key press event if needed
+//    LogHandler::getInstance().info("Key Pressed: " + std::to_string(event->key()));
+//}
+//
+//// Handle key release events
+//void SearchBox::keyReleaseEvent(QKeyEvent* event) {
+//    QWidget::keyReleaseEvent(event);  // Call the base class implementation
+//
+//    // Log the key release event if needed
+//    LogHandler::getInstance().info("Key Released: " + std::to_string(event->key()));
+//}

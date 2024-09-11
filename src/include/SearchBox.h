@@ -5,98 +5,57 @@
 #include <vector>
 #include <memory>
 
-#include "FocusedWidget.h"
-
-#include "Types.h"
-
-#include <QWidget>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QString>
-
 #include "LogHandler.h"
+
+#include <JuceHeader.h>
 
 class ApplicationManager;
 
-class CustomLineEdit : public QLineEdit {
-    Q_OBJECT
-
+class SearchBox : public juce::TopLevelWindow, public IWindow,
+                     public juce::TextEditor::Listener, 
+                     public juce::ListBoxModel {
 public:
-    explicit CustomLineEdit(QWidget *parent = nullptr)
-        : QLineEdit(parent) {
-    }
+    SearchBox();
+    ~SearchBox();
 
-protected:
-    void keyPressEvent(QKeyEvent *event) override {
-        if (
-              event->key() == Qt::Key_Up
-              || event->key() == Qt::Key_Down
-              || event->key() == Qt::Key_PageUp
-              || event->key() == Qt::Key_PageDown
-            
-            
-            ) {
-            event->ignore();  // Let the event propagate to the parent
-        } else {
-            QLineEdit::keyPressEvent(event);  // Handle other keys normally
-        }
-    }
-};
-
-class GUISearchBox : public QWidget {
-    Q_OBJECT
-
-public:
-    GUISearchBox(ApplicationManager& appManager);
-    ~GUISearchBox();
-
-    void closeSearchBox();
-    void openSearchBox();
-
-    bool isOpen() const;
+    void open() override;
+    void close() override;
 
     void setOptions(const std::vector<Plugin>& options);
 
-    void setSearchText(const std::string text);
+    void setSearchText(const std::string& text);
     std::string getSearchText() const;
     size_t getSearchTextLength() const;
     void clearSearchText();
 
-    QWidget* getQtWidget() const;
-
-    void handlePluginSelected(QListWidgetItem* selectedItem);
-
-    void setWindowGeometry();
-
+    void textEditorTextChanged(juce::TextEditor& editor) override;
 protected:
-    virtual void closeEvent(QCloseEvent* event) override;
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
-    void keyPressEvent(QKeyEvent* event) override;
-    void keyReleaseEvent(QKeyEvent* event) override;
+    // JUCE overrides for layout and input handling
+    void resized() override;
+    void paint(juce::Graphics& g) override;
+
+    // TextEditor listener
+
+    // ListBoxModel methods
+    int getNumRows() override;
+    void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
+    void listBoxItemClicked(int row, const juce::MouseEvent&) override;
 
 private:
     ApplicationManager& app_;
 
-    void filterOptions(const QString &text);
-    QListWidget* originalItems_;
+    juce::TextEditor searchField_;
+    juce::ListBox listBox_;
+    std::unique_ptr<juce::ListBoxModel> pluginListModel_;
+    std::vector<Plugin> options_;
+    std::vector<Plugin> filteredOptions_;
 
-    bool isOpen_;
+    void setWindowGeometry();
 
-    QLineEdit* searchField_;
-    QWidget* qtWidget_;
-    QListWidget* optionsList_;
+    //void filterOptions(const juce::String& text);
+    void handlePluginSelected(int selectedRow);
 
-    bool mousePressed_;
-    QPoint mouseStartPosition_;
-    QPoint windowStartPosition_;
-
-    void onItemDoubleClicked(QListWidgetItem* item);
-
-    std::string title;
-    std::shared_ptr<LogHandler> log;
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SearchBox)
 };
 
 #endif

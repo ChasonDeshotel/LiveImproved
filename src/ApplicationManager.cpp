@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <filesystem>
 
-#include <QApplication>
+#include "AppConfig.h"
 
 #include "ApplicationManager.h"
 #include "LogHandler.h"
@@ -30,26 +30,6 @@ static void dylib_init() {
 
 #else
 
-int main(int argc, char *argv[]) {
-    ApplicationManager& appManager = ApplicationManager::getInstance();
-
-    appManager.getLogHandler()->info("Application started");
-    appManager.getLogHandler()->info("int main()");
-
-    static QApplication app(argc, argv);
-
-    appManager.init();
-    appManager.getLogHandler()->info("ApplicatonManager::init() called");
-
-    // block until Live is running
-    PID::getInstance().livePIDBlocking();
-
-    PlatformInitializer::init();
-
-    appManager.getEventHandler()->setupQuartzEventTap();
-
-    PlatformInitializer::run();
-}
 
 #endif
 
@@ -78,8 +58,6 @@ void ApplicationManager::init() {
     actionHandler_  = new ActionHandler(*this);
     keySender_      = new KeySender(*this);
 
-    guiSearchBox_   = new GUISearchBox(*this);
-    dragTarget_     = new DragTarget(*this);
 
     logHandler_->info("ApplicatonManager::init() finished");
 }
@@ -116,15 +94,7 @@ KeySender* ApplicationManager::getKeySender() {
     return keySender_;
 }
 
-GUISearchBox* ApplicationManager::getGUISearchBox() {
-    return guiSearchBox_;
-}
-
-DragTarget* ApplicationManager::getDragTarget() {
-    return dragTarget_;
-}
-
-std::vector<Plugin> ApplicationManager::getPlugins() {
+const std::vector<Plugin>& ApplicationManager::getPlugins() const {
     return plugins_;
 }
 
@@ -136,8 +106,6 @@ void ApplicationManager::refreshPluginCache() {
         LogHandler::getInstance().info("Received response: " + response);
             pluginCacheStr = response;
             plugins_ = responseParser_->parsePlugins(response);
-
-            guiSearchBox_->setOptions(plugins_);
         } else {
             LogHandler::getInstance().info("Failed to receive a valid response.");
         }

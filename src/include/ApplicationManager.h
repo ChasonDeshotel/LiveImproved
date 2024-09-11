@@ -13,7 +13,6 @@
 #include "ResponseParser.h"
 #include "EventHandler.h"
 #include "SearchBox.h"
-#include "DragTarget.h"
 
 class ApplicationManager {
 public:
@@ -33,13 +32,11 @@ public:
     ActionHandler* getActionHandler();
     KeySender* getKeySender();
     IPC* getIPC();
-    GUISearchBox* getGUISearchBox();
-    DragTarget* getDragTarget();
     ResponseParser* getResponseParser();
 
     std::string pluginCacheStr;
     std::string getPluginsAsStr() const;
-    std::vector<Plugin> getPlugins();
+    const std::vector<Plugin>& getPlugins() const;
 
     void refreshPluginCache();
 
@@ -56,8 +53,6 @@ private:
     EventHandler* eventHandler_ = nullptr;
     ActionHandler* actionHandler_ = nullptr;
     KeySender* keySender_ = nullptr;
-    GUISearchBox* guiSearchBox_;
-    DragTarget* dragTarget_;
     ResponseParser* responseParser_ = nullptr;
 
     LogHandler* logHandler_;

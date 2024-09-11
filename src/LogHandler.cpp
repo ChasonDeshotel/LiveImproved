@@ -6,7 +6,7 @@
 
 namespace fs = std::filesystem;
 
-LogHandler::LogHandler() : currentLogLevel(LogLevel::INFO) {
+LogHandler::LogHandler() : currentLogLevel(LogLevel::LOG_INFO) {
     logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/logs/log.txt";
 }
 
@@ -59,27 +59,27 @@ void LogHandler::log(const std::string& message, LogLevel level) {
 }
 
 void LogHandler::debug(const std::string& message) {
-    log(message, LogLevel::DEBUG);
+    log(message, LogLevel::LOG_DEBUG);
 }
 
 void LogHandler::info(const std::string& message) {
-    log(message, LogLevel::INFO);
+    log(message, LogLevel::LOG_INFO);
 }
 
 void LogHandler::warn(const std::string& message) {
-    log(message, LogLevel::WARN);
+    log(message, LogLevel::LOG_WARN);
 }
 
 void LogHandler::error(const std::string& message) {
-    log(message, LogLevel::ERROR);
+    log(message, LogLevel::LOG_ERROR);
 }
 
 std::string LogHandler::logLevelToString(LogLevel level) {
     switch (level) {
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO: return "INFO";
-        case LogLevel::WARN: return "WARN";
-        case LogLevel::ERROR: return "ERROR";
+        case LogLevel::LOG_DEBUG: return "DEBUG";
+        case LogLevel::LOG_INFO: return "INFO";
+        case LogLevel::LOG_WARN: return "WARN";
+        case LogLevel::LOG_ERROR: return "ERROR";
         default: return "UNKNOWN";
     }
 }

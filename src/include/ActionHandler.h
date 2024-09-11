@@ -22,7 +22,7 @@ public:
     void handleDoubleRightClick();
 
     bool loadItem(int itemIndex);
-    bool loadItemByName(std::string itemName);
+    bool loadItemByName(const std::string& itemName);
 
 private:
     ApplicationManager& app_;

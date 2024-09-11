@@ -8,8 +8,6 @@
 #include <chrono>
 #include <optional>
 
-#include <Qt>
-
 #include "ApplicationManager.h"
 #include "EventHandler.h"
 #include "LogHandler.h"
@@ -72,23 +70,6 @@ std::string keyCodeToString(CGKeyCode keyCode) {
             CFRelease(source);
 
             return std::string(chars, chars + length);
-    }
-}
-
-Qt::Key convertMacKeycodeToQtKey(int macKeyCode) {
-    switch (macKeyCode) {
-        case 0x24: return Qt::Key_Return;  // Enter/Return key
-        case 0x35: return Qt::Key_Escape;  // Escape key
-        case 0x7B: return Qt::Key_Left;    // Left arrow key
-        case 0x7C: return Qt::Key_Right;   // Right arrow key
-        case 0x7D: return Qt::Key_Down;    // Down arrow key
-        case 0x7E: return Qt::Key_Up;      // Up arrow key
-        case 0x04: return Qt::Key_H;       // 'H' key (left in Vim)
-        case 0x26: return Qt::Key_J;       // 'J' key (down in Vim)
-        case 0x28: return Qt::Key_K;       // 'K' key (up in Vim)
-        case 0x25: return Qt::Key_L;       // 'L' key (right in Vim)
-        // Add other key mappings as needed
-        default: return Qt::Key_unknown;   // Unknown key
     }
 }
 
@@ -197,21 +178,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     bool isAltPressed     = (flags & kCGEventFlagMaskAlternate) != 0;
     bool isCommandPressed = (flags & kCGEventFlagMaskCommand)   != 0;
 
-//    if (handler->app_.getInvisibleWindow()->isOpen() && (eventType == kCGEventKeyDown || eventType == kCGEventKeyUp)) {
-//        int keycode = (int)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
-//
-//        Qt::Key qtKey = convertMacKeycodeToQtKey(keycode);
-//        QEvent::Type qEventType = (eventType == kCGEventKeyDown) ? QEvent::KeyPress : QEvent::KeyRelease;
-//        QKeyEvent *keyEvent = new QKeyEvent(qEventType, qtKey, Qt::NoModifier);
-//
-////        QCoreApplication::postEvent(handler->app_.getContextMenu()->getActiveMenu(), keyEvent);
-//        QCoreApplication::postEvent(handler->app_.getInvisibleWindow(), keyEvent);
-//
-//        handler->log_->info("event detected with menu open");
-//
-//        return NULL;
-//    }
-
     if (eventPID == PID::getInstance().livePID()) {
         // double-right-click menu
         if (eventType == kCGEventRightMouseDown) {
@@ -254,44 +220,44 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
         }
     }
 
-    if (handler->app_.getGUISearchBox()->isOpen()) {
-        if (eventType == kCGEventLeftMouseUp || eventType == kCGEventRightMouseUp || eventType == kCGEventOtherMouseUp) {
-            pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
-
-            handler->log_->info("event pid: " + std::to_string(eventPID));
-            handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
-            handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
-            handler->log_->info("target pid: " + std::to_string(targetPID));
-
-            CGPoint location = CGEventGetLocation(event);
-
-            NSView *nativeView = reinterpret_cast<NSView *>(handler->app_.getGUISearchBox()->getQtWidget()->winId());
-            NSWindow *searchBoxWindow = [nativeView window];
-
-            NSRect appBounds = [searchBoxWindow frame];
-
-            CGPoint mouseLocation = [NSEvent mouseLocation];
-            bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
-
-            LogHandler::getInstance().info("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
-            LogHandler::getInstance().info("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
-
-            if (isOutsideApp) {
-                NSRect liveBounds = getLiveBounds();
-                bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
-                LogHandler::getInstance().info("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
-
-                if (isInsideLive) {
-                    LogHandler::getInstance().info("Click is outside app, inside Live, closing window.");
-//                    handler->app_.getGUISearchBox()->closeSearchBox();
-//                    return NULL;
-                }
-            } else {
-                LogHandler::getInstance().info("Click is inside the window, keeping window open.");
-            }
-
-        }
-    }
+//    if (handler->app_.getGUISearchBox()->isOpen()) {
+//        if (eventType == kCGEventLeftMouseUp || eventType == kCGEventRightMouseUp || eventType == kCGEventOtherMouseUp) {
+//            pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
+//
+//            handler->log_->info("event pid: " + std::to_string(eventPID));
+//            handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
+//            handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
+//            handler->log_->info("target pid: " + std::to_string(targetPID));
+//
+//            CGPoint location = CGEventGetLocation(event);
+//
+//            NSView *nativeView = reinterpret_cast<NSView *>(handler->app_.getGUISearchBox()->getQtWidget()->winId());
+//            NSWindow *searchBoxWindow = [nativeView window];
+//
+//            NSRect appBounds = [searchBoxWindow frame];
+//
+//            CGPoint mouseLocation = [NSEvent mouseLocation];
+//            bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
+//
+//            LogHandler::getInstance().info("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
+//            LogHandler::getInstance().info("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
+//
+//            if (isOutsideApp) {
+//                NSRect liveBounds = getLiveBounds();
+//                bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
+//                LogHandler::getInstance().info("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
+//
+//                if (isInsideLive) {
+//                    LogHandler::getInstance().info("Click is outside app, inside Live, closing window.");
+////                    handler->app_.getGUISearchBox()->closeSearchBox();
+////                    return NULL;
+//                }
+//            } else {
+//                LogHandler::getInstance().info("Click is inside the window, keeping window open.");
+//            }
+//
+//        }
+//    }
 
     return event;
 }

@@ -45,8 +45,12 @@ std::unordered_map<std::string, ActionHandlerFunction> actionMap;
 void ActionHandler::initializeActionMap() {
     // TODO: case insensitive
     // TODO: multiple args (plugin,Sylenth,Serum)
-    actionMap["gui-searchbox"] = [this](const std::string& args) { app_.getGUISearchBox()->openSearchBox(); };
-    actionMap["write-request"] = [this](const std::string& args) { app_.getIPC()->writeRequest(args); };
+    actionMap["gui-searchbox"] = [this](const std::string& args) { 
+        app_.getWindowManager()->openWindow("SearchBox");
+    };
+    actionMap["write-request"] = [this](const std::string& args) {
+        app_.getIPC()->writeRequest(args);
+    };
 
     actionMap["keypress"] = [this](const std::string& args) { this->sendKeypress(args); };
     actionMap["plugin"]   = [this](const std::string& args) { this->loadItemByName(args); };
@@ -56,23 +60,16 @@ void ActionHandler::sendKeypress(const std::string& key) {
     log_->info("Keypress sent: " + key);
 }
 
-// TODO: move to GUISearchBox?
-bool ActionHandler::openSearchBox() {
-    app_.getGUISearchBox()->openSearchBox();
-    return false;
-}
-
-// TODO: move to GUISearchBox?
 bool ActionHandler::closeWindows() {
     app_.getWindowManager()->closeWindow("ContextMenu");
 
-    if (app_.getGUISearchBox()->isOpen()) {
-        if (app_.getGUISearchBox()->getSearchTextLength()) {
-            app_.getGUISearchBox()->clearSearchText();
-        } else {
-            app_.getGUISearchBox()->closeSearchBox();
-        }
-    }
+//    if (app_.getGUISearchBox()->isOpen()) {
+//        if (app_.getGUISearchBox()->getSearchTextLength()) {
+//            app_.getGUISearchBox()->clearSearchText();
+//        } else {
+//            app_.getGUISearchBox()->closeSearchBox();
+//        }
+//    }
     return false;
 }
 
@@ -81,7 +78,7 @@ bool ActionHandler::loadItem(int itemIndex) {
     return false;
 }
 
-bool ActionHandler::loadItemByName(std::string itemName) {
+bool ActionHandler::loadItemByName(const std::string& itemName) {
     for (const auto& plugin : app_.getPlugins()) {
         if (itemName == plugin.name) {
           //item->setData(Qt::UserRole, static_cast<int>(plugin.number));
@@ -142,13 +139,6 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
         } else if (keyString == "4") {
               app_.refreshPluginCache();
               return false;
-        } else if (keyString == "5") {
-              if (app_.getDragTarget()->isOpen()) {
-                  app_.getDragTarget()->closeWindow();
-              } else {
-                  app_.getDragTarget()->openWindow();
-              }
-              return false;
         } else if (keyString == "8") {
               app_.getWindowManager()->openWindow("ContextMenu");
               return false;
@@ -198,7 +188,7 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 
         // when the menu is open, do not send keypresses to Live
         // or it activates your hotkeys
-        if (app_.getGUISearchBox()->isOpen()) {
+        if (app_.getWindowManager()->isWindowOpen("SearchBox")) {
             log_->info("is open, do not pass keys to Live");
             return false;
         }
