@@ -1,30 +1,30 @@
 CC = clang++
 
 CXXFLAGS = -std=c++20                                                     \
-         -DJUCE_APP_CONFIG_HEADER=\"$(PWD)/src/include/juce/AppConfig.h\" \
          -DDEBUG                                                          \
          -ObjC++                                                          \
          -arch x86_64
+
+CXXFLAGS_JUCE = -DJUCE_APP_CONFIG_HEADER=\"$(PWD)/src/include/juce/AppConfig.h\"
 	
 INCLUDE =                                                   \
-        -I./mock                                            \
         -I./src/include                                     \
-				-I/usr/local/Cellar/harfbuzz/9.0.0/include/harfbuzz \
-				-I/usr/local/include
+        -I./src/include/juce                                \
+        -I./src/include/platform/macos                      \
+        -I/usr/local/include
 
-INCLUDE_JUCE = -I$(JUCE_DIR)                    \
-             -I$(JUCE_DIR)/juce_core            \
-             -I$(JUCE_DIR)/juce_gui_basics      \
-             -I$(JUCE_DIR)/juce_graphics        \
-             -I$(JUCE_DIR)/juce_events          \
-             -I$(JUCE_DIR)/juce_data_structures
-
-OBJ_DIR = $(BUILD_DIR)/obj
+INCLUDE_JUCE = -I$(JUCE_DIR)                                     \
+             -I$(JUCE_DIR)/juce_core                             \
+             -I$(JUCE_DIR)/juce_gui_basics                       \
+             -I$(JUCE_DIR)/juce_graphics                         \
+             -I$(JUCE_DIR)/juce_events                           \
+             -I$(JUCE_DIR)/juce_data_structures                  \
+             -I/usr/local/Cellar/harfbuzz/9.0.0/include/harfbuzz
 
 LIBS =                                      \
      -lc++                                  \
      -lSystem                               \
-		 -L/usr/local/Cellar/yaml-cpp/0.8.0/lib \
+     -L/usr/local/Cellar/yaml-cpp/0.8.0/lib \
      -lyaml-cpp                             \
      -lharfbuzz
 
@@ -39,9 +39,18 @@ FRAMEWORKS =                              \
            -framework Security            \
            -framework QuartzCore
 
+JUCE_DIR      = ./lib/juce/modules
 SRC_DIR       = ./src
 BUILD_DIR     = ./build
-JUCE_DIR      = ./lib/juce/modules
+OBJ_DIR       = $(BUILD_DIR)/obj
+MOCK_OBJ_DIR  = $(OBJ_DIR)/mock
+TEST_OBJ_DIR  = $(OBJ_DIR)/test
+TEST_SRC_DIR  = ./test
+MOCK_SRC_DIR  = ./mock
+
+BOOST_LIBS    = -lboost_unit_test_framework
+BOOST_INCLUDE = /usr/local/Cellar/boost/1.86.0/include/
+#TEST_SRC      = $(wildcard $(TEST_DIR)/*.cpp)
 
 # building as library
 DYLIB         = $(BUILD_DIR)/LiveImproved.dylib
@@ -79,27 +88,6 @@ JUCE_OBJS = $(OBJ_DIR)/juce_core/juce_core.o                       \
             $(OBJ_DIR)/juce_data_structures/juce_data_structures.o \
             $(OBJ_DIR)/juce_core/juce_core_CompilationTime.o
 
-# for running tests
-TEST_DIR      = ./test
-BOOST_LIBS    = -lboost_unit_test_framework
-BOOST_INCLUDE = /usr/local/Cellar/boost/1.86.0/include/
-TEST_SRC      = $(wildcard $(TEST_DIR)/*.cpp)
-
-# Ensure build directories exist
-create_dirs: $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(OBJ_DIR)/config
-	mkdir -p $(OBJ_DIR)/include
-	mkdir -p $(OBJ_DIR)/gui
-	mkdir -p $(OBJ_DIR)/platform/macos
-	mkdir -p $(OBJ_DIR)/config
-	mkdir -p $(OBJ_DIR)/test
-	mkdir -p $(OBJ_DIR)/juce_core
-	mkdir -p $(OBJ_DIR)/juce_gui_basics
-	mkdir -p $(OBJ_DIR)/juce_graphics
-	mkdir -p $(OBJ_DIR)/juce_events
-	mkdir -p $(OBJ_DIR)/juce_data_structures
-
 #
 # for building with mock modules
 # this will replace whatever normal modules
@@ -108,15 +96,14 @@ create_dirs: $(BUILD_DIR)
 #
 # this can mock a .mm with a .cpp
 # if .cpp and .mm exist, .cpp is used
-MOCK_DIR = ./mock
-SRC := $(foreach module,$(MODULES), \
-    $(if $(filter $(basename $(notdir $(module))),$(MOCK_MODULES)), \
-        $(if $(wildcard $(MOCK_DIR)/$(basename $(notdir $(module))).cpp), \
-            $(MOCK_DIR)/$(basename $(notdir $(module))).cpp, \
-            $(if $(wildcard $(MOCK_DIR)/$(basename $(notdir $(module))).mm), \
-                $(MOCK_DIR)/$(basename $(notdir $(module))).mm, \
-                $(SRC_DIR)/$(module))), \
-        $(SRC_DIR)/$(module)))
+#SRC := $(foreach module,$(MODULES), \
+#    $(if $(filter $(basename $(notdir $(module))),$(MOCK_MODULES)), \
+#        $(if $(wildcard $(MOCK_DIR)/$(basename $(notdir $(module))).cpp), \
+#            $(MOCK_DIR)/$(basename $(notdir $(module))).cpp, \
+#            $(if $(wildcard $(MOCK_DIR)/$(basename $(notdir $(module))).mm), \
+#                $(MOCK_DIR)/$(basename $(notdir $(module))).mm, \
+#                $(SRC_DIR)/$(module))), \
+#        $(SRC_DIR)/$(module)))
 
 # explicitly list so clean doesn't nuke .mm's
 APP_OBJECTS =                                       \
@@ -135,7 +122,7 @@ APP_OBJECTS =                                       \
     $(OBJ_DIR)/platform/macos/KeySender.o           \
     $(OBJ_DIR)/ActionHandler.o                      \
     $(OBJ_DIR)/ResponseParser.o                     \
-		$(JUCE_OBJS)
+    $(JUCE_OBJS)
 
 #
 # build library-style
@@ -180,7 +167,7 @@ generate-plist:
 
 juce: $(APP_OBJECTS) generate-plist
 	@echo 'app obj'
-	$(CC) $(APP_OBJECTS) -o $(APP_TARGET) $(CXXFLAGS) $(INCLUDE) $(LIBS) $(FRAMEWORKS) $(INCLUDE_JUCE) -headerpad_max_install_names
+	$(CC) $(APP_OBJECTS) -o $(APP_TARGET) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(LIBS) $(FRAMEWORKS) $(INCLUDE_JUCE) -headerpad_max_install_names
 	mkdir -p $(BUNDLE_PATH)/Contents/MacOS
 	mv $(APP_TARGET) $(BUNDLE_PATH)/Contents/MacOS/
 	cp LICENSE $(LICENSE_PATH)
@@ -188,45 +175,108 @@ juce: $(APP_OBJECTS) generate-plist
 
 $(OBJ_DIR)/juce_core/juce_core.o: $(JUCE_DIR)/juce_core/juce_core.cpp | create_dirs
 	@echo 'Compiling $< to $@'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
 
 $(OBJ_DIR)/juce_core/juce_core_CompilationTime.o: $(JUCE_DIR)/juce_core/juce_core_CompilationTime.cpp | create_dirs
 	@echo 'Compiling $< to $@'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
 
 $(OBJ_DIR)/juce_events/juce_events.o: $(JUCE_DIR)/juce_events/juce_events.cpp | create_dirs
 	@echo 'Compiling $< to $@'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
 
 $(OBJ_DIR)/juce_gui_basics/juce_gui_basics.o: $(JUCE_DIR)/juce_gui_basics/juce_gui_basics.cpp | create_dirs
 	@echo 'Compiling $< to $@'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
 
 $(OBJ_DIR)/juce_graphics/juce_graphics.o: $(JUCE_DIR)/juce_graphics/juce_graphics.cpp | create_dirs
 	@echo 'Compiling $< to $@'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
 
 $(OBJ_DIR)/juce_data_structures/juce_data_structures.o: $(JUCE_DIR)/juce_data_structures/juce_data_structures.cpp | create_dirs
 	@echo 'Compiling $< to $@'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
 
 # Rule to build the object files
 # Define build directory creation as a prerequisite for object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | create_dirs
 	@echo 'Compiling $< to $@'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.mm | create_dirs
 	@echo 'o'
-	$(CC) $(CXXFLAGS) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+	$(CC) $(CXXFLAGS) $(CXXFLAGS_JUCE) $(INCLUDE) $(INCLUDE_JUCE) -c $< -o $@
+
+INCLUDE_MOCK = -I./mock
+
+# Source files
+TEST_SOURCES = $(wildcard $(TEST_SRC_DIR)/*.cpp)
+MOCK_SOURCES = $(wildcard $(MOCK_SRC_DIR)/*.cpp)
+
+# Object files
+TEST_OBJ_FILES = $(patsubst $(TEST_SRC_DIR)/%.cpp,$(TEST_OBJ_DIR)/%.o,$(TEST_SOURCES))
+MOCK_OBJ_FILES = $(patsubst $(MOCK_SRC_DIR)/%.cpp,$(MOCK_OBJ_DIR)/%.o,$(MOCK_SOURCES))
+
+$(info MOCK_SOURCES = $(MOCK_SOURCES))
+$(info MOCK_OBJ_FILES = $(MOCK_OBJ_FILES))
+$(info TEST_SOURCES = $(TEST_SOURCES))
+$(info TEST_OBJ_FILES = $(TEST_OBJ_FILES))
 
 # Rule to compile .cpp files to .o files in test
-$(OBJ_DIR)/test/%.o: $(TEST_DIR)/%.cpp | create_dirs
-	$(CC) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+$(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.cpp | create_dirs
+	@echo 'test'
+	@mkdir -p $(TEST_OBJ_DIR)
+	$(CC) $(INCLUDE) $(CXXFLAGS) -c $< -o $@
+
+$(MOCK_OBJ_DIR)/%.o: $(MOCK_SRC_DIR)/%.cpp | create_dirs
+	@echo 'mock'
+	@mkdir -p $(MOCK_OBJ_DIR)
+	$(CC) $(CXXFLAGS) $(INCLUDE_MOCK) -c $< -o $@
+
+#test_configmanager: $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o
+#	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test_configmanager $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o \
+#	$(INCLUDE) $(INCLUDE_JUCE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
+
+test_keymapper: $(MOCK_OBJ_FILES) $(TEST_OBJ_FILES)
+	@echo 'Building test_keymapper'
+	$(CC) $(CXXFLAGS) $(INCLUDE) -o $(BUILD_DIR)/test_keymapper $(MOCK_OBJ_FILES) $(TEST_OBJ_FILES) $(BOOST_LIBS) $(FRAMEWORKS)
+
+TEST = test_configmanager test_keymapper
+
+run_tests: $(TEST)
+	@if [ -z "$(T)" ]; then \
+		for exe in $(TEST); do \
+			echo "Running $$exe..."; \
+			./$(BUILD_DIR)/$$exe --log_level=all; \
+		done; \
+	else \
+		echo "Running $(T)..."; \
+		./$(BUILD_DIR)/$(T) --log_level=all; \
+	fi
+
+
+create_dirs:
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(OBJ_DIR)/include
+	mkdir -p $(OBJ_DIR)/gui
+	mkdir -p $(OBJ_DIR)/platform/macos
+	mkdir -p $(OBJ_DIR)/config
+	mkdir -p $(OBJ_DIR)/test
+	mkdir -p $(OBJ_DIR)/juce_core
+	mkdir -p $(OBJ_DIR)/juce_gui_basics
+	mkdir -p $(OBJ_DIR)/juce_graphics
+	mkdir -p $(OBJ_DIR)/juce_events
+	mkdir -p $(OBJ_DIR)/juce_data_structures
+	mkdir -p $(OBJ_DIR)
+	mkdir -p $(MOCK_OBJ_DIR)
+	mkdir -p $(TEST_OBJ_DIR)
 
 clean:
 	rm -f $(DYLIB)
-	rm -rf $(BUILD_DIR)/test
+	rm -rf $(BUILD_DIR)
+	rm -rf $(OBJ_DIR)
+	rm -rf $(MOCK_OBJ_DIR)
+	rm -rf $(TEST_OBJ_DIR)
 	rm -f $(APP_OBJECTS)
 	rm -f $(APP_TARGET)
 	rm -rf $(BUNDLE_PATH)
@@ -235,17 +285,4 @@ clean:
 run: $(BUNDLE_PATH)
 	$(APP_EXECUTABLE)
 #	open $(BUNDLE_PATH)
-
-test: FORCE
-	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test $(TEST_SRC) $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
-
-test_config_manager: $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o
-	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test_config_manager $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o $(INCLUDE) $(LIBS) $(BOOST_LIBS) $(FRAMEWORKS)
-
-
-.PHONY: FORCE
-FORCE:
-
-run_tests: test_config_manager
-	./$(BUILD_DIR)/test_config_manager --log_level=all
 

@@ -14,6 +14,7 @@ public:
     }
 
     void initialise(const juce::String&) override {
+        std::locale::global(std::locale("en_US.UTF-8"));
         ApplicationManager& appManager = ApplicationManager::getInstance();
         appManager.getLogHandler()->info("Application started");
         appManager.getLogHandler()->info("int main()");

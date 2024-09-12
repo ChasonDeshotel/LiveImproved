@@ -23,13 +23,19 @@ void ActionHandler::init() {
 }
 
 // Helper function to split string by delimiter
-std::pair<std::string, std::string> splitString(const std::string& action) {
-    std::string delimiter = ",";
-    size_t pos = action.find(delimiter);
-    if (pos == std::string::npos) {
-        return {action, ""}; // No delimiter found
+std::vector<std::string> splitString(const std::string& str, const std::string& delimiter = ",", size_t maxSplits = std::string::npos) {
+    std::vector<std::string> tokens;
+    size_t start = 0;
+    size_t end = 0;
+    size_t splits = 0;
+
+    while ((end = str.find(delimiter, start)) != std::string::npos && splits < maxSplits) {
+        tokens.push_back(str.substr(start, end - start));  // Add substring before the delimiter
+        start = end + delimiter.length();                  // Move past the delimiter
     }
-    return {action.substr(0, pos), action.substr(pos + delimiter.length())};
+
+    tokens.push_back(str.substr(start));  // Add the remaining part after the last delimiter
+    return tokens;
 }
 
 // need to block all events when 
@@ -93,7 +99,16 @@ bool ActionHandler::loadItemByName(const std::string& itemName) {
 // maybe action.args,action2.args2
 void ActionHandler::handleAction(const std::string action) {
     log_->info("handleAction called");
-    auto [actionType, args] = splitString(action);
+    std::vector<std::string> actionParts = splitString(action, ",", 1);
+
+      if (actionParts.empty()) {
+        log_->info("No action provided");
+        return;
+    }
+
+    std::string actionType = actionParts[0];
+    std::string args = actionParts[1];
+
     auto actionHandler = actionMap.find(actionType);
     if (actionHandler != actionMap.end()) {
         // Call the corresponding method with arguments
@@ -103,10 +118,8 @@ void ActionHandler::handleAction(const std::string action) {
     }
 }
 
-// returns: bool: shouldPassEvent
-// -- should the original event be passed
-// through to the calling function
-// or should the original input be blocked
+// returns: bool: shouldPassEvent -- should the original event be passed
+// through to the calling function or should the original input be blocked
 bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 

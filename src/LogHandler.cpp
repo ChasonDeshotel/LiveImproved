@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <filesystem>  // C++17
 
+#include <JuceHeader.h>
+
 namespace fs = std::filesystem;
 
 LogHandler::LogHandler() : currentLogLevel(LogLevel::LOG_INFO) {
@@ -64,6 +66,7 @@ void LogHandler::debug(const std::string& message) {
 
 void LogHandler::info(const std::string& message) {
     log(message, LogLevel::LOG_INFO);
+    juce::Logger::writeToLog(message);
 }
 
 void LogHandler::warn(const std::string& message) {

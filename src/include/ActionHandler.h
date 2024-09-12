@@ -6,8 +6,6 @@
 #include "ApplicationManager.h"
 #include "LogHandler.h"
 
-class ApplicationManager;
-
 class ActionHandler {
 public:
     ActionHandler(ApplicationManager& appManager);
