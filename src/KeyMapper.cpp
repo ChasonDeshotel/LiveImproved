@@ -1,11 +1,12 @@
 #include "KeyMapper.h"
-#include "ApplicationManager.h"
+#include "LogHandler.h"
 
-KeyMapper::KeyMapper(ApplicationManager& appManager) 
-    : app_(appManager), valid(false) {}
+KeyMapper::KeyMapper()
+    : log_(&LogHandler::getInstance())
+    , valid(false) {}
 
 EKeyPress KeyMapper::processKeyPress(const std::string& keypress) {
-    app_.getLogHandler()->info(keypress);
+    log_->info(keypress);
     if (validateHotkey(keypress)) {
         this->keypress = parseKeyPress(keypress);
         this->valid = true;
@@ -35,11 +36,11 @@ EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
     std::stringstream ss(keypress);
 
     while (std::getline(ss, temp, '+')) {
-        if (temp == "cmd") kp.modifiers.push_back(Modifier::Cmd);
-        else if (temp == "shift") kp.modifiers.push_back(Modifier::Shift);
-        else if (temp == "ctrl") kp.modifiers.push_back(Modifier::Ctrl);
-        else if (temp == "alt") kp.modifiers.push_back(Modifier::Alt);
-        else if (temp.length() == 1) kp.key = temp[0];
+        if (temp == "cmd")      kp.cmd   = true;
+        if (temp == "shift")    kp.shift = true;
+        if (temp == "ctrl")     kp.ctrl  = true;
+        if (temp == "alt")      kp.alt   = true;
+        if (temp.length() == 1) kp.key   = temp[0];
     }
 
     return kp;
@@ -69,4 +70,17 @@ std::string KeyMapper::toLowerCase(const std::string& input) const {
     std::string output = input;
     std::transform(output.begin(), output.end(), output.begin(), ::tolower);
     return output;
+}
+
+std::string KeyMapper::EKeyPressToString(const EKeyPress& keyPress) {
+    std::string result;
+
+    if (keyPress.cmd)   result += "cmd+"   ;
+    if (keyPress.ctrl)  result += "ctrl+"  ;
+    if (keyPress.alt)   result += "alt+"   ;
+    if (keyPress.shift) result += "shift+" ;
+
+    result += keyPress.key;
+
+    return result;
 }

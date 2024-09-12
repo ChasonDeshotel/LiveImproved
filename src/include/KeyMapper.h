@@ -9,20 +9,22 @@
 
 #include "Types.h"
 
-class ApplicationManager;
+class LogHandler;
 
 class KeyMapper {
 public:
-    KeyMapper(ApplicationManager& appManager);
+  KeyMapper();
+  ~KeyMapper();
 
-    // Method to process a keypress string and return a KeyPress object
-    EKeyPress processKeyPress(const std::string& keypress);
+  // Method to process a keypress string and return a KeyPress object
+  EKeyPress processKeyPress(const std::string &keypress);
+  std::string EKeyPressToString(const EKeyPress &keypress);
 
-    bool isValid() const;
-    const EKeyPress& getKeyPress() const;
+  bool isValid() const;
+  const EKeyPress &getKeyPress() const;
 
 private:
-    ApplicationManager& app_;
+    LogHandler* log_;
     bool valid;
     EKeyPress keypress;
 

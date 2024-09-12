@@ -1,10 +1,14 @@
 #ifndef ACTION_HANDLER_H
 #define ACTION_HANDLER_H
 
+#include <CoreGraphics/CoreGraphics.h>
 #include <string>
 
-#include "ApplicationManager.h"
 #include "LogHandler.h"
+#include "Types.h"
+
+class ApplicationManager;
+class KeyMapper;
 
 class ActionHandler {
 public:
@@ -25,9 +29,10 @@ public:
 private:
     ApplicationManager& app_;
     LogHandler* log_;
+    KeyMapper* km_;
 
     void initializeActionMap();
-    void sendKeypress(const std::string& key);
+    void sendKeypress(const EKeyPress key);
 
     bool openSearchBox();
     bool closeWindows();

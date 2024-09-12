@@ -8,6 +8,12 @@
 #include <cstdlib>
 #include "yaml-cpp/yaml.h"
 
+#include "Types.h"
+
+#include "LogHandler.h"
+
+#include "KeyMapper.h"
+
 class ConfigManager {
 public:
     explicit ConfigManager(const std::filesystem::path& configFile);
@@ -18,7 +24,7 @@ public:
     int getInitRetries() const;
     void setInitRetries(int retries);
 
-    std::unordered_map<std::string, std::string> getRemap() const;
+    std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> getRemap() const;
     void setRemap(const std::string &from, const std::string &to);
 
     std::unordered_map<std::string, std::string> getRenamePlugins() const;
@@ -37,6 +43,9 @@ public:
     bool canUndo() const;
 
 private:
+    LogHandler* log_;
+    KeyMapper* km_;
+
     void applyConfig(const YAML::Node& config);
 
     std::string configFile_;
@@ -44,7 +53,7 @@ private:
 
     // Configuration options
     int initRetries_;
-    std::unordered_map<std::string, std::string> remap_;
+    std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> remap_;
     std::unordered_map<std::string, std::string> renamePlugins_;
     std::vector<std::string> removePlugins_;
     std::unordered_map<std::string, std::string> windowSettings_;

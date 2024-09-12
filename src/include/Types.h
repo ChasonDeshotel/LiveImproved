@@ -48,9 +48,20 @@ enum Modifier {
 };
 
 struct EKeyPress {
+    bool shift = false;
+    bool ctrl  = false;
+    bool cmd   = false;
+    bool alt   = false;
     std::vector<Modifier> modifiers;
-    char key;
+    std::string key;
 
+    bool operator==(const EKeyPress& other) const {
+    return (ctrl  == other.ctrl  &&
+            alt   == other.alt   &&
+            shift == other.shift &&
+            cmd   == other.cmd   &&
+            key   == other.key   );
+    }
     // Helper function to display the keypress (for debugging)
 //    void display() const {
 //        for (const auto& mod : modifiers) {
@@ -69,6 +80,15 @@ struct EKeyPress {
 //            default: return "";
 //        }
 //    }
+};
+
+struct EKeyPressHash {
+    std::size_t operator()(const EKeyPress& k) const {
+        // Combine all fields into a single hash
+        return ((std::hash<bool>()(k.ctrl) ^ (std::hash<bool>()(k.alt) << 1)) >> 1) ^
+               (std::hash<bool>()(k.shift) << 1) ^ (std::hash<bool>()(k.cmd) << 1) ^
+               std::hash<std::string>()(k.key);
+    }
 };
 
 struct EKeyMacro {

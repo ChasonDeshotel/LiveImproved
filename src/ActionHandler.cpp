@@ -12,6 +12,7 @@
 ActionHandler::ActionHandler(ApplicationManager& appManager)
     : app_(appManager)
     , log_(appManager.getLogHandler())
+    , km_(new KeyMapper())
 {
     initializeActionMap();
 }
@@ -58,12 +59,16 @@ void ActionHandler::initializeActionMap() {
         app_.getIPC()->writeRequest(args);
     };
 
-    actionMap["keypress"] = [this](const std::string& args) { this->sendKeypress(args); };
+//    actionMap["keypress"] = [this](const std::string& args) { this->sendKeypress(args); };
     actionMap["plugin"]   = [this](const std::string& args) { this->loadItemByName(args); };
 }
 
-void ActionHandler::sendKeypress(const std::string& key) {
-    log_->info("Keypress sent: " + key);
+void ActionHandler::sendKeypress(const EKeyPress key) {
+    log_->info("Keypress cmd: "   + std::to_string(key.cmd));
+    log_->info("Keypress ctrl: "  + std::to_string(key.ctrl));
+    log_->info("Keypress alt: "   + std::to_string(key.alt));
+    log_->info("Keypress shift: " + std::to_string(key.shift));
+    log_->info("Keypress sent: "  + key.key);
 }
 
 bool ActionHandler::closeWindows() {
@@ -124,9 +129,9 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
     bool isShiftPressed = (flags & Shift) != 0;
-    bool isCtrlPressed = (flags & Ctrl) != 0;
-    bool isCmdPressed = (flags & Cmd) != 0;
-    bool isAltPressed = (flags & Alt) != 0;
+    bool isCtrlPressed  = (flags & Ctrl ) != 0;
+    bool isCmdPressed   = (flags & Cmd  ) != 0;
+    bool isAltPressed   = (flags & Alt  ) != 0;
 
     app_.getLogHandler()->info("action handler: Key event: " + type + ", Key string: " + keyString + ", Modifiers: " + std::to_string(flags));
     app_.getLogHandler()->info("isShiftPressed: " + std::to_string(isShiftPressed));
@@ -134,12 +139,19 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
     app_.getLogHandler()->info("isCmdPressed: " + std::to_string(isCmdPressed));
     app_.getLogHandler()->info("isAltPressed: " + std::to_string(isAltPressed));
 
-    std::unordered_map<std::string, std::string> remap = app_.getConfigManager()->getRemap();
+    std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> remap = app_.getConfigManager()->getRemap();
+
+    EKeyPress kp;
+    kp.shift = isShiftPressed;
+    kp.ctrl  = isCtrlPressed;
+    kp.cmd   = isCmdPressed;
+    kp.alt   = isAltPressed;
+    kp.key   = keyString;
 
     // key remaps
-    auto it = remap.find(keyString);
+    auto it = remap.find(kp);
     if (it != remap.end()) {
-        handleAction(it->second);
+        sendKeypress(it->second);
     } else {
         log_->info("Key not found in remap: " + keyString);
     }

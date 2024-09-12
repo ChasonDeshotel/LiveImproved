@@ -5,18 +5,23 @@
 #include <filesystem>
 #include <cstdlib>
 
+#include "Types.h"
+#include "KeyMapper.h"
+
 ConfigManager::ConfigManager(const std::filesystem::path& configFile)
-    : configFile_(configFile) {
+    : configFile_(configFile) 
+    , log_(&LogHandler::getInstance())
+    , km_(new KeyMapper()) {
     loadConfig();
 
-    LogHandler::getInstance().info("\n\n\n\n\n\n" + configFile.string());
+    log_->info("\n\n\n\n\n\n" + configFile.string());
 }
 
 void ConfigManager::loadConfig() {
     try {
         applyConfig(YAML::LoadFile(configFile_));
     } catch (const std::exception &e) {
-        LogHandler::getInstance().info("Error loading config: " + std::string(e.what()));
+        log_->info("Error loading config: " + std::string(e.what()));
     }
 }
 
@@ -30,8 +35,9 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
 
         if (config["remap"] && config["remap"].IsMap()) {
             for (const auto &item : config["remap"]) {
-                std::string from = item.first.as<std::string>();
-                std::string to = item.second.as<std::string>();
+                EKeyPress from = km_->processKeyPress(item.first.as<std::string>());
+                // TODO: to should be a key macro if it has multiple presses
+                EKeyPress to   = km_->processKeyPress(item.second.as<std::string>());
                 remap_[from] = to;
             }
         }
@@ -91,8 +97,11 @@ void ConfigManager::saveConfig() {
     config_["init"]["retries"] = initRetries_;
 
     YAML::Node remapNode = YAML::Load("{}");
-    for (const auto &item : remap_) {
-        remapNode[item.first] = item.second;
+    for (const auto& item : remap_) {
+      std::string fromString = km_->EKeyPressToString(item.first);
+      std::string toString   = km_->EKeyPressToString(item.second);
+      
+      remapNode[fromString] = toString;
     }
     config_["remap"] = remapNode;
 
@@ -133,12 +142,14 @@ void ConfigManager::setInitRetries(int retries) {
     saveConfig();
 }
 
-std::unordered_map<std::string, std::string> ConfigManager::getRemap() const {
-    LogHandler::getInstance().info("get remap caled");
+std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> ConfigManager::getRemap() const {
+    log_->info("get remap caled");
     return remap_;
 }
 
-void ConfigManager::setRemap(const std::string &from, const std::string &to) {
+void ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) {
+    EKeyPress from = km_->processKeyPress(fromStr);
+    EKeyPress to   = km_->processKeyPress(toStr);
     remap_[from] = to;
     saveConfig();
 }
