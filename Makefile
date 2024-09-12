@@ -39,7 +39,6 @@ FRAMEWORKS =                              \
            -framework Security            \
            -framework QuartzCore
 
-JUCE_DIR      = ./lib/juce/modules
 SRC_DIR       = ./src
 BUILD_DIR     = ./build
 OBJ_DIR       = $(BUILD_DIR)/obj
@@ -48,6 +47,7 @@ TEST_OBJ_DIR  = $(OBJ_DIR)/test
 TEST_SRC_DIR  = ./test
 MOCK_SRC_DIR  = ./mock
 
+JUCE_DIR      = ./lib/juce/modules
 BOOST_LIBS    = -lboost_unit_test_framework
 BOOST_INCLUDE = /usr/local/Cellar/boost/1.86.0/include/
 #TEST_SRC      = $(wildcard $(TEST_DIR)/*.cpp)
