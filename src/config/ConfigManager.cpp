@@ -4,6 +4,7 @@
 #include <iostream>
 #include <filesystem>
 #include <cstdlib>
+#include <numeric>
 
 #include "Types.h"
 #include "KeyMapper.h"
@@ -35,18 +36,35 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
 
         log_->info("remap before remap");
         if (config["remap"] && config["remap"].IsMap()) {
-            log_->info("remap found remap");
             for (const auto &item : config["remap"]) {
+                log_->info("remap found remap");
                 log_->info("remap: " + item.first.as<std::string>());
                 log_->info("remap: " + item.second.as<std::string>());
-
+                
                 EKeyPress from = km_->processKeyPress(item.first.as<std::string>());
-//                // TODO: to should be a key macro if it has multiple presses
-                EKeyPress to   = km_->processKeyPress(item.second.as<std::string>());
-                log_->info("apply remap");
-                log_->info("apply remap from: " + from.key);
-                log_->info("apply remap to: " + to.key);
-                remap_[from] = to;
+                std::string toField = item.second.as<std::string>();
+
+                std::vector<std::string> toKeys;
+                std::stringstream ss(toField);
+                std::string key;
+                while (std::getline(ss, key, ',')) {
+                    // Trim whitespace
+                    key.erase(0, key.find_first_not_of(' '));
+                    key.erase(key.find_last_not_of(' ') + 1);
+                    toKeys.push_back(key);
+                }
+
+                EKeyMacro macro;
+                if (toKeys.size() == 1) {
+
+                    macro.push_back(km_->processKeyPress(toKeys[0]));
+                    remap_[from] = macro;
+                } else {
+                    for (const auto &keyStr : toKeys) {
+                        macro.push_back(km_->processKeyPress(keyStr));
+                    }
+                    remap_[from] = macro;
+                }
             }
         }
 
@@ -106,15 +124,37 @@ void ConfigManager::saveConfig() {
 
     YAML::Node remapNode = YAML::Load("{}");
     for (const auto& item : remap_) {
-      log_->info("save remap");
-      std::string fromString = km_->EKeyPressToString(item.first);
-      log_->info("save remap from: " + km_->EKeyPressToString(item.first));
-      std::string toString   = km_->EKeyPressToString(item.second);
-      log_->info("save remap to: " + km_->EKeyPressToString(item.second));
-      
-      remapNode[fromString] = toString;
+        log_->info("save remap");
+
+        // Convert 'from' EKeyPress to string
+        std::string fromString = km_->EKeyPressToString(item.first);
+        log_->info("save remap from: " + fromString);
+
+        // Convert 'to' (EKeyMacro) to string
+        std::string toString;
+        const EKeyMacro& macro = item.second;  // Assume item.second is of type EKeyMacro
+
+        // Check if it's a single keypress or a macro with multiple keys
+        if (macro.keypresses.size() == 1) {
+            toString = km_->EKeyPressToString(macro.keypresses[0]);
+            log_->info("save remap to (single): " + toString);
+        } else {
+            // If it's a macro, concatenate all keypresses
+            std::vector<std::string> keyStrings;
+            for (const auto& keyPress : macro.keypresses) {
+                keyStrings.push_back(km_->EKeyPressToString(keyPress));
+            }
+            toString = std::accumulate(
+                std::next(keyStrings.begin()), keyStrings.end(), keyStrings[0],
+                [](std::string a, const std::string& b) {
+                    return a + ", " + b;
+                }
+            );
+            log_->info("save remap to (macro): " + toString);
+        }
+
+        remapNode[fromString] = toString;
     }
-    config_["remap"] = remapNode;
 
     YAML::Node renamePluginsNode = YAML::Load("{}");
     for (const auto &item : renamePlugins_) {
@@ -153,7 +193,7 @@ void ConfigManager::setInitRetries(int retries) {
     saveConfig();
 }
 
-std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> ConfigManager::getRemap() const {
+std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> ConfigManager::getRemap() const {
     log_->info("get remap caled");
     return remap_;
 }
@@ -162,10 +202,13 @@ void ConfigManager::setRemap(const std::string &fromStr, const std::string &toSt
     EKeyPress from = km_->processKeyPress(fromStr);
     EKeyPress to   = km_->processKeyPress(toStr);
 
+    EKeyMacro macro;
+    macro.push_back(to);
+
     log_->info("set remap");
     log_->info("set remap from: " + from.key);
     log_->info("set remap to: " + to.key);
-    remap_[from] = to;
+    remap_[from] = macro;
     saveConfig();
 }
 

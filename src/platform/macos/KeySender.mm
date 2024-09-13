@@ -5,12 +5,11 @@
 #include <string>
 #include <optional>
 
-#include "ApplicationManager.h"
-#include "KeySender.h"
-#include "KeyMapper.h"
-#include "PID.h"
+#include "LogHandler.h"
 
 #include "Types.h"
+
+#include "KeySender.h"
 
 std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
     {"a", 0}
@@ -110,10 +109,8 @@ std::optional<CGKeyCode> getKeyCode(const std::string& key) {
     return std::nullopt;
 }
 
-KeySender::KeySender(ApplicationManager& appManager)
-    : app_(appManager)
-    , log_(appManager.getLogHandler())
-    , keyMapper_(new KeyMapper())
+KeySender::KeySender()
+    : log_(&LogHandler::getInstance())
 {}
 
 KeySender::~KeySender() {}
@@ -153,7 +150,9 @@ void KeySender::sendModifiedKeyCombo(const EKeyPress& kp) {
 
 }
 
-void KeySender::sendKeyPress(const EKeyPress& kp) {
+void KeySender::sendKeyPress(const EKeyPress& kpRef) {
+    EKeyPress kp = kpRef; // create a copy
+
     dispatch_async(dispatch_get_main_queue(), ^{
         CGEventFlags flags = getEventFlags(kp);
         std::optional<CGKeyCode> keyCodeOpt = getKeyCode(kp.key);

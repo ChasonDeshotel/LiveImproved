@@ -1,22 +1,25 @@
 #ifndef KEY_SENDER_H
 #define KEY_SENDER_H
 
-class ApplicationManager;
 class LogHandler;
-class KeyMapper;
-
-#include "Types.h"
+class EKeyPress;
 
 class KeySender {
 public:
-    KeySender(ApplicationManager& appManager);
-    ~KeySender();
+    static KeySender& getInstance() {
+        static KeySender instance;
+        return instance;
+    }
     void sendKeyPress(const EKeyPress& kp);
 
 private:
-    ApplicationManager& app_;
+    KeySender();
+    ~KeySender();
+
+    KeySender(const KeySender&) = delete;
+    KeySender& operator=(const KeySender&) = delete;
+
     LogHandler* log_;
-    KeyMapper* keyMapper_;
 
     void sendKeyDown(const EKeyPress& kp);
     void sendKeyUp(const EKeyPress& kp);

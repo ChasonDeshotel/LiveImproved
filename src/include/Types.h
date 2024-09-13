@@ -8,6 +8,8 @@
 #include <functional>
 #include <unordered_map>
 
+#include "KeySender.h"
+
 class IWindow {
 public:
     virtual ~IWindow() = default;
@@ -65,6 +67,10 @@ struct __attribute__((packed)) EKeyPress {
             cmd   == other.cmd   &&
             key   == other.key   );
     }
+
+    void sendKey() const {
+        KeySender::getInstance().sendKeyPress(*this);
+    }
 };
 
 // boost hashing voodoo
@@ -82,6 +88,28 @@ struct EKeyPressHash {
 
 struct EKeyMacro {
     std::vector<EKeyPress> keypresses;
+
+    void push_back(const EKeyPress& keypress) {
+        keypresses.push_back(keypress);
+    }
+
+    size_t size() const {
+        return keypresses.size();
+    }
+
+    EKeyPress& operator[](size_t index) {
+        return keypresses[index];
+    }
+
+    const EKeyPress& operator[](size_t index) const {
+        return keypresses[index];
+    }
+
+    void sendKeys() const {
+        for (const EKeyPress& keypress : keypresses) {
+            KeySender::getInstance().sendKeyPress(keypress);
+        }
+    }
 };
 
 #endif

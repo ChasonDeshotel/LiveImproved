@@ -32,7 +32,7 @@ private:
     KeyMapper* km_;
 
     void initializeActionMap();
-    void sendKeypress(const EKeyPress key);
+    void sendKeypress(const EKeyMacro macro);
 
     bool openSearchBox();
     bool closeWindows();

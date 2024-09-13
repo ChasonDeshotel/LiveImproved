@@ -24,7 +24,7 @@ public:
     int getInitRetries() const;
     void setInitRetries(int retries);
 
-    std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> getRemap() const;
+    std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> getRemap() const;
     void setRemap(const std::string &from, const std::string &to);
 
     std::unordered_map<std::string, std::string> getRenamePlugins() const;
@@ -53,7 +53,7 @@ private:
 
     // Configuration options
     int initRetries_;
-    std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> remap_;
+    std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> remap_;
     std::unordered_map<std::string, std::string> renamePlugins_;
     std::vector<std::string> removePlugins_;
     std::unordered_map<std::string, std::string> windowSettings_;

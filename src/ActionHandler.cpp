@@ -65,13 +65,15 @@ void ActionHandler::initializeActionMap() {
     actionMap["plugin"]   = [this](const std::string& args) { this->loadItemByName(args); };
 }
 
-void ActionHandler::sendKeypress(const EKeyPress key) {
-    log_->info("ActionHandler:: sendKeypress cmd: "   + std::to_string(key.cmd));
-    log_->info("ActionHandler:: sendKeypress ctrl: "  + std::to_string(key.ctrl));
-    log_->info("ActionHandler:: sendKeypress alt: "   + std::to_string(key.alt));
-    log_->info("ActionHandler:: sendKeypress shift: " + std::to_string(key.shift));
-    log_->info("ActionHandler:: sendKeypress sent: "  + key.key);
-    app_.getKeySender()->sendKeyPress(key);
+void ActionHandler::sendKeypress(EKeyMacro macro) {
+    for (const auto& key : macro.keypresses) {
+        log_->info("ActionHandler:: sendKeypress cmd: "   + std::to_string(key.cmd));
+        log_->info("ActionHandler:: sendKeypress ctrl: "  + std::to_string(key.ctrl));
+        log_->info("ActionHandler:: sendKeypress alt: "   + std::to_string(key.alt));
+        log_->info("ActionHandler:: sendKeypress shift: " + std::to_string(key.shift));
+        log_->info("ActionHandler:: sendKeypress sent: "  + key.key);
+    }
+    macro.sendKeys();  // Send each individual key press
 }
 
 bool ActionHandler::closeWindows() {
@@ -143,7 +145,7 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
     //app_.getLogHandler()->info("isCmdPressed: " + std::to_string(isCmdPressed));
     //app_.getLogHandler()->info("isAltPressed: " + std::to_string(isAltPressed));
 
-    std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> remap = app_.getConfigManager()->getRemap();
+    std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> remap = app_.getConfigManager()->getRemap();
 
     EKeyPress kp;
     kp.shift = isShiftPressed;

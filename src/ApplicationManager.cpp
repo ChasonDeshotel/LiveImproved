@@ -11,6 +11,7 @@
 #include "ResponseParser.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
+#include "KeySender.h"
 
 ApplicationManager::ApplicationManager()
     : logHandler_(&LogHandler::getInstance())
@@ -56,8 +57,8 @@ void ApplicationManager::init() {
     ipc_            = new IPC(*this);
     responseParser_ = new ResponseParser(*this);
     actionHandler_  = new ActionHandler(*this);
-    keySender_      = new KeySender(*this);
 
+    KeySender::getInstance();
 
     logHandler_->info("ApplicatonManager::init() finished");
 }
@@ -88,10 +89,6 @@ EventHandler* ApplicationManager::getEventHandler() {
 
 ActionHandler* ApplicationManager::getActionHandler() {
     return actionHandler_;
-}
-
-KeySender* ApplicationManager::getKeySender() {
-    return keySender_;
 }
 
 const std::vector<Plugin>& ApplicationManager::getPlugins() const {
