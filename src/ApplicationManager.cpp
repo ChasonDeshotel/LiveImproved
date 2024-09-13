@@ -54,11 +54,11 @@ void ApplicationManager::init() {
     configMenu_     = new ConfigMenu(configMenuPath);
 
     eventHandler_   = new EventHandler(*this);
+    actionHandler_  = new ActionHandler(*this);
+    KeySender::getInstance();
+
     ipc_            = new IPC(*this);
     responseParser_ = new ResponseParser(*this);
-    actionHandler_  = new ActionHandler(*this);
-
-    KeySender::getInstance();
 
     logHandler_->info("ApplicatonManager::init() finished");
 }
@@ -108,12 +108,3 @@ void ApplicationManager::refreshPluginCache() {
         }
     });
 }
-
-//std::string ApplicationManager::getPluginsAsStr() const {
-//    if (pluginCache.empty()) {
-//        return "";
-//    }
-//
-//    return std::accumulate(std::next(plugins_.begin()), plugins_.end(), plugins_[0],
-//        [](const std::string& a, const std::string& b) { return a + ',' + b; });
-//}

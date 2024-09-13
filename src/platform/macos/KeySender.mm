@@ -11,6 +11,13 @@
 
 #include "KeySender.h"
 
+std::string toLower(const std::string& str) {
+    std::string lowerStr = str;
+    std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return lowerStr;
+}
+
 std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
     {"a", 0}
     , {"s", 1}
@@ -35,70 +42,70 @@ std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
     , {"4", 21}
     , {"6", 22}
     , {"5", 23}
-    , {"Equal", 24}
+    , {"equal", 24}
     , {"9", 25}
     , {"7", 26}
-    , {"Minus", 27}
+    , {"minus", 27}
     , {"8", 28}
     , {"0", 29}
-    , {"RightBracket", 30}
+    , {"rightbracket", 30}
     , {"o", 31}
     , {"u", 32}
-    , {"LeftBracket", 33}
+    , {"leftbracket", 33}
     , {"i", 34}
     , {"p", 35}
     , {"n", 36}
     , {"l", 37}
     , {"j", 38}
-    , {"Quote", 39}
+    , {"quote", 39}
     , {"k", 40}
-    , {"Semicolon", 41}
-    , {"Backslash", 42}
-    , {"Comma", 43}
-    , {"Slash", 44}
+    , {"semicolon", 41}
+    , {"backslash", 42}
+    , {"comma", 43}
+    , {"slash", 44}
     , {"n", 45}
     , {"m", 46}
-    , {"Period", 47}
-    , {"Tab", 48}
-    , {"Space", 49}
-    , {"Grave", 50}
-    , {"Delete", 51}
-    , {"Escape", 53}
+    , {"period", 47}
+    , {"tab", 48}
+    , {"space", 49}
+    , {"grave", 50}
+    , {"delete", 51}
+    , {"escape", 53}
 
-    , {"RightCommand", 54}
-    , {"Command", 55}
-    , {"Shift", 56}
-    , {"CapsLock", 57}
-    , {"Option", 58}
-    , {"Control", 59}
-    , {"RightShift", 60}
-    , {"RightOption", 61}
-    , {"RightControl", 62}
+    , {"rightcommand", 54}
+    , {"command", 55}
+    , {"shift", 56}
+    , {"capslock", 57}
+    , {"option", 58}
+    , {"control", 59}
+    , {"rightshift", 60}
+    , {"rightoption", 61}
+    , {"rightcontrol", 62}
 
-    , {"F1", 122}
-    , {"F2", 120}
-    , {"F3", 99}
-    , {"F4", 118}
-    , {"F5", 96}
-    , {"F6", 97}
-    , {"F7", 98}
-    , {"F8", 100}
-    , {"F9", 101}
-    , {"F10", 109}
-    , {"F11", 103}
-    , {"F12", 111}
+    , {"f1", 122}
+    , {"f2", 120}
+    , {"f3", 99}
+    , {"f4", 118}
+    , {"f5", 96}
+    , {"f6", 97}
+    , {"f7", 98}
+    , {"f8", 100}
+    , {"f9", 101}
+    , {"f10", 109}
+    , {"f11", 103}
+    , {"f12", 111}
 
-    , {"UpArrow", 126}
-    , {"DownArrow", 125}
-    , {"LeftArrow", 123}
-    , {"RightArrow", 124}
+    , {"uparrow", 126}
+    , {"downarrow", 125}
+    , {"leftarrow", 123}
+    , {"rightarrow", 124}
 
-    , {"Home", 115}
-    , {"End", 119}
-    , {"PageUp", 116}
-    , {"PageDown", 121}
-    , {"Help", 114}
-    , {"ForwardDelete", 117}
+    , {"home", 115}
+    , {"end", 119}
+    , {"pageup", 116}
+    , {"pagedown", 121}
+    , {"help", 114}
+    , {"forwarddelete", 117}
 };
 
 std::optional<CGKeyCode> getKeyCode(const std::string& key) {
@@ -155,7 +162,7 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
 
     dispatch_async(dispatch_get_main_queue(), ^{
         CGEventFlags flags = getEventFlags(kp);
-        std::optional<CGKeyCode> keyCodeOpt = getKeyCode(kp.key);
+        std::optional<CGKeyCode> keyCodeOpt = getKeyCode(toLower(kp.key));
 
         log_->info("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
         log_->info("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );

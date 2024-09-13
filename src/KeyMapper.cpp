@@ -33,6 +33,15 @@ bool KeyMapper::validateHotkey(const std::string& keypress) const {
     return std::regex_match(keypress, regex);
 }
 
+std::unordered_map<std::string, std::string> namedKeys = {
+    {"delete", "delete"},
+    {"space", "space"},
+    {"enter", "enter"},
+    {"tab", "tab"},
+    {"escape", "escape"},
+    // Add more keys as needed
+};
+
 EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
     log_->info("parsing: " + keypress);
 
@@ -49,10 +58,13 @@ EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
 
     while (std::getline(ss, temp, '+')) {
         if (temp == "cmd")      kp.cmd   = true;
-        if (temp == "shift")    kp.shift = true;
-        if (temp == "ctrl")     kp.ctrl  = true;
-        if (temp == "alt")      kp.alt   = true;
-        if (temp.length() == 1) kp.key   = temp[0];
+        else if (temp == "shift")    kp.shift = true;
+        else if (temp == "ctrl")     kp.ctrl  = true;
+        else if (temp == "alt")      kp.alt   = true;
+        else if (temp.length() == 1) kp.key   = temp[0];
+        else if (namedKeys.find(temp) != namedKeys.end()) {
+            kp.key = namedKeys[temp];
+        }
     }
 
     log_->info("after while");
@@ -79,7 +91,7 @@ std::string KeyMapper::buildRegexPattern() const {
 //    std::string pattern = "^((" + modifierPart + "\\+)*[\\p{L}\\d\\-\\.])$"; // p{L} matches a single Unicode letter
    // std::string pattern = "^((" + modifierPart + "\\+)*[a-zA-Z0-9])$"; // p{L} matches a single Unicode letter
 
-    std::string pattern = "^(?:(?:" + modifierPart + ")\\+)*(?:[a-zA-Z0-9]|F[1-9]|F1[0-2])$";
+    std::string pattern = "^(?:(?:" + modifierPart + ")\\+)*(?:[a-zA-Z0-9]|F[1-9]|F1[0-2]|delete|enter|escape|space|tab|backspace)$";
     return pattern;
 }
 
