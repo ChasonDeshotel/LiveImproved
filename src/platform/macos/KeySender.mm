@@ -3,6 +3,7 @@
 #include <Cocoa/Cocoa.h>
 #include <unordered_map>
 #include <string>
+#include <optional>
 
 #include "ApplicationManager.h"
 #include "KeySender.h"
@@ -11,19 +12,6 @@
 
 #include "Types.h"
 
-
-// TODO
-//CGKeyCode getKeyCodeFromCharacter(char character) {
-//    switch (character) {
-//        case 'a': return kVK_ANSI_A;
-//        case 'b': return kVK_ANSI_B;
-//        case 'c': return kVK_ANSI_C;
-//        case '-': return kVK_ANSI_Minus;
-//        case '1': return kVK_ANSI_1;
-//        // Add other mappings as needed
-//        default: return -1; // Invalid key
-//    }
-//}
 std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
     {"a", 0}
     , {"s", 1}
@@ -114,12 +102,12 @@ std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
     , {"ForwardDelete", 117}
 };
 
-CGKeyCode getKeyCode(const std::string& key) {
+std::optional<CGKeyCode> getKeyCode(const std::string& key) {
     auto it = keyCodeMap.find(key);
     if (it != keyCodeMap.end()) {
         return it->second;
     }
-    return 0;  // Default value if key not found
+    return std::nullopt;
 }
 
 KeySender::KeySender(ApplicationManager& appManager)
@@ -150,16 +138,6 @@ CGEventFlags getEventFlags(const EKeyPress& kp) {
 }
 
 void KeySender::sendKeyDown(const EKeyPress& kp) {
-    const CGKeyCode kVK_RightCommand = 54;
-    const CGKeyCode kVK_Command = 55;
-    const CGKeyCode kVK_Shift = 56;
-    const CGKeyCode kVK_CapsLock = 57;
-    const CGKeyCode kVK_Option = 58;
-    const CGKeyCode kVK_Control = 59;
-    const CGKeyCode kVK_RightShift = 60;
-    const CGKeyCode kVK_RightOption = 61;
-    const CGKeyCode kVK_RightControl = 62;
-
 
 }
 
@@ -177,28 +155,29 @@ void KeySender::sendModifiedKeyCombo(const EKeyPress& kp) {
 
 void KeySender::sendKeyPress(const EKeyPress& kp) {
     dispatch_async(dispatch_get_main_queue(), ^{
+        CGEventFlags flags = getEventFlags(kp);
+        std::optional<CGKeyCode> keyCodeOpt = getKeyCode(kp.key);
+
         log_->info("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
         log_->info("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
         log_->info("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
         log_->info("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
         log_->info("KeySender:: Keypress key: "   + kp.key                   );
 
-        CGEventFlags flags = getEventFlags(kp);
+        if (keyCodeOpt) {
+            CGKeyCode keyCode = *keyCodeOpt;
+            log_->info("KeySender:: keycode: " + std::to_string(keyCode));
 
-        CGKeyCode keyCode = getKeyCode(kp.key);
-        // Map character to key code and modifier flags
+            CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, keyCode, true);
+            CGEventSetFlags(keyDown, flags);
+            CGEventPost(kCGAnnotatedSessionEventTap, keyDown);
+            CFRelease(keyDown);
 
-        log_->info("KeySender:: keycode: " + std::to_string(keyCode));
-
-        CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, keyCode, true);
-        CGEventSetFlags(keyDown, flags);
-        CGEventPost(kCGAnnotatedSessionEventTap, keyDown);
-        CFRelease(keyDown);
-
-        //log_->info("sending keyUp: " + std::to_string(keyCode));
-        CGEventRef keyUp = CGEventCreateKeyboardEvent(NULL, keyCode, false);
-        CGEventSetFlags(keyUp, flags);
-        CGEventPost(kCGAnnotatedSessionEventTap, keyDown);
-        CFRelease(keyUp);
+            //log_->info("sending keyUp: " + std::to_string(keyCode));
+            CGEventRef keyUp = CGEventCreateKeyboardEvent(NULL, keyCode, false);
+            CGEventSetFlags(keyUp, flags);
+            CGEventPost(kCGAnnotatedSessionEventTap, keyDown);
+            CFRelease(keyUp);
+        }
     });
 }
