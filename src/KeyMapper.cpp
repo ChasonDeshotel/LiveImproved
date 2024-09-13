@@ -1,5 +1,6 @@
 #include "KeyMapper.h"
 #include "LogHandler.h"
+#include "Types.h"
 
 KeyMapper::KeyMapper()
     : log_(&LogHandler::getInstance())
@@ -66,6 +67,11 @@ EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
             kp.key = namedKeys[temp];
         }
     }
+    log_->info("key: " + kp.key);
+    log_->info("shift: " + std::to_string(kp.shift));
+    log_->info("ctrl: " + std::to_string(kp.ctrl));
+    log_->info("cmd: " + std::to_string(kp.cmd));
+    log_->info("alt: " + std::to_string(kp.alt));
 
     log_->info("after while");
 

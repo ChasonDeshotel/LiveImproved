@@ -1,43 +1,77 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <string>
-#include <vector>
-#include <regex>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <regex>
+#include <stdexcept>
+#include <string>
 #include <unordered_map>
+#include <variant>
+#include <vector>
 
 #include "KeySender.h"
 
-class IWindow {
-public:
-    virtual ~IWindow() = default;
-    virtual void open() = 0;
-    virtual void close() = 0;
-    virtual void* getWindowHandle() const = 0;
+// Lim
+struct NamedActions {
+    static const std::unordered_map<std::string, std::string>& get() {
+        static const std::unordered_map<std::string, std::string> namedActions = {
+            {"load_item", "load_item"},
+            {"save", "save"},
+            {"delay", "delay"},  // The value "delay" might be used to parse custom delays
+            // Add more actions as needed
+        };
+        return namedActions;
+    }
 };
 
-enum class Window {
-    ContextMenu
+enum class ActionType {
+    LoadItem
+    , Save
+    , Delay
 };
 
-struct WindowData {
-    std::shared_ptr<IWindow> window;
-    std::function<void()> callback;
+enum class ArgType {
+    None
+    , String
+    , Double
+    , Int
 };
 
-struct MenuItem {
-    std::string label;
-    std::string action;
-    std::vector<MenuItem> children;
+
+struct Action {
+    std::string actionName;
+    std::optional<std::string> arguments;
+
+    Action(const std::string& actionName, const std::optional<std::string>& args = std::nullopt)
+        : actionName(actionName), arguments(args) {}
+
+    // TODO Placeholder validation function (optional)
+//    void validate() const {
+//        // Add validation logic here if needed later
+//        if (actionName == "delay") {
+//            try {
+//                double delayTime = std::stod(arguments);  // Ensure valid number
+//            } catch (std::invalid_argument&) {
+//                throw std::runtime_error("Invalid argument for delay: expected a number.");
+//            }
+//        }
+//    }
 };
 
-struct Plugin {
-    int number;
-    std::string name;
-    std::string type;
-    std::string uri;
+// Keyboard
+struct NamedKeys {
+    static const std::unordered_map<std::string, std::string>& get() {
+        static const std::unordered_map<std::string, std::string> namedKeys = {
+            {"delete", "delete"},
+            {"enter", "enter"},
+            {"escape", "escape"},
+            {"space", "space"},
+            {"tab", "tab"},
+            {"backspace", "backspace"},
+        };
+        return namedKeys;
+    }
 };
 
 enum Modifier {
@@ -67,14 +101,10 @@ struct __attribute__((packed)) EKeyPress {
             cmd   == other.cmd   &&
             key   == other.key   );
     }
-
-    void sendKey() const {
-        KeySender::getInstance().sendKeyPress(*this);
-    }
 };
 
 // boost hashing voodoo
-struct EKeyPressHash {
+struct EMacroHash {
     std::size_t operator()(const EKeyPress& k) const {
         std::size_t res = 17;
         res = res * 31 + std::hash<bool>()(k.ctrl);
@@ -86,30 +116,47 @@ struct EKeyPressHash {
     }
 };
 
-struct EKeyMacro {
-    std::vector<EKeyPress> keypresses;
+struct EMacro {
+    std::vector<std::variant<EKeyPress, Action>> steps;
 
-    void push_back(const EKeyPress& keypress) {
-        keypresses.push_back(keypress);
+    void addKeyPress(const EKeyPress& keyPress) {
+        steps.emplace_back(keyPress);
     }
 
-    size_t size() const {
-        return keypresses.size();
+    void addAction(const Action& action) {
+        steps.emplace_back(action);
     }
+};
 
-    EKeyPress& operator[](size_t index) {
-        return keypresses[index];
-    }
+struct Plugin {
+    int number;
+    std::string name;
+    std::string type;
+    std::string uri;
+};
 
-    const EKeyPress& operator[](size_t index) const {
-        return keypresses[index];
-    }
+// GUI
+class IWindow {
+public:
+    virtual ~IWindow() = default;
+    virtual void open() = 0;
+    virtual void close() = 0;
+    virtual void* getWindowHandle() const = 0;
+};
 
-    void sendKeys() const {
-        for (const EKeyPress& keypress : keypresses) {
-            KeySender::getInstance().sendKeyPress(keypress);
-        }
-    }
+enum class Window {
+    ContextMenu
+};
+
+struct WindowData {
+    std::shared_ptr<IWindow> window;
+    std::function<void()> callback;
+};
+
+struct MenuItem {
+    std::string label;
+    std::string action;
+    std::vector<MenuItem> children;
 };
 
 #endif

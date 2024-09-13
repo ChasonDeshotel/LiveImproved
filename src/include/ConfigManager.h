@@ -24,7 +24,7 @@ public:
     int getInitRetries() const;
     void setInitRetries(int retries);
 
-    std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> getRemap() const;
+    std::unordered_map<EKeyPress, EMacro, EMacroHash> getRemap() const;
     void setRemap(const std::string &from, const std::string &to);
 
     std::unordered_map<std::string, std::string> getRenamePlugins() const;
@@ -48,12 +48,14 @@ private:
 
     void applyConfig(const YAML::Node& config);
 
+    void processRemap(const std::string &from, const std::string &to);
+
     std::string configFile_;
     YAML::Node config_;
 
     // Configuration options
     int initRetries_;
-    std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> remap_;
+    std::unordered_map<EKeyPress, EMacro, EMacroHash> remap_;
     std::unordered_map<std::string, std::string> renamePlugins_;
     std::vector<std::string> removePlugins_;
     std::unordered_map<std::string, std::string> windowSettings_;

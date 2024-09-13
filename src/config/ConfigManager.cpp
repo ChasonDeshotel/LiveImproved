@@ -38,33 +38,10 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
         if (config["remap"] && config["remap"].IsMap()) {
             for (const auto &item : config["remap"]) {
                 log_->info("remap found remap");
-                log_->info("remap: " + item.first.as<std::string>());
-                log_->info("remap: " + item.second.as<std::string>());
-                
-                EKeyPress from = km_->processKeyPress(item.first.as<std::string>());
-                std::string toField = item.second.as<std::string>();
-
-                std::vector<std::string> toKeys;
-                std::stringstream ss(toField);
-                std::string key;
-                while (std::getline(ss, key, ',')) {
-                    // Trim whitespace
-                    key.erase(0, key.find_first_not_of(' '));
-                    key.erase(key.find_last_not_of(' ') + 1);
-                    toKeys.push_back(key);
-                }
-
-                EKeyMacro macro;
-                if (toKeys.size() == 1) {
-
-                    macro.push_back(km_->processKeyPress(toKeys[0]));
-                    remap_[from] = macro;
-                } else {
-                    for (const auto &keyStr : toKeys) {
-                        macro.push_back(km_->processKeyPress(keyStr));
-                    }
-                    remap_[from] = macro;
-                }
+                log_->info("remap fromStr: " + item.first.as<std::string>());
+                log_->info("remap toStr: "   + item.second.as<std::string>());
+            
+                processRemap(item.first.as<std::string>(), item.second.as<std::string>());
             }
         }
 
@@ -126,32 +103,34 @@ void ConfigManager::saveConfig() {
     for (const auto& item : remap_) {
         log_->info("save remap");
 
-        // Convert 'from' EKeyPress to string
         std::string fromString = km_->EKeyPressToString(item.first);
         log_->info("save remap from: " + fromString);
 
-        // Convert 'to' (EKeyMacro) to string
-        std::string toString;
-        const EKeyMacro& macro = item.second;  // Assume item.second is of type EKeyMacro
+        std::vector<std::string> stepStrings;
+        const EMacro& macro = item.second;
 
-        // Check if it's a single keypress or a macro with multiple keys
-        if (macro.keypresses.size() == 1) {
-            toString = km_->EKeyPressToString(macro.keypresses[0]);
-            log_->info("save remap to (single): " + toString);
-        } else {
-            // If it's a macro, concatenate all keypresses
-            std::vector<std::string> keyStrings;
-            for (const auto& keyPress : macro.keypresses) {
-                keyStrings.push_back(km_->EKeyPressToString(keyPress));
-            }
-            toString = std::accumulate(
-                std::next(keyStrings.begin()), keyStrings.end(), keyStrings[0],
-                [](std::string a, const std::string& b) {
-                    return a + ", " + b;
+        for (const auto& item : macro.steps) {
+            std::visit([&](auto&& arg) {
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (std::is_same_v<T, EKeyPress>) {
+                    stepStrings.push_back(km_->EKeyPressToString(arg));
+                } else if constexpr (std::is_same_v<T, Action>) {
+                    if (arg.arguments) {
+                        stepStrings.push_back(arg.actionName + "." + *arg.arguments);
+                    } else {
+                        stepStrings.push_back(arg.actionName);
+                    }
                 }
-            );
-            log_->info("save remap to (macro): " + toString);
+            }, item);
         }
+
+        std::string toString;
+        toString = std::accumulate(
+            std::next(stepStrings.begin()), stepStrings.end(), stepStrings[0],
+            [](std::string a, const std::string& b) {
+                return a + ", " + b;
+            }
+        );
 
         remapNode[fromString] = toString;
     }
@@ -193,22 +172,14 @@ void ConfigManager::setInitRetries(int retries) {
     saveConfig();
 }
 
-std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> ConfigManager::getRemap() const {
+std::unordered_map<EKeyPress, EMacro, EMacroHash> ConfigManager::getRemap() const {
     log_->info("get remap caled");
     return remap_;
 }
 
 void ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) {
-    EKeyPress from = km_->processKeyPress(fromStr);
-    EKeyPress to   = km_->processKeyPress(toStr);
-
-    EKeyMacro macro;
-    macro.push_back(to);
-
-    log_->info("set remap");
-    log_->info("set remap from: " + from.key);
-    log_->info("set remap to: " + to.key);
-    remap_[from] = macro;
+    log_->info("setRemap: from: " + fromStr + " to: " + toStr);
+    processRemap(fromStr, toStr);
     saveConfig();
 }
 
@@ -274,3 +245,56 @@ bool ConfigManager::canUndo() const {
     return !undoStack_.empty();
 }
 
+void ConfigManager::processRemap(const std::string &fromStr, const std::string &toStr) {
+    EKeyPress from = km_->processKeyPress(fromStr);
+
+    std::vector<std::string> toKeys;
+    std::stringstream ss(toStr);
+    std::string key;
+    while (std::getline(ss, key, ',')) {
+        // Trim whitespace
+        key.erase(0, key.find_first_not_of(' '));
+        key.erase(key.find_last_not_of(' ') + 1);
+        toKeys.push_back(key);
+    }
+
+    EMacro macro;
+
+    for (const auto& str : toKeys) {
+        log_->info("process remap: str: " + str);
+
+        // TODO TODO TODO
+        // bug
+        // must split on . before searching NamedActions for the string
+        const auto& namedActions = NamedActions::get();
+        auto actionIt = namedActions.find(str);
+
+        if (actionIt != namedActions.end()) {
+            // If the string has a period, split it into action and argument
+            if (str.find('.') != std::string::npos) {
+                size_t periodPos = str.find('.');
+                std::string actionName = str.substr(0, periodPos);
+                std::string argument = str.substr(periodPos + 1);
+
+                log_->info("process remap: add action with arg: " + actionName + "." + argument);
+                Action action(actionName, argument);
+                macro.addAction(action);
+            } else {
+                log_->info("process remap: add action no arg: " + actionIt->second);
+                Action action(actionIt->second);
+                macro.addAction(action);
+            }
+        } else {
+            log_->info("process remap: not in named actions. str: " + str);
+            // Process as key press
+            EKeyPress keyPress = km_->processKeyPress(str);
+            macro.addKeyPress(keyPress);
+//            log_->info("process remap");
+//            log_->info("process remap from: " + from.key + " shift: " + std::to_string(key.shift) + 
+//                " cmd: " + std::to_string(key.cmd));
+//            log_->info("process remap to: " + toStr);
+        }
+        remap_[from] = macro;
+    }
+
+}

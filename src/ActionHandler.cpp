@@ -45,7 +45,7 @@ std::vector<std::string> splitString(const std::string& str, const std::string& 
 // app_.getGUISearchBox()->isOpen() = true
 
 // Define a function type for action handlers
-using ActionHandlerFunction = std::function<void(const std::string&)>;
+using ActionHandlerFunction = std::function<void(const std::optional<std::string>& args)>;
 
 // Define a map to link action strings to methods
 std::unordered_map<std::string, ActionHandlerFunction> actionMap;
@@ -54,26 +54,60 @@ std::unordered_map<std::string, ActionHandlerFunction> actionMap;
 void ActionHandler::initializeActionMap() {
     // TODO: case insensitive
     // TODO: multiple args (plugin,Sylenth,Serum)
-    actionMap["gui-searchbox"] = [this](const std::string& args) { 
+    actionMap["gui-searchbox"] = [this](const std::optional<std::string>& args) { 
         app_.getWindowManager()->openWindow("SearchBox");
     };
-    actionMap["write-request"] = [this](const std::string& args) {
-        app_.getIPC()->writeRequest(args);
+    actionMap["write-request"] = [this](const std::optional<std::string>& args) {
+        if (args) {
+            app_.getIPC()->writeRequest(*args);
+        } else {
+            throw std::runtime_error("write-request action requires an argument");
+        }
     };
 
-//    actionMap["keypress"] = [this](const std::string& args) { this->sendKeypress(args); };
-    actionMap["plugin"]   = [this](const std::string& args) { this->loadItemByName(args); };
+    actionMap["plugin"] = [this](const std::optional<std::string>& args) {
+        if (args) {
+            this->loadItemByName(*args);
+        } else {
+            throw std::runtime_error("plugin action requires an argument");
+        }
+    };
+   // app_.getIPC()->writeRequest("RELOAD");
+   // app_.refreshPluginCache();
+   // app_.getWindowManager()->openWindow("ContextMenu");
+   // app_.getWindowManager()->closeWindow("ContextMenu");
+   // closeWindows();
 }
 
-void ActionHandler::sendKeypress(EKeyMacro macro) {
-    for (const auto& key : macro.keypresses) {
-        log_->info("ActionHandler:: sendKeypress cmd: "   + std::to_string(key.cmd));
-        log_->info("ActionHandler:: sendKeypress ctrl: "  + std::to_string(key.ctrl));
-        log_->info("ActionHandler:: sendKeypress alt: "   + std::to_string(key.alt));
-        log_->info("ActionHandler:: sendKeypress shift: " + std::to_string(key.shift));
-        log_->info("ActionHandler:: sendKeypress sent: "  + key.key);
+void ActionHandler::executeMacro(const EMacro& macro) {
+//    for (const auto& key : macro.keypresses) {
+//        log_->info("ActionHandler:: execMacro cmd: "   + std::to_string(key.cmd));
+//        log_->info("ActionHandler:: execMacro ctrl: "  + std::to_string(key.ctrl));
+//        log_->info("ActionHandler:: execMacro alt: "   + std::to_string(key.alt));
+//        log_->info("ActionHandler:: execMacro shift: " + std::to_string(key.shift));
+//        log_->info("ActionHandler:: execMacro sent: "  + key.key);
+//    }
+//    macro.sendKeys();  // Send each individual key press
+    for (const auto& step : macro.steps) {
+        // Use std::visit to handle the variant type (EKeyPress or Action)
+        std::visit([&](auto&& item) {
+            using T = std::decay_t<decltype(item)>;
+            if constexpr (std::is_same_v<T, EKeyPress>) {
+                log_->info("macro sending keypress");
+                KeySender::getInstance().sendKeyPress(item);
+            } else if constexpr (std::is_same_v<T, Action>) {
+                log_->info("macro sending action");
+                // If it's an Action, execute the action via the action map
+                auto it = actionMap.find(item.actionName);
+                if (it != actionMap.end()) {
+                    std::optional<std::string> optionalArgument = item.arguments;
+                    it->second(optionalArgument);
+                } else {
+                    throw std::runtime_error("Unknown action: " + item.actionName);
+                }
+            }
+        }, step);
     }
-    macro.sendKeys();  // Send each individual key press
 }
 
 bool ActionHandler::closeWindows() {
@@ -137,25 +171,20 @@ void ActionHandler::handleAction(const std::string action) {
 bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
+    // static cast probably not necessary
     bool isShiftPressed = static_cast<bool>(flags & Shift) != 0;
     bool isCtrlPressed  = static_cast<bool>(flags & Ctrl ) != 0;
     bool isCmdPressed   = static_cast<bool>(flags & Cmd  ) != 0;
     bool isAltPressed   = static_cast<bool>(flags & Alt  ) != 0;
-
-    //app_.getLogHandler()->info("action handler: Key event: " + type + ", Key string: " + keyString + ", Modifiers: " + std::to_string(flags));
-    //app_.getLogHandler()->info("isShiftPressed: " + std::to_string(isShiftPressed));
-    //app_.getLogHandler()->info("isCtrlPressed: " + std::to_string(isCtrlPressed));
-    //app_.getLogHandler()->info("isCmdPressed: " + std::to_string(isCmdPressed));
-    //app_.getLogHandler()->info("isAltPressed: " + std::to_string(isAltPressed));
-
-    std::unordered_map<EKeyPress, EKeyMacro, EKeyPressHash> remap = app_.getConfigManager()->getRemap();
-
     EKeyPress kp;
     kp.shift = isShiftPressed;
     kp.ctrl  = isCtrlPressed;
     kp.cmd   = isCmdPressed;
     kp.alt   = isAltPressed;
     kp.key   = keyString;
+
+    std::unordered_map<EKeyPress, EMacro, EMacroHash> remap = app_.getConfigManager()->getRemap();
+
 
     log_->info("searching map for pressed cmd: "   + std::to_string(kp.cmd));
     log_->info("searching map for pressed ctrl: "  + std::to_string(kp.ctrl));
@@ -165,34 +194,13 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
     // key remaps
     auto it = remap.find(kp);
     if (it != remap.end()) {
-        sendKeypress(it->second);
+        executeMacro(it->second);
         return false;
     } else {
         log_->info("Key not found in remap: " + keyString);
     }
 
-    if (type == "keyDown") {
-        if (keyString == "1") {
-              return false;
-        } else if (keyString == "3") {
-              app_.getIPC()->writeRequest("RELOAD");
-              return false;
-        } else if (keyString == "4") {
-              app_.refreshPluginCache();
-              return false;
-        } else if (keyString == "8") {
-              app_.getWindowManager()->openWindow("ContextMenu");
-              return false;
-        } else if (keyString == "7") {
-              app_.getWindowManager()->closeWindow("ContextMenu");
-              return false;
-        } else if (keyString == "Escape") {
-              closeWindows();
-              return false;
-        } else {
-//              } else {
-//                  return true;
-//              }
+//        } else if (keyString == "Escape") {
 
             // hjkl navigation
 //            case 4:
@@ -224,16 +232,12 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 //                  return false;
 //              }
 
-              return true;
-        }
 
-        // when the menu is open, do not send keypresses to Live
-        // or it activates your hotkeys
-        if (app_.getWindowManager()->isWindowOpen("SearchBox")) {
-            log_->info("is open, do not pass keys to Live");
-            return false;
-        }
-
+    // when the menu is open, do not send keypresses to Live
+    // or it activates your hotkeys
+    if (app_.getWindowManager()->isWindowOpen("SearchBox")) {
+        log_->info("is open, do not pass keys to Live");
+        return false;
     }
 
     // if we meet no criteria,
