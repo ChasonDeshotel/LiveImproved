@@ -1,6 +1,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <Cocoa/Cocoa.h>
+#include <unordered_map>
 #include <string>
 
 #include "ApplicationManager.h"
@@ -23,98 +24,103 @@
 //        default: return -1; // Invalid key
 //    }
 //}
-// Alphabet keys
-const CGKeyCode kVK_ANSI_A = 0;
-const CGKeyCode kVK_ANSI_S = 1;
-const CGKeyCode kVK_ANSI_D = 2;
-const CGKeyCode kVK_ANSI_F = 3;
-const CGKeyCode kVK_ANSI_H = 4;
-const CGKeyCode kVK_ANSI_G = 5;
-const CGKeyCode kVK_ANSI_Z = 6;
-const CGKeyCode kVK_ANSI_X = 7;
-const CGKeyCode kVK_ANSI_C = 8;
-const CGKeyCode kVK_ANSI_V = 9;
-const CGKeyCode kVK_ANSI_B = 11;
-const CGKeyCode kVK_ANSI_Q = 12;
-const CGKeyCode kVK_ANSI_W = 13;
-const CGKeyCode kVK_ANSI_E = 14;
-const CGKeyCode kVK_ANSI_R = 15;
-const CGKeyCode kVK_ANSI_Y = 16;
-const CGKeyCode kVK_ANSI_T = 17;
-const CGKeyCode kVK_ANSI_1 = 18;
-const CGKeyCode kVK_ANSI_2 = 19;
-const CGKeyCode kVK_ANSI_3 = 20;
-const CGKeyCode kVK_ANSI_4 = 21;
-const CGKeyCode kVK_ANSI_6 = 22;
-const CGKeyCode kVK_ANSI_5 = 23;
-const CGKeyCode kVK_ANSI_Equal = 24;
-const CGKeyCode kVK_ANSI_9 = 25;
-const CGKeyCode kVK_ANSI_7 = 26;
-const CGKeyCode kVK_ANSI_Minus = 27;
-const CGKeyCode kVK_ANSI_8 = 28;
-const CGKeyCode kVK_ANSI_0 = 29;
-const CGKeyCode kVK_ANSI_RightBracket = 30;
-const CGKeyCode kVK_ANSI_O = 31;
-const CGKeyCode kVK_ANSI_U = 32;
-const CGKeyCode kVK_ANSI_LeftBracket = 33;
-const CGKeyCode kVK_ANSI_I = 34;
-const CGKeyCode kVK_ANSI_P = 35;
-const CGKeyCode kVK_Return = 36;
-const CGKeyCode kVK_ANSI_L = 37;
-const CGKeyCode kVK_ANSI_J = 38;
-const CGKeyCode kVK_ANSI_Quote = 39;
-const CGKeyCode kVK_ANSI_K = 40;
-const CGKeyCode kVK_ANSI_Semicolon = 41;
-const CGKeyCode kVK_ANSI_Backslash = 42;
-const CGKeyCode kVK_ANSI_Comma = 43;
-const CGKeyCode kVK_ANSI_Slash = 44;
-const CGKeyCode kVK_ANSI_N = 45;
-const CGKeyCode kVK_ANSI_M = 46;
-const CGKeyCode kVK_ANSI_Period = 47;
-const CGKeyCode kVK_Tab = 48;
-const CGKeyCode kVK_Space = 49;
-const CGKeyCode kVK_ANSI_Grave = 50; // The tilde key (`~)
-const CGKeyCode kVK_Delete = 51;
-const CGKeyCode kVK_Escape = 53;
+std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
+    {"a", 0}
+    , {"s", 1}
+    , {"d", 2}
+    , {"f", 3}
+    , {"h", 4}
+    , {"g", 5}
+    , {"z", 6}
+    , {"x", 7}
+    , {"c", 8}
+    , {"v", 9}
+    , {"b", 11}
+    , {"q", 12}
+    , {"w", 13}
+    , {"e", 14}
+    , {"r", 15}
+    , {"y", 16}
+    , {"t", 17}
+    , {"1", 18}
+    , {"2", 19}
+    , {"3", 20}
+    , {"4", 21}
+    , {"6", 22}
+    , {"5", 23}
+    , {"Equal", 24}
+    , {"9", 25}
+    , {"7", 26}
+    , {"Minus", 27}
+    , {"8", 28}
+    , {"0", 29}
+    , {"RightBracket", 30}
+    , {"o", 31}
+    , {"u", 32}
+    , {"LeftBracket", 33}
+    , {"i", 34}
+    , {"p", 35}
+    , {"n", 36}
+    , {"l", 37}
+    , {"j", 38}
+    , {"Quote", 39}
+    , {"k", 40}
+    , {"Semicolon", 41}
+    , {"Backslash", 42}
+    , {"Comma", 43}
+    , {"Slash", 44}
+    , {"n", 45}
+    , {"m", 46}
+    , {"Period", 47}
+    , {"Tab", 48}
+    , {"Space", 49}
+    , {"Grave", 50}
+    , {"Delete", 51}
+    , {"Escape", 53}
 
-const CGKeyCode kVK_RightCommand = 54;
-const CGKeyCode kVK_Command = 55;
-const CGKeyCode kVK_Shift = 56;
-const CGKeyCode kVK_CapsLock = 57;
-const CGKeyCode kVK_Option = 58;
-const CGKeyCode kVK_Control = 59;
-const CGKeyCode kVK_RightShift = 60;
-const CGKeyCode kVK_RightOption = 61;
-const CGKeyCode kVK_RightControl = 62;
+    , {"RightCommand", 54}
+    , {"Command", 55}
+    , {"Shift", 56}
+    , {"CapsLock", 57}
+    , {"Option", 58}
+    , {"Control", 59}
+    , {"RightShift", 60}
+    , {"RightOption", 61}
+    , {"RightControl", 62}
 
-// Function keys
-const CGKeyCode kVK_F1 = 122;
-const CGKeyCode kVK_F2 = 120;
-const CGKeyCode kVK_F3 = 99;
-const CGKeyCode kVK_F4 = 118;
-const CGKeyCode kVK_F5 = 96;
-const CGKeyCode kVK_F6 = 97;
-const CGKeyCode kVK_F7 = 98;
-const CGKeyCode kVK_F8 = 100;
-const CGKeyCode kVK_F9 = 101;
-const CGKeyCode kVK_F10 = 109;
-const CGKeyCode kVK_F11 = 103;
-const CGKeyCode kVK_F12 = 111;
+    , {"F1", 122}
+    , {"F2", 120}
+    , {"F3", 99}
+    , {"F4", 118}
+    , {"F5", 96}
+    , {"F6", 97}
+    , {"F7", 98}
+    , {"F8", 100}
+    , {"F9", 101}
+    , {"F10", 109}
+    , {"F11", 103}
+    , {"F12", 111}
 
-// Arrow keys
-const CGKeyCode kVK_UpArrow = 126;
-const CGKeyCode kVK_DownArrow = 125;
-const CGKeyCode kVK_LeftArrow = 123;
-const CGKeyCode kVK_RightArrow = 124;
+    , {"UpArrow", 126}
+    , {"DownArrow", 125}
+    , {"LeftArrow", 123}
+    , {"RightArrow", 124}
 
-// Other special keys
-const CGKeyCode kVK_Home = 115;
-const CGKeyCode kVK_End = 119;
-const CGKeyCode kVK_PageUp = 116;
-const CGKeyCode kVK_PageDown = 121;
-const CGKeyCode kVK_Help = 114;
-const CGKeyCode kVK_ForwardDelete = 117;
+    , {"Home", 115}
+    , {"End", 119}
+    , {"PageUp", 116}
+    , {"PageDown", 121}
+    , {"Help", 114}
+    , {"ForwardDelete", 117}
+};
 
+CGKeyCode getKeyCode(const std::string& key) {
+    auto it = keyCodeMap.find(key);
+    if (it != keyCodeMap.end()) {
+        return it->second;
+    }
+    return 0;  // Default value if key not found
+}
 
 KeySender::KeySender(ApplicationManager& appManager)
     : app_(appManager)
@@ -175,42 +181,14 @@ void KeySender::sendKeyPress(const EKeyPress& kp) {
         log_->info("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
         log_->info("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
         log_->info("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
-        log_->info("KeySender:: Keypress sent: "  + kp.key                   );
+        log_->info("KeySender:: Keypress key: "   + kp.key                   );
 
         CGEventFlags flags = getEventFlags(kp);
-        CGKeyCode keyCode = 0;
 
-        char character = kp.key[0];
+        CGKeyCode keyCode = getKeyCode(kp.key);
         // Map character to key code and modifier flags
-        if (character >= 'a' && character <= 'z') {
-            keyCode = kVK_ANSI_A + (character - 'a');
-        } else if (character >= 'A' && character <= 'Z') {
-            keyCode = kVK_ANSI_A + (character - 'A');
-        } else if (character >= '0' && character <= '9') {
-            keyCode = kVK_ANSI_0 + (character - '0');
-        } else {
-            // Add additional mappings for special characters
-            switch (character) {
-                case ' ':
-                    keyCode = kVK_Space;
-                    break;
-                case '\n':
-                    keyCode = kVK_Return;
-                    break;
-                case '\t':
-                    keyCode = kVK_Tab;
-                    break;
-                case '.':
-                    keyCode = kVK_ANSI_Period;
-                    break;
-                case '-':
-                    keyCode = kVK_ANSI_Minus;
-                    break;
-                // Add other cases as needed
-                default:
-                    return; // Unsupported character
-            }
-        }
+
+        log_->info("KeySender:: keycode: " + std::to_string(keyCode));
 
         CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, keyCode, true);
         CGEventSetFlags(keyDown, flags);
