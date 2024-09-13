@@ -14,6 +14,7 @@
 #include "PID.h"
 
 // TODO: unsuckify this
+// TODO: build out the rest of the map and put it in KeyMapper
 std::string keyCodeToString(CGKeyCode keyCode) {
     // Handle special keys
     switch (keyCode) {
@@ -168,54 +169,48 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
     // 40 is weird. The normal flag didn't work
-		pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
-
-    CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
-    CGEventFlags flags = CGEventGetFlags(event);
-
-    bool isShiftPressed   = (flags & kCGEventFlagMaskShift)     != 0;
-    bool isControlPressed = (flags & kCGEventFlagMaskControl)   != 0;
-    bool isAltPressed     = (flags & kCGEventFlagMaskAlternate) != 0;
-    bool isCommandPressed = (flags & kCGEventFlagMaskCommand)   != 0;
+    pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
     // close the search box when clicking in Live
     if (handler->app_.getWindowManager()->isWindowOpen("SearchBox")) {
         if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
-            pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
 
-            handler->log_->info("event pid: " + std::to_string(eventPID));
-            handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
-            handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
-            handler->log_->info("target pid: " + std::to_string(targetPID));
+                //handler->log_->info("event pid: " + std::to_string(eventPID));
+                //handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
+                //handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
+                //handler->log_->info("target pid: " + std::to_string(targetPID));
 
-            CGPoint location = CGEventGetLocation(event);
+                CGPoint location = CGEventGetLocation(event);
 
-            NSView *nativeView = reinterpret_cast<NSView *>(handler->app_.getWindowManager()->getWindowHandle("SearchBox"));
-            LogHandler::getInstance().info("got window handle");
+                NSView *nativeView = reinterpret_cast<NSView *>(handler->app_.getWindowManager()->getWindowHandle("SearchBox"));
+                LogHandler::getInstance().info("got window handle");
 
-            NSWindow *searchBoxWindow = [nativeView window];
+                NSWindow *searchBoxWindow = [nativeView window];
 
-            NSRect appBounds = [searchBoxWindow frame];
+                NSRect appBounds = [searchBoxWindow frame];
 
-            CGPoint mouseLocation = [NSEvent mouseLocation];
-            bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
+                CGPoint mouseLocation = [NSEvent mouseLocation];
+                bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
 
-            LogHandler::getInstance().info("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
-            LogHandler::getInstance().info("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
+                LogHandler::getInstance().info("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
+                LogHandler::getInstance().info("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
 
-            if (isOutsideApp) {
-                NSRect liveBounds = getLiveBounds();
-                bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
-                LogHandler::getInstance().info("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
+                if (isOutsideApp) {
+                    NSRect liveBounds = getLiveBounds();
+                    bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
+                    LogHandler::getInstance().info("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
 
-                if (isInsideLive) {
-                    LogHandler::getInstance().info("Click is outside app, inside Live, closing window.");
-                    handler->app_.getWindowManager()->closeWindow("SearchBox");
-//                    return NULL;
+                    if (isInsideLive) {
+                        LogHandler::getInstance().info("Click is outside app, inside Live, closing window.");
+                        handler->app_.getWindowManager()->closeWindow("SearchBox");
+    //                    return NULL;
+                    }
+                } else {
+                    LogHandler::getInstance().info("Click is inside the window, keeping window open.");
                 }
-            } else {
-                LogHandler::getInstance().info("Click is inside the window, keeping window open.");
-            }
+            });
         }
     }
 
@@ -232,7 +227,9 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
                 if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
                     //handler->log_->info("double right click");
-                    handler->app_.getActionHandler()->handleDoubleRightClick();
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        handler->app_.getActionHandler()->handleDoubleRightClick();
+                    });
                     return NULL;
                 }
             } else {
@@ -245,17 +242,14 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
         } else if (eventType == kCGEventKeyDown) {
             handler->log_->info("Ableton Live keydown event detected.");
 
-            int flagsInt = (int)CGEventGetFlags(event);
+            CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);
+
             std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
 
             std::string keyString = keyCodeToString(keyCode);
-            LogHandler::getInstance().info("translated key: " + keyString);
-            bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyString, flags, keyUpDown);
 
-            if (keyUpDown == "keyDown") {
-                handler->log_->info("Key event: " + keyUpDown + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flagsInt) + " should pass: " + std::to_string(shouldPassEvent));
-            }
+            bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyString, flags, keyUpDown);
 
             return shouldPassEvent ? event : NULL;
         }

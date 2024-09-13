@@ -47,14 +47,17 @@ enum Modifier {
     , Cmd     = 0x00100000
 };
 
-struct EKeyPress {
+// comparisons on modifiers were causing malloc
+// thus the attribute packed voodoo
+struct __attribute__((packed)) EKeyPress {
     bool shift = false;
     bool ctrl  = false;
     bool cmd   = false;
     bool alt   = false;
-    std::vector<Modifier> modifiers;
     std::string key;
 
+    // determine if two EKeyPress objects are identical
+    // (all fields must match)
     bool operator==(const EKeyPress& other) const {
     return (ctrl  == other.ctrl  &&
             alt   == other.alt   &&
@@ -62,32 +65,18 @@ struct EKeyPress {
             cmd   == other.cmd   &&
             key   == other.key   );
     }
-    // Helper function to display the keypress (for debugging)
-//    void display() const {
-//        for (const auto& mod : modifiers) {
-//            std::cout << modifierToString(mod) << "+";
-//        }
-//        std::cout << key << std::endl;
-//    }
-//
-//    // Convert Modifier enum to string (lowercase)
-//    std::string modifierToString(Modifier mod) const {
-//        switch (mod) {
-//            case Modifier::Cmd: return "cmd";
-//            case Modifier::Shift: return "shift";
-//            case Modifier::Ctrl: return "ctrl";
-//            case Modifier::Alt: return "alt";
-//            default: return "";
-//        }
-//    }
 };
 
+// boost hashing voodoo
 struct EKeyPressHash {
     std::size_t operator()(const EKeyPress& k) const {
-        // Combine all fields into a single hash
-        return ((std::hash<bool>()(k.ctrl) ^ (std::hash<bool>()(k.alt) << 1)) >> 1) ^
-               (std::hash<bool>()(k.shift) << 1) ^ (std::hash<bool>()(k.cmd) << 1) ^
-               std::hash<std::string>()(k.key);
+        std::size_t res = 17;
+        res = res * 31 + std::hash<bool>()(k.ctrl);
+        res = res * 31 + std::hash<bool>()(k.alt);
+        res = res * 31 + std::hash<bool>()(k.shift);
+        res = res * 31 + std::hash<bool>()(k.cmd);
+        res = res * 31 + std::hash<std::string>()(k.key);
+        return res;
     }
 };
 

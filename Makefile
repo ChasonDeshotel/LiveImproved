@@ -69,6 +69,7 @@ MODULES =                                \
     ApplicationManager.cpp               \
     LogHandler.cpp                       \
     WindowManager.cpp                    \
+    KeyMapper.cpp                        \
     config/ConfigManager.cpp             \
     config/ConfigMenu.cpp                \
     gui/SearchBox.cpp                    \
@@ -111,6 +112,7 @@ APP_OBJECTS =                                       \
     $(OBJ_DIR)/ApplicationManager.o                 \
     $(OBJ_DIR)/LogHandler.o                         \
     $(OBJ_DIR)/WindowManager.o                      \
+    $(OBJ_DIR)/KeyMapper.o                          \
     $(OBJ_DIR)/config/ConfigManager.o               \
     $(OBJ_DIR)/config/ConfigMenu.o                  \
     $(OBJ_DIR)/gui/SearchBox.o                      \
@@ -228,10 +230,10 @@ $(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.cpp | create_dirs
 	@mkdir -p $(TEST_OBJ_DIR)
 	$(CC) $(INCLUDE) $(CXXFLAGS) -c $< -o $@
 
-$(MOCK_OBJ_DIR)/%.o: $(MOCK_SRC_DIR)/%.cpp | create_dirs
-	@echo 'mock'
-	@mkdir -p $(MOCK_OBJ_DIR)
-	$(CC) $(CXXFLAGS) $(INCLUDE_MOCK) -c $< -o $@
+#$(MOCK_OBJ_DIR)/%.o: $(MOCK_SRC_DIR)/%.cpp | create_dirs
+#	@echo 'mock'
+#	@mkdir -p $(MOCK_OBJ_DIR)
+#	$(CC) $(CXXFLAGS) $(INCLUDE_MOCK) -c $< -o $@
 
 #test_configmanager: $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o
 #	$(CC) $(CXXFLAGS) -o $(BUILD_DIR)/test_configmanager $(OBJ_DIR)/config/ConfigManager.o $(OBJ_DIR)/test/config_ConfigManager.o \

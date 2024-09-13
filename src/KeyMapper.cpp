@@ -6,11 +6,14 @@ KeyMapper::KeyMapper()
     , valid(false) {}
 
 EKeyPress KeyMapper::processKeyPress(const std::string& keypress) {
-    log_->info(keypress);
+    log_->info("parsing");
+    log_->info("process key: " + keypress);
     if (validateHotkey(keypress)) {
+        log_->info("validate");
         this->keypress = parseKeyPress(keypress);
         this->valid = true;
     } else {
+        log_->info("not valid");
         this->valid = false;
     }
     return this->keypress;
@@ -31,7 +34,16 @@ bool KeyMapper::validateHotkey(const std::string& keypress) const {
 }
 
 EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
+    log_->info("parsing: " + keypress);
+
     EKeyPress kp;
+
+    if (keypress.length() == 1) {
+        kp.key = keypress;
+        log_->info("Key set to: " + kp.key);
+        return kp;
+    }
+
     std::string temp;
     std::stringstream ss(keypress);
 
@@ -42,6 +54,8 @@ EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
         if (temp == "alt")      kp.alt   = true;
         if (temp.length() == 1) kp.key   = temp[0];
     }
+
+    log_->info("after while");
 
     return kp;
 }
@@ -62,7 +76,10 @@ std::string KeyMapper::buildRegexPattern() const {
         modifierPart += mod;
     }
 
-    std::string pattern = "^((" + modifierPart + "\\+)*\\p{L})$"; // p{L} matches a single Unicode letter
+//    std::string pattern = "^((" + modifierPart + "\\+)*[\\p{L}\\d\\-\\.])$"; // p{L} matches a single Unicode letter
+   // std::string pattern = "^((" + modifierPart + "\\+)*[a-zA-Z0-9])$"; // p{L} matches a single Unicode letter
+
+    std::string pattern = "^(?:(?:" + modifierPart + ")\\+)*(?:[a-zA-Z0-9]|F[1-9]|F1[0-2])$";
     return pattern;
 }
 

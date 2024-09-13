@@ -9,6 +9,8 @@
 #include "ApplicationManager.h"
 #include "ContextMenu.h"
 
+#include "KeySender.h"
+
 ActionHandler::ActionHandler(ApplicationManager& appManager)
     : app_(appManager)
     , log_(appManager.getLogHandler())
@@ -64,11 +66,12 @@ void ActionHandler::initializeActionMap() {
 }
 
 void ActionHandler::sendKeypress(const EKeyPress key) {
-    log_->info("Keypress cmd: "   + std::to_string(key.cmd));
-    log_->info("Keypress ctrl: "  + std::to_string(key.ctrl));
-    log_->info("Keypress alt: "   + std::to_string(key.alt));
-    log_->info("Keypress shift: " + std::to_string(key.shift));
-    log_->info("Keypress sent: "  + key.key);
+    log_->info("ActionHandler:: sendKeypress cmd: "   + std::to_string(key.cmd));
+    log_->info("ActionHandler:: sendKeypress ctrl: "  + std::to_string(key.ctrl));
+    log_->info("ActionHandler:: sendKeypress alt: "   + std::to_string(key.alt));
+    log_->info("ActionHandler:: sendKeypress shift: " + std::to_string(key.shift));
+    log_->info("ActionHandler:: sendKeypress sent: "  + key.key);
+    app_.getKeySender()->sendKeyPress(key);
 }
 
 bool ActionHandler::closeWindows() {
@@ -125,19 +128,20 @@ void ActionHandler::handleAction(const std::string action) {
 
 // returns: bool: shouldPassEvent -- should the original event be passed
 // through to the calling function or should the original input be blocked
+// TODO: return shouldBlock ASAP and do the needful from dispatch_async
 bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
-    bool isShiftPressed = (flags & Shift) != 0;
-    bool isCtrlPressed  = (flags & Ctrl ) != 0;
-    bool isCmdPressed   = (flags & Cmd  ) != 0;
-    bool isAltPressed   = (flags & Alt  ) != 0;
+    bool isShiftPressed = static_cast<bool>(flags & Shift) != 0;
+    bool isCtrlPressed  = static_cast<bool>(flags & Ctrl ) != 0;
+    bool isCmdPressed   = static_cast<bool>(flags & Cmd  ) != 0;
+    bool isAltPressed   = static_cast<bool>(flags & Alt  ) != 0;
 
-    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key string: " + keyString + ", Modifiers: " + std::to_string(flags));
-    app_.getLogHandler()->info("isShiftPressed: " + std::to_string(isShiftPressed));
-    app_.getLogHandler()->info("isCtrlPressed: " + std::to_string(isCtrlPressed));
-    app_.getLogHandler()->info("isCmdPressed: " + std::to_string(isCmdPressed));
-    app_.getLogHandler()->info("isAltPressed: " + std::to_string(isAltPressed));
+    //app_.getLogHandler()->info("action handler: Key event: " + type + ", Key string: " + keyString + ", Modifiers: " + std::to_string(flags));
+    //app_.getLogHandler()->info("isShiftPressed: " + std::to_string(isShiftPressed));
+    //app_.getLogHandler()->info("isCtrlPressed: " + std::to_string(isCtrlPressed));
+    //app_.getLogHandler()->info("isCmdPressed: " + std::to_string(isCmdPressed));
+    //app_.getLogHandler()->info("isAltPressed: " + std::to_string(isAltPressed));
 
     std::unordered_map<EKeyPress, EKeyPress, EKeyPressHash> remap = app_.getConfigManager()->getRemap();
 
@@ -148,10 +152,16 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
     kp.alt   = isAltPressed;
     kp.key   = keyString;
 
+    log_->info("searching map for pressed cmd: "   + std::to_string(kp.cmd));
+    log_->info("searching map for pressed ctrl: "  + std::to_string(kp.ctrl));
+    log_->info("searching map for pressed alt: "   + std::to_string(kp.alt));
+    log_->info("searching map for pressed shift: " + std::to_string(kp.shift));
+    log_->info("searching map for pressed sent: "  + kp.key);
     // key remaps
     auto it = remap.find(kp);
     if (it != remap.end()) {
         sendKeypress(it->second);
+        return false;
     } else {
         log_->info("Key not found in remap: " + keyString);
     }
