@@ -80,6 +80,9 @@ bool ActionHandler::closeWindows() {
     app_.getWindowManager()->closeWindow("ContextMenu");
     app_.getWindowManager()->closeWindow("SearchBox");
 
+// TODO: handle in SearchBox close method
+// if close is called while text box is populated, just
+// clear textbox; otherwise, close
 //    if (app_.getGUISearchBox()->isOpen()) {
 //        if (app_.getGUISearchBox()->getSearchTextLength()) {
 //            app_.getGUISearchBox()->clearSearchText();
@@ -240,7 +243,9 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 }
 
 void ActionHandler::handleDoubleRightClick() {
-    app_.getWindowManager()->openWindow("ContextMenu");
+    dispatch_async(dispatch_get_main_queue(), ^{
+        app_.getWindowManager()->openWindow("ContextMenu");
+    });
 }
 
 // move to ActionHandler
