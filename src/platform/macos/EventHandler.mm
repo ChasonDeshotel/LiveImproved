@@ -112,11 +112,11 @@ void EventHandler::focusApplication(pid_t pid) {
         // Check if the application is already active
         NSRunningApplication *currentApp = [NSRunningApplication currentApplication];
         if ([currentApp processIdentifier] == pid) {
-            LogHandler::getInstance().info("Application is already in focus: " + std::to_string(pid));
+            LogHandler::getInstance().debug("Application is already in focus: " + std::to_string(pid));
             return;
         }
 
-        LogHandler::getInstance().info("Bringing app into focus: " + std::to_string(pid));
+        LogHandler::getInstance().debug("Bringing app into focus: " + std::to_string(pid));
         [app activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
     }
 }
@@ -185,7 +185,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
                 CGPoint location = CGEventGetLocation(event);
 
                 NSView *nativeView = reinterpret_cast<NSView *>(handler->app_.getWindowManager()->getWindowHandle("SearchBox"));
-                LogHandler::getInstance().info("got window handle");
+                LogHandler::getInstance().debug("got window handle");
 
                 NSWindow *searchBoxWindow = [nativeView window];
 
@@ -194,21 +194,21 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
                 CGPoint mouseLocation = [NSEvent mouseLocation];
                 bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
 
-                LogHandler::getInstance().info("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
-                LogHandler::getInstance().info("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
+                LogHandler::getInstance().debug("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
+                LogHandler::getInstance().debug("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
 
                 if (isOutsideApp) {
                     NSRect liveBounds = getLiveBounds();
                     bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
-                    LogHandler::getInstance().info("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
+                    LogHandler::getInstance().debug("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
 
                     if (isInsideLive) {
-                        LogHandler::getInstance().info("Click is outside app, inside Live, closing window.");
+                        LogHandler::getInstance().debug("Click is outside app, inside Live, closing window.");
                         handler->app_.getWindowManager()->closeWindow("SearchBox");
     //                    return NULL;
                     }
                 } else {
-                    LogHandler::getInstance().info("Click is inside the window, keeping window open.");
+                    LogHandler::getInstance().debug("Click is inside the window, keeping window open.");
                 }
             });
         }
@@ -217,13 +217,13 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     if (eventPID == PID::getInstance().livePID()) {
         // double-right-click menu
         if (eventType == kCGEventRightMouseDown) {
-            handler->log_->info("Ableton Live right click event detected.");
+            handler->log_->debug("Ableton Live right click event detected.");
             //handler->log_->info("right click event");
             auto now = std::chrono::steady_clock::now();
 
             if (lastRightClickTime.has_value()) {
                 auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
-                handler->log_->info("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
+                handler->log_->debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
 
                 if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
                     //handler->log_->info("double right click");
@@ -240,7 +240,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
             return event;
 
         } else if (eventType == kCGEventKeyDown) {
-            handler->log_->info("Ableton Live keydown event detected.");
+            handler->log_->debug("Ableton Live keydown event detected.");
 
             CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);
@@ -260,10 +260,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
 void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
-    log_->info("EventHandler::setupQuartEventTap() called");
+    log_->debug("EventHandler::setupQuartEventTap() called");
 
     if (PID::getInstance().livePID() == -1) {
-        log_->info("EventHandler: Ableton Live not found.");
+        log_->error("EventHandler: Ableton Live not found.");
         return;
     }
 
@@ -279,13 +279,13 @@ void EventHandler::setupQuartzEventTap() {
     CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
-        log_->info("EventHandler: Failed to create event tap.");
+        log_->error("EventHandler: Failed to create event tap.");
         return;
     }
 
     CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
-    log_->info("EventHandler: Quartz event tap is active!");
+    log_->debug("EventHandler: Quartz event tap is active!");
 
 }

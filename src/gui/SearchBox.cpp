@@ -47,7 +47,7 @@ SearchBox::SearchBox()
     : TopLevelWindow("SearchBox", true)
     , app_(ApplicationManager::getInstance()) {
 
-    LogHandler::getInstance().info("Creating SearchBoxWindowController");
+    LogHandler::getInstance().debug("Creating SearchBoxWindowController");
 
     pluginListModel_ = std::make_unique<PluginListModel>();
     listBox_.setModel(pluginListModel_.get());
@@ -75,7 +75,7 @@ SearchBox::~SearchBox() {}
 
 void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
     if (&editor == &searchField_) {
-        LogHandler::getInstance().info("Search text changed: " + editor.getText().toStdString());
+        LogHandler::getInstance().debug("Search text changed: " + editor.getText().toStdString());
         // Handle the text change (e.g., update search results)
     }
 }
@@ -144,7 +144,7 @@ void* SearchBox::getWindowHandle() const {
 
         juce::MessageManager::callAsync([this, &handle, &event]() {
             handle = (void*)Component::getWindowHandle();
-            LogHandler::getInstance().info("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle)));
+            LogHandler::getInstance().debug("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle)));
             event.signal();
         });
 
@@ -273,7 +273,7 @@ void* SearchBox::getWindowHandle() const {
 void SearchBox::handlePluginSelected(int selectedRow) {
     if (selectedRow >= 0 && selectedRow < filteredOptions_.size()) {
         int index = filteredOptions_[selectedRow].number;
-        LogHandler::getInstance().info("Plugin selected: " + std::to_string(index));
+        LogHandler::getInstance().debug("Plugin selected: " + std::to_string(index));
         ApplicationManager::getInstance().getActionHandler()->loadItem(index);
         ApplicationManager::getInstance().getWindowManager()->closeWindow("SearchBox");
     }

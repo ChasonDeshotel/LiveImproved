@@ -37,13 +37,13 @@ void* WindowManager::getWindowHandle(const std::string& windowName) const {
 }
 
 void WindowManager::openWindow(const std::string& windowName) {
-    LogHandler::getInstance().info("WM open called");
+    LogHandler::getInstance().debug("WM open called");
 
     auto it = windows_.find(windowName);
 
     // register the window if it doesn't yet exist
     if (it == windows_.end()) {
-        LogHandler::getInstance().info("window not registered, registering...");
+        LogHandler::getInstance().debug("window not registered, registering...");
         registerWindow(windowName, []() {});
         it = windows_.find(windowName); // Re-fetch the iterator
     }
@@ -52,7 +52,7 @@ void WindowManager::openWindow(const std::string& windowName) {
         it->second.callback();
     }
 
-    LogHandler::getInstance().info("Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    LogHandler::getInstance().debug("Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
     if (!windowStates_[windowName]) {
         // TODO: making some assumptions by setting this to true before
         // calling `open()`, but the context menu is blocking so...
@@ -62,24 +62,19 @@ void WindowManager::openWindow(const std::string& windowName) {
 }
 
 void WindowManager::closeWindow(const std::string& windowName) {
-    LogHandler::getInstance().info("WM close called");
+    LogHandler::getInstance().debug("WM close called");
 
     auto it = windows_.find(windowName);
     if (it != windows_.end() && windowStates_[windowName]) {
         it->second.window->close();
     }
     windowStates_[windowName] = false;
-    LogHandler::getInstance().info("updated window state to close");
-    LogHandler::getInstance().info("close - Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    LogHandler::getInstance().debug("updated window state to close");
+    LogHandler::getInstance().debug("close - Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
 }
 
-// TODO
-//void WindowManager::closeAllWindows() {
-//
-//}
-
 void WindowManager::toggleWindow(const std::string& windowName) {
-    LogHandler::getInstance().info("WM close called");
+    LogHandler::getInstance().debug("WM close called");
 
     auto it = windows_.find(windowName);
 
@@ -100,7 +95,7 @@ void WindowManager::toggleWindow(const std::string& windowName) {
         windowStates_[windowName] = !isOpen;
     }
 
-    LogHandler::getInstance().info("toggle - current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    LogHandler::getInstance().debug("toggle - current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
 }
 
 bool WindowManager::isWindowOpen(const std::string& windowName) const {
@@ -108,7 +103,8 @@ bool WindowManager::isWindowOpen(const std::string& windowName) const {
     return (it != windowStates_.end() && it->second);
 }
 
-// TODO:
+// TODO
+// closeAllWindows
 // isWindowFocused
 // focusWindow
 // closeFocusedWindow

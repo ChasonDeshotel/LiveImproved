@@ -48,35 +48,35 @@
 
 - (void)applicationDidResignActive:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().info("App became inactive, closing the menu");
+        LogHandler::getInstance().debug("App became inactive, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().info("App terminating, closing the menu");
+        LogHandler::getInstance().debug("App terminating, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().info("Window minimized, closing the menu");
+        LogHandler::getInstance().debug("Window minimized, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().info("Window lost focus, closing the menu");
+        LogHandler::getInstance().debug("Window lost focus, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)menuDidClose:(NSMenu *)menu {
     if (self.contextMenu) {
-        LogHandler::getInstance().info("Menu closed");
+        LogHandler::getInstance().debug("Menu closed");
         [self closeMenu];
     }
 }
@@ -176,7 +176,7 @@ void ContextMenu::open() {
 }
 
 void ContextMenu::close() {
-    LogHandler::getInstance().info("C++ close called");
+    LogHandler::getInstance().debug("C++ close called");
     if (menuGenerator_ && menuGenerator_.contextMenu) {
 // TODO: this prevents actions from being fired but is 
 // necessary to close with keyboard

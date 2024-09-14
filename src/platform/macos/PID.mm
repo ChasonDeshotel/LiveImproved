@@ -36,14 +36,14 @@ pid_t PID::findWithSysctl() {
 
     // Get the size of the process list
     if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0) {
-        LogHandler::getInstance().info("sysctl failed to get process list size");
+        LogHandler::getInstance().error("sysctl failed to get process list size");
         return -1;
     }
 
     struct kinfo_proc *procs = (struct kinfo_proc *)malloc(len);
 
     if (sysctl(mib, 4, procs, &len, NULL, 0) < 0) {
-        LogHandler::getInstance().info("sysctl failed to get process list");
+        LogHandler::getInstance().error("sysctl failed to get process list");
         free(procs);
         return -1;
     }
@@ -63,7 +63,7 @@ pid_t PID::findWithSysctl() {
     }
 
     free(procs);
-    LogHandler::getInstance().info("Ableton Live not found");
+    LogHandler::getInstance().error("Ableton Live not found");
     return -1;
 }
 
@@ -82,10 +82,10 @@ pid_t PID::appPID() {
 }
 
 PID* PID::livePIDBlocking() {
-    LogHandler::getInstance().info("PID::Init() called");
+    LogHandler::getInstance().debug("PID::Init() called");
 
     while (livePID() == -1) {
-        LogHandler::getInstance().info("Application not found, retrying...");
+        LogHandler::getInstance().info("Live not found, retrying...");
         livePID();
         sleep(1);
     }

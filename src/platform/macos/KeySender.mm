@@ -164,15 +164,15 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
         CGEventFlags flags = getEventFlags(kp);
         std::optional<CGKeyCode> keyCodeOpt = getKeyCode(toLower(kp.key));
 
-        log_->info("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
-        log_->info("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
-        log_->info("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
-        log_->info("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
-        log_->info("KeySender:: Keypress key: "   + kp.key                   );
+        log_->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
+        log_->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
+        log_->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
+        log_->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
+        log_->debug("KeySender:: Keypress key: "   + kp.key                   );
 
         if (keyCodeOpt) {
             CGKeyCode keyCode = *keyCodeOpt;
-            log_->info("KeySender:: keycode: " + std::to_string(keyCode));
+            log_->debug("KeySender:: keycode: " + std::to_string(keyCode));
 
             CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, keyCode, true);
             CGEventSetFlags(keyDown, flags);

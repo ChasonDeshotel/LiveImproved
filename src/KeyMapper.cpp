@@ -7,14 +7,12 @@ KeyMapper::KeyMapper()
     , valid(false) {}
 
 EKeyPress KeyMapper::processKeyPress(const std::string& keypress) {
-    log_->info("parsing");
-    log_->info("process key: " + keypress);
+    log_->debug("process key: " + keypress);
     if (validateHotkey(keypress)) {
-        log_->info("validate");
         this->keypress = parseKeyPress(keypress);
         this->valid = true;
     } else {
-        log_->info("not valid");
+        log_->warn("not a valid keypress format");
         this->valid = false;
     }
     return this->keypress;
@@ -44,13 +42,13 @@ std::unordered_map<std::string, std::string> namedKeys = {
 };
 
 EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
-    log_->info("parsing: " + keypress);
+    log_->debug("parsing: " + keypress);
 
     EKeyPress kp;
 
     if (keypress.length() == 1) {
         kp.key = keypress;
-        log_->info("Key set to: " + kp.key);
+        log_->debug("Key set to: " + kp.key);
         return kp;
     }
 
@@ -67,13 +65,11 @@ EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
             kp.key = namedKeys[temp];
         }
     }
-    log_->info("key: " + kp.key);
-    log_->info("shift: " + std::to_string(kp.shift));
-    log_->info("ctrl: " + std::to_string(kp.ctrl));
-    log_->info("cmd: " + std::to_string(kp.cmd));
-    log_->info("alt: " + std::to_string(kp.alt));
-
-    log_->info("after while");
+    log_->debug("key: "   + kp.key);
+    log_->debug("shift: " + std::to_string(kp.shift));
+    log_->debug("ctrl: "  + std::to_string(kp.ctrl));
+    log_->debug("cmd: "   + std::to_string(kp.cmd));
+    log_->debug("alt: "   + std::to_string(kp.alt));
 
     return kp;
 }

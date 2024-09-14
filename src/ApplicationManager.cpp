@@ -14,7 +14,7 @@
 #include "KeySender.h"
 
 ApplicationManager::ApplicationManager()
-    : logHandler_(&LogHandler::getInstance())
+    : log_(&LogHandler::getInstance())
 {}
 
 #ifdef INJECTED_LIBRARY
@@ -35,7 +35,7 @@ static void dylib_init() {
 #endif
 
 void ApplicationManager::init() {
-    logHandler_->info("ApplicatonManager::init() called");
+    log_->debug("ApplicatonManager::init() called");
 
     windowManager_  = new WindowManager();
 
@@ -60,11 +60,11 @@ void ApplicationManager::init() {
     ipc_            = new IPC(*this);
     responseParser_ = new ResponseParser(*this);
 
-    logHandler_->info("ApplicatonManager::init() finished");
+    log_->debug("ApplicatonManager::init() finished");
 }
 
 LogHandler* ApplicationManager::getLogHandler() {
-    return logHandler_;
+    return log_;
 }
 
 WindowManager* ApplicationManager::getWindowManager() {
@@ -100,11 +100,11 @@ void ApplicationManager::refreshPluginCache() {
     // Set up a callback to handle the response asynchronously using dispatch
     ipc_->initReadWithEventLoop([this](const std::string& response) {
         if (!response.empty()) {
-        LogHandler::getInstance().info("Received response: " + response);
+        LogHandler::getInstance().debug("Received response: " + response);
             pluginCacheStr = response;
             plugins_ = responseParser_->parsePlugins(response);
         } else {
-            LogHandler::getInstance().info("Failed to receive a valid response.");
+            LogHandler::getInstance().error("Failed to receive a valid response.");
         }
     });
 }

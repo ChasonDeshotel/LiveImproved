@@ -25,7 +25,7 @@ void ActionHandler::init() {
     // should do the mapping / read config or something
 }
 
-// Helper function to split string by delimiter
+// TODO DRY violation
 std::vector<std::string> splitString(const std::string& str, const std::string& delimiter = ",", size_t maxSplits = std::string::npos) {
     std::vector<std::string> tokens;
     size_t start = 0;
@@ -93,17 +93,17 @@ void ActionHandler::executeMacro(const EMacro& macro) {
         std::visit([&](auto&& item) {
             using T = std::decay_t<decltype(item)>;
             if constexpr (std::is_same_v<T, EKeyPress>) {
-                log_->info("macro sending keypress");
+                log_->debug("macro sending keypress");
                 KeySender::getInstance().sendKeyPress(item);
             } else if constexpr (std::is_same_v<T, Action>) {
-                log_->info("macro sending action");
+                log_->debug("macro sending action");
                 // If it's an Action, execute the action via the action map
                 auto it = actionMap.find(item.actionName);
                 if (it != actionMap.end()) {
                     std::optional<std::string> optionalArgument = item.arguments;
                     it->second(optionalArgument);
                 } else {
-                    throw std::runtime_error("Unknown action: " + item.actionName);
+                    log_->warn("Unknown action: " + item.actionName);
                 }
             }
         }, step);
@@ -135,21 +135,18 @@ bool ActionHandler::loadItem(int itemIndex) {
 bool ActionHandler::loadItemByName(const std::string& itemName) {
     for (const auto& plugin : app_.getPlugins()) {
         if (itemName == plugin.name) {
-          //item->setData(Qt::UserRole, static_cast<int>(plugin.number));
           app_.getIPC()->writeRequest("load_item," + std::to_string(plugin.number));
         }
     }
     return false;
 }
 
-// TODO: find a better syntax to send multiple commands
-// maybe action.args,action2.args2
 void ActionHandler::handleAction(const std::string action) {
-    log_->info("handleAction called");
+    log_->debug("handleAction called");
     std::vector<std::string> actionParts = splitString(action, ",", 1);
 
       if (actionParts.empty()) {
-        log_->info("No action provided");
+        log_->warn("No action provided");
         return;
     }
 
@@ -161,7 +158,7 @@ void ActionHandler::handleAction(const std::string action) {
         // Call the corresponding method with arguments
         actionHandler->second(args);
     } else {
-        log_->info("No handler found for action type: " + actionType);
+        log_->warn("No handler found for action type: " + actionType);
     }
 }
 
@@ -186,18 +183,18 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
     std::unordered_map<EKeyPress, EMacro, EMacroHash> remap = app_.getConfigManager()->getRemap();
 
 
-    log_->info("searching map for pressed cmd: "   + std::to_string(kp.cmd));
-    log_->info("searching map for pressed ctrl: "  + std::to_string(kp.ctrl));
-    log_->info("searching map for pressed alt: "   + std::to_string(kp.alt));
-    log_->info("searching map for pressed shift: " + std::to_string(kp.shift));
-    log_->info("searching map for pressed sent: "  + kp.key);
+    log_->debug("searching map for pressed cmd: "   + std::to_string(kp.cmd));
+    log_->debug("searching map for pressed ctrl: "  + std::to_string(kp.ctrl));
+    log_->debug("searching map for pressed alt: "   + std::to_string(kp.alt));
+    log_->debug("searching map for pressed shift: " + std::to_string(kp.shift));
+    log_->debug("searching map for pressed sent: "  + kp.key);
     // key remaps
     auto it = remap.find(kp);
     if (it != remap.end()) {
         executeMacro(it->second);
         return false;
     } else {
-        log_->info("Key not found in remap: " + keyString);
+        log_->warn("Key not found in remap: " + keyString);
     }
 
 //        } else if (keyString == "Escape") {
@@ -236,7 +233,7 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
     // when the menu is open, do not send keypresses to Live
     // or it activates your hotkeys
     if (app_.getWindowManager()->isWindowOpen("SearchBox")) {
-        log_->info("is open, do not pass keys to Live");
+        log_->debug("is open, do not pass keys to Live");
         return false;
     }
 

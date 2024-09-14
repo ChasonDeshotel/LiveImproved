@@ -11,11 +11,12 @@
 #include "yaml-cpp/yaml.h"
 
 ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
-    : configFile_(configFile) {
+    : configFile_(configFile)
+    , log_(&LogHandler::getInstance()) {
     std::filesystem::path LESConfigFilePath =
         std::filesystem::path(std::string(getenv("HOME"))) / ".les" / "menuconfig.ini";
     parseLESMenuConfig(LESConfigFilePath);
-    LogHandler::getInstance().info("\n\n\n\n\n\n" + configFile.string());
+    log_->info("LES config menu filepath: " + configFile.string());
 }
 
 void ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
@@ -59,7 +60,7 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
     
     std::ifstream file(filePath);
     if (!file.is_open()) {
-        LogHandler::getInstance().info("Unable to open file: " + filePath.string());
+        log_->error("Unable to open file: " + filePath.string());
         return;
     }
 
@@ -158,6 +159,6 @@ void ConfigMenu::loadConfig() {
     try {
         // Implementation
     } catch (const std::exception &e) {
-        LogHandler::getInstance().info("Error loading config: " + std::string(e.what()));
+        log_->error("Error loading config: " + std::string(e.what()));
     }
 }

@@ -15,14 +15,14 @@ ConfigManager::ConfigManager(const std::filesystem::path& configFile)
     , km_(new KeyMapper()) {
     loadConfig();
 
-    log_->info("\n\n\n\n\n\n" + configFile.string());
+    log_->info("config filepath:" + configFile.string());
 }
 
 void ConfigManager::loadConfig() {
     try {
         applyConfig(YAML::LoadFile(configFile_));
     } catch (const std::exception &e) {
-        log_->info("Error loading config: " + std::string(e.what()));
+        log_->error("Error loading config: " + std::string(e.what()));
     }
 }
 
@@ -37,9 +37,9 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
         log_->info("remap before remap");
         if (config["remap"] && config["remap"].IsMap()) {
             for (const auto &item : config["remap"]) {
-                log_->info("remap found remap");
-                log_->info("remap fromStr: " + item.first.as<std::string>());
-                log_->info("remap toStr: "   + item.second.as<std::string>());
+                log_->debug("remap found remap");
+                log_->debug("remap fromStr: " + item.first.as<std::string>());
+                log_->debug("remap toStr: "   + item.second.as<std::string>());
             
                 processRemap(item.first.as<std::string>(), item.second.as<std::string>());
             }
@@ -101,10 +101,10 @@ void ConfigManager::saveConfig() {
 
     YAML::Node remapNode = YAML::Load("{}");
     for (const auto& item : remap_) {
-        log_->info("save remap");
+        log_->debug("save remap");
 
         std::string fromString = km_->EKeyPressToString(item.first);
-        log_->info("save remap from: " + fromString);
+        log_->debug("save remap from: " + fromString);
 
         std::vector<std::string> stepStrings;
         const EMacro& macro = item.second;
@@ -173,12 +173,12 @@ void ConfigManager::setInitRetries(int retries) {
 }
 
 std::unordered_map<EKeyPress, EMacro, EMacroHash> ConfigManager::getRemap() const {
-    log_->info("get remap caled");
+    log_->debug("get remap caled");
     return remap_;
 }
 
 void ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) {
-    log_->info("setRemap: from: " + fromStr + " to: " + toStr);
+    log_->debug("setRemap: from: " + fromStr + " to: " + toStr);
     processRemap(fromStr, toStr);
     saveConfig();
 }
@@ -245,7 +245,7 @@ bool ConfigManager::canUndo() const {
 }
 
 void ConfigManager::processRemap(const std::string &fromStr, const std::string &toStr) {
-    log_->info("process remap: from: " + fromStr + " to: " + toStr);
+    log_->debug("process remap: from: " + fromStr + " to: " + toStr);
     EKeyPress from = km_->processKeyPress(fromStr);
 
     // stepsString is composed of any combination of
@@ -263,7 +263,7 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
     EMacro macro;
 
     for (const auto& step : steps) {
-        log_->info("process remap: step: " + step);
+        log_->debug("process remap: step: " + step);
 
         std::string actionName = step;
         std::optional<std::string> argument = std::nullopt;
@@ -280,16 +280,16 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
 
         if (actionIt != namedActions.end()) {
             if (argument) {
-                log_->info("process remap: add action with arg: " + actionName + "." + *argument);
+                log_->debug("process remap: add action with arg: " + actionName + "." + *argument);
                 Action action(actionName, *argument);
                 macro.addAction(action);
             } else {
-                log_->info("process remap: add action no arg: " + actionIt->second);
+                log_->debug("process remap: add action no arg: " + actionIt->second);
                 Action action(actionIt->second);
                 macro.addAction(action);
             }
         } else {
-            log_->info("process remap: not in named actions. str: " + step);
+            log_->debug("process remap: not in named actions. str: " + step);
             EKeyPress keyPress = km_->processKeyPress(step);
             macro.addKeyPress(keyPress);
         }

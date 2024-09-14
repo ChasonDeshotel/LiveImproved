@@ -8,7 +8,7 @@
 
 namespace fs = std::filesystem;
 
-LogHandler::LogHandler() : currentLogLevel(LogLevel::LOG_INFO) {
+LogHandler::LogHandler() : currentLogLevel(LogLevel::LOG_DEBUG) {
     logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/logs/log.txt";
 }
 

@@ -21,6 +21,8 @@ public:
     std::vector<MenuItem> getMenuData();
 
 private:
+    LogHandler* log_;
+
     std::vector<MenuItem> menuData_;
 
     void saveToYAML(const std::vector<MenuItem>& menuData, const std::filesystem::path& filePath);

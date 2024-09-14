@@ -9,9 +9,9 @@
 
 namespace ProjectInfo
 {
-    const char* const  projectName    = "NewProject";
-    const char* const  companyName    = "";
-    const char* const  versionString  = "1.0.0";
+    const char* const  projectName    = "Live Improved";
+    const char* const  companyName    = "Deez";
+    const char* const  versionString  = "0.0.0.1";
     const int          versionNumber  = 0x10000;
 }
 

@@ -17,13 +17,13 @@ void PlatformInitializer::init() {
                                                                 defer:NO];
         [dummyWindow setIsVisible:NO];
 
-        LogHandler::getInstance().info("Cocoa application initialized");
+        LogHandler::getInstance().debug("Cocoa application initialized");
 
     }
 }
 
 void PlatformInitializer::run() {
-    LogHandler::getInstance().info("Finishing Cocoa application");
+    LogHandler::getInstance().debug("Finishing Cocoa application");
 
     @autoreleasepool {
         // Start the NSApplication run loop
@@ -32,5 +32,5 @@ void PlatformInitializer::run() {
         [NSApp finishLaunching];
     }
 
-    LogHandler::getInstance().info("Cocoa application finished launching");
+    LogHandler::getInstance().info("Platform initialization complete");
 }

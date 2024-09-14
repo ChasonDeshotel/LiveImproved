@@ -6,21 +6,21 @@ public:
     JuceApp() {}
 
     const juce::String getApplicationName() override {
-        return "My JUCE Application";
+        return "Live Improved";
     }
 
     const juce::String getApplicationVersion() override {
-        return "1.0";
+        return "0.0.0.1";
     }
 
     void initialise(const juce::String&) override {
         std::locale::global(std::locale("en_US.UTF-8"));
         ApplicationManager& appManager = ApplicationManager::getInstance();
-        appManager.getLogHandler()->info("Application started");
-        appManager.getLogHandler()->info("int main()");
+        appManager.getLogHandler()->info("Ignition sequence started...");
+        appManager.getLogHandler()->debug("int main()");
         
         appManager.init();
-        appManager.getLogHandler()->info("ApplicationManager::init() called");
+        appManager.getLogHandler()->debug("ApplicationManager::init() called");
 
         // Block until Live is running
         PID::getInstance().livePIDBlocking();

@@ -55,7 +55,7 @@ private:
     KeySender* keySender_ = nullptr;
     ResponseParser* responseParser_ = nullptr;
 
-    LogHandler* logHandler_;
+    LogHandler* log_;
 
     std::vector<Plugin> plugins_;
 
