@@ -120,12 +120,16 @@ add_executable(test_KeyMapper ${CMAKE_SOURCE_DIR}/test/test_KeyMapper.cpp)
 target_link_libraries(test_KeyMapper Boost::unit_test_framework)
 
 add_executable(
-    test_config_ConfigManager.cpp
+    test_config_ConfigManager
     ${CMAKE_SOURCE_DIR}/mock/MockLogHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/KeyMapper.cpp
     ${CMAKE_SOURCE_DIR}/src/config/ConfigManager.cpp
     ${CMAKE_SOURCE_DIR}/test/test_config_ConfigManager.cpp
 )
-target_link_libraries(test_config_ConfigManager.cpp Boost::unit_test_framework)
+target_link_libraries(test_config_ConfigManager
+    Boost::unit_test_framework
+    /usr/local/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib
+)
 
 enable_testing()
 
