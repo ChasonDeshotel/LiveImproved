@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
+#include <iostream>
 
 #include "KeySender.h"
 
@@ -33,6 +34,10 @@ struct Action {
     Action(const std::string& actionName, const std::optional<std::string>& args = std::nullopt)
         : actionName(actionName), arguments(args) {}
 
+    bool operator==(const Action& other) const {
+    return actionName == other.actionName &&
+           arguments == other.arguments;
+    };
     // TODO Placeholder validation function (optional)
 //    void validate() const {
 //        // Add validation logic here if needed later
@@ -44,6 +49,11 @@ struct Action {
 //            }
 //        }
 //    }
+    friend std::ostream& operator<<(std::ostream& os, const Action& action) {
+        os << "Action(namedAction=" << action.actionName
+           << ", arguments=" << action.arguments.value_or("") << ")";
+        return os;
+    }
 };
 
 // Keyboard
@@ -90,6 +100,15 @@ struct __attribute__((packed)) EKeyPress {
             cmd   == other.cmd   &&
             key   == other.key   );
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const EKeyPress& kp) {
+        os << "EKeyPress(ctrl=" << kp.ctrl
+           << ", alt=" << kp.alt
+           << ", shift=" << kp.shift
+           << ", cmd=" << kp.cmd
+           << ", key=" << kp.key << ")";
+        return os;
+    }
 };
 
 struct EMacroHash {
@@ -114,6 +133,19 @@ struct EMacro {
 
     void addAction(const Action& action) {
         steps.emplace_back(action);
+    }
+
+    bool operator==(const EMacro& other) const {
+        return steps == other.steps;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const EMacro& macro) {
+        os << "EMacro(steps=[";
+        for (const auto& step : macro.steps) {
+            std::visit([&os](auto&& arg) { os << arg << ", "; }, step);
+        }
+        os << "])";
+        return os;
     }
 };
 
