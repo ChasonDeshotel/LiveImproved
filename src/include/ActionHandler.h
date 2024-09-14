@@ -10,10 +10,13 @@
 class ApplicationManager;
 class KeyMapper;
 class PluginManager;
+class IPC;
+class WindowManager;
+class ConfigManager;
 
 class ActionHandler {
 public:
-    ActionHandler(ApplicationManager& appManager, PluginManager& pluginManager);
+    ActionHandler(IPC& ipc, PluginManager& pluginManager, WindowManager& windowManager, ConfigManager& configManager);
     ~ActionHandler();
 
     void init();
@@ -28,9 +31,10 @@ public:
     bool loadItemByName(const std::string& itemName);
 
 private:
-    ApplicationManager& app_;
-    LogHandler* log_;
-    KeyMapper* km_;
+    IPC& ipc_;
+    LogHandler& log_;
+    WindowManager& windowManager_;
+    ConfigManager& configManager_;
     PluginManager& pluginManager_;
 
     void initializeActionMap();

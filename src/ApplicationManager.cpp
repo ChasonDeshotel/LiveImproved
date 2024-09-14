@@ -55,15 +55,15 @@ void ApplicationManager::init() {
     ;
     configMenu_     = new ConfigMenu(configMenuPath);
 
-    eventHandler_   = new EventHandler(*this);
-
     ipc_            = new IPC(*this);
 
     pluginManager_ = new PluginManager(*ipc_, *responseParser_);
     pluginManager_->refreshPlugins();
 
-    actionHandler_  = new ActionHandler(*this, *pluginManager_);
+    actionHandler_  = new ActionHandler(*ipc_, *pluginManager_, *windowManager_, *configManager_);
     KeySender::getInstance();
+
+    eventHandler_   = new EventHandler(*windowManager_, *actionHandler_);
 
     responseParser_ = new ResponseParser();
 

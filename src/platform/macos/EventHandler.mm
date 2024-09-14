@@ -76,9 +76,10 @@ std::string keyCodeToString(CGKeyCode keyCode) {
 
 @class GUISearchBoxWindowController;
 
-EventHandler::EventHandler(ApplicationManager& appManager)
-    : app_(appManager)
-    , log_(appManager.getLogHandler())
+EventHandler::EventHandler(WindowManager& windowManager, ActionHandler& actionHandler)
+    : windowManager_(windowManager)
+    , actionHandler_(actionHandler)
+    , log_(LogHandler::getInstance())
     , eventTap(nullptr)
     , runLoopSource(nullptr)
 {}
@@ -172,7 +173,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
     // close the search box when clicking in Live
-    if (handler->app_.getWindowManager()->isWindowOpen("SearchBox")) {
+    if (handler->windowManager_.isWindowOpen("SearchBox")) {
         if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
@@ -184,7 +185,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
                 CGPoint location = CGEventGetLocation(event);
 
-                NSView *nativeView = reinterpret_cast<NSView *>(handler->app_.getWindowManager()->getWindowHandle("SearchBox"));
+                NSView *nativeView = reinterpret_cast<NSView *>(handler->windowManager_.getWindowHandle("SearchBox"));
                 LogHandler::getInstance().debug("got window handle");
 
                 NSWindow *searchBoxWindow = [nativeView window];
@@ -204,7 +205,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
                     if (isInsideLive) {
                         LogHandler::getInstance().debug("Click is outside app, inside Live, closing window.");
-                        handler->app_.getWindowManager()->closeWindow("SearchBox");
+                        handler->windowManager_.closeWindow("SearchBox");
     //                    return NULL;
                     }
                 } else {
@@ -217,18 +218,18 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     if (eventPID == PID::getInstance().livePID()) {
         // double-right-click menu
         if (eventType == kCGEventRightMouseDown) {
-            handler->log_->debug("Ableton Live right click event detected.");
+            handler->log_.debug("Ableton Live right click event detected.");
             //handler->log_->info("right click event");
             auto now = std::chrono::steady_clock::now();
 
             if (lastRightClickTime.has_value()) {
                 auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
-                handler->log_->debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
+                handler->log_.debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
 
                 if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
                     //handler->log_->info("double right click");
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        handler->app_.getActionHandler()->handleDoubleRightClick();
+                        handler->actionHandler_.handleDoubleRightClick();
                     });
                     return NULL;
                 }
@@ -240,7 +241,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
             return event;
 
         } else if (eventType == kCGEventKeyDown) {
-            handler->log_->debug("Ableton Live keydown event detected.");
+            handler->log_.debug("Ableton Live keydown event detected.");
 
             CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);
@@ -249,7 +250,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
             std::string keyString = keyCodeToString(keyCode);
 
-            bool shouldPassEvent = handler->app_.getActionHandler()->handleKeyEvent(keyString, flags, keyUpDown);
+            bool shouldPassEvent = handler->actionHandler_.handleKeyEvent(keyString, flags, keyUpDown);
 
             return shouldPassEvent ? event : NULL;
         }
@@ -260,10 +261,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
 void EventHandler::setupQuartzEventTap() {
     ApplicationManager &app = ApplicationManager::getInstance();
-    log_->debug("EventHandler::setupQuartEventTap() called");
+    log_.debug("EventHandler::setupQuartEventTap() called");
 
     if (PID::getInstance().livePID() == -1) {
-        log_->error("EventHandler: Ableton Live not found.");
+        log_.error("EventHandler: Ableton Live not found.");
         return;
     }
 
@@ -279,14 +280,14 @@ void EventHandler::setupQuartzEventTap() {
     CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
-        log_->error("EventHandler: Failed to create event tap.");
+        log_.error("EventHandler: Failed to create event tap.");
         return;
     }
 
     CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
-    log_->debug("EventHandler: Quartz event tap is active!");
+    log_.debug("EventHandler: Quartz event tap is active!");
 }
 
 bool isElementFocused(AXUIElementRef element) {

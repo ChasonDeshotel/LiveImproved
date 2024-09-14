@@ -3,9 +3,10 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
-class ApplicationManager;
 class LogHandler;
 class ActionHandler;
+class WindowManager;
+class PID;
 
 struct ERect {
     int x;
@@ -16,21 +17,23 @@ struct ERect {
 
 class EventHandler {
 public:
-    EventHandler(ApplicationManager& appManager);
+    EventHandler(WindowManager& windowManager, ActionHandler& actionHandler);
     ~EventHandler();
 
     void setupQuartzEventTap();
     void runPlatform();
 
-    static void focusApplication(pid_t pid);
     static void focusLim();
     static void focusLive();
 
     ERect getLiveBoundsRect();
 
 private:
-    ApplicationManager& app_;
-    LogHandler* log_;
+    WindowManager& windowManager_;
+    ActionHandler& actionHandler_;
+    LogHandler& log_;
+
+    static void focusApplication(pid_t pid);
 
     static CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
 
