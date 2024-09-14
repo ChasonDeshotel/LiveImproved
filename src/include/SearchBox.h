@@ -6,10 +6,12 @@
 #include <memory>
 
 #include "LogHandler.h"
+#include "Types.h"
 
 #include <JuceHeader.h>
 
 class ApplicationManager;
+class PluginManager;
 
 class SearchBox : public juce::TopLevelWindow, public IWindow,
                      public juce::TextEditor::Listener, 
@@ -46,6 +48,7 @@ protected:
 
 private:
     ApplicationManager& app_;
+    PluginManager& pluginManager_;
 
     juce::TextEditor searchField_;
     juce::ListBox listBox_;

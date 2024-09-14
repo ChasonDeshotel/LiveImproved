@@ -1,15 +1,19 @@
 #ifndef WINDOW_MANAGER_H
 #define WINDOW_MANAGER_H
 
-#include "Types.h"
-
 #include <unordered_map>
 #include <string>
 #include <memory>
 #include <functional>
 
+class ApplicationManager;
+class IWindow;
+class WindowData;
+
 class WindowManager {
 public:
+    WindowManager();
+
     template<typename T>
     void registerWindowFactory(const std::string& windowName);
 
@@ -30,7 +34,7 @@ private:
     // Factory function to create window instances based on window name
     std::unique_ptr<IWindow> createWindowInstance(const std::string& windowName);
 
-    std::unordered_map<std::string, WindowData> windows_;  // Manage window instances and callbacks
+    std::unordered_map<std::string, WindowData> windows_;
     std::unordered_map<std::string, bool> windowStates_;
 };
 

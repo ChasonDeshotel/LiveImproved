@@ -7,6 +7,7 @@
 #include "ApplicationManager.h"
 #include "IPC.h"
 
+#include "PluginManager.h"
 IPC::IPC(ApplicationManager& appManager)
     : app_(appManager)
     , log_(appManager.getLogHandler())
@@ -58,7 +59,7 @@ bool IPC::init() {
             delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
             dispatch_after(delay, backgroundQueue, ^{
                 log_->info("refreshing plugin cache");
-                app_.refreshPluginCache();
+                app_.getPluginManager().refreshPlugins();
             });
 
             dispatch_source_cancel(timer);

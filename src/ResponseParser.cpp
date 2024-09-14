@@ -5,14 +5,9 @@
 #include <iostream>
 
 #include "ResponseParser.h"
-#include "ApplicationManager.h"
 #include "Types.h"
 
-ResponseParser::ResponseParser(ApplicationManager& appManager)
-    : app_(appManager)
-{}
-
-ResponseParser::~ResponseParser() {}
+ResponseParser::ResponseParser() {}
 
 std::vector<std::string> ResponseParser::split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
@@ -44,7 +39,6 @@ std::vector<std::string> ResponseParser::splitStringInPlace(std::string& str, ch
 
     return tokens;
 }
-
 
 std::vector<Plugin> ResponseParser::parsePlugins(const std::string& input) {
     std::vector<Plugin> plugins;

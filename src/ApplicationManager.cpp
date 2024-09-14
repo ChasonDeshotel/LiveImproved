@@ -11,10 +11,12 @@
 #include "ResponseParser.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
+#include "PluginManager.h"
 #include "KeySender.h"
 
 ApplicationManager::ApplicationManager()
     : log_(&LogHandler::getInstance())
+    , pluginManager_(nullptr)
 {}
 
 #ifdef INJECTED_LIBRARY
@@ -54,11 +56,17 @@ void ApplicationManager::init() {
     configMenu_     = new ConfigMenu(configMenuPath);
 
     eventHandler_   = new EventHandler(*this);
-    actionHandler_  = new ActionHandler(*this);
-    KeySender::getInstance();
 
     ipc_            = new IPC(*this);
-    responseParser_ = new ResponseParser(*this);
+
+    pluginManager_ = new PluginManager(*ipc_, *responseParser_);
+    pluginManager_->refreshPlugins();
+
+    actionHandler_  = new ActionHandler(*this, *pluginManager_);
+    KeySender::getInstance();
+
+    responseParser_ = new ResponseParser();
+
 
     log_->debug("ApplicatonManager::init() finished");
 }
@@ -69,6 +77,10 @@ LogHandler* ApplicationManager::getLogHandler() {
 
 WindowManager* ApplicationManager::getWindowManager() {
     return windowManager_;
+}
+
+PluginManager& ApplicationManager::getPluginManager() {
+    return *pluginManager_;
 }
 
 ConfigManager* ApplicationManager::getConfigManager() {
@@ -89,22 +101,4 @@ EventHandler* ApplicationManager::getEventHandler() {
 
 ActionHandler* ApplicationManager::getActionHandler() {
     return actionHandler_;
-}
-
-const std::vector<Plugin>& ApplicationManager::getPlugins() const {
-    return plugins_;
-}
-
-void ApplicationManager::refreshPluginCache() {
-    ipc_->writeRequest("PLUGINS");
-    // Set up a callback to handle the response asynchronously using dispatch
-    ipc_->initReadWithEventLoop([this](const std::string& response) {
-        if (!response.empty()) {
-            //LogHandler::getInstance().debug("Received response: " + response);
-            pluginCacheStr = response;
-            plugins_ = responseParser_->parsePlugins(response);
-        } else {
-            LogHandler::getInstance().error("Failed to receive a valid response.");
-        }
-    });
 }

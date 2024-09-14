@@ -6,11 +6,9 @@
 
 #include "Types.h"
 
-class ApplicationManager;
-
 class ResponseParser {
 public:
-    ResponseParser(ApplicationManager& appManager);
+    ResponseParser();
     ~ResponseParser();
 
     std::vector<std::string> split(const std::string& str, char delimiter);
@@ -18,10 +16,6 @@ public:
     std::vector<Plugin> parsePlugins(const std::string& input);
     void sortByName(std::vector<Plugin>& plugins);
     std::vector<Plugin> getUniquePlugins(const std::vector<Plugin>& plugins);
-
- private:
-    ApplicationManager& app_;
-
 };
 
 #endif

@@ -6,11 +6,14 @@
 #include "SearchBox.h"
 #include "Types.h"
 #include "PID.h"
+#include "PluginManager.h"
 
 class PluginListModel : public juce::ListBoxModel {
 public:
-    PluginListModel()
-        : plugins_(ApplicationManager::getInstance().getPlugins()) {}
+    PluginListModel(PluginManager& pluginManager)
+        : pluginManager_(pluginManager)
+        , plugins_(pluginManager_.getPlugins())
+    {}
 
     int getNumRows() override {
         return static_cast<int>(plugins_.size());
@@ -39,17 +42,20 @@ public:
     }
 
 private:
+    PluginManager& pluginManager_;
     const std::vector<Plugin>& plugins_;
     const Plugin* selectedPlugin_ = nullptr;
 };
 
 SearchBox::SearchBox()
     : TopLevelWindow("SearchBox", true)
-    , app_(ApplicationManager::getInstance()) {
+    , app_(ApplicationManager::getInstance())
+    , pluginManager_(app_.getPluginManager())
+    {
 
     LogHandler::getInstance().debug("Creating SearchBoxWindowController");
 
-    pluginListModel_ = std::make_unique<PluginListModel>();
+    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_);
     listBox_.setModel(pluginListModel_.get());
     listBox_.setRowHeight(30);
     addAndMakeVisible(listBox_);

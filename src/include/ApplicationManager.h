@@ -14,6 +14,8 @@
 #include "EventHandler.h"
 #include "SearchBox.h"
 
+class PluginManager;
+
 class ApplicationManager {
 public:
     static ApplicationManager& getInstance() {
@@ -25,6 +27,7 @@ public:
 
     LogHandler* getLogHandler();
     WindowManager* getWindowManager();
+    PluginManager& getPluginManager();
 
     ConfigManager* getConfigManager();
     ConfigMenu* getConfigMenu();
@@ -34,17 +37,13 @@ public:
     IPC* getIPC();
     ResponseParser* getResponseParser();
 
-    std::string pluginCacheStr;
-    std::string getPluginsAsStr() const;
-    const std::vector<Plugin>& getPlugins() const;
-
-    void refreshPluginCache();
-
 private:
     ApplicationManager();
 
     ApplicationManager(const ApplicationManager&) = delete;
     ApplicationManager& operator=(const ApplicationManager&) = delete;
+
+    PluginManager* pluginManager_;
 
     IPC* ipc_ = nullptr;
     WindowManager* windowManager_ = nullptr;

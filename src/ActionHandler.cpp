@@ -8,13 +8,15 @@
 #include "ActionHandler.h"
 #include "ApplicationManager.h"
 #include "ContextMenu.h"
+#include "PluginManager.h"
 
 #include "KeySender.h"
 
-ActionHandler::ActionHandler(ApplicationManager& appManager)
+ActionHandler::ActionHandler(ApplicationManager& appManager, PluginManager& pluginManager)
     : app_(appManager)
     , log_(appManager.getLogHandler())
     , km_(new KeyMapper())
+    , pluginManager_(pluginManager)
 {
     initializeActionMap();
 }
@@ -135,9 +137,10 @@ bool ActionHandler::loadItem(int itemIndex) {
 }
 
 bool ActionHandler::loadItemByName(const std::string& itemName) {
-    for (const auto& plugin : app_.getPlugins()) {
+    for (const auto& plugin : pluginManager_.getPlugins()) {
         if (itemName == plugin.name) {
           app_.getIPC()->writeRequest("load_item," + std::to_string(plugin.number));
+          return true;
         }
     }
     return false;

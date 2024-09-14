@@ -287,5 +287,19 @@ void EventHandler::setupQuartzEventTap() {
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
     log_->debug("EventHandler: Quartz event tap is active!");
+}
 
+bool isElementFocused(AXUIElementRef element) {
+    CFTypeRef focused = NULL;
+    AXUIElementCopyAttributeValue(element, kAXFocusedAttribute, &focused);
+
+    if (focused == kCFBooleanTrue) {
+        CFRelease(focused);
+        return true;
+    }
+
+    if (focused) {
+        CFRelease(focused);
+    }
+    return false;
 }

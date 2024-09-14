@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_loadConfig) {
 # Keyboard shortcuts
 remap:
   ctl+d: cmd+a
-  ctl+2: shift+f1
+  ctl+2: shift+f
   d: delete
   cmd+b: cmd+d, cmd+d, cmd+d, cmd+d
   alt+a: plugin.Serum
@@ -61,24 +61,12 @@ window:
 
     ConfigManager configManager(configFile);
 
-//    BOOST_CHECK_EQUAL(configManager.getInitRetries(), 10);
+    BOOST_CHECK_EQUAL(configManager.getInitRetries(), 10);
 
-//    auto remap = configManager.getRemap();
-//
-//    EKeyPress kpFrom   ; EKeyPress kpTo    ;
-//
-//    kpFrom.ctrl = true ; kpTo.cmd = true   ;
-//    kpFrom.key = "d"   ; kpTo.key = "a"    ;
-//
-//    EMacro macro ; macro.addKeyPress(kpTo) ;
-//
-//    BOOST_CHECK_EQUAL(remap[kpFrom], macro);
-//
-//    EKeyPress kp2From  ; EKeyPress kp2To   ;
-//    kpFrom.ctrl = true ; kpTo.shift = true ;
-//    kpFrom.key = "2"   ; kpTo.key = "F1"   ;
-//
-//    EMacro marco ; marco.addKeyPress(kp2To);
+    auto remap = configManager.getRemap();
+
+//    BOOST_CHECK_EQUAL();
+
 //    BOOST_CHECK_EQUAL(remap[kpFrom], marco);
 //
 //    EKeyPress kp3From  ; EKeyPress kp3To   ;
@@ -119,49 +107,49 @@ window:
 //    deleteTempConfigFile(configFile);
 }
 
-//BOOST_AUTO_TEST_CASE(test_setInitRetries) {
-//    std::string configContent = R"(
-//# Keyboard shortcuts
-//remap:
-//  ctl+d: cmd+a
-//  ctl+2: shift+f1
-//
-//# Plugins
-//rename-plugins:
-//  Serum: Daddy Duda's Special Synthtest/test_config_ConfigManager.cpp
-//
-//remove-plugins:
-//  - TerribleSynth
-//  - I'mTooLazyToUninstallSynth
-//
-//# Quick shortcuts menu
-//shortcuts:
-//  - key: /location/to/shortcut/1
-//  - other: /location/to/shortcut/2
-//
-//# Application behavior
-//init:
-//  retries: 3
-//
-//window:
-//  search: 100,200,500,500
-//  preferences: 50,150,200,300
-//)";
-//    std::string configFile = createTempConfigFile(configContent);
-//
-//    ConfigManager configManager(configFile);
-//
-//    BOOST_CHECK_EQUAL(configManager.getInitRetries(), 3);
-//    
-//    configManager.setInitRetries(5);
-//
-//    BOOST_CHECK_EQUAL(configManager.getInitRetries(), 5);
-//
-//    ConfigManager newManager(configFile);
-//    BOOST_CHECK_EQUAL(newManager.getInitRetries(), 5);
-//
-//    deleteTempConfigFile(configFile);
-//}
+BOOST_AUTO_TEST_CASE(test_setInitRetries) {
+    std::string configContent = R"(
+# Keyboard shortcuts
+remap:
+  ctl+d: cmd+a
+  ctl+2: shift+f1
+
+# Plugins
+rename-plugins:
+  Serum: Daddy Duda's Special Synthtest/test_config_ConfigManager.cpp
+
+remove-plugins:
+  - TerribleSynth
+  - I'mTooLazyToUninstallSynth
+
+# Quick shortcuts menu
+shortcuts:
+  - key: /location/to/shortcut/1
+  - other: /location/to/shortcut/2
+
+# Application behavior
+init:
+  retries: 3
+
+window:
+  search: 100,200,500,500
+  preferences: 50,150,200,300
+)";
+    std::string configFile = createTempConfigFile(configContent);
+
+    ConfigManager configManager(configFile);
+
+    BOOST_CHECK_EQUAL(configManager.getInitRetries(), 3);
+    
+    configManager.setInitRetries(5);
+
+    BOOST_CHECK_EQUAL(configManager.getInitRetries(), 5);
+
+    ConfigManager newManager(configFile);
+    BOOST_CHECK_EQUAL(newManager.getInitRetries(), 5);
+
+    deleteTempConfigFile(configFile);
+}
 //
 //BOOST_AUTO_TEST_CASE(test_undo) {
 //    std::string configContent = R"(

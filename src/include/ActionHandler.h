@@ -9,10 +9,11 @@
 
 class ApplicationManager;
 class KeyMapper;
+class PluginManager;
 
 class ActionHandler {
 public:
-    ActionHandler(ApplicationManager& appManager);
+    ActionHandler(ApplicationManager& appManager, PluginManager& pluginManager);
     ~ActionHandler();
 
     void init();
@@ -30,6 +31,7 @@ private:
     ApplicationManager& app_;
     LogHandler* log_;
     KeyMapper* km_;
+    PluginManager& pluginManager_;
 
     void initializeActionMap();
     void executeMacro(const EMacro& macro);

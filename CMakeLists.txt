@@ -52,6 +52,7 @@ set(SRC_CPP
     src/LogHandler.cpp
     src/WindowManager.cpp
     src/KeyMapper.cpp
+    src/PluginManager.cpp
     src/config/ConfigManager.cpp
     src/config/ConfigMenu.cpp
     src/gui/SearchBox.cpp
