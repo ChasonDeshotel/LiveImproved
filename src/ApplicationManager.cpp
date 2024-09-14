@@ -100,7 +100,7 @@ void ApplicationManager::refreshPluginCache() {
     // Set up a callback to handle the response asynchronously using dispatch
     ipc_->initReadWithEventLoop([this](const std::string& response) {
         if (!response.empty()) {
-        LogHandler::getInstance().debug("Received response: " + response);
+            //LogHandler::getInstance().debug("Received response: " + response);
             pluginCacheStr = response;
             plugins_ = responseParser_->parsePlugins(response);
         } else {
