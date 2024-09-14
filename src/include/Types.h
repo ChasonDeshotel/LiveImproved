@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -14,12 +15,12 @@
 
 // Actions
 struct NamedActions {
-    static const std::unordered_map<std::string, std::string>& get() {
-        static const std::unordered_map<std::string, std::string> namedActions = {
-            {"load_item", "load_item"},
-            {"save", "save"},
-            {"delay", "delay"},  // The value "delay" might be used to parse custom delays
-            // Add more actions as needed
+    static const std::unordered_set<std::string>& get() {
+        static const std::unordered_set<std::string> namedActions = {
+            "load_item"
+            , "plugin"
+            , "save"
+            , "delay"
         };
         return namedActions;
     }
@@ -60,14 +61,14 @@ struct Action {
 
 // Keyboard
 struct NamedKeys {
-    static const std::unordered_map<std::string, std::string>& get() {
-        static const std::unordered_map<std::string, std::string> namedKeys = {
-              { "delete"    , "delete"    }
-            , { "enter"     , "enter"     }
-            , { "escape"    , "escape"    }
-            , { "space"     , "space"     }
-            , { "tab"       , "tab"       }
-            , { "backspace" , "backspace" }
+    static const std::unordered_set<std::string>& get() {
+        static const std::unordered_set<std::string> namedKeys = {
+              "delete"
+            , "enter"
+            , "escape"
+            , "space"
+            , "tab"
+            , "backspace"
         };
         return namedKeys;
     }

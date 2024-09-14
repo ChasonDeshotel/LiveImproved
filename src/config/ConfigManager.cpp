@@ -265,30 +265,38 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
     for (const auto& step : steps) {
         log_->debug("process remap: step: " + step);
 
-        std::string actionName = step;
-        std::optional<std::string> argument = std::nullopt;
-        
-        // split on . to separate action name and argument
-        if (step.find('.') != std::string::npos) {
-            size_t periodPos = step.find('.');
-            actionName = step.substr(0, periodPos);
-            argument   = step.substr(periodPos + 1);
-        }
-
         const auto& namedActions = NamedActions::get();
-        auto actionIt = namedActions.find(actionName);
 
-        if (actionIt != namedActions.end()) {
-            if (argument) {
-                log_->debug("process remap: add action with arg: " + actionName + "." + *argument);
-                Action action(actionName, *argument);
-                macro.addAction(action);
+        if (step.length() == 1) {
+            log_->debug("process remap: single character, processing as keypress: " + step);
+            EKeyPress keyPress = km_->processKeyPress(step);
+            macro.addKeyPress(keyPress);
+
+        } else if (namedActions.find(step) != namedActions.end()) {
+            log_->debug("process remap: add action no arg: " + step);
+            Action action(step);
+            macro.addAction(action);
+
+        } else if (step.find('.') != std::string::npos) {
+            // split on . to separate action name and argument
+            size_t periodPos = step.find('.');
+            std::string actionName = step.substr(0, periodPos);
+            std::optional<std::string> argument = step.substr(periodPos + 1);
+
+            if (namedActions.find(actionName) != namedActions.end()) {
+                if (argument) {
+                    log_->debug("process remap: add action with arg: " + actionName + "." + *argument);
+                    Action action(actionName, *argument);
+                    macro.addAction(action);
+                }
             } else {
-                log_->debug("process remap: add action no arg: " + actionIt->second);
-                Action action(actionIt->second);
-                macro.addAction(action);
+                // step contains a period but no valid action
+                log_->warn("step contains . but no valid action. action given: " + actionName);
+                continue;
             }
+
         } else {
+            // TODO consider turning these into a keypress macro
             log_->debug("process remap: not in named actions. str: " + step);
             EKeyPress keyPress = km_->processKeyPress(step);
             macro.addKeyPress(keyPress);
