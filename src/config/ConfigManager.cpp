@@ -240,7 +240,6 @@ void ConfigManager::undo() {
     }
 }
 
-
 bool ConfigManager::canUndo() const {
     return !undoStack_.empty();
 }
@@ -249,37 +248,37 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
     log_->info("process remap: from: " + fromStr + " to: " + toStr);
     EKeyPress from = km_->processKeyPress(fromStr);
 
-    std::vector<std::string> toKeys;
+    // stepsString is composed of any combination of
+    // actions and/or keypresses. For example,
+    // "cmd+a" or "load_item.Serum" or "a,load_item.Serum,shift+cmd+d,c"
+    std::vector<std::string> steps;
     std::stringstream ss(toStr);
-    std::string key;
-    while (std::getline(ss, key, ',')) {
-        // Trim whitespace
-        key.erase(0, key.find_first_not_of(' '));
-        key.erase(key.find_last_not_of(' ') + 1);
-        toKeys.push_back(key);
+    std::string stepsString;
+    while (std::getline(ss, stepsString, ',')) {
+        stepsString.erase(0, stepsString.find_first_not_of(' '));
+        stepsString.erase(stepsString.find_last_not_of(' ') + 1);
+        steps.push_back(stepsString);
     }
 
     EMacro macro;
 
-    for (const auto& str : toKeys) {
-        log_->info("process remap: str: " + str);
+    for (const auto& step : steps) {
+        log_->info("process remap: step: " + step);
 
-        // Split on period first to separate action name and argument
-        std::string actionName = str;
+        std::string actionName = step;
         std::optional<std::string> argument = std::nullopt;
         
-        if (str.find('.') != std::string::npos) {
-            size_t periodPos = str.find('.');
-            actionName = str.substr(0, periodPos);  // Action name is the part before the period
-            argument = str.substr(periodPos + 1);   // Argument is the part after the period
+        // split on . to separate action name and argument
+        if (step.find('.') != std::string::npos) {
+            size_t periodPos = step.find('.');
+            actionName = step.substr(0, periodPos);
+            argument   = step.substr(periodPos + 1);
         }
 
-        // Now search NamedActions using just the actionName
         const auto& namedActions = NamedActions::get();
         auto actionIt = namedActions.find(actionName);
 
         if (actionIt != namedActions.end()) {
-            // Action found, add with or without argument
             if (argument) {
                 log_->info("process remap: add action with arg: " + actionName + "." + *argument);
                 Action action(actionName, *argument);
@@ -290,13 +289,11 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
                 macro.addAction(action);
             }
         } else {
-            log_->info("process remap: not in named actions. str: " + str);
-            // Process as key press if it's not an action
-            EKeyPress keyPress = km_->processKeyPress(str);
+            log_->info("process remap: not in named actions. str: " + step);
+            EKeyPress keyPress = km_->processKeyPress(step);
             macro.addKeyPress(keyPress);
         }
     }
 
-    // Update remap after processing all keys/actions
     remap_[from] = macro;
 }

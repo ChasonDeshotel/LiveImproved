@@ -12,7 +12,7 @@
 
 #include "KeySender.h"
 
-// Lim
+// Actions
 struct NamedActions {
     static const std::unordered_map<std::string, std::string>& get() {
         static const std::unordered_map<std::string, std::string> namedActions = {
@@ -38,7 +38,6 @@ enum class ArgType {
     , Int
 };
 
-
 struct Action {
     std::string actionName;
     std::optional<std::string> arguments;
@@ -63,12 +62,12 @@ struct Action {
 struct NamedKeys {
     static const std::unordered_map<std::string, std::string>& get() {
         static const std::unordered_map<std::string, std::string> namedKeys = {
-            {"delete", "delete"},
-            {"enter", "enter"},
-            {"escape", "escape"},
-            {"space", "space"},
-            {"tab", "tab"},
-            {"backspace", "backspace"},
+              { "delete"    , "delete"    }
+            , { "enter"     , "enter"     }
+            , { "escape"    , "escape"    }
+            , { "space"     , "space"     }
+            , { "tab"       , "tab"       }
+            , { "backspace" , "backspace" }
         };
         return namedKeys;
     }
@@ -85,6 +84,8 @@ enum Modifier {
 
 // comparisons on modifiers were causing malloc
 // thus the attribute packed voodoo
+// edit: this might have actually been caused
+// by running two instances
 struct __attribute__((packed)) EKeyPress {
     bool shift = false;
     bool ctrl  = false;
@@ -103,8 +104,8 @@ struct __attribute__((packed)) EKeyPress {
     }
 };
 
-// boost hashing voodoo
 struct EMacroHash {
+    // boost hashing voodoo
     std::size_t operator()(const EKeyPress& k) const {
         std::size_t res = 17;
         res = res * 31 + std::hash<bool>()(k.ctrl);
@@ -126,13 +127,6 @@ struct EMacro {
     void addAction(const Action& action) {
         steps.emplace_back(action);
     }
-};
-
-struct Plugin {
-    int number;
-    std::string name;
-    std::string type;
-    std::string uri;
 };
 
 // GUI
@@ -157,6 +151,14 @@ struct MenuItem {
     std::string label;
     std::string action;
     std::vector<MenuItem> children;
+};
+
+// New Folder (3)
+struct Plugin {
+    int number;
+    std::string name;
+    std::string type;
+    std::string uri;
 };
 
 #endif
