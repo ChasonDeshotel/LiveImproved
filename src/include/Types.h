@@ -26,19 +26,6 @@ struct NamedActions {
     }
 };
 
-enum class ActionType {
-    LoadItem
-    , Save
-    , Delay
-};
-
-enum class ArgType {
-    None
-    , String
-    , Double
-    , Int
-};
-
 struct Action {
     std::string actionName;
     std::optional<std::string> arguments;
