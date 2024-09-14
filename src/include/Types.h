@@ -20,8 +20,7 @@ struct NamedActions {
         static const std::unordered_set<std::string> namedActions = {
             "load_item"
             , "plugin"
-            , "save"
-            , "delay"
+            , "searchbox"
         };
         return namedActions;
     }

@@ -54,7 +54,9 @@ std::unordered_map<std::string, ActionHandlerFunction> actionMap;
 void ActionHandler::initializeActionMap() {
     // TODO: case insensitive
     // TODO: multiple args (plugin,Sylenth,Serum)
-    actionMap["gui-searchbox"] = [this](const std::optional<std::string>& args) { 
+
+    // NOTE actions must be added here and in Types.h
+    actionMap["searchbox"] = [this](const std::optional<std::string>& args) {
         app_.getWindowManager()->openWindow("SearchBox");
     };
     actionMap["write-request"] = [this](const std::optional<std::string>& args) {

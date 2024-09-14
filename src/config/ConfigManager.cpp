@@ -233,10 +233,10 @@ void ConfigManager::undo() {
             applyConfig(YAML::Clone(undoStack_.back()));
             saveConfig();
         } else {
-            std::cerr << "No more states to undo." << std::endl;
+            log_->warn("No more states to undo.");
         }
     } else {
-        std::cerr << "Undo stack is empty, cannot undo." << std::endl;
+        log_->warn("Undo stack is empty, cannot undo.");
     }
 }
 
@@ -255,8 +255,8 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
     std::stringstream ss(toStr);
     std::string stepsString;
     while (std::getline(ss, stepsString, ',')) {
-        stepsString.erase(0, stepsString.find_first_not_of(' '));
-        stepsString.erase(stepsString.find_last_not_of(' ') + 1);
+        stepsString.erase(0, stepsString.find_first_not_of(" \t\n\r"));
+        stepsString.erase(stepsString.find_last_not_of(" \t\n\r") + 1);
         steps.push_back(stepsString);
     }
 
@@ -269,12 +269,17 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
 
         if (step.length() == 1) {
             log_->debug("process remap: single character, processing as keypress: " + step);
-            EKeyPress keyPress = km_->processKeyPress(step);
-            macro.addKeyPress(keyPress);
+            try {
+                EKeyPress keyPress = km_->processKeyPress(step);
+                macro.addKeyPress(keyPress);
+            } catch (const std::runtime_error& e) {
+                log_->error(e.what());
+            }
 
         } else if (namedActions.find(step) != namedActions.end()) {
             log_->debug("process remap: add action no arg: " + step);
             Action action(step);
+            // TODO add validation
             macro.addAction(action);
 
         } else if (step.find('.') != std::string::npos) {
@@ -287,6 +292,7 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
                 if (argument) {
                     log_->debug("process remap: add action with arg: " + actionName + "." + *argument);
                     Action action(actionName, *argument);
+                    // TODO add validation
                     macro.addAction(action);
                 }
             } else {
@@ -298,8 +304,12 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
         } else {
             // TODO consider turning these into a keypress macro
             log_->debug("process remap: not in named actions. str: " + step);
-            EKeyPress keyPress = km_->processKeyPress(step);
-            macro.addKeyPress(keyPress);
+            try {
+                EKeyPress keyPress = km_->processKeyPress(step);
+                macro.addKeyPress(keyPress);
+            } catch (const std::runtime_error& e) {
+                log_->error(e.what());
+            }
         }
     }
 
