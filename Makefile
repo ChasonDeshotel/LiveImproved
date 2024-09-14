@@ -9,5 +9,8 @@ test:
 run-tests:
 	@cd build && ctest --output-on-failure
 
+run:
+	@./build/LiveImproved.app/Contents/MacOS/LiveImproved
+
 clean:
 	@$(MAKE) -C build clean
