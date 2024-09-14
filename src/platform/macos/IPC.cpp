@@ -290,10 +290,10 @@ std::string IPC::readResponse() {
 
     log_->debug("Message read from response pipe: " + responsePipePath);
     if (message.length() > 100) {
-        log_->warn("Message truncated to 100 characters");
-        log_->debug("Message: " + message.substr(0,100));  // Substring only when needed
+        log_->debug("Message truncated to 100 characters");
+        log_->debug("Message: " + message.substr(0,100));
     } else {
-        log_->debug("Message: " + message);  // No need for substring
+        log_->debug("Message: " + message);
     }
     return message;
 }
