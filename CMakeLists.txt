@@ -110,13 +110,24 @@ add_custom_command(TARGET LiveImproved POST_BUILD
 )
 
 # Testing
-# deprecated
+# suppress deprecated warning
 if (POLICY CMP0167)
     cmake_policy(SET CMP0167 OLD)
 endif()
 find_package(Boost 1.86.0 REQUIRED COMPONENTS unit_test_framework)
+
 add_executable(test_KeyMapper ${CMAKE_SOURCE_DIR}/test/test_KeyMapper.cpp)
 target_link_libraries(test_KeyMapper Boost::unit_test_framework)
 
+add_executable(
+    test_config_ConfigManager.cpp
+    ${CMAKE_SOURCE_DIR}/mock/MockLogHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/config/ConfigManager.cpp
+    ${CMAKE_SOURCE_DIR}/test/test_config_ConfigManager.cpp
+)
+target_link_libraries(test_config_ConfigManager.cpp Boost::unit_test_framework)
+
 enable_testing()
+
 add_test(NAME test_KeyMapper COMMAND ${CMAKE_BINARY_DIR}/bin/test_KeyMapper)
+add_test(NAME test_config_ConfigManager COMMAND ${CMAKE_BINARY_DIR}/bin/test_config_ConfigManager)
