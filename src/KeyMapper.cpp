@@ -13,9 +13,9 @@ EKeyPress KeyMapper::processKeyPress(const std::string& keypress) {
         this->valid = true;
         return this->keypress;
     } else {
-        log_->warn("not a valid keypress format");
+        log_->warn("not a valid keypress format: " + keypress);
         this->valid = false;
-        throw std::runtime_error("not a valid keypress format");
+        throw std::runtime_error("not a valid keypress format: " + keypress);
     }
 }
 
