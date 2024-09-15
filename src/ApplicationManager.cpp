@@ -6,17 +6,18 @@
 
 #include "ApplicationManager.h"
 #include "LogHandler.h"
-#include "PlatformDependent.h"
+
 #include "ActionHandler.h"
-#include "ResponseParser.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
-#include "PluginManager.h"
 #include "KeySender.h"
+#include "PlatformDependent.h"
+#include "PluginManager.h"
+#include "ResponseParser.h"
+#include "WindowManager.h"
 
 ApplicationManager::ApplicationManager()
     : log_(&LogHandler::getInstance())
-    , pluginManager_(nullptr)
 {}
 
 #ifdef INJECTED_LIBRARY
@@ -33,6 +34,7 @@ static void dylib_init() {
 
 #else
 
+// int main used to go here
 
 #endif
 
@@ -57,16 +59,15 @@ void ApplicationManager::init() {
 
     ipc_            = new IPC(*this);
 
-    pluginManager_ = new PluginManager(*ipc_, *responseParser_);
+    responseParser_ = new ResponseParser();
+    pluginManager_  = new PluginManager(*ipc_, *responseParser_);
     pluginManager_->refreshPlugins();
 
     actionHandler_  = new ActionHandler(*ipc_, *pluginManager_, *windowManager_, *configManager_);
     KeySender::getInstance();
 
+    // TODO add initialized flag on PluginManager and block until we have plugins
     eventHandler_   = new EventHandler(*windowManager_, *actionHandler_);
-
-    responseParser_ = new ResponseParser();
-
 
     log_->debug("ApplicatonManager::init() finished");
 }

@@ -1,12 +1,15 @@
 #include <JuceHeader.h>
 #include <algorithm>
 
-#include "LogHandler.h"
 #include "ApplicationManager.h"
-#include "SearchBox.h"
+#include "LogHandler.h"
 #include "Types.h"
+
+#include "ActionHandler.h"
 #include "PID.h"
 #include "PluginManager.h"
+#include "SearchBox.h"
+#include "WindowManager.h"
 
 class PluginListModel : public juce::ListBoxModel {
 public:

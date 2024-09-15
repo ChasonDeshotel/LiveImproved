@@ -4,10 +4,12 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "ApplicationManager.h"
 #include "IPC.h"
+#include "ApplicationManager.h"
+#include "LogHandler.h"
 
 #include "PluginManager.h"
+
 IPC::IPC(ApplicationManager& appManager)
     : app_(appManager)
     , log_(appManager.getLogHandler())

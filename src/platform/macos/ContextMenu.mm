@@ -1,9 +1,12 @@
 #import <Cocoa/Cocoa.h>
 #include "ApplicationManager.h"
-#include "ContextMenu.h"
-#include "ConfigMenu.h"
-#include "Types.h"
 #include "LogHandler.h"
+#include "Types.h"
+
+#include "ActionHandler.h"
+#include "ConfigMenu.h"
+#include "ContextMenu.h"
+#include "WindowManager.h"
 
 @interface ContextMenuGenerator : NSObject <NSMenuDelegate>
 

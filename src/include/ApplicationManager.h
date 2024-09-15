@@ -5,16 +5,15 @@
 #include <numeric>
 
 #include "PlatformDependent.h"
-#include "WindowManager.h"
-#include "ActionHandler.h"
-#include "ConfigManager.h"
-#include "ConfigMenu.h"
-#include "LogHandler.h"
-#include "ResponseParser.h"
-#include "EventHandler.h"
-#include "SearchBox.h"
 
+class ActionHandler;
+class ConfigManager;
+class ConfigMenu;
+class EventHandler;
+class LogHandler;
 class PluginManager;
+class ResponseParser;
+class WindowManager;
 
 class ApplicationManager {
 public:
@@ -25,17 +24,16 @@ public:
 
     void init();
 
-    LogHandler* getLogHandler();
-    WindowManager* getWindowManager();
-    PluginManager& getPluginManager();
-
-    ConfigManager* getConfigManager();
-    ConfigMenu* getConfigMenu();
-    EventHandler* getEventHandler();
-    ActionHandler* getActionHandler();
-    KeySender* getKeySender();
-    IPC* getIPC();
+    ActionHandler*  getActionHandler();
+    ConfigManager*  getConfigManager();
+    ConfigMenu*     getConfigMenu();
+    EventHandler*   getEventHandler();
+    IPC*            getIPC();
+    KeySender*      getKeySender();
+    LogHandler*     getLogHandler();
+    PluginManager&  getPluginManager();
     ResponseParser* getResponseParser();
+    WindowManager*  getWindowManager();
 
 private:
     ApplicationManager();
@@ -43,20 +41,17 @@ private:
     ApplicationManager(const ApplicationManager&) = delete;
     ApplicationManager& operator=(const ApplicationManager&) = delete;
 
-    PluginManager* pluginManager_;
-
-    IPC* ipc_ = nullptr;
-    WindowManager* windowManager_ = nullptr;
-    ConfigManager* configManager_ = nullptr;
-    ConfigMenu* configMenu_ = nullptr;
-    EventHandler* eventHandler_ = nullptr;
-    ActionHandler* actionHandler_ = nullptr;
-    KeySender* keySender_ = nullptr;
+    ActionHandler*  actionHandler_  = nullptr;
+    ConfigManager*  configManager_  = nullptr;
+    ConfigMenu*     configMenu_     = nullptr;
+    EventHandler*   eventHandler_   = nullptr;
+    IPC*            ipc_            = nullptr;
+    KeySender*      keySender_      = nullptr;
+    PluginManager*  pluginManager_  = nullptr;
     ResponseParser* responseParser_ = nullptr;
+    WindowManager*  windowManager_  = nullptr;
 
-    LogHandler* log_;
-
-    std::vector<Plugin> plugins_;
+    LogHandler*     log_;
 
     std::vector<std::string> splitStringInPlace(std::string& str, char delimiter);
 

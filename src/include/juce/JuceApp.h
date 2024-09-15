@@ -1,5 +1,6 @@
 #include <JuceHeader.h>
 #include "ApplicationManager.h"
+#include "LogHandler.h"
 
 class JuceApp : public juce::JUCEApplication {
 public:

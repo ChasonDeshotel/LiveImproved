@@ -8,10 +8,13 @@
 #include <chrono>
 #include <optional>
 
-#include "ApplicationManager.h"
 #include "EventHandler.h"
+#include "ApplicationManager.h"
 #include "LogHandler.h"
+
+#include "ActionHandler.h"
 #include "PID.h"
+#include "WindowManager.h"
 
 // TODO: unsuckify this
 // TODO: build out the rest of the map and put it in KeyMapper

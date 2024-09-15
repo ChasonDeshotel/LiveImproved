@@ -3,16 +3,16 @@
 #include <iostream>
 #include <string>
 
+#include "ApplicationManager.h"
+#include "LogHandler.h"
 #include "Types.h"
 
 #include "ActionHandler.h"
-#include "ApplicationManager.h"
+#include "ConfigManager.h"
 #include "ContextMenu.h"
-#include "PluginManager.h"
-
 #include "IPC.h"
 #include "KeySender.h"
-#include "LogHandler.h"
+#include "PluginManager.h"
 #include "WindowManager.h"
 
 ActionHandler::ActionHandler(IPC& ipc, PluginManager& pluginManager, WindowManager& windowManager, ConfigManager& configManager)
