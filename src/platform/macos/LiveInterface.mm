@@ -161,22 +161,44 @@ void LiveInterface::doStuff() {
                     CFRelease(cfIdentifier);
                     return;
                 }
-                AXUIElementRef liveSearchBox = findElementByIdentifier(window, cfIdentifier, 0);
 
-                CFRelease(window);
-                CFRelease(cfIdentifier);
+                CFStringRef roleToFind = CFStringCreateWithCString(kCFAllocatorDefault, "AXTextField", kCFStringEncodingUTF8);
+                std::vector<AXUIElementRef> elementsByType = findElementsByType(window, roleToFind, 0);
 
-                if (liveSearchBox) {
-                    std::cerr << "Search box found." << std::endl;
-                    printAllAttributes(liveSearchBox);
+                // Process the matches
+                for (AXUIElementRef element : elementsByType) {
+                    std::cerr << "Found element: " << element << std::endl;
                     CFTypeRef focusedValue;
-                    AXUIElementCopyAttributeValue(liveSearchBox, kAXFocusedAttribute, &focusedValue);
+                    AXUIElementCopyAttributeValue(element, kAXFocusedAttribute, &focusedValue);
                     if (focusedValue == kCFBooleanTrue) {
                         std::cout << "Element is focused." << std::endl;
                     } else {
                         std::cout << "Element is not focused." << std::endl;
                     }
-                    CFRelease(liveSearchBox);
+                    CFRelease(element);  // Don't forget to release after processing
+                }
+                CFRelease(window);
+                CFRelease(cfIdentifier);
+                CFRelease(roleToFind);
+
+                if (false) {
+                    AXUIElementRef liveSearchBox = findElementByIdentifier(window, cfIdentifier, 0);
+
+                    CFRelease(window);
+                    CFRelease(cfIdentifier);
+
+                    if (liveSearchBox) {
+                        std::cerr << "Search box found." << std::endl;
+                        printAllAttributes(liveSearchBox);
+                        CFTypeRef focusedValue;
+                        AXUIElementCopyAttributeValue(liveSearchBox, kAXFocusedAttribute, &focusedValue);
+                        if (focusedValue == kCFBooleanTrue) {
+                            std::cout << "Element is focused." << std::endl;
+                        } else {
+                            std::cout << "Element is not focused." << std::endl;
+                        }
+                        CFRelease(liveSearchBox);
+                    }
                 } else {
                     std::cerr << "Search box not found." << std::endl;
                 }
@@ -201,6 +223,141 @@ void LiveInterface::printAllAttributes(const AXUIElementRef element) {
         std::cerr << "Unable to retrieve attributes for this element." << std::endl;
     }
 }
+
+std::vector<AXUIElementRef> LiveInterface::findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level) {
+    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
+
+    std::vector<AXUIElementRef> matches;  // Vector to hold the matches
+
+    if (level > 30) {
+        std::cerr << "Max recursion depth reached at level " << level << std::endl;
+        return matches;  // Return empty if depth is exceeded
+    }
+
+    if (!parent) {
+        std::cerr << "Invalid parent element at level " << level << std::endl;
+        return matches;
+    }
+
+    // Initialize children to nullptr
+    CFArrayRef children = nullptr;
+
+    // Retrieve the children of the parent element
+    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+    if (error != kAXErrorSuccess || !children) {
+        std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
+        return matches;  // Return empty if no children found
+    }
+
+    CFIndex count = CFArrayGetCount(children);
+    std::cerr << "Number of children at level " << level << ": " << count << std::endl;
+
+    for (CFIndex i = 0; i < count; i++) {
+        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+        if (!child) {
+            std::cerr << "No valid child found at index " << i << std::endl;
+            continue;  // Skip to next child if invalid
+        }
+
+        std::cerr << "Checking child at index " << i << " - Child element: " << child << std::endl;
+
+        // Check the role (type) of the element
+        CFTypeRef role = nullptr;
+        AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
+        if (roleError == kAXErrorSuccess && role) {
+            CFStringRef roleStr = static_cast<CFStringRef>(role);
+            if (CFStringCompare(roleStr, roleToFind, 0) == kCFCompareEqualTo) {
+                std::cerr << "Match found at index " << i << " - Level " << level << std::endl;
+                CFRetain(child);  // Retain the child before adding it to the vector
+                matches.push_back(child);  // Add the match to the vector
+                std::cerr << "Child retained and added to matches vector." << std::endl;
+            }
+            CFRelease(role);  // Always release the role attribute
+        }
+
+        // Recursively search in child elements and collect more matches
+        std::vector<AXUIElementRef> childMatches = findElementsByType(child, roleToFind, level + 1);
+        matches.insert(matches.end(), childMatches.begin(), childMatches.end());  // Append any matches found during recursion
+    }
+
+    // Release children array
+    CFRelease(children);
+    return matches;  // Return the collected matches
+}
+
+
+AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level) {
+    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
+
+    if (level > 3) {
+        std::cerr << "Max recursion depth reached at level " << level << std::endl;
+        return nullptr;
+    }
+
+    if (!parent) {
+        std::cerr << "Invalid parent element at level " << level << std::endl;
+        return nullptr;
+    }
+
+    // Initialize children to nullptr
+    CFArrayRef children = nullptr;
+
+    // Retrieve the children of the parent element
+    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+    if (error != kAXErrorSuccess || !children) {
+        std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
+        return nullptr;  // If failed, return early to avoid accessing nullptr
+    }
+
+    CFIndex count = CFArrayGetCount(children);
+    std::cerr << "Number of children at level " << level << ": " << count << std::endl;
+
+    for (CFIndex i = 0; i < count; i++) {
+        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+        if (!child) {
+            std::cerr << "No valid child found at index " << i << std::endl;
+            continue;  // Skip to next child if invalid
+        }
+
+        std::cerr << "Checking child at index " << i << " - Child element: " << child << std::endl;
+
+        // Check the search attribute (e.g., AXIdentifier or AXRole)
+        CFTypeRef attributeValue = nullptr;
+        AXError attrError = AXUIElementCopyAttributeValue(child, searchAttribute, &attributeValue);
+        if (attrError == kAXErrorSuccess && attributeValue) {
+            CFStringRef attrStr = static_cast<CFStringRef>(attributeValue);
+            if (CFStringCompare(attrStr, valueToFind, 0) == kCFCompareEqualTo) {
+                std::cerr << "Match found at index " << i << " - Level " << level << std::endl;
+                CFRelease(attributeValue);  // Release attribute value
+
+                // Return the child immediately
+                std::cerr << "Retaining and returning child at level " << level << std::endl;
+                CFRetain(child);
+                CFRelease(children);  // Release children array
+                return child;
+            }
+            CFRelease(attributeValue);  // Always release attribute value if not a match
+        }
+
+        // Recursively search in child elements
+        std::cerr << "Recursing into child at index " << i << std::endl;
+        AXUIElementRef found = findElementByAttribute(child, valueToFind, searchAttribute, level + 1);
+        if (found) {
+            std::cerr << "Found element during recursion at level " << level << std::endl;
+            CFRelease(children);  // Release children array before returning
+            return found;
+        } else {
+            std::cerr << "No match found during recursion at level " << level << std::endl;
+        }
+    }
+
+    // Release children if nothing is found
+    std::cerr << "Releasing children array at level " << level << std::endl;
+    CFRelease(children);
+    std::cerr << "No match found at level " << level << std::endl;
+    return nullptr;
+}
+
 
 AXUIElementRef LiveInterface::findElementByIdentifier(AXUIElementRef parent, CFStringRef identifierToFind, int level) {
     std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
