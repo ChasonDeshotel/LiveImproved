@@ -16,6 +16,8 @@
 #include "PID.h"
 #include "WindowManager.h"
 
+#include "LiveInterface.h"
+
 // TODO: unsuckify this
 // TODO: build out the rest of the map and put it in KeyMapper
 std::string keyCodeToString(CGKeyCode keyCode) {
@@ -169,11 +171,25 @@ std::optional<std::chrono::steady_clock::time_point> lastRightClickTime;
 // TODO: move to config
 const int doubleClickThresholdMs = 300;
 
+
+//TODO 
+// Handling Mouse Clicks: Instead of logging or handling double-click events
+// directly in the UI, you can use the AX API to check if certain elements
+// are under the mouse cursor and interact with them accordingly.
+// 
+// Handling Key Presses: When detecting key presses, instead of processing
+// them for an AppKit UI element, you might want to query if certain
+// accessibility elements are focused or in edit mode, and then modify their
+// content (e.g., typing into a text field).
+
+std::shared_ptr<LiveInterface> liveInterface = std::make_shared<LiveInterface>();
+
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
     // 40 is weird. The normal flag didn't work
     pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
+
 
     // close the search box when clicking in Live
     if (handler->windowManager_.isWindowOpen("SearchBox")) {
@@ -245,6 +261,11 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
 
         } else if (eventType == kCGEventKeyDown) {
             handler->log_.debug("Ableton Live keydown event detected.");
+
+            if (liveInterface->isAnyTextFieldFocused()) {
+                handler->log_.debug("Ableton Live text field has focus. Passing event.");
+                return event;
+            }
 
             CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);

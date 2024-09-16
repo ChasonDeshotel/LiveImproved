@@ -148,63 +148,105 @@ void printChildren(AXUIElementRef element, int level = 0) {
     }
 }
 
-void LiveInterface::doStuff() {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            AXUIElementRef window = findApplicationWindow();
+bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
+//    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
-            const char* cString = "ContentBrowser.KeywordEditorSplitter.BrowserToolbar.SearchField";
-            CFStringRef cfIdentifier = CFStringCreateWithCString(kCFAllocatorDefault, cString, kCFStringEncodingUTF8);
+    if (level > 10) {
+//        std::cerr << "Max recursion depth reached at level " << level << std::endl;
+        return false;
+    }
 
-            if (cfIdentifier) {
-                if (!window) {
-                    std::cerr << "Window is null or invalid." << std::endl;
-                    CFRelease(cfIdentifier);
-                    return;
+    if (!parent) {
+        std::cerr << "Invalid parent element at level " << level << std::endl;
+        return false;
+    }
+
+    // Initialize children to nullptr
+    CFArrayRef children = nullptr;
+
+    // Retrieve the children of the parent element
+    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+    if (error != kAXErrorSuccess || !children) {
+//        std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
+        return false;  // Return false if no children found
+    }
+
+    CFIndex count = CFArrayGetCount(children);
+//    std::cerr << "Number of children at level " << level << ": " << count << std::endl;
+
+    for (CFIndex i = 0; i < count; i++) {
+        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+        if (!child) {
+//            std::cerr << "No valid child found at index " << i << std::endl;
+            continue;  // Skip to next child if invalid
+        }
+
+        // Check if the element is a text field
+        CFTypeRef role = nullptr;
+        AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
+        if (roleError == kAXErrorSuccess && role) {
+            CFStringRef roleStr = static_cast<CFStringRef>(role);
+            if (CFStringCompare(roleStr, CFSTR("AXTextField"), 0) == kCFCompareEqualTo) {
+                CFRelease(role);
+
+                // Check if the text field is focused
+                CFTypeRef focusedValue;
+                AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &focusedValue);
+                if (focusedError == kAXErrorSuccess && focusedValue == kCFBooleanTrue) {
+                    std::cerr << "Focused text field found at level " << level << std::endl;
+                    CFRelease(children);
+                    return true;  // Exit early if a focused text field is found
                 }
-
-                CFStringRef roleToFind = CFStringCreateWithCString(kCFAllocatorDefault, "AXTextField", kCFStringEncodingUTF8);
-                std::vector<AXUIElementRef> elementsByType = findElementsByType(window, roleToFind, 0);
-
-                // Process the matches
-                for (AXUIElementRef element : elementsByType) {
-                    std::cerr << "Found element: " << element << std::endl;
-                    CFTypeRef focusedValue;
-                    AXUIElementCopyAttributeValue(element, kAXFocusedAttribute, &focusedValue);
-                    if (focusedValue == kCFBooleanTrue) {
-                        std::cout << "Element is focused." << std::endl;
-                    } else {
-                        std::cout << "Element is not focused." << std::endl;
-                    }
-                    CFRelease(element);  // Don't forget to release after processing
-                }
-                CFRelease(window);
-                CFRelease(cfIdentifier);
-                CFRelease(roleToFind);
-
-                if (false) {
-                    AXUIElementRef liveSearchBox = findElementByIdentifier(window, cfIdentifier, 0);
-
-                    CFRelease(window);
-                    CFRelease(cfIdentifier);
-
-                    if (liveSearchBox) {
-                        std::cerr << "Search box found." << std::endl;
-                        printAllAttributes(liveSearchBox);
-                        CFTypeRef focusedValue;
-                        AXUIElementCopyAttributeValue(liveSearchBox, kAXFocusedAttribute, &focusedValue);
-                        if (focusedValue == kCFBooleanTrue) {
-                            std::cout << "Element is focused." << std::endl;
-                        } else {
-                            std::cout << "Element is not focused." << std::endl;
-                        }
-                        CFRelease(liveSearchBox);
-                    }
-                } else {
-                    std::cerr << "Search box not found." << std::endl;
-                }
+                CFRelease(focusedValue);
+            } else {
+                CFRelease(role);
             }
-        });
+        }
+
+        // Recursively search in child elements
+        if (isAnyTextFieldFocusedRecursive(child, level + 1)) {
+            CFRelease(children);  // Release children array before returning
+            return true;  // Exit early if a focused text field is found during recursion
+        }
+    }
+
+    // Release children if nothing is found
+    CFRelease(children);
+    return false;  // No focused text field found
 }
+
+bool LiveInterface::isAnyTextFieldFocused() {
+    AXUIElementRef window = findApplicationWindow();
+    if (!window) {
+        std::cerr << "Window is null or invalid." << std::endl;
+        return false;
+    }
+
+    return isAnyTextFieldFocusedRecursive(window, 0);
+}
+
+// search box
+//    if (window) {
+//        AXUIElementRef liveSearchBox = findElementByIdentifier(window, cfIdentifier, 0);
+//
+//        CFRelease(window);
+//        CFRelease(cfIdentifier);
+//
+//        if (liveSearchBox) {
+//            std::cerr << "Search box found." << std::endl;
+//            printAllAttributes(liveSearchBox);
+//            CFTypeRef focusedValue;
+//            AXUIElementCopyAttributeValue(liveSearchBox, kAXFocusedAttribute, &focusedValue);
+//            if (focusedValue == kCFBooleanTrue) {
+//                std::cout << "Element is focused." << std::endl;
+//            } else {
+//                std::cout << "Element is not focused." << std::endl;
+//            }
+//            CFRelease(liveSearchBox);
+//        }
+//    } else {
+//        std::cerr << "Search box not found." << std::endl;
+//    }
 
 void LiveInterface::printAllAttributes(const AXUIElementRef element) {
     CFArrayRef attributeNames = nullptr;
@@ -430,9 +472,6 @@ AXUIElementRef LiveInterface::findElementByIdentifier(AXUIElementRef parent, CFS
     std::cerr << "No match found at level " << level << std::endl;
     return nullptr;
 }
-
-
-
 
 void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
     if (!parent) {
