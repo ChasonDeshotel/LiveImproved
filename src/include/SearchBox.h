@@ -5,8 +5,9 @@
 #include <vector>
 #include <memory>
 
-#include "LogHandler.h"
-#include "Types.h"
+#include "Types.h" // for IWindow
+
+class LogHandler;
 
 #include <JuceHeader.h>
 

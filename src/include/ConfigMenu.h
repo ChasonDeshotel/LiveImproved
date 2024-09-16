@@ -4,7 +4,9 @@
 #include <filesystem>
 
 #include "yaml-cpp/yaml.h"
-#include "Types.h"
+
+class LogHandler;
+class MenuItem;
 
 class ConfigMenu {
 public:

@@ -4,9 +4,9 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <string>
 
-#include "LogHandler.h"
 #include "Types.h"
 
+class LogHandler;
 class ApplicationManager;
 class KeyMapper;
 class PluginManager;

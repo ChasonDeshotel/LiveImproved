@@ -12,8 +12,6 @@
 #include <vector>
 #include <iostream>
 
-#include "KeySender.h"
-
 // Actions
 struct NamedActions {
     static const std::unordered_set<std::string>& get() {

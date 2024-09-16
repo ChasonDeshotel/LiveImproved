@@ -10,9 +10,8 @@
 
 #include "Types.h"
 
-#include "LogHandler.h"
-
-#include "KeyMapper.h"
+class LogHandler;
+class KeyMapper;
 
 class ConfigManager {
 public:
