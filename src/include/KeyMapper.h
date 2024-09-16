@@ -7,8 +7,9 @@
 #include <sstream>
 #include <algorithm>
 
+#include "Types.h"
+
 class LogHandler;
-class EKeyPress;
 
 class KeyMapper {
 public:
