@@ -67,6 +67,7 @@ set(SRC_OBJCXX
     src/platform/macos/PID.mm
     src/platform/macos/EventHandler.mm
     src/platform/macos/KeySender.mm
+    src/platform/macos/LiveInterface.mm
 )
 
 # Add the C++ and Objective-C++ files to the target

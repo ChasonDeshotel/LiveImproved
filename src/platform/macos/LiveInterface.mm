@@ -21,9 +21,9 @@ AXUIElementRef LiveInterface::findApplicationWindow() {
         // Get the main window of the application
         AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, (CFTypeRef*)&window);
         CFRelease(appElement);
-        std::cerr << "\n\nmain window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
+        //std::cerr << "main window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
     } else {
-        std::cerr << "\n\nno window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
+        std::cerr << "no window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
     }
     mainWindow_ = window;
     return window;
@@ -505,7 +505,7 @@ void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
                 AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &isFocused);
                 
                 if (focusedError == kAXErrorSuccess && isFocused == kCFBooleanTrue) {
-                    std::cout << "Focused text field found!" << std::endl;
+                    std::cout << "Focused text field found" << std::endl;
                     printElementInfo(child);  // Print info about the focused text field
                     CFRelease(role);
                     CFRelease(children);
