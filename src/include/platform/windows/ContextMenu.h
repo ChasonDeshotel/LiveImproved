@@ -7,7 +7,7 @@
 #include <functional>
 #include "Types.h"
 
-class ContextMenu {
+class ContextMenu : public IWindow {
 public:
     // Constructor
     ContextMenu(std::function<void(const std::string&)> callback = nullptr);

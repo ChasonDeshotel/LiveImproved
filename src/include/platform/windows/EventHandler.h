@@ -27,17 +27,19 @@ public:
     void setupWindowsEventHook();
     void cleanupWindowsHooks();
 
-    static void focusLim();
-    static void focusLive();
+    void focusLim();
+    void focusLive();
 
     ERect getLiveBoundsRect();
+
+    static EventHandler* instance;
 
 private:
     WindowManager& windowManager_;
     ActionHandler& actionHandler_;
     LogHandler& log_;
 
-    static void focusApplication(pid_t pid);
+    void focusApplication(pid_t pid);
 
     // Hook callback functions
     static LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam);

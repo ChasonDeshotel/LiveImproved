@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <optional>
+#include <chrono>
 
 #include "LogHandler.h"
 #include "EventHandler.h"
@@ -10,13 +11,79 @@
 #include "WindowManager.h"
 #include "ActionHandler.h"
 
+#include <Windows.h>
+#include <string>
+
+// TODO move... somewhere
+std::string keyCodeToString(DWORD keyCode) {
+    // Handle special keys
+    switch (keyCode) {
+        // Function keys
+        case VK_F1:  return "F1";
+        case VK_F2:  return "F2";
+        case VK_F3:  return "F3";
+        case VK_F4:  return "F4";
+        case VK_F5:  return "F5";
+        case VK_F6:  return "F6";
+        case VK_F7:  return "F7";
+        case VK_F8:  return "F8";
+        case VK_F9:  return "F9";
+        case VK_F10: return "F10";
+        case VK_F11: return "F11";
+        case VK_F12: return "F12";
+
+            // Arrow keys
+        case VK_LEFT:  return "Left Arrow";
+        case VK_RIGHT: return "Right Arrow";
+        case VK_DOWN:  return "Down Arrow";
+        case VK_UP:    return "Up Arrow";
+
+            // Other special keys
+        case VK_ESCAPE:   return "Escape";
+        case VK_TAB:      return "Tab";
+        case VK_SPACE:    return "Space";
+        case VK_RETURN:   return "Return";
+        case VK_DELETE:   return "Delete";
+        case VK_HOME:     return "Home";
+        case VK_END:      return "End";
+        case VK_PRIOR:    return "Page Up";
+        case VK_NEXT:     return "Page Down";
+
+            // Other keys
+        case VK_OEM_PLUS:     return "+";
+        case VK_OEM_MINUS:    return "-";
+        case VK_OEM_3:        return "`";
+        case VK_OEM_4:        return "[";
+        case VK_OEM_6:        return "]";
+        case VK_OEM_5:        return "\\";
+
+        default: {
+            // Map virtual key code to the corresponding character using MapVirtualKey
+            // for non-special keys like letters and numbers
+            char buffer[2] = { 0 };
+            UINT scanCode = MapVirtualKey(keyCode, MAPVK_VK_TO_VSC);
+            if (scanCode) {
+                // Try to convert the virtual key to a character
+                if (GetKeyNameTextA(scanCode << 16, buffer, sizeof(buffer)) > 0) {
+                    return std::string(buffer);
+                }
+            }
+            return "[Unknown Key]";
+        }
+    }
+}
+
 HHOOK keyboardHook = NULL;
 HHOOK mouseHook = NULL;
+
+EventHandler* EventHandler::instance = nullptr;
 
 EventHandler::EventHandler(WindowManager& windowManager, ActionHandler& actionHandler)
     : windowManager_(windowManager)
     , actionHandler_(actionHandler)
-    , log_(LogHandler::getInstance()) {}
+    , log_(LogHandler::getInstance()) {
+    instance = this;
+}
 
 EventHandler::~EventHandler() {
     cleanupWindowsHooks();
@@ -49,6 +116,10 @@ void EventHandler::cleanupWindowsHooks() {
     }
 }
 
+std::optional<std::chrono::steady_clock::time_point> lastRightClickTime;
+// TODO: move to config
+const int doubleClickThresholdMs = 300;
+
 LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION) {
         MSLLHOOKSTRUCT* mouseStruct = (MSLLHOOKSTRUCT*)lParam;
@@ -59,8 +130,8 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
             LogHandler::getInstance().debug("Mouse down event detected");
 
             // Check if search box is open
-            if (WindowManager::getInstance().isWindowOpen("SearchBox")) {
-                HWND searchBoxHwnd = WindowManager::getInstance().getWindowHandle("SearchBox");
+            if (instance->windowManager_.isWindowOpen("SearchBox")) {
+                HWND searchBoxHwnd = static_cast<HWND>(instance->windowManager_.getWindowHandle("SearchBox"));
                 RECT appBounds;
                 GetWindowRect(searchBoxHwnd, &appBounds);
 
@@ -76,7 +147,7 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
 
                     if (PtInRect(&liveBounds, mouseLocation)) {
                         LogHandler::getInstance().debug("Click is outside app but inside Live, closing search box.");
-                        WindowManager::getInstance().closeWindow("SearchBox");
+                        instance->windowManager_.closeWindow("SearchBox");
                     }
                 } else {
                     LogHandler::getInstance().debug("Click is inside the search box window, keeping window open.");
@@ -90,7 +161,7 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
                     auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
                     if (durationSinceLastClick.count() <= doubleClickThresholdMs) {
                         LogHandler::getInstance().debug("Double-right-click detected, handling action.");
-                        ActionHandler::getInstance().handleDoubleRightClick();
+                        instance->actionHandler_.handleDoubleRightClick();
                         return 1;  // Stop further processing
                     }
                 }
@@ -108,16 +179,20 @@ LRESULT CALLBACK EventHandler::LowLevelKeyboardProc(int nCode, WPARAM wParam, LP
         if (wParam == WM_KEYDOWN) {
             LogHandler::getInstance().debug("Key down event detected in Ableton Live.");
 
-            // Pass event if any text field in Ableton Live has focus
-            if (liveInterface->isAnyTextFieldFocused()) {
-                LogHandler::getInstance().debug("Ableton Live text field has focus, passing event.");
-                return CallNextHookEx(NULL, nCode, wParam, lParam);
-            }
+            // TODO cross platform
+            #ifndef _WIN32
+				// Pass event if any text field in Ableton Live has focus
+				if (liveInterface->isAnyTextFieldFocused()) {
+					LogHandler::getInstance().debug("Ableton Live text field has focus, passing event.");
+					return CallNextHookEx(NULL, nCode, wParam, lParam);
+				}
+			#endif
 
             // Handle key events
+            // TODO cross platform send EKeyPress
             DWORD vkCode = kbdStruct->vkCode;
             std::string keyString = keyCodeToString(vkCode);
-            bool shouldPassEvent = ActionHandler::getInstance().handleKeyEvent(keyString, 0, "keyDown");
+            bool shouldPassEvent = instance->actionHandler_.handleKeyEvent(keyString, 0, "keyDown");
 
             if (!shouldPassEvent) {
                 return 1;  // Block the event if not to be passed
@@ -140,11 +215,11 @@ BOOL CALLBACK EventHandler::EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 }
 
 void EventHandler::focusLim() {
-    EventHandler::focusApplication(PID::getInstance().appPID());
+    focusApplication(PID::getInstance().appPID());
 }
 
 void EventHandler::focusLive() {
-    EventHandler::focusApplication(PID::getInstance().livePID());
+    focusApplication(PID::getInstance().livePID());
 }
 
 void EventHandler::focusApplication(pid_t pid) {

@@ -19,7 +19,7 @@
 #include "LiveInterface.h"
 
 // TODO: unsuckify this
-// TODO: build out the rest of the map and put it in KeyMapper
+// TODO: build out the rest of the map and put it in... somewhere else
 std::string keyCodeToString(CGKeyCode keyCode) {
     // Handle special keys
     switch (keyCode) {

@@ -15,12 +15,12 @@ ConfigManager::ConfigManager(const std::filesystem::path& configFile)
     , km_(new KeyMapper()) {
     loadConfig();
 
-    log_->info("config filepath:" + configFile.string());
+    log_->info("config filepath:" + configFile.generic_string());
 }
 
 void ConfigManager::loadConfig() {
     try {
-        applyConfig(YAML::LoadFile(configFile_));
+        applyConfig(YAML::LoadFile(configFile_.generic_string()));
     } catch (const std::exception &e) {
         log_->error("Error loading config: " + std::string(e.what()));
     }

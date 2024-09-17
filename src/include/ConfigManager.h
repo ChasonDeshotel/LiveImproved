@@ -49,7 +49,7 @@ private:
 
     void processRemap(const std::string &from, const std::string &to);
 
-    std::string configFile_;
+    std::filesystem::path configFile_;
     YAML::Node config_;
 
     // Configuration options

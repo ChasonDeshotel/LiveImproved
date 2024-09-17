@@ -31,7 +31,7 @@ private:
     void outputItemToYAML(YAML::Emitter& out, const MenuItem& item);
     void applyConfig(const YAML::Node& config);
 
-    std::string configFile_;
+    std::filesystem::path configFile_;
 
     YAML::Node config_;
 
