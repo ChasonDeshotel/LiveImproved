@@ -8,7 +8,6 @@
 #include <dispatch/dispatch.h>
 #include <unistd.h>
 
-#include "ApplicationManager.h"
 #include "PID.h"
 #include "LogHandler.h"
 

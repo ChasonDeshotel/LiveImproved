@@ -1,7 +1,6 @@
 ﻿{
   "configurations": [
     {
-      "architecture": "x64",
       "buildCommandArgs": "",
       "buildRoot": "${projectDir}\\build\\${name}",
       "cmakeCommandArgs": "",
