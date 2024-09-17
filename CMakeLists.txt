@@ -46,8 +46,14 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/include/juce
     ${CMAKE_SOURCE_DIR}/lib/juce/modules
     ${CMAKE_SOURCE_DIR}/src/include
-    ${CMAKE_SOURCE_DIR}/src/include/platform/macos
 )
+if(APPLE)
+    message(STATUS "Including macOS-specific directories")
+    include_directories(${CMAKE_SOURCE_DIR}/src/include/platform/macos)
+elseif(WIN32)
+    message(STATUS "Including Windows-specific directories")
+    include_directories(${CMAKE_SOURCE_DIR}/src/include/platform/windows)
+endif()
 
 target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h")
 
@@ -80,7 +86,6 @@ if(APPLE)
 elseif(WIN32)
     list(APPEND SRC_CPP
         src/platform/windows/IPC.cpp
-        src/platform/windows/PlatformInitializer.cpp
         src/platform/windows/ContextMenu.cpp
         src/platform/windows/PID.cpp
         src/platform/windows/EventHandler.cpp
