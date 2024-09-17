@@ -20,6 +20,9 @@ public:
     EventHandler(WindowManager& windowManager, ActionHandler& actionHandler);
     ~EventHandler();
 
+    void setupQuartzEventTap();
+    void runPlatform();
+
     static void focusLim();
     static void focusLive();
 

@@ -26,9 +26,9 @@ public:
     void init();
 
     void handleAction(std::string);
+
     // returns if the event should be blocking
-    // TODO cross-platform send EKeyPress
-    bool handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type);
+    bool handleKeyEvent(EKeyPress pressedKey);
     
     void handleDoubleRightClick();
 

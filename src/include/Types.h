@@ -93,11 +93,18 @@ enum Modifier {
     , Cmd     = 0x00100000
 };
 
+enum class KeyState {
+    Up
+    , Down
+    , Unknown
+};
+
 // comparisons on modifiers were causing malloc
 // thus the attribute packed voodoo
 // edit: this might have actually been caused
 // by running two instances
 struct PACKED EKeyPress {
+    KeyState state = KeyState::Unknown;
     bool shift = false;
     bool ctrl  = false;
     bool cmd   = false;

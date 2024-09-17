@@ -30,7 +30,6 @@ public:
 			PlatformInitializer::init();
 			appManager.getEventHandler()->setupQuartzEventTap();
 			PlatformInitializer::run();
-		    appManager.getEventHandler()->startEventLoop();
         #endif
     }
 

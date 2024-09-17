@@ -190,7 +190,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     // 40 is weird. The normal flag didn't work
     pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
 
-
     // close the search box when clicking in Live
     if (handler->windowManager_.isWindowOpen("SearchBox")) {
         if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
@@ -270,11 +269,15 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
             CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);
 
-            std::string keyUpDown = (eventType == kCGEventKeyDown) ? "keyDown" : "keyUp";
+            EKeyPress pressedKey;
+            pressedKey.state = KeyState::Down;
+            pressedKey.shift = (flags & Shift) != 0;
+            pressedKey.ctrl  = (flags & Ctrl ) != 0;
+            pressedKey.cmd   = (flags & Cmd  ) != 0;
+            pressedKey.alt   = (flags & Alt  ) != 0;
+            pressedKey.key   = keyCodeToString(keyCode);
 
-            std::string keyString = keyCodeToString(keyCode);
-
-            bool shouldPassEvent = handler->actionHandler_.handleKeyEvent(keyString, flags, keyUpDown);
+            bool shouldPassEvent = handler->actionHandler_.handleKeyEvent(pressedKey);
 
             return shouldPassEvent ? event : NULL;
         }

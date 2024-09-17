@@ -180,36 +180,26 @@ void ActionHandler::handleAction(const std::string action) {
 
 // TODO cross-platform - send flags as another KeyPress object since CGEventFlags
 // doesn't exist on Windows
-bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type) {
+bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
     // static cast probably not necessary
-    bool isShiftPressed = static_cast<bool>(flags & Shift) != 0;
-    bool isCtrlPressed  = static_cast<bool>(flags & Ctrl ) != 0;
-    bool isCmdPressed   = static_cast<bool>(flags & Cmd  ) != 0;
-    bool isAltPressed   = static_cast<bool>(flags & Alt  ) != 0;
-    EKeyPress kp;
-    kp.shift = isShiftPressed;
-    kp.ctrl  = isCtrlPressed;
-    kp.cmd   = isCmdPressed;
-    kp.alt   = isAltPressed;
-    kp.key   = keyString;
 
     std::unordered_map<EKeyPress, EMacro, EMacroHash> remap = configManager_.getRemap();
 
+    log_.debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
+    log_.debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
+    log_.debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
+    log_.debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
+    log_.debug("searching map for pressed sent: "  + pressedKey.key);
 
-    log_.debug("searching map for pressed cmd: "   + std::to_string(kp.cmd));
-    log_.debug("searching map for pressed ctrl: "  + std::to_string(kp.ctrl));
-    log_.debug("searching map for pressed alt: "   + std::to_string(kp.alt));
-    log_.debug("searching map for pressed shift: " + std::to_string(kp.shift));
-    log_.debug("searching map for pressed sent: "  + kp.key);
     // key remaps
-    auto it = remap.find(kp);
+    auto it = remap.find(pressedKey);
     if (it != remap.end()) {
         executeMacro(it->second);
         return false;
     } else {
-        log_.warn("Key not found in remap: " + keyString);
+        log_.warn("Key not found in remap: " + pressedKey.key);
     }
 
 //        } else if (keyString == "Escape") {
