@@ -29,10 +29,8 @@ public:
     ConfigMenu*     getConfigMenu();
     EventHandler*   getEventHandler();
     IPC*            getIPC();
-    KeySender*      getKeySender();
     LogHandler*     getLogHandler();
     PluginManager&  getPluginManager();
-    ResponseParser* getResponseParser();
     WindowManager*  getWindowManager();
 
 private:
@@ -52,8 +50,6 @@ private:
     WindowManager*  windowManager_  = nullptr;
 
     LogHandler*     log_;
-
-    std::vector<std::string> splitStringInPlace(std::string& str, char delimiter);
 
 };
 
