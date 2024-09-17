@@ -17,8 +17,12 @@ endif()
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Add JUCE using the CMake API
 add_subdirectory(lib/JUCE)
+add_subdirectory(lib/yaml-cpp)
+add_subdirectory(lib/harfbuzz)
+
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/lib/yaml-cpp)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/lib/harfbuzz)
 
 # Set up your project with JUCE modules
 juce_add_gui_app(LiveImproved
@@ -46,18 +50,6 @@ include_directories(
 )
 
 target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h")
-
-if(APPLE)
-	find_package(yaml-cpp REQUIRED)
-	target_link_libraries(LiveImproved PRIVATE yaml-cpp)
-	find_package(harfbuzz REQUIRED)
-	target_link_libraries(LiveImproved PRIVATE harfbuzz)
-elseif(WIN32)
-	set(CMAKE_TOOLCHAIN_FILE "C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake")
-	find_package(yaml-cpp REQUIRED)
-	target_link_libraries(LiveImproved PRIVATE yaml-cpp)
-	find_package(harfbuzz REQUIRED)
-	target_link_libraries(LiveImproved PRIVATE harfbuzz)
 
 # Source files for C++ and Objective-C++
 set(SRC_CPP

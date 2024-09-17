@@ -1,0 +1,16 @@
+﻿{
+  "configurations": [
+    {
+      "architecture": "x64",
+      "buildCommandArgs": "",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "cmakeCommandArgs": "",
+      "configurationType": "Debug",
+      "ctestCommandArgs": "",
+      "generator": "Visual Studio 17 2022",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "installRoot": "${projectDir}\\build\\install\\${name}",
+      "name": "x64-Debug"
+    }
+  ]
+}
