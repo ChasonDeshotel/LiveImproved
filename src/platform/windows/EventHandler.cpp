@@ -3,12 +3,12 @@
 #include <iostream>
 #include <optional>
 
+#include "LogHandler.h"
 #include "EventHandler.h"
 #include "Types.h"
-#include "EventHandler.h"
-#include "EventHandler.h"
-#include "EventHandler.h"
-#include "EventHandler.h"
+#include "PID.h"
+#include "WindowManager.h"
+#include "ActionHandler.h"
 
 HHOOK keyboardHook = NULL;
 HHOOK mouseHook = NULL;
@@ -149,19 +149,19 @@ void EventHandler::focusLive() {
 
 void EventHandler::focusApplication(pid_t pid) {
     HWND hwnd = NULL;
-    DWORD pid = static_cast<DWORD>(pid); 
+    DWORD pidDWORD = static_cast<DWORD>(pid); 
 
     // Enumerate all windows to find the one that matches the given PID
-    EnumWindows(EnumWindowsProc, (LPARAM)&pid);
+    EnumWindows(EnumWindowsProc, (LPARAM)&pidDWORD);
 
     if (hwnd != NULL) {
-        log_.debug("Bringing app into focus: " + std::to_string(pid));
+        log_.debug("Bringing app into focus: " + std::to_string(pidDWORD));
 
         // Restore and bring the window to the foreground
         ShowWindow(hwnd, SW_RESTORE);  // Restore if minimized
         SetForegroundWindow(hwnd);     // Bring to foreground
     } else {
-        log_.error("Application window not found with PID: " + std::to_string(pid));
+        log_.error("Application window not found with PID: " + std::to_string(pidDWORD));
     }
 }
 

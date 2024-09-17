@@ -5,6 +5,8 @@
 #include <string>
 #include <optional>
 
+#include "Types.h"
+
 class LogHandler;
 class ActionHandler;
 class WindowManager;

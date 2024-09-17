@@ -1,7 +1,11 @@
 #ifndef ACTION_HANDLER_H
 #define ACTION_HANDLER_H
 
-#include <CoreGraphics/CoreGraphics.h>
+// TODO cross-platform
+#ifndef _WIN32
+	#include <CoreGraphics/CoreGraphics.h>
+#endif
+
 #include <string>
 
 #include "Types.h"
@@ -23,6 +27,7 @@ public:
 
     void handleAction(std::string);
     // returns if the event should be blocking
+    // TODO cross-platform send EKeyPress
     bool handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type);
     
     void handleDoubleRightClick();
@@ -40,10 +45,9 @@ private:
     void initializeActionMap();
     void executeMacro(const EMacro& macro);
 
-    bool openSearchBox();
     bool closeWindows();
 
-    bool onEscapePress();
+    //bool onEscapePress();
 };
 
 #endif

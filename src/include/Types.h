@@ -19,6 +19,14 @@
 	#define PACKED __attribute__((packed))
 #endif
 
+// pid_t
+#ifdef _WIN32
+	#include <windows.h>
+	typedef DWORD pid_t;
+#else
+	#include <sys/types.h>
+	#include <unistd.h>
+#endif
 
 // Actions
 struct NamedActions {

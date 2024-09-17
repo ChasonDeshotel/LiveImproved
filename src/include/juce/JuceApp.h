@@ -26,9 +26,12 @@ public:
         // Block until Live is running
         PID::getInstance().livePIDBlocking();
 
-        PlatformInitializer::init();
-        appManager.getEventHandler()->setupQuartzEventTap();
-        PlatformInitializer::run();
+        #ifndef _WIN32
+			PlatformInitializer::init();
+			appManager.getEventHandler()->setupQuartzEventTap();
+			PlatformInitializer::run();
+		    appManager.getEventHandler()->startEventLoop();
+        #endif
     }
 
     void shutdown() override {

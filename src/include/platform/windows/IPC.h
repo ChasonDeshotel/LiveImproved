@@ -1,9 +1,11 @@
 #ifndef IPC_H
 #define IPC_H
 
+#include <windows.h>
 #include <iostream>
 #include <map>
 #include <string>
+#include <functional>
 
 class ApplicationManager;
 class LogHandler;

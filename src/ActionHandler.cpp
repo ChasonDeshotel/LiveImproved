@@ -1,4 +1,7 @@
-#include <ApplicationServices/ApplicationServices.h>
+// TODO cross-platform
+#ifndef _WIN32
+	#include <ApplicationServices/ApplicationServices.h>
+#endif
 #include <unordered_map>
 #include <iostream>
 #include <string>
@@ -174,6 +177,9 @@ void ActionHandler::handleAction(const std::string action) {
 // returns: bool: shouldPassEvent -- should the original event be passed
 // through to the calling function or should the original input be blocked
 // TODO: return shouldBlock ASAP and do the needful from dispatch_async
+
+// TODO cross-platform - send flags as another KeyPress object since CGEventFlags
+// doesn't exist on Windows
 bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, std::string type) {
 //    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
@@ -253,9 +259,12 @@ bool ActionHandler::handleKeyEvent(std::string keyString, CGEventFlags flags, st
 }
 
 void ActionHandler::handleDoubleRightClick() {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        windowManager_.openWindow("ContextMenu");
-    });
+    // TODO cross-platform
+    #ifndef _WIN32
+		dispatch_async(dispatch_get_main_queue(), ^{
+			windowManager_.openWindow("ContextMenu");
+		});
+	#endif
 }
 
 // move to ActionHandler

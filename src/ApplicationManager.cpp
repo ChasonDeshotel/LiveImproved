@@ -38,20 +38,34 @@ static void dylib_init() {
 
 #endif
 
+std::filesystem::path getHomeDirectory() {
+    #ifdef _WIN32
+		const char* homeDir = getenv("USERPROFILE");
+    #else
+		const char* homeDir = getenv("HOME");
+    #endif
+
+    if (!homeDir) {
+        throw std::runtime_error("Could not find the home directory.");
+    }
+
+    return std::filesystem::path(homeDir);
+}
+
 void ApplicationManager::init() {
     log_->debug("ApplicatonManager::init() called");
 
     windowManager_  = new WindowManager();
 
     std::filesystem::path configFilePath =
-        std::filesystem::path(std::string(getenv("HOME")))
+        std::filesystem::path(getHomeDirectory())
         / "Documents" / "Ableton" / "User Library"
         / "Remote Scripts" / "LiveImproved" / "config.txt"
     ;
     configManager_  = new ConfigManager(configFilePath);
 
     std::filesystem::path configMenuPath =
-        std::filesystem::path(std::string(getenv("HOME")))
+        std::filesystem::path(getHomeDirectory())
         / "Documents" / "Ableton" / "User Library"
         / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
     ;

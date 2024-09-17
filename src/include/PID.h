@@ -2,14 +2,7 @@
 #define PROCESS_H
 
 #include <string>
-
-#ifdef _WIN32
-	#include <windows.h>
-	typedef DWORD pid_t;
-#else
-	#include <sys/types.h>
-	#include <unistd.h>
-#endif
+#include "Types.h"
 
 class LogHandler;
 
