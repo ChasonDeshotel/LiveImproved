@@ -73,7 +73,7 @@ pid_t PID::livePID() {
       return abletonLivePID;
     }
 
-    return findPID();
+    return findLivePID();
 }
 
 pid_t PID::appPID() {
