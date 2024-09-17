@@ -4,8 +4,6 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include <windows.h>
-#include <functional>
 
 class ApplicationManager;
 class LogHandler;

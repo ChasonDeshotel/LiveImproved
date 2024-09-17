@@ -5,6 +5,10 @@
 
 #include "EventHandler.h"
 #include "Types.h"
+#include "EventHandler.h"
+#include "EventHandler.h"
+#include "EventHandler.h"
+#include "EventHandler.h"
 
 HHOOK keyboardHook = NULL;
 HHOOK mouseHook = NULL;
@@ -45,7 +49,7 @@ void EventHandler::cleanupWindowsHooks() {
     }
 }
 
-LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION) {
         MSLLHOOKSTRUCT* mouseStruct = (MSLLHOOKSTRUCT*)lParam;
         DWORD livePID = PID::getInstance().livePID();  // Get Ableton Live PID
@@ -97,7 +101,7 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK EventHandler::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION) {
         KBDLLHOOKSTRUCT* kbdStruct = (KBDLLHOOKSTRUCT*)lParam;
 
@@ -123,7 +127,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+BOOL CALLBACK EventHandler::EnumWindowsProc(HWND hwnd, LPARAM lParam) {
     DWORD targetPID = *(DWORD*)lParam;
     DWORD windowPID = 0;
     GetWindowThreadProcessId(hwnd, &windowPID);
@@ -143,8 +147,9 @@ void EventHandler::focusLive() {
     EventHandler::focusApplication(PID::getInstance().livePID());
 }
 
-void EventHandler::focusApplication(DWORD pid) {
+void EventHandler::focusApplication(pid_t pid) {
     HWND hwnd = NULL;
+    DWORD pid = static_cast<DWORD>(pid); 
 
     // Enumerate all windows to find the one that matches the given PID
     EnumWindows(EnumWindowsProc, (LPARAM)&pid);
@@ -160,7 +165,7 @@ void EventHandler::focusApplication(DWORD pid) {
     }
 }
 
-ERect getLiveBounds() {
+ERect EventHandler::getLiveBoundsRect() {
     ERect appBounds = { 0, 0, 0, 0 };  // Initialize to empty bounds
     DWORD livePID = PID::getInstance().livePID();  // Get the PID of Ableton Live
 

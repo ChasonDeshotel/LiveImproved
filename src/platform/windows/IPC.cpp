@@ -1,9 +1,10 @@
-#include "IPC.h"
 #include <windows.h>
+#include <functional>
 #include <iostream>
 #include <fstream>
 #include <cstring>
 
+#include "IPC.h"
 #include "ApplicationManager.h"
 #include "LogHandler.h"
 #include "PluginManager.h"
