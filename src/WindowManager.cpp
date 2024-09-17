@@ -18,15 +18,15 @@ std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& 
 }
 
 void WindowManager::registerWindow(const std::string& windowName, std::function<void()> callback) {
-    if (windows_.find(windowName) == windows_.end()) {
-        std::shared_ptr<IWindow> windowInstance = createWindowInstance(windowName);
-        if (windowInstance != nullptr) {
-            windows_[windowName] = {windowInstance, callback};
-            windowStates_[windowName] = false;
-        } else {
-            throw std::runtime_error("Window class not found for: " + windowName);
-        }
-    }
+	if (windows_.find(windowName) == windows_.end()) {
+		std::shared_ptr<IWindow> windowInstance = createWindowInstance(windowName);
+		if (windowInstance != nullptr) {
+			windows_[windowName] = {windowInstance, callback};
+			windowStates_[windowName] = false;
+		} else {
+			throw std::runtime_error("Window class not found for: " + windowName);
+		}
+	}
 }
 
 void* WindowManager::getWindowHandle(const std::string& windowName) const {

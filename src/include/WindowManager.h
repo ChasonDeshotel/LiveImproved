@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <stdexcept>
 
 class ApplicationManager;
 class IWindow;
@@ -14,11 +15,8 @@ class WindowManager {
 public:
     WindowManager();
 
-    template<typename T>
-    void registerWindowFactory(const std::string& windowName);
-
+    // TODO remove unused "override callback" param
     void registerWindow(const std::string& windowName, std::function<void()> callback = nullptr);
-
     void* getWindowHandle(const std::string& windowName) const;
 
     void openWindow(const std::string& windowName);
