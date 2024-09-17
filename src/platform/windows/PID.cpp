@@ -18,7 +18,7 @@ PID& PID::getInstance() {
     return instance;
 }
 
-pid_t PID::findWithToolHelp() {
+pid_t PID::findPID() {
     // LogHandler::getInstance().info("PID::findWithToolHelp() called");
 
     if (abletonLivePID != -1) {
@@ -63,7 +63,7 @@ pid_t PID::livePID() {
         return abletonLivePID;
     }
 
-    return findWithToolHelp();
+    return findPID();
 }
 
 pid_t PID::appPID() {

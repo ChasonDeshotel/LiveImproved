@@ -22,7 +22,7 @@ PID& PID::getInstance() {
     return instance;
 }
 
-pid_t PID::findWithSysctl() {
+pid_t PID::findPID() {
 //    LogHandler::getInstance().info("PID::findWithSysctl() called");
 
     if (abletonLivePID != -1) {
@@ -73,7 +73,7 @@ pid_t PID::livePID() {
       return abletonLivePID;
     }
 
-    return findWithSysctl();
+    return findPID();
 }
 
 pid_t PID::appPID() {
