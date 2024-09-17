@@ -178,6 +178,14 @@ bool IPC::openPipeForRead(const std::string& pipe_name, bool non_blocking) {
     return true;
 }
 
+bool IPC::writeToPipe(const std::string& pipe_name, const std::string& message) {
+    return false;
+}
+
+std::string IPC::readFromPipe(const std::string& pipe_name) {
+    return std::string();
+}
+
 bool IPC::writeRequest(const std::string& message) {
     // Check if the pipe is already open for writing
     if (pipes_[requestPipePath] == -1) {
