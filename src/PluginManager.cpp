@@ -8,7 +8,8 @@
 PluginManager::PluginManager(IPC& ipc, ResponseParser& responseParser)
     : ipc_(ipc)
     , responseParser_(responseParser)
-    , log_(LogHandler::getInstance()) {}
+    , log_(LogHandler::getInstance()) {
+}
 
 const std::vector<Plugin>& PluginManager::getPlugins() const {
     return plugins_;
