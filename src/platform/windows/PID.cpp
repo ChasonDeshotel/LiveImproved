@@ -18,7 +18,7 @@ PID& PID::getInstance() {
     return instance;
 }
 
-pid_t PID::findPID() {
+pid_t PID::findLivePID() {
     // LogHandler::getInstance().info("PID::findWithToolHelp() called");
 
     if (abletonLivePID != -1) {
@@ -63,7 +63,7 @@ pid_t PID::livePID() {
         return abletonLivePID;
     }
 
-    return findPID();
+    return findLivePID();
 }
 
 pid_t PID::appPID() {
@@ -76,7 +76,7 @@ PID* PID::livePIDBlocking() {
     while (livePID() == -1) {
         LogHandler::getInstance().info("Live not found, retrying...");
         livePID();
-        Sleep(1000);  // Sleep for 1 second (in ms)
+        Sleep(1000); // 1s
     }
 
     return this;

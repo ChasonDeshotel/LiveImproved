@@ -22,7 +22,7 @@ PID& PID::getInstance() {
     return instance;
 }
 
-pid_t PID::findPID() {
+pid_t PID::findLivePID() {
 //    LogHandler::getInstance().info("PID::findWithSysctl() called");
 
     if (abletonLivePID != -1) {

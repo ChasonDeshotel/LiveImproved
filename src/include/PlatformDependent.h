@@ -2,7 +2,10 @@
 #define PLATFORM_DEPENDENT_H
 
 #ifdef _WIN32
-// do includes for win
+#include "IPC.h"
+#include "PID.h"
+#include "EventHandler.h"
+#include "KeySender.h"
 #else
 #include "IPC.h"
 #include "PID.h"

@@ -2,7 +2,9 @@
 #define TYPES_H
 
 #include <functional>
+#include <iostream>
 #include <memory>
+#include <optional>
 #include <regex>
 #include <stdexcept>
 #include <string>
@@ -10,7 +12,13 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
-#include <iostream>
+
+#ifdef _WIN32
+	#define PACKED
+#else
+	#define PACKED __attribute__((packed))
+#endif
+
 
 // Actions
 struct NamedActions {
@@ -81,7 +89,7 @@ enum Modifier {
 // thus the attribute packed voodoo
 // edit: this might have actually been caused
 // by running two instances
-struct __attribute__((packed)) EKeyPress {
+struct PACKED EKeyPress {
     bool shift = false;
     bool ctrl  = false;
     bool cmd   = false;

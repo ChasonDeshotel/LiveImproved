@@ -3,6 +3,14 @@
 
 #include <string>
 
+#ifdef _WIN32
+	#include <windows.h>
+	typedef DWORD pid_t;
+#else
+	#include <sys/types.h>
+	#include <unistd.h>
+#endif
+
 class LogHandler;
 
 class PID {
@@ -12,7 +20,7 @@ public:
     PID(const PID&) = delete;
     PID& operator=(const PID&) = delete;
 
-    pid_t findWithSysctl();
+    pid_t findLivePID();
     pid_t livePID();
     pid_t appPID();
 
@@ -21,8 +29,6 @@ public:
 private:
     PID();
     ~PID();
-
-    LogHandler* log_;
 
     pid_t abletonLivePID = -1;
 };
