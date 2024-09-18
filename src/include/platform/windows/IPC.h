@@ -36,6 +36,9 @@ private:
     void removePipeIfExists(const std::string& pipe_name);
 
     bool createPipe(const std::string& pipe_name);
+    bool createWritePipe(const std::string& pipe_name);
+    bool createReadPipe(const std::string& pipe_name);
+    bool connectToPipe(const std::string& pipe_name);
     bool openPipeForWrite(const std::string& pipe_name);
     bool openPipeForRead(const std::string& pipe_name);
 

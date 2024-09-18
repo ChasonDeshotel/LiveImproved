@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <stdexcept>
 
 #include "IPC.h"
 #include "ApplicationManager.h"
@@ -27,35 +28,89 @@ IPC::~IPC() {
 bool IPC::init() {
     log_->debug("IPC::init() called");
 
-    if (!createPipe(requestPipePath) || !createPipe(responsePipePath)) {
-        log_->debug("IPC::init() failed");
+    // Create the write (outbound) pipe and read (inbound) pipe
+    if (!createWritePipe(requestPipePath) || !createReadPipe(responsePipePath)) {
+        log_->error("Failed to create pipes.");
         return false;
     }
 
-    // Make sure we can open/read the response pipe
-    if (!openPipeForRead(responsePipePath)) {
-        log_->debug("IPC::init() failed to open pipes for initial communication");
-        return false;
-    }
+    bool isReadInitialized = false;
+    bool isWriteInitialized = false;
 
-    // Open the request pipe for writing after some delay
-    HANDLE hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
-    if (hTimer) {
-        LARGE_INTEGER liDueTime;
-        liDueTime.QuadPart = -10000000LL; // 1-second delay
-
-        if (SetWaitableTimer(hTimer, &liDueTime, 0, NULL, NULL, FALSE)) {
-            WaitForSingleObject(hTimer, INFINITE);
-            if (openPipeForWrite(requestPipePath)) {
-                log_->info("Request pipe successfully opened for writing");
-                writeRequest("READY");
-            }
+    // Wait for the client to connect to both pipes
+    while (!isReadInitialized || !isWriteInitialized) {
+        if (!isReadInitialized && connectToPipe(responsePipePath)) {
+            log_->info("Response pipe connected (read).");
+            isReadInitialized = true;
+            log_->debug("read init");
         }
-        CloseHandle(hTimer);
+
+        if (!isWriteInitialized && connectToPipe(requestPipePath)) {
+            log_->info("Request pipe connected (write).");
+            isWriteInitialized = true;
+            log_->debug("write init");
+        }
+        log_->debug("retry");
+        Sleep(1000);  // Sleep between attempts
     }
 
-    log_->info("IPC::init() finished");
+    writeRequest("READY");
+    log_->info("IPC initialized successfully.");
     return true;
+}
+
+bool IPC::createWritePipe(const std::string& pipe_name) {
+    // Create write (outbound) pipe
+    HANDLE pipe = CreateNamedPipeA(
+        pipe_name.c_str(),
+        PIPE_ACCESS_OUTBOUND,  // Server will write to this pipe
+        PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+        PIPE_UNLIMITED_INSTANCES,
+        4096,
+        4096,
+        0,
+        NULL
+    );
+
+    if (pipe == INVALID_HANDLE_VALUE) {
+        log_->error("Failed to create write pipe: " + pipe_name);
+        return false;
+    }
+    pipes_[pipe_name] = pipe;
+    return true;
+}
+
+bool IPC::createReadPipe(const std::string& pipe_name) {
+    // Create read (inbound) pipe
+    HANDLE pipe = CreateNamedPipeA(
+        pipe_name.c_str(),
+        PIPE_ACCESS_INBOUND,  // Server will read from this pipe
+        PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+        PIPE_UNLIMITED_INSTANCES,
+        4096,
+        4096,
+        0,
+        NULL
+    );
+
+    if (pipe == INVALID_HANDLE_VALUE) {
+        log_->error("Failed to create read pipe: " + pipe_name);
+        return false;
+    }
+    pipes_[pipe_name] = pipe;
+    return true;
+}
+
+bool IPC::connectToPipe(const std::string& pipe_name) {
+    HANDLE pipe = pipes_[pipe_name];
+    if (pipe != INVALID_HANDLE_VALUE) {
+        if (ConnectNamedPipe(pipe, NULL) || GetLastError() == ERROR_PIPE_CONNECTED) {
+            return true;  // Pipe is now connected
+        } else {
+            log_->error("Failed to connect to pipe: " + pipe_name);
+        }
+    }
+    return false;
 }
 
 void IPC::removePipeIfExists(const std::string& pipe_name) {
@@ -63,37 +118,47 @@ void IPC::removePipeIfExists(const std::string& pipe_name) {
     log_->debug("No need to remove pipes on Windows: " + pipe_name);
 }
 
-bool IPC::createPipe(const std::string& pipe_name) {
-    log_->debug("Creating named pipe: " + pipe_name);
+bool IPC::openPipeForWrite(const std::string& pipe_name) {
+    int retry_count = 5;  // Number of retries
+    HANDLE pipe;
 
-    HANDLE pipe = CreateNamedPipeA(
-        pipe_name.c_str(),
-        PIPE_ACCESS_DUPLEX,
-        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-        PIPE_UNLIMITED_INSTANCES,
-        4096, 4096, 0, NULL);
+    while (retry_count > 0) {
+        pipe = CreateFileA(
+            pipe_name.c_str(),   // Full pipe name
+            GENERIC_WRITE,            // Write access only
+            0,                        // No sharing
+            NULL,                     // Default security attributes
+            OPEN_EXISTING,            // Open existing pipe
+            0,                        // Default attributes
+            NULL                      // No template file
+        );
 
-    if (pipe == INVALID_HANDLE_VALUE) {
-        log_->error("Failed to create named pipe: " + pipe_name + " - " + std::to_string(GetLastError()));
-        return false;
+        if (pipe != INVALID_HANDLE_VALUE) {
+            break;  // Pipe opened successfully
+        }
+
+        DWORD error = GetLastError();
+        if (error == ERROR_PIPE_BUSY) {
+            // Pipe is busy, wait and retry
+            if (WaitNamedPipeA(pipe_name.c_str(), 5000)) {
+                // Pipe is available within timeout, retry opening
+                retry_count--;
+                continue;
+            } else {
+                log_->error("Write pipe is busy and timeout occurred: " + pipe_name);
+                return false;
+            }
+        } else if (error == ERROR_ACCESS_DENIED) {
+            log_->error("Access denied when opening write pipe: " + pipe_name + " - " + std::to_string(error));
+            return false;
+        } else {
+            log_->error("Failed to open pipe for writing: " + pipe_name + " - " + std::to_string(error));
+            return false;
+        }
     }
 
-    pipes_[pipe_name] = pipe;
-    return true;
-}
-
-bool IPC::openPipeForWrite(const std::string& pipe_name) {
-    HANDLE pipe = CreateFileA(
-        pipe_name.c_str(),
-        GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
-
     if (pipe == INVALID_HANDLE_VALUE) {
-        log_->error("Failed to open pipe for writing: " + pipe_name + " - " + std::to_string(GetLastError()));
+        log_->error("Failed to open pipe for writing after retries: " + pipe_name);
         return false;
     }
 
@@ -103,25 +168,49 @@ bool IPC::openPipeForWrite(const std::string& pipe_name) {
 }
 
 bool IPC::openPipeForRead(const std::string& pipe_name) {
-    HANDLE pipe = CreateFileA(
-        pipe_name.c_str(),
-        GENERIC_READ,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
+    HANDLE pipe;
+
+	pipe = CreateFileA(
+		pipe_name.c_str(),   // Full pipe name
+		GENERIC_READ,            // Write access only
+		0,                        // No sharing
+		NULL,                     // Default security attributes
+		OPEN_EXISTING,            // Open existing pipe
+		0,                        // Default attributes
+		NULL                      // No template file
+	);
+
+	if (pipe != INVALID_HANDLE_VALUE) {
+		return false;  // Pipe opened successfully
+	}
+
+	DWORD error = GetLastError();
+	if (error == ERROR_PIPE_BUSY) {
+		// Pipe is busy, wait and retry
+		if (WaitNamedPipeA(pipe_name.c_str(), 5000)) {
+			// Pipe is available within timeout, retry opening
+            return false;
+		} else {
+			log_->error("Read pipe is busy and timeout occurred: " + pipe_name);
+			return false;
+		}
+	} else if (error == ERROR_ACCESS_DENIED) {
+		log_->error("Access denied when opening read pipe: " + pipe_name + " - " + std::to_string(error));
+		return false;
+	} else {
+		log_->error("Failed to open pipe for reading: " + pipe_name + " - " + std::to_string(error));
+		return false;
+	}
 
     if (pipe == INVALID_HANDLE_VALUE) {
-        log_->error("Failed to open pipe for reading: " + pipe_name + " - " + std::to_string(GetLastError()));
+        log_->error("Failed to open pipe for reading after retries: " + pipe_name);
         return false;
     }
 
     pipes_[pipe_name] = pipe;
-    log_->info("Pipe opened for reading: " + pipe_name);
+    log_->debug("Pipe opened for reading: " + pipe_name);
     return true;
 }
-
 bool IPC::writeRequest(const std::string& message) {
     HANDLE pipe = pipes_[requestPipePath];
     if (pipe == INVALID_HANDLE_VALUE) {
