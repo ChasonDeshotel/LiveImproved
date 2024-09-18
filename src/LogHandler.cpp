@@ -9,7 +9,13 @@
 namespace fs = std::filesystem;
 
 LogHandler::LogHandler() : currentLogLevel(LogLevel::LOG_DEBUG) {
-    logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/logs/log.txt";
+    #ifdef _WIN32
+        logPath = "C:\\Users\\Billy Maizere\\source\\repos\\LiveImproved\\log.txt";
+		//logPath = "NUL";
+    #else
+        logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/logs/log.txt";
+		//logPath = "/dev/null";
+    #endif
 }
 
 LogHandler::~LogHandler() {
@@ -26,11 +32,19 @@ LogHandler& LogHandler::getInstance() {
 
 void LogHandler::setLogPath(const std::string& path) {
     std::lock_guard<std::mutex> lock(logMutex);
-    logPath = fs::path(path).string();  // Ensure the path is handled correctly
-    if (logfile.is_open()) {
-        logfile.close();
+
+    try {
+        logPath = fs::path(path).string();  // Ensure the path is handled correctly
+        if (logfile.is_open()) {
+            logfile.close();
+        }
+        logfile.open(logPath, std::ios_base::app);
+        if (!logfile.is_open()) {
+            std::cerr << "Failed to open log file at: " << logPath << std::endl;
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
     }
-    logfile.open(logPath, std::ios_base::app);
 }
 
 void LogHandler::setLogLevel(LogLevel level) {

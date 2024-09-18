@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include <JuceHeader.h>
 #include <algorithm>
 

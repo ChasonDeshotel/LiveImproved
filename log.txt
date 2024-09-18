@@ -1,0 +1,1838 @@
+[2024-09-17 15:36:07] INFO: Ignition sequence started...
+[2024-09-17 15:36:07] DEBUG: int main()
+[2024-09-17 15:36:07] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:36:07] ERROR: Error loading config: bad file: C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:36:07] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:36:59] INFO: Ignition sequence started...
+[2024-09-17 15:36:59] DEBUG: int main()
+[2024-09-17 15:36:59] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:36:59] ERROR: Error loading config: bad file: C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:36:59] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:39:21] INFO: Ignition sequence started...
+[2024-09-17 15:39:21] DEBUG: int main()
+[2024-09-17 15:39:21] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:39:21] ERROR: Error loading config: bad file: C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:39:21] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:40:37] INFO: Ignition sequence started...
+[2024-09-17 15:40:37] DEBUG: int main()
+[2024-09-17 15:40:37] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:40:37] INFO: remap before remap
+[2024-09-17 15:40:37] DEBUG: remap found remap
+[2024-09-17 15:40:37] DEBUG: remap fromStr: ctl+d
+[2024-09-17 15:40:37] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:40:37] DEBUG: process remap: from: ctl+d to: cmd+a
+[2024-09-17 15:40:37] DEBUG: process key: ctl+d
+[2024-09-17 15:40:37] WARN: not a valid keypress format: ctl+d
+[2024-09-17 15:40:37] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:40:50] INFO: Ignition sequence started...
+[2024-09-17 15:40:50] DEBUG: int main()
+[2024-09-17 15:40:50] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:40:50] INFO: remap before remap
+[2024-09-17 15:40:50] DEBUG: remap found remap
+[2024-09-17 15:40:50] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:40:50] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:40:50] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:40:50] DEBUG: process key: ctrl+d
+[2024-09-17 15:40:50] DEBUG: parsing: ctrl+d
+[2024-09-17 15:40:50] DEBUG: key: d
+[2024-09-17 15:40:50] DEBUG: shift: 0
+[2024-09-17 15:40:50] DEBUG: ctrl: 1
+[2024-09-17 15:40:50] DEBUG: cmd: 0
+[2024-09-17 15:40:50] DEBUG: alt: 0
+[2024-09-17 15:40:50] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:40:50] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:40:50] DEBUG: process key: cmd+a
+[2024-09-17 15:40:50] DEBUG: parsing: cmd+a
+[2024-09-17 15:40:50] DEBUG: key: a
+[2024-09-17 15:40:50] DEBUG: shift: 0
+[2024-09-17 15:40:50] DEBUG: ctrl: 0
+[2024-09-17 15:40:50] DEBUG: cmd: 1
+[2024-09-17 15:40:50] DEBUG: alt: 0
+[2024-09-17 15:40:50] DEBUG: remap found remap
+[2024-09-17 15:40:50] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:40:50] DEBUG: remap toStr: shift+f1
+[2024-09-17 15:40:50] DEBUG: process remap: from: ctrl+2 to: shift+f1
+[2024-09-17 15:40:50] DEBUG: process key: ctrl+2
+[2024-09-17 15:40:50] DEBUG: parsing: ctrl+2
+[2024-09-17 15:40:50] DEBUG: key: 2
+[2024-09-17 15:40:50] DEBUG: shift: 0
+[2024-09-17 15:40:50] DEBUG: ctrl: 1
+[2024-09-17 15:40:50] DEBUG: cmd: 0
+[2024-09-17 15:40:50] DEBUG: alt: 0
+[2024-09-17 15:40:50] DEBUG: process remap: step: shift+f1
+[2024-09-17 15:40:50] DEBUG: process remap: not in named actions. str: shift+f1
+[2024-09-17 15:40:50] DEBUG: process key: shift+f1
+[2024-09-17 15:40:50] WARN: not a valid keypress format: shift+f1
+[2024-09-17 15:40:50] ERROR: not a valid keypress format: shift+f1
+[2024-09-17 15:40:50] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:41:23] INFO: Ignition sequence started...
+[2024-09-17 15:41:23] DEBUG: int main()
+[2024-09-17 15:41:23] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:41:23] INFO: remap before remap
+[2024-09-17 15:41:23] DEBUG: remap found remap
+[2024-09-17 15:41:23] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:41:23] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:41:23] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:41:23] DEBUG: process key: ctrl+d
+[2024-09-17 15:41:23] DEBUG: parsing: ctrl+d
+[2024-09-17 15:41:23] DEBUG: key: d
+[2024-09-17 15:41:23] DEBUG: shift: 0
+[2024-09-17 15:41:23] DEBUG: ctrl: 1
+[2024-09-17 15:41:23] DEBUG: cmd: 0
+[2024-09-17 15:41:23] DEBUG: alt: 0
+[2024-09-17 15:41:23] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:41:23] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:41:23] DEBUG: process key: cmd+a
+[2024-09-17 15:41:23] DEBUG: parsing: cmd+a
+[2024-09-17 15:41:23] DEBUG: key: a
+[2024-09-17 15:41:23] DEBUG: shift: 0
+[2024-09-17 15:41:23] DEBUG: ctrl: 0
+[2024-09-17 15:41:23] DEBUG: cmd: 1
+[2024-09-17 15:41:23] DEBUG: alt: 0
+[2024-09-17 15:41:23] DEBUG: remap found remap
+[2024-09-17 15:41:23] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:41:23] DEBUG: remap toStr: cmd+d
+[2024-09-17 15:41:23] DEBUG: process remap: from: ctrl+2 to: cmd+d
+[2024-09-17 15:41:23] DEBUG: process key: ctrl+2
+[2024-09-17 15:41:23] DEBUG: parsing: ctrl+2
+[2024-09-17 15:41:23] DEBUG: key: 2
+[2024-09-17 15:41:23] DEBUG: shift: 0
+[2024-09-17 15:41:23] DEBUG: ctrl: 1
+[2024-09-17 15:41:23] DEBUG: cmd: 0
+[2024-09-17 15:41:23] DEBUG: alt: 0
+[2024-09-17 15:41:23] DEBUG: process remap: step: cmd+d
+[2024-09-17 15:41:23] DEBUG: process remap: not in named actions. str: cmd+d
+[2024-09-17 15:41:23] DEBUG: process key: cmd+d
+[2024-09-17 15:41:23] DEBUG: parsing: cmd+d
+[2024-09-17 15:41:23] DEBUG: key: d
+[2024-09-17 15:41:23] DEBUG: shift: 0
+[2024-09-17 15:41:23] DEBUG: ctrl: 0
+[2024-09-17 15:41:23] DEBUG: cmd: 1
+[2024-09-17 15:41:23] DEBUG: alt: 0
+[2024-09-17 15:41:23] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:41:31] INFO: Ignition sequence started...
+[2024-09-17 15:41:31] DEBUG: int main()
+[2024-09-17 15:41:31] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:41:31] INFO: remap before remap
+[2024-09-17 15:41:31] DEBUG: remap found remap
+[2024-09-17 15:41:31] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:41:31] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:41:31] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:41:31] DEBUG: process key: ctrl+d
+[2024-09-17 15:41:31] DEBUG: parsing: ctrl+d
+[2024-09-17 15:41:31] DEBUG: key: d
+[2024-09-17 15:41:31] DEBUG: shift: 0
+[2024-09-17 15:41:31] DEBUG: ctrl: 1
+[2024-09-17 15:41:31] DEBUG: cmd: 0
+[2024-09-17 15:41:31] DEBUG: alt: 0
+[2024-09-17 15:41:31] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:41:31] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:41:31] DEBUG: process key: cmd+a
+[2024-09-17 15:41:31] DEBUG: parsing: cmd+a
+[2024-09-17 15:41:31] DEBUG: key: a
+[2024-09-17 15:41:31] DEBUG: shift: 0
+[2024-09-17 15:41:31] DEBUG: ctrl: 0
+[2024-09-17 15:41:31] DEBUG: cmd: 1
+[2024-09-17 15:41:31] DEBUG: alt: 0
+[2024-09-17 15:41:31] DEBUG: remap found remap
+[2024-09-17 15:41:31] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:41:31] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:41:31] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:41:31] DEBUG: process key: ctrl+2
+[2024-09-17 15:41:31] DEBUG: parsing: ctrl+2
+[2024-09-17 15:41:31] DEBUG: key: 2
+[2024-09-17 15:41:31] DEBUG: shift: 0
+[2024-09-17 15:41:31] DEBUG: ctrl: 1
+[2024-09-17 15:41:31] DEBUG: cmd: 0
+[2024-09-17 15:41:31] DEBUG: alt: 0
+[2024-09-17 15:41:31] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:41:31] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:41:31] DEBUG: process key: ctrl+d
+[2024-09-17 15:41:31] DEBUG: parsing: ctrl+d
+[2024-09-17 15:41:31] DEBUG: key: d
+[2024-09-17 15:41:31] DEBUG: shift: 0
+[2024-09-17 15:41:31] DEBUG: ctrl: 1
+[2024-09-17 15:41:31] DEBUG: cmd: 0
+[2024-09-17 15:41:31] DEBUG: alt: 0
+[2024-09-17 15:41:31] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:43:05] INFO: Ignition sequence started...
+[2024-09-17 15:43:05] DEBUG: int main()
+[2024-09-17 15:43:05] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:43:05] INFO: remap before remap
+[2024-09-17 15:43:05] DEBUG: remap found remap
+[2024-09-17 15:43:05] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:43:05] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:43:05] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:43:05] DEBUG: process key: ctrl+d
+[2024-09-17 15:43:05] DEBUG: parsing: ctrl+d
+[2024-09-17 15:43:05] DEBUG: key: d
+[2024-09-17 15:43:05] DEBUG: shift: 0
+[2024-09-17 15:43:05] DEBUG: ctrl: 1
+[2024-09-17 15:43:05] DEBUG: cmd: 0
+[2024-09-17 15:43:05] DEBUG: alt: 0
+[2024-09-17 15:43:05] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:43:05] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:43:05] DEBUG: process key: cmd+a
+[2024-09-17 15:43:05] DEBUG: parsing: cmd+a
+[2024-09-17 15:43:05] DEBUG: key: a
+[2024-09-17 15:43:05] DEBUG: shift: 0
+[2024-09-17 15:43:05] DEBUG: ctrl: 0
+[2024-09-17 15:43:05] DEBUG: cmd: 1
+[2024-09-17 15:43:05] DEBUG: alt: 0
+[2024-09-17 15:43:05] DEBUG: remap found remap
+[2024-09-17 15:43:05] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:43:05] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:43:05] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:43:05] DEBUG: process key: ctrl+2
+[2024-09-17 15:43:05] DEBUG: parsing: ctrl+2
+[2024-09-17 15:43:05] DEBUG: key: 2
+[2024-09-17 15:43:05] DEBUG: shift: 0
+[2024-09-17 15:43:05] DEBUG: ctrl: 1
+[2024-09-17 15:43:05] DEBUG: cmd: 0
+[2024-09-17 15:43:05] DEBUG: alt: 0
+[2024-09-17 15:43:05] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:43:05] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:43:05] DEBUG: process key: ctrl+d
+[2024-09-17 15:43:05] DEBUG: parsing: ctrl+d
+[2024-09-17 15:43:05] DEBUG: key: d
+[2024-09-17 15:43:05] DEBUG: shift: 0
+[2024-09-17 15:43:05] DEBUG: ctrl: 1
+[2024-09-17 15:43:05] DEBUG: cmd: 0
+[2024-09-17 15:43:05] DEBUG: alt: 0
+[2024-09-17 15:43:05] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:43:09] INFO: Ignition sequence started...
+[2024-09-17 15:43:09] DEBUG: int main()
+[2024-09-17 15:43:09] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:43:09] INFO: remap before remap
+[2024-09-17 15:43:09] DEBUG: remap found remap
+[2024-09-17 15:43:09] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:43:09] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:43:09] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:43:09] DEBUG: process key: ctrl+d
+[2024-09-17 15:43:09] DEBUG: parsing: ctrl+d
+[2024-09-17 15:43:09] DEBUG: key: d
+[2024-09-17 15:43:09] DEBUG: shift: 0
+[2024-09-17 15:43:09] DEBUG: ctrl: 1
+[2024-09-17 15:43:09] DEBUG: cmd: 0
+[2024-09-17 15:43:09] DEBUG: alt: 0
+[2024-09-17 15:43:09] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:43:09] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:43:09] DEBUG: process key: cmd+a
+[2024-09-17 15:43:09] DEBUG: parsing: cmd+a
+[2024-09-17 15:43:09] DEBUG: key: a
+[2024-09-17 15:43:09] DEBUG: shift: 0
+[2024-09-17 15:43:09] DEBUG: ctrl: 0
+[2024-09-17 15:43:09] DEBUG: cmd: 1
+[2024-09-17 15:43:09] DEBUG: alt: 0
+[2024-09-17 15:43:09] DEBUG: remap found remap
+[2024-09-17 15:43:09] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:43:09] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:43:09] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:43:09] DEBUG: process key: ctrl+2
+[2024-09-17 15:43:09] DEBUG: parsing: ctrl+2
+[2024-09-17 15:43:09] DEBUG: key: 2
+[2024-09-17 15:43:09] DEBUG: shift: 0
+[2024-09-17 15:43:09] DEBUG: ctrl: 1
+[2024-09-17 15:43:09] DEBUG: cmd: 0
+[2024-09-17 15:43:09] DEBUG: alt: 0
+[2024-09-17 15:43:09] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:43:09] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:43:09] DEBUG: process key: ctrl+d
+[2024-09-17 15:43:09] DEBUG: parsing: ctrl+d
+[2024-09-17 15:43:09] DEBUG: key: d
+[2024-09-17 15:43:09] DEBUG: shift: 0
+[2024-09-17 15:43:09] DEBUG: ctrl: 1
+[2024-09-17 15:43:09] DEBUG: cmd: 0
+[2024-09-17 15:43:09] DEBUG: alt: 0
+[2024-09-17 15:43:09] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:44:04] INFO: Ignition sequence started...
+[2024-09-17 15:44:04] DEBUG: int main()
+[2024-09-17 15:44:04] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:44:04] INFO: remap before remap
+[2024-09-17 15:44:04] DEBUG: remap found remap
+[2024-09-17 15:44:04] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:44:04] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:44:04] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:44:04] DEBUG: process key: ctrl+d
+[2024-09-17 15:44:04] DEBUG: parsing: ctrl+d
+[2024-09-17 15:44:04] DEBUG: key: d
+[2024-09-17 15:44:04] DEBUG: shift: 0
+[2024-09-17 15:44:04] DEBUG: ctrl: 1
+[2024-09-17 15:44:04] DEBUG: cmd: 0
+[2024-09-17 15:44:04] DEBUG: alt: 0
+[2024-09-17 15:44:04] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:44:04] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:44:04] DEBUG: process key: cmd+a
+[2024-09-17 15:44:04] DEBUG: parsing: cmd+a
+[2024-09-17 15:44:04] DEBUG: key: a
+[2024-09-17 15:44:04] DEBUG: shift: 0
+[2024-09-17 15:44:04] DEBUG: ctrl: 0
+[2024-09-17 15:44:04] DEBUG: cmd: 1
+[2024-09-17 15:44:04] DEBUG: alt: 0
+[2024-09-17 15:44:04] DEBUG: remap found remap
+[2024-09-17 15:44:04] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:44:04] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:44:04] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:44:04] DEBUG: process key: ctrl+2
+[2024-09-17 15:44:04] DEBUG: parsing: ctrl+2
+[2024-09-17 15:44:04] DEBUG: key: 2
+[2024-09-17 15:44:04] DEBUG: shift: 0
+[2024-09-17 15:44:04] DEBUG: ctrl: 1
+[2024-09-17 15:44:04] DEBUG: cmd: 0
+[2024-09-17 15:44:04] DEBUG: alt: 0
+[2024-09-17 15:44:04] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:44:04] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:44:04] DEBUG: process key: ctrl+d
+[2024-09-17 15:44:04] DEBUG: parsing: ctrl+d
+[2024-09-17 15:44:04] DEBUG: key: d
+[2024-09-17 15:44:04] DEBUG: shift: 0
+[2024-09-17 15:44:04] DEBUG: ctrl: 1
+[2024-09-17 15:44:04] DEBUG: cmd: 0
+[2024-09-17 15:44:04] DEBUG: alt: 0
+[2024-09-17 15:44:04] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:44:04] DEBUG: IPC::init() called
+[2024-09-17 15:44:04] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 15:44:04] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 15:44:04] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 15:44:05] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 15:44:05] INFO: Request pipe successfully opened for writing
+[2024-09-17 15:44:05] INFO: Message written to pipe: READY
+[2024-09-17 15:44:05] INFO: IPC::init() finished
+[2024-09-17 15:44:05] INFO: Message written to pipe: PLUGINS
+[2024-09-17 15:44:05] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 15:44:05] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 15:44:05] DEBUG: ApplicationManager::init() called
+[2024-09-17 15:44:05] DEBUG: PID::Init() called
+[2024-09-17 15:44:05] ERROR: Ableton Live not found
+[2024-09-17 15:44:05] INFO: Live not found, retrying...
+[2024-09-17 15:44:05] ERROR: Ableton Live not found
+[2024-09-17 15:44:06] ERROR: Ableton Live not found
+[2024-09-17 15:44:06] INFO: Live not found, retrying...
+[2024-09-17 15:44:06] ERROR: Ableton Live not found
+[2024-09-17 15:44:07] ERROR: Ableton Live not found
+[2024-09-17 15:44:07] INFO: Live not found, retrying...
+[2024-09-17 15:44:07] ERROR: Ableton Live not found
+[2024-09-17 15:44:08] ERROR: Ableton Live not found
+[2024-09-17 15:44:08] INFO: Live not found, retrying...
+[2024-09-17 15:44:08] ERROR: Ableton Live not found
+[2024-09-17 15:44:09] ERROR: Ableton Live not found
+[2024-09-17 15:44:09] INFO: Live not found, retrying...
+[2024-09-17 15:44:09] ERROR: Ableton Live not found
+[2024-09-17 15:44:10] ERROR: Ableton Live not found
+[2024-09-17 15:44:10] INFO: Live not found, retrying...
+[2024-09-17 15:44:10] ERROR: Ableton Live not found
+[2024-09-17 15:44:11] ERROR: Ableton Live not found
+[2024-09-17 15:44:11] INFO: Live not found, retrying...
+[2024-09-17 15:44:11] ERROR: Ableton Live not found
+[2024-09-17 15:44:12] ERROR: Ableton Live not found
+[2024-09-17 15:44:12] INFO: Live not found, retrying...
+[2024-09-17 15:44:12] ERROR: Ableton Live not found
+[2024-09-17 15:44:13] ERROR: Ableton Live not found
+[2024-09-17 15:44:13] INFO: Live not found, retrying...
+[2024-09-17 15:44:13] ERROR: Ableton Live not found
+[2024-09-17 15:44:14] ERROR: Ableton Live not found
+[2024-09-17 15:44:14] INFO: Live not found, retrying...
+[2024-09-17 15:44:14] ERROR: Ableton Live not found
+[2024-09-17 15:44:15] ERROR: Ableton Live not found
+[2024-09-17 15:44:15] INFO: Live not found, retrying...
+[2024-09-17 15:44:15] ERROR: Ableton Live not found
+[2024-09-17 15:44:16] ERROR: Ableton Live not found
+[2024-09-17 15:44:16] INFO: Live not found, retrying...
+[2024-09-17 15:44:16] ERROR: Ableton Live not found
+[2024-09-17 15:44:17] ERROR: Ableton Live not found
+[2024-09-17 15:44:17] INFO: Live not found, retrying...
+[2024-09-17 15:44:17] ERROR: Ableton Live not found
+[2024-09-17 15:44:18] ERROR: Ableton Live not found
+[2024-09-17 15:44:18] INFO: Live not found, retrying...
+[2024-09-17 15:44:18] ERROR: Ableton Live not found
+[2024-09-17 15:44:19] ERROR: Ableton Live not found
+[2024-09-17 15:44:19] INFO: Live not found, retrying...
+[2024-09-17 15:44:19] ERROR: Ableton Live not found
+[2024-09-17 15:44:20] ERROR: Ableton Live not found
+[2024-09-17 15:44:20] INFO: Live not found, retrying...
+[2024-09-17 15:44:20] ERROR: Ableton Live not found
+[2024-09-17 15:44:21] ERROR: Ableton Live not found
+[2024-09-17 15:44:21] INFO: Live not found, retrying...
+[2024-09-17 15:44:21] ERROR: Ableton Live not found
+[2024-09-17 15:44:22] ERROR: Ableton Live not found
+[2024-09-17 15:44:22] INFO: Live not found, retrying...
+[2024-09-17 15:44:22] ERROR: Ableton Live not found
+[2024-09-17 15:44:23] ERROR: Ableton Live not found
+[2024-09-17 15:44:23] INFO: Live not found, retrying...
+[2024-09-17 15:44:23] ERROR: Ableton Live not found
+[2024-09-17 15:44:24] ERROR: Ableton Live not found
+[2024-09-17 15:44:24] INFO: Live not found, retrying...
+[2024-09-17 15:44:24] ERROR: Ableton Live not found
+[2024-09-17 15:44:25] ERROR: Ableton Live not found
+[2024-09-17 15:44:25] INFO: Live not found, retrying...
+[2024-09-17 15:44:25] ERROR: Ableton Live not found
+[2024-09-17 15:44:26] ERROR: Ableton Live not found
+[2024-09-17 15:44:26] INFO: Live not found, retrying...
+[2024-09-17 15:44:26] ERROR: Ableton Live not found
+[2024-09-17 15:44:27] ERROR: Ableton Live not found
+[2024-09-17 15:44:27] INFO: Live not found, retrying...
+[2024-09-17 15:44:27] ERROR: Ableton Live not found
+[2024-09-17 15:44:28] ERROR: Ableton Live not found
+[2024-09-17 15:44:28] INFO: Live not found, retrying...
+[2024-09-17 15:44:28] ERROR: Ableton Live not found
+[2024-09-17 15:44:29] ERROR: Ableton Live not found
+[2024-09-17 15:44:29] INFO: Live not found, retrying...
+[2024-09-17 15:44:29] ERROR: Ableton Live not found
+[2024-09-17 15:44:30] ERROR: Ableton Live not found
+[2024-09-17 15:44:30] INFO: Live not found, retrying...
+[2024-09-17 15:44:30] ERROR: Ableton Live not found
+[2024-09-17 15:44:31] ERROR: Ableton Live not found
+[2024-09-17 15:44:31] INFO: Live not found, retrying...
+[2024-09-17 15:44:31] ERROR: Ableton Live not found
+[2024-09-17 15:44:32] ERROR: Ableton Live not found
+[2024-09-17 15:44:32] INFO: Live not found, retrying...
+[2024-09-17 15:44:32] ERROR: Ableton Live not found
+[2024-09-17 15:44:33] ERROR: Ableton Live not found
+[2024-09-17 15:44:33] INFO: Live not found, retrying...
+[2024-09-17 15:44:33] ERROR: Ableton Live not found
+[2024-09-17 15:44:34] ERROR: Ableton Live not found
+[2024-09-17 15:44:34] INFO: Live not found, retrying...
+[2024-09-17 15:44:34] ERROR: Ableton Live not found
+[2024-09-17 15:44:35] ERROR: Ableton Live not found
+[2024-09-17 15:44:35] INFO: Live not found, retrying...
+[2024-09-17 15:44:35] ERROR: Ableton Live not found
+[2024-09-17 15:44:36] ERROR: Ableton Live not found
+[2024-09-17 15:44:36] INFO: Live not found, retrying...
+[2024-09-17 15:44:36] ERROR: Ableton Live not found
+[2024-09-17 15:44:37] ERROR: Ableton Live not found
+[2024-09-17 15:44:37] INFO: Live not found, retrying...
+[2024-09-17 15:44:37] ERROR: Ableton Live not found
+[2024-09-17 15:44:38] ERROR: Ableton Live not found
+[2024-09-17 15:44:38] INFO: Live not found, retrying...
+[2024-09-17 15:44:38] ERROR: Ableton Live not found
+[2024-09-17 15:44:39] ERROR: Ableton Live not found
+[2024-09-17 15:44:39] INFO: Live not found, retrying...
+[2024-09-17 15:44:39] ERROR: Ableton Live not found
+[2024-09-17 15:44:40] ERROR: Ableton Live not found
+[2024-09-17 15:44:40] INFO: Live not found, retrying...
+[2024-09-17 15:44:40] ERROR: Ableton Live not found
+[2024-09-17 15:44:41] ERROR: Ableton Live not found
+[2024-09-17 15:44:41] INFO: Live not found, retrying...
+[2024-09-17 15:44:41] ERROR: Ableton Live not found
+[2024-09-17 15:44:42] ERROR: Ableton Live not found
+[2024-09-17 15:44:42] INFO: Live not found, retrying...
+[2024-09-17 15:44:42] ERROR: Ableton Live not found
+[2024-09-17 15:44:43] ERROR: Ableton Live not found
+[2024-09-17 15:44:43] INFO: Live not found, retrying...
+[2024-09-17 15:44:43] ERROR: Ableton Live not found
+[2024-09-17 15:44:44] ERROR: Ableton Live not found
+[2024-09-17 15:44:44] INFO: Live not found, retrying...
+[2024-09-17 15:44:44] ERROR: Ableton Live not found
+[2024-09-17 15:44:45] ERROR: Ableton Live not found
+[2024-09-17 15:44:45] INFO: Live not found, retrying...
+[2024-09-17 15:44:45] ERROR: Ableton Live not found
+[2024-09-17 15:44:46] ERROR: Ableton Live not found
+[2024-09-17 15:44:46] INFO: Live not found, retrying...
+[2024-09-17 15:44:46] ERROR: Ableton Live not found
+[2024-09-17 15:44:47] ERROR: Ableton Live not found
+[2024-09-17 15:44:47] INFO: Live not found, retrying...
+[2024-09-17 15:44:47] ERROR: Ableton Live not found
+[2024-09-17 15:44:48] ERROR: Ableton Live not found
+[2024-09-17 15:44:48] INFO: Live not found, retrying...
+[2024-09-17 15:44:48] ERROR: Ableton Live not found
+[2024-09-17 15:44:49] ERROR: Ableton Live not found
+[2024-09-17 15:44:49] INFO: Live not found, retrying...
+[2024-09-17 15:44:49] ERROR: Ableton Live not found
+[2024-09-17 15:44:50] ERROR: Ableton Live not found
+[2024-09-17 15:44:50] INFO: Live not found, retrying...
+[2024-09-17 15:44:50] ERROR: Ableton Live not found
+[2024-09-17 15:44:51] ERROR: Ableton Live not found
+[2024-09-17 15:44:51] INFO: Live not found, retrying...
+[2024-09-17 15:44:51] ERROR: Ableton Live not found
+[2024-09-17 15:44:52] ERROR: Ableton Live not found
+[2024-09-17 15:44:52] INFO: Live not found, retrying...
+[2024-09-17 15:44:52] ERROR: Ableton Live not found
+[2024-09-17 15:44:53] ERROR: Ableton Live not found
+[2024-09-17 15:44:53] INFO: Live not found, retrying...
+[2024-09-17 15:44:53] ERROR: Ableton Live not found
+[2024-09-17 15:44:54] ERROR: Ableton Live not found
+[2024-09-17 15:44:54] INFO: Live not found, retrying...
+[2024-09-17 15:44:54] ERROR: Ableton Live not found
+[2024-09-17 15:44:55] ERROR: Ableton Live not found
+[2024-09-17 15:44:55] INFO: Live not found, retrying...
+[2024-09-17 15:44:55] ERROR: Ableton Live not found
+[2024-09-17 15:44:56] ERROR: Ableton Live not found
+[2024-09-17 15:44:56] INFO: Live not found, retrying...
+[2024-09-17 15:44:56] ERROR: Ableton Live not found
+[2024-09-17 15:44:57] ERROR: Ableton Live not found
+[2024-09-17 15:44:57] INFO: Live not found, retrying...
+[2024-09-17 15:44:57] ERROR: Ableton Live not found
+[2024-09-17 15:44:58] ERROR: Ableton Live not found
+[2024-09-17 15:44:58] INFO: Live not found, retrying...
+[2024-09-17 15:44:58] ERROR: Ableton Live not found
+[2024-09-17 15:44:59] ERROR: Ableton Live not found
+[2024-09-17 15:44:59] INFO: Live not found, retrying...
+[2024-09-17 15:44:59] ERROR: Ableton Live not found
+[2024-09-17 15:45:00] ERROR: Ableton Live not found
+[2024-09-17 15:45:00] INFO: Live not found, retrying...
+[2024-09-17 15:45:00] ERROR: Ableton Live not found
+[2024-09-17 15:45:01] ERROR: Ableton Live not found
+[2024-09-17 15:45:01] INFO: Live not found, retrying...
+[2024-09-17 15:45:01] ERROR: Ableton Live not found
+[2024-09-17 15:45:02] ERROR: Ableton Live not found
+[2024-09-17 15:45:02] INFO: Live not found, retrying...
+[2024-09-17 15:45:02] ERROR: Ableton Live not found
+[2024-09-17 15:45:03] ERROR: Ableton Live not found
+[2024-09-17 15:45:03] INFO: Live not found, retrying...
+[2024-09-17 15:45:03] ERROR: Ableton Live not found
+[2024-09-17 15:45:04] ERROR: Ableton Live not found
+[2024-09-17 15:45:04] INFO: Live not found, retrying...
+[2024-09-17 15:45:04] ERROR: Ableton Live not found
+[2024-09-17 15:45:05] ERROR: Ableton Live not found
+[2024-09-17 15:45:05] INFO: Live not found, retrying...
+[2024-09-17 15:45:05] ERROR: Ableton Live not found
+[2024-09-17 15:45:06] ERROR: Ableton Live not found
+[2024-09-17 15:45:06] INFO: Live not found, retrying...
+[2024-09-17 15:45:06] ERROR: Ableton Live not found
+[2024-09-17 15:45:07] ERROR: Ableton Live not found
+[2024-09-17 15:45:07] INFO: Live not found, retrying...
+[2024-09-17 15:45:07] ERROR: Ableton Live not found
+[2024-09-17 15:45:08] ERROR: Ableton Live not found
+[2024-09-17 15:45:08] INFO: Live not found, retrying...
+[2024-09-17 15:45:09] ERROR: Ableton Live not found
+[2024-09-17 15:45:10] ERROR: Ableton Live not found
+[2024-09-17 15:45:10] INFO: Live not found, retrying...
+[2024-09-17 15:45:10] ERROR: Ableton Live not found
+[2024-09-17 15:45:11] ERROR: Ableton Live not found
+[2024-09-17 15:45:11] INFO: Live not found, retrying...
+[2024-09-17 15:45:11] ERROR: Ableton Live not found
+[2024-09-17 15:45:12] ERROR: Ableton Live not found
+[2024-09-17 15:45:12] INFO: Live not found, retrying...
+[2024-09-17 15:45:12] ERROR: Ableton Live not found
+[2024-09-17 15:45:13] ERROR: Ableton Live not found
+[2024-09-17 15:45:13] INFO: Live not found, retrying...
+[2024-09-17 15:45:13] ERROR: Ableton Live not found
+[2024-09-17 15:45:14] ERROR: Ableton Live not found
+[2024-09-17 15:45:14] INFO: Live not found, retrying...
+[2024-09-17 15:45:14] ERROR: Ableton Live not found
+[2024-09-17 15:45:15] ERROR: Ableton Live not found
+[2024-09-17 15:45:15] INFO: Live not found, retrying...
+[2024-09-17 15:45:15] ERROR: Ableton Live not found
+[2024-09-17 15:45:16] ERROR: Ableton Live not found
+[2024-09-17 15:45:16] INFO: Live not found, retrying...
+[2024-09-17 15:45:16] ERROR: Ableton Live not found
+[2024-09-17 15:45:17] ERROR: Ableton Live not found
+[2024-09-17 15:45:17] INFO: Live not found, retrying...
+[2024-09-17 15:45:17] ERROR: Ableton Live not found
+[2024-09-17 15:45:18] ERROR: Ableton Live not found
+[2024-09-17 15:45:18] INFO: Live not found, retrying...
+[2024-09-17 15:45:18] ERROR: Ableton Live not found
+[2024-09-17 15:45:19] ERROR: Ableton Live not found
+[2024-09-17 15:45:19] INFO: Live not found, retrying...
+[2024-09-17 15:45:19] ERROR: Ableton Live not found
+[2024-09-17 15:45:20] ERROR: Ableton Live not found
+[2024-09-17 15:45:20] INFO: Live not found, retrying...
+[2024-09-17 15:45:20] ERROR: Ableton Live not found
+[2024-09-17 15:45:21] ERROR: Ableton Live not found
+[2024-09-17 15:45:21] INFO: Live not found, retrying...
+[2024-09-17 15:45:21] ERROR: Ableton Live not found
+[2024-09-17 15:45:22] ERROR: Ableton Live not found
+[2024-09-17 15:45:22] INFO: Live not found, retrying...
+[2024-09-17 15:45:22] ERROR: Ableton Live not found
+[2024-09-17 15:45:23] ERROR: Ableton Live not found
+[2024-09-17 15:45:23] INFO: Live not found, retrying...
+[2024-09-17 15:45:23] ERROR: Ableton Live not found
+[2024-09-17 15:45:24] ERROR: Ableton Live not found
+[2024-09-17 15:45:24] INFO: Live not found, retrying...
+[2024-09-17 15:45:24] ERROR: Ableton Live not found
+[2024-09-17 15:45:25] ERROR: Ableton Live not found
+[2024-09-17 15:45:25] INFO: Live not found, retrying...
+[2024-09-17 15:45:25] ERROR: Ableton Live not found
+[2024-09-17 15:45:26] ERROR: Ableton Live not found
+[2024-09-17 15:45:26] INFO: Live not found, retrying...
+[2024-09-17 15:45:26] ERROR: Ableton Live not found
+[2024-09-17 15:45:27] ERROR: Ableton Live not found
+[2024-09-17 15:45:27] INFO: Live not found, retrying...
+[2024-09-17 15:45:27] ERROR: Ableton Live not found
+[2024-09-17 15:45:28] ERROR: Ableton Live not found
+[2024-09-17 15:45:28] INFO: Live not found, retrying...
+[2024-09-17 15:45:28] ERROR: Ableton Live not found
+[2024-09-17 15:45:29] ERROR: Ableton Live not found
+[2024-09-17 15:45:29] INFO: Live not found, retrying...
+[2024-09-17 15:45:29] ERROR: Ableton Live not found
+[2024-09-17 15:45:30] ERROR: Ableton Live not found
+[2024-09-17 15:45:30] INFO: Live not found, retrying...
+[2024-09-17 15:45:30] ERROR: Ableton Live not found
+[2024-09-17 15:45:31] ERROR: Ableton Live not found
+[2024-09-17 15:45:31] INFO: Live not found, retrying...
+[2024-09-17 15:45:31] ERROR: Ableton Live not found
+[2024-09-17 15:45:32] ERROR: Ableton Live not found
+[2024-09-17 15:45:32] INFO: Live not found, retrying...
+[2024-09-17 15:45:32] ERROR: Ableton Live not found
+[2024-09-17 15:45:33] ERROR: Ableton Live not found
+[2024-09-17 15:45:33] INFO: Live not found, retrying...
+[2024-09-17 15:45:33] ERROR: Ableton Live not found
+[2024-09-17 15:45:34] ERROR: Ableton Live not found
+[2024-09-17 15:45:34] INFO: Live not found, retrying...
+[2024-09-17 15:45:34] ERROR: Ableton Live not found
+[2024-09-17 15:45:35] ERROR: Ableton Live not found
+[2024-09-17 15:45:35] INFO: Live not found, retrying...
+[2024-09-17 15:45:35] ERROR: Ableton Live not found
+[2024-09-17 15:45:36] ERROR: Ableton Live not found
+[2024-09-17 15:45:36] INFO: Live not found, retrying...
+[2024-09-17 15:45:36] ERROR: Ableton Live not found
+[2024-09-17 15:45:37] ERROR: Ableton Live not found
+[2024-09-17 15:45:37] INFO: Live not found, retrying...
+[2024-09-17 15:45:37] ERROR: Ableton Live not found
+[2024-09-17 15:45:38] ERROR: Ableton Live not found
+[2024-09-17 15:45:38] INFO: Live not found, retrying...
+[2024-09-17 15:45:38] ERROR: Ableton Live not found
+[2024-09-17 15:45:39] ERROR: Ableton Live not found
+[2024-09-17 15:45:39] INFO: Live not found, retrying...
+[2024-09-17 15:45:39] ERROR: Ableton Live not found
+[2024-09-17 15:45:40] ERROR: Ableton Live not found
+[2024-09-17 15:45:40] INFO: Live not found, retrying...
+[2024-09-17 15:45:40] ERROR: Ableton Live not found
+[2024-09-17 15:45:41] ERROR: Ableton Live not found
+[2024-09-17 15:45:41] INFO: Live not found, retrying...
+[2024-09-17 15:45:41] ERROR: Ableton Live not found
+[2024-09-17 15:45:42] ERROR: Ableton Live not found
+[2024-09-17 15:45:42] INFO: Live not found, retrying...
+[2024-09-17 15:45:42] ERROR: Ableton Live not found
+[2024-09-17 15:45:43] ERROR: Ableton Live not found
+[2024-09-17 15:45:43] INFO: Live not found, retrying...
+[2024-09-17 15:45:43] ERROR: Ableton Live not found
+[2024-09-17 15:45:44] ERROR: Ableton Live not found
+[2024-09-17 15:45:44] INFO: Live not found, retrying...
+[2024-09-17 15:45:44] ERROR: Ableton Live not found
+[2024-09-17 15:45:45] ERROR: Ableton Live not found
+[2024-09-17 15:45:45] INFO: Live not found, retrying...
+[2024-09-17 15:45:45] ERROR: Ableton Live not found
+[2024-09-17 15:45:46] ERROR: Ableton Live not found
+[2024-09-17 15:45:46] INFO: Live not found, retrying...
+[2024-09-17 15:45:46] ERROR: Ableton Live not found
+[2024-09-17 15:45:47] ERROR: Ableton Live not found
+[2024-09-17 15:45:47] INFO: Live not found, retrying...
+[2024-09-17 15:45:47] ERROR: Ableton Live not found
+[2024-09-17 15:45:48] ERROR: Ableton Live not found
+[2024-09-17 15:45:48] INFO: Live not found, retrying...
+[2024-09-17 15:45:48] ERROR: Ableton Live not found
+[2024-09-17 15:45:49] ERROR: Ableton Live not found
+[2024-09-17 15:45:49] INFO: Live not found, retrying...
+[2024-09-17 15:45:49] ERROR: Ableton Live not found
+[2024-09-17 15:45:50] ERROR: Ableton Live not found
+[2024-09-17 15:45:50] INFO: Live not found, retrying...
+[2024-09-17 15:45:50] ERROR: Ableton Live not found
+[2024-09-17 15:45:51] ERROR: Ableton Live not found
+[2024-09-17 15:45:51] INFO: Live not found, retrying...
+[2024-09-17 15:45:51] ERROR: Ableton Live not found
+[2024-09-17 15:45:52] ERROR: Ableton Live not found
+[2024-09-17 15:45:52] INFO: Live not found, retrying...
+[2024-09-17 15:45:52] ERROR: Ableton Live not found
+[2024-09-17 15:45:53] ERROR: Ableton Live not found
+[2024-09-17 15:45:53] INFO: Live not found, retrying...
+[2024-09-17 15:45:53] ERROR: Ableton Live not found
+[2024-09-17 15:45:54] ERROR: Ableton Live not found
+[2024-09-17 15:45:54] INFO: Live not found, retrying...
+[2024-09-17 15:45:54] ERROR: Ableton Live not found
+[2024-09-17 15:45:55] ERROR: Ableton Live not found
+[2024-09-17 15:45:55] INFO: Live not found, retrying...
+[2024-09-17 15:45:55] ERROR: Ableton Live not found
+[2024-09-17 15:45:56] ERROR: Ableton Live not found
+[2024-09-17 15:45:56] INFO: Live not found, retrying...
+[2024-09-17 15:45:56] ERROR: Ableton Live not found
+[2024-09-17 15:45:57] ERROR: Ableton Live not found
+[2024-09-17 15:45:57] INFO: Live not found, retrying...
+[2024-09-17 15:45:57] ERROR: Ableton Live not found
+[2024-09-17 15:45:58] ERROR: Ableton Live not found
+[2024-09-17 15:45:58] INFO: Live not found, retrying...
+[2024-09-17 15:45:58] ERROR: Ableton Live not found
+[2024-09-17 15:45:59] ERROR: Ableton Live not found
+[2024-09-17 15:45:59] INFO: Live not found, retrying...
+[2024-09-17 15:45:59] ERROR: Ableton Live not found
+[2024-09-17 15:46:00] ERROR: Ableton Live not found
+[2024-09-17 15:46:00] INFO: Live not found, retrying...
+[2024-09-17 15:46:00] ERROR: Ableton Live not found
+[2024-09-17 15:46:01] ERROR: Ableton Live not found
+[2024-09-17 15:46:01] INFO: Live not found, retrying...
+[2024-09-17 15:46:01] ERROR: Ableton Live not found
+[2024-09-17 15:46:02] ERROR: Ableton Live not found
+[2024-09-17 15:46:02] INFO: Live not found, retrying...
+[2024-09-17 15:46:02] ERROR: Ableton Live not found
+[2024-09-17 15:46:03] ERROR: Ableton Live not found
+[2024-09-17 15:46:03] INFO: Live not found, retrying...
+[2024-09-17 15:46:03] ERROR: Ableton Live not found
+[2024-09-17 15:46:04] ERROR: Ableton Live not found
+[2024-09-17 15:46:04] INFO: Live not found, retrying...
+[2024-09-17 15:46:04] ERROR: Ableton Live not found
+[2024-09-17 15:46:05] ERROR: Ableton Live not found
+[2024-09-17 15:46:05] INFO: Live not found, retrying...
+[2024-09-17 15:46:05] ERROR: Ableton Live not found
+[2024-09-17 15:46:06] ERROR: Ableton Live not found
+[2024-09-17 15:46:06] INFO: Live not found, retrying...
+[2024-09-17 15:46:06] ERROR: Ableton Live not found
+[2024-09-17 15:46:07] ERROR: Ableton Live not found
+[2024-09-17 15:46:07] INFO: Live not found, retrying...
+[2024-09-17 15:46:07] ERROR: Ableton Live not found
+[2024-09-17 15:46:08] ERROR: Ableton Live not found
+[2024-09-17 15:46:08] INFO: Live not found, retrying...
+[2024-09-17 15:46:08] ERROR: Ableton Live not found
+[2024-09-17 15:46:09] ERROR: Ableton Live not found
+[2024-09-17 15:46:09] INFO: Live not found, retrying...
+[2024-09-17 15:46:09] ERROR: Ableton Live not found
+[2024-09-17 15:46:10] ERROR: Ableton Live not found
+[2024-09-17 15:46:10] INFO: Live not found, retrying...
+[2024-09-17 15:46:10] ERROR: Ableton Live not found
+[2024-09-17 15:46:11] ERROR: Ableton Live not found
+[2024-09-17 15:46:11] INFO: Live not found, retrying...
+[2024-09-17 15:46:11] ERROR: Ableton Live not found
+[2024-09-17 15:46:12] ERROR: Ableton Live not found
+[2024-09-17 15:46:12] INFO: Live not found, retrying...
+[2024-09-17 15:46:12] ERROR: Ableton Live not found
+[2024-09-17 15:46:13] ERROR: Ableton Live not found
+[2024-09-17 15:46:13] INFO: Live not found, retrying...
+[2024-09-17 15:46:13] ERROR: Ableton Live not found
+[2024-09-17 15:46:14] ERROR: Ableton Live not found
+[2024-09-17 15:46:14] INFO: Live not found, retrying...
+[2024-09-17 15:46:14] ERROR: Ableton Live not found
+[2024-09-17 15:46:15] ERROR: Ableton Live not found
+[2024-09-17 15:46:15] INFO: Live not found, retrying...
+[2024-09-17 15:46:15] ERROR: Ableton Live not found
+[2024-09-17 15:46:16] ERROR: Ableton Live not found
+[2024-09-17 15:46:16] INFO: Live not found, retrying...
+[2024-09-17 15:46:16] ERROR: Ableton Live not found
+[2024-09-17 15:46:17] ERROR: Ableton Live not found
+[2024-09-17 15:46:17] INFO: Live not found, retrying...
+[2024-09-17 15:46:17] ERROR: Ableton Live not found
+[2024-09-17 15:46:18] ERROR: Ableton Live not found
+[2024-09-17 15:46:18] INFO: Live not found, retrying...
+[2024-09-17 15:46:18] ERROR: Ableton Live not found
+[2024-09-17 15:46:19] ERROR: Ableton Live not found
+[2024-09-17 15:46:19] INFO: Live not found, retrying...
+[2024-09-17 15:46:19] ERROR: Ableton Live not found
+[2024-09-17 15:46:20] ERROR: Ableton Live not found
+[2024-09-17 15:46:20] INFO: Live not found, retrying...
+[2024-09-17 15:46:20] ERROR: Ableton Live not found
+[2024-09-17 15:46:21] ERROR: Ableton Live not found
+[2024-09-17 15:46:21] INFO: Live not found, retrying...
+[2024-09-17 15:46:21] ERROR: Ableton Live not found
+[2024-09-17 15:46:22] ERROR: Ableton Live not found
+[2024-09-17 15:46:22] INFO: Live not found, retrying...
+[2024-09-17 15:46:22] ERROR: Ableton Live not found
+[2024-09-17 15:46:23] ERROR: Ableton Live not found
+[2024-09-17 15:46:23] INFO: Live not found, retrying...
+[2024-09-17 15:46:23] ERROR: Ableton Live not found
+[2024-09-17 15:46:25] ERROR: Ableton Live not found
+[2024-09-17 15:46:25] INFO: Live not found, retrying...
+[2024-09-17 15:46:25] ERROR: Ableton Live not found
+[2024-09-17 15:46:26] ERROR: Ableton Live not found
+[2024-09-17 15:46:26] INFO: Live not found, retrying...
+[2024-09-17 15:46:26] ERROR: Ableton Live not found
+[2024-09-17 15:46:27] ERROR: Ableton Live not found
+[2024-09-17 15:46:27] INFO: Live not found, retrying...
+[2024-09-17 15:46:27] ERROR: Ableton Live not found
+[2024-09-17 15:46:28] ERROR: Ableton Live not found
+[2024-09-17 15:46:28] INFO: Live not found, retrying...
+[2024-09-17 15:46:28] ERROR: Ableton Live not found
+[2024-09-17 15:46:29] ERROR: Ableton Live not found
+[2024-09-17 15:46:29] INFO: Live not found, retrying...
+[2024-09-17 15:46:29] ERROR: Ableton Live not found
+[2024-09-17 15:46:30] ERROR: Ableton Live not found
+[2024-09-17 15:46:30] INFO: Live not found, retrying...
+[2024-09-17 15:46:30] ERROR: Ableton Live not found
+[2024-09-17 15:46:31] ERROR: Ableton Live not found
+[2024-09-17 15:46:31] INFO: Live not found, retrying...
+[2024-09-17 15:46:31] ERROR: Ableton Live not found
+[2024-09-17 15:46:32] ERROR: Ableton Live not found
+[2024-09-17 15:46:32] INFO: Live not found, retrying...
+[2024-09-17 15:46:32] ERROR: Ableton Live not found
+[2024-09-17 15:46:33] ERROR: Ableton Live not found
+[2024-09-17 15:46:33] INFO: Live not found, retrying...
+[2024-09-17 15:46:33] ERROR: Ableton Live not found
+[2024-09-17 15:46:34] ERROR: Ableton Live not found
+[2024-09-17 15:46:34] INFO: Live not found, retrying...
+[2024-09-17 15:46:34] ERROR: Ableton Live not found
+[2024-09-17 15:46:35] ERROR: Ableton Live not found
+[2024-09-17 15:46:35] INFO: Live not found, retrying...
+[2024-09-17 15:46:35] ERROR: Ableton Live not found
+[2024-09-17 15:46:36] ERROR: Ableton Live not found
+[2024-09-17 15:46:36] INFO: Live not found, retrying...
+[2024-09-17 15:46:36] ERROR: Ableton Live not found
+[2024-09-17 15:46:37] ERROR: Ableton Live not found
+[2024-09-17 15:46:37] INFO: Live not found, retrying...
+[2024-09-17 15:46:37] ERROR: Ableton Live not found
+[2024-09-17 15:46:38] ERROR: Ableton Live not found
+[2024-09-17 15:46:38] INFO: Live not found, retrying...
+[2024-09-17 15:46:38] ERROR: Ableton Live not found
+[2024-09-17 15:46:39] ERROR: Ableton Live not found
+[2024-09-17 15:46:39] INFO: Live not found, retrying...
+[2024-09-17 15:46:39] ERROR: Ableton Live not found
+[2024-09-17 15:46:40] ERROR: Ableton Live not found
+[2024-09-17 15:46:40] INFO: Live not found, retrying...
+[2024-09-17 15:46:40] ERROR: Ableton Live not found
+[2024-09-17 15:46:41] ERROR: Ableton Live not found
+[2024-09-17 15:46:41] INFO: Live not found, retrying...
+[2024-09-17 15:46:41] ERROR: Ableton Live not found
+[2024-09-17 15:46:42] ERROR: Ableton Live not found
+[2024-09-17 15:46:42] INFO: Live not found, retrying...
+[2024-09-17 15:46:42] ERROR: Ableton Live not found
+[2024-09-17 15:46:43] ERROR: Ableton Live not found
+[2024-09-17 15:46:43] INFO: Live not found, retrying...
+[2024-09-17 15:46:43] ERROR: Ableton Live not found
+[2024-09-17 15:46:44] ERROR: Ableton Live not found
+[2024-09-17 15:46:44] INFO: Live not found, retrying...
+[2024-09-17 15:46:44] ERROR: Ableton Live not found
+[2024-09-17 15:46:45] ERROR: Ableton Live not found
+[2024-09-17 15:46:45] INFO: Live not found, retrying...
+[2024-09-17 15:46:45] ERROR: Ableton Live not found
+[2024-09-17 15:46:46] ERROR: Ableton Live not found
+[2024-09-17 15:46:46] INFO: Live not found, retrying...
+[2024-09-17 15:46:46] ERROR: Ableton Live not found
+[2024-09-17 15:46:47] ERROR: Ableton Live not found
+[2024-09-17 15:46:47] INFO: Live not found, retrying...
+[2024-09-17 15:46:47] ERROR: Ableton Live not found
+[2024-09-17 15:46:48] ERROR: Ableton Live not found
+[2024-09-17 15:46:48] INFO: Live not found, retrying...
+[2024-09-17 15:46:48] ERROR: Ableton Live not found
+[2024-09-17 15:46:49] ERROR: Ableton Live not found
+[2024-09-17 15:46:49] INFO: Live not found, retrying...
+[2024-09-17 15:46:49] ERROR: Ableton Live not found
+[2024-09-17 15:46:50] ERROR: Ableton Live not found
+[2024-09-17 15:46:50] INFO: Live not found, retrying...
+[2024-09-17 15:46:50] ERROR: Ableton Live not found
+[2024-09-17 15:46:51] ERROR: Ableton Live not found
+[2024-09-17 15:46:51] INFO: Live not found, retrying...
+[2024-09-17 15:46:51] ERROR: Ableton Live not found
+[2024-09-17 15:46:52] ERROR: Ableton Live not found
+[2024-09-17 15:46:52] INFO: Live not found, retrying...
+[2024-09-17 15:46:52] ERROR: Ableton Live not found
+[2024-09-17 15:46:53] ERROR: Ableton Live not found
+[2024-09-17 15:46:53] INFO: Live not found, retrying...
+[2024-09-17 15:46:53] ERROR: Ableton Live not found
+[2024-09-17 15:46:54] ERROR: Ableton Live not found
+[2024-09-17 15:46:54] INFO: Live not found, retrying...
+[2024-09-17 15:46:54] ERROR: Ableton Live not found
+[2024-09-17 15:46:55] ERROR: Ableton Live not found
+[2024-09-17 15:46:55] INFO: Live not found, retrying...
+[2024-09-17 15:46:55] ERROR: Ableton Live not found
+[2024-09-17 15:46:56] ERROR: Ableton Live not found
+[2024-09-17 15:46:56] INFO: Live not found, retrying...
+[2024-09-17 15:46:56] ERROR: Ableton Live not found
+[2024-09-17 15:46:57] ERROR: Ableton Live not found
+[2024-09-17 15:46:57] INFO: Live not found, retrying...
+[2024-09-17 15:46:57] ERROR: Ableton Live not found
+[2024-09-17 15:46:58] ERROR: Ableton Live not found
+[2024-09-17 15:46:58] INFO: Live not found, retrying...
+[2024-09-17 15:46:58] ERROR: Ableton Live not found
+[2024-09-17 15:46:59] ERROR: Ableton Live not found
+[2024-09-17 15:46:59] INFO: Live not found, retrying...
+[2024-09-17 15:46:59] ERROR: Ableton Live not found
+[2024-09-17 15:47:00] ERROR: Ableton Live not found
+[2024-09-17 15:47:00] INFO: Live not found, retrying...
+[2024-09-17 15:47:00] ERROR: Ableton Live not found
+[2024-09-17 15:47:01] ERROR: Ableton Live not found
+[2024-09-17 15:47:01] INFO: Live not found, retrying...
+[2024-09-17 15:47:01] ERROR: Ableton Live not found
+[2024-09-17 15:47:02] ERROR: Ableton Live not found
+[2024-09-17 15:47:02] INFO: Live not found, retrying...
+[2024-09-17 15:47:02] ERROR: Ableton Live not found
+[2024-09-17 15:47:03] ERROR: Ableton Live not found
+[2024-09-17 15:47:03] INFO: Live not found, retrying...
+[2024-09-17 15:47:03] ERROR: Ableton Live not found
+[2024-09-17 15:47:04] ERROR: Ableton Live not found
+[2024-09-17 15:47:04] INFO: Live not found, retrying...
+[2024-09-17 15:47:04] ERROR: Ableton Live not found
+[2024-09-17 15:47:05] ERROR: Ableton Live not found
+[2024-09-17 15:47:05] INFO: Live not found, retrying...
+[2024-09-17 15:47:05] ERROR: Ableton Live not found
+[2024-09-17 15:47:06] ERROR: Ableton Live not found
+[2024-09-17 15:47:06] INFO: Live not found, retrying...
+[2024-09-17 15:47:06] ERROR: Ableton Live not found
+[2024-09-17 15:47:07] ERROR: Ableton Live not found
+[2024-09-17 15:47:07] INFO: Live not found, retrying...
+[2024-09-17 15:47:07] ERROR: Ableton Live not found
+[2024-09-17 15:47:08] ERROR: Ableton Live not found
+[2024-09-17 15:47:08] INFO: Live not found, retrying...
+[2024-09-17 15:47:08] ERROR: Ableton Live not found
+[2024-09-17 15:47:09] ERROR: Ableton Live not found
+[2024-09-17 15:47:09] INFO: Live not found, retrying...
+[2024-09-17 15:47:09] ERROR: Ableton Live not found
+[2024-09-17 15:47:10] ERROR: Ableton Live not found
+[2024-09-17 15:47:10] INFO: Live not found, retrying...
+[2024-09-17 15:47:10] ERROR: Ableton Live not found
+[2024-09-17 15:47:11] ERROR: Ableton Live not found
+[2024-09-17 15:47:11] INFO: Live not found, retrying...
+[2024-09-17 15:47:11] ERROR: Ableton Live not found
+[2024-09-17 15:47:12] ERROR: Ableton Live not found
+[2024-09-17 15:47:12] INFO: Live not found, retrying...
+[2024-09-17 15:47:12] ERROR: Ableton Live not found
+[2024-09-17 15:47:13] ERROR: Ableton Live not found
+[2024-09-17 15:47:13] INFO: Live not found, retrying...
+[2024-09-17 15:47:13] ERROR: Ableton Live not found
+[2024-09-17 15:47:14] ERROR: Ableton Live not found
+[2024-09-17 15:47:14] INFO: Live not found, retrying...
+[2024-09-17 15:47:14] ERROR: Ableton Live not found
+[2024-09-17 15:47:15] ERROR: Ableton Live not found
+[2024-09-17 15:47:15] INFO: Live not found, retrying...
+[2024-09-17 15:47:15] ERROR: Ableton Live not found
+[2024-09-17 15:47:16] ERROR: Ableton Live not found
+[2024-09-17 15:47:16] INFO: Live not found, retrying...
+[2024-09-17 15:47:16] ERROR: Ableton Live not found
+[2024-09-17 15:47:17] ERROR: Ableton Live not found
+[2024-09-17 15:47:17] INFO: Live not found, retrying...
+[2024-09-17 15:47:17] ERROR: Ableton Live not found
+[2024-09-17 15:47:18] INFO: Ignition sequence started...
+[2024-09-17 15:47:18] DEBUG: int main()
+[2024-09-17 15:47:18] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:47:18] INFO: remap before remap
+[2024-09-17 15:47:18] DEBUG: remap found remap
+[2024-09-17 15:47:18] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:47:18] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:47:18] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:47:18] DEBUG: process key: ctrl+d
+[2024-09-17 15:47:18] DEBUG: parsing: ctrl+d
+[2024-09-17 15:47:18] DEBUG: key: d
+[2024-09-17 15:47:18] DEBUG: shift: 0
+[2024-09-17 15:47:18] DEBUG: ctrl: 1
+[2024-09-17 15:47:18] DEBUG: cmd: 0
+[2024-09-17 15:47:18] DEBUG: alt: 0
+[2024-09-17 15:47:18] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:47:18] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:47:18] DEBUG: process key: cmd+a
+[2024-09-17 15:47:18] DEBUG: parsing: cmd+a
+[2024-09-17 15:47:18] DEBUG: key: a
+[2024-09-17 15:47:18] DEBUG: shift: 0
+[2024-09-17 15:47:18] DEBUG: ctrl: 0
+[2024-09-17 15:47:18] DEBUG: cmd: 1
+[2024-09-17 15:47:18] DEBUG: alt: 0
+[2024-09-17 15:47:18] DEBUG: remap found remap
+[2024-09-17 15:47:18] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:47:18] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:47:18] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:47:18] DEBUG: process key: ctrl+2
+[2024-09-17 15:47:18] DEBUG: parsing: ctrl+2
+[2024-09-17 15:47:18] DEBUG: key: 2
+[2024-09-17 15:47:18] DEBUG: shift: 0
+[2024-09-17 15:47:18] DEBUG: ctrl: 1
+[2024-09-17 15:47:18] DEBUG: cmd: 0
+[2024-09-17 15:47:18] DEBUG: alt: 0
+[2024-09-17 15:47:18] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:47:18] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:47:18] DEBUG: process key: ctrl+d
+[2024-09-17 15:47:18] DEBUG: parsing: ctrl+d
+[2024-09-17 15:47:18] DEBUG: key: d
+[2024-09-17 15:47:18] DEBUG: shift: 0
+[2024-09-17 15:47:18] DEBUG: ctrl: 1
+[2024-09-17 15:47:18] DEBUG: cmd: 0
+[2024-09-17 15:47:18] DEBUG: alt: 0
+[2024-09-17 15:47:18] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:47:18] DEBUG: IPC::init() called
+[2024-09-17 15:47:18] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 15:47:18] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 15:47:18] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 15:47:18] ERROR: Ableton Live not found
+[2024-09-17 15:47:18] INFO: Live not found, retrying...
+[2024-09-17 15:47:18] ERROR: Ableton Live not found
+[2024-09-17 15:47:19] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 15:47:19] INFO: Request pipe successfully opened for writing
+[2024-09-17 15:47:19] INFO: Message written to pipe: READY
+[2024-09-17 15:47:19] INFO: IPC::init() finished
+[2024-09-17 15:47:19] INFO: Message written to pipe: PLUGINS
+[2024-09-17 15:47:19] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 15:47:19] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 15:47:19] DEBUG: ApplicationManager::init() called
+[2024-09-17 15:47:19] DEBUG: PID::Init() called
+[2024-09-17 15:47:19] ERROR: Ableton Live not found
+[2024-09-17 15:47:19] INFO: Live not found, retrying...
+[2024-09-17 15:47:19] ERROR: Ableton Live not found
+[2024-09-17 15:47:19] ERROR: Ableton Live not found
+[2024-09-17 15:47:19] INFO: Live not found, retrying...
+[2024-09-17 15:47:19] ERROR: Ableton Live not found
+[2024-09-17 15:47:20] ERROR: Ableton Live not found
+[2024-09-17 15:47:20] INFO: Live not found, retrying...
+[2024-09-17 15:47:20] ERROR: Ableton Live not found
+[2024-09-17 15:47:20] ERROR: Ableton Live not found
+[2024-09-17 15:47:20] INFO: Live not found, retrying...
+[2024-09-17 15:47:20] ERROR: Ableton Live not found
+[2024-09-17 15:47:21] ERROR: Ableton Live not found
+[2024-09-17 15:47:21] INFO: Live not found, retrying...
+[2024-09-17 15:47:21] ERROR: Ableton Live not found
+[2024-09-17 15:47:21] ERROR: Ableton Live not found
+[2024-09-17 15:47:21] INFO: Live not found, retrying...
+[2024-09-17 15:47:21] ERROR: Ableton Live not found
+[2024-09-17 15:47:22] ERROR: Ableton Live not found
+[2024-09-17 15:47:22] INFO: Live not found, retrying...
+[2024-09-17 15:47:22] ERROR: Ableton Live not found
+[2024-09-17 15:47:22] ERROR: Ableton Live not found
+[2024-09-17 15:47:22] INFO: Live not found, retrying...
+[2024-09-17 15:47:22] ERROR: Ableton Live not found
+[2024-09-17 15:47:23] ERROR: Ableton Live not found
+[2024-09-17 15:47:23] INFO: Live not found, retrying...
+[2024-09-17 15:47:23] ERROR: Ableton Live not found
+[2024-09-17 15:47:23] ERROR: Ableton Live not found
+[2024-09-17 15:47:23] INFO: Live not found, retrying...
+[2024-09-17 15:47:23] ERROR: Ableton Live not found
+[2024-09-17 15:47:24] ERROR: Ableton Live not found
+[2024-09-17 15:47:24] INFO: Live not found, retrying...
+[2024-09-17 15:47:24] ERROR: Ableton Live not found
+[2024-09-17 15:47:24] ERROR: Ableton Live not found
+[2024-09-17 15:47:24] INFO: Live not found, retrying...
+[2024-09-17 15:47:24] ERROR: Ableton Live not found
+[2024-09-17 15:47:25] ERROR: Ableton Live not found
+[2024-09-17 15:47:25] INFO: Live not found, retrying...
+[2024-09-17 15:47:25] ERROR: Ableton Live not found
+[2024-09-17 15:47:25] ERROR: Ableton Live not found
+[2024-09-17 15:47:25] INFO: Live not found, retrying...
+[2024-09-17 15:47:25] ERROR: Ableton Live not found
+[2024-09-17 15:47:26] ERROR: Ableton Live not found
+[2024-09-17 15:47:26] INFO: Live not found, retrying...
+[2024-09-17 15:47:26] ERROR: Ableton Live not found
+[2024-09-17 15:47:26] ERROR: Ableton Live not found
+[2024-09-17 15:47:26] INFO: Live not found, retrying...
+[2024-09-17 15:47:26] ERROR: Ableton Live not found
+[2024-09-17 15:47:27] ERROR: Ableton Live not found
+[2024-09-17 15:47:27] INFO: Live not found, retrying...
+[2024-09-17 15:47:27] ERROR: Ableton Live not found
+[2024-09-17 15:47:27] ERROR: Ableton Live not found
+[2024-09-17 15:47:27] INFO: Live not found, retrying...
+[2024-09-17 15:47:27] ERROR: Ableton Live not found
+[2024-09-17 15:47:28] ERROR: Ableton Live not found
+[2024-09-17 15:47:28] INFO: Live not found, retrying...
+[2024-09-17 15:47:28] ERROR: Ableton Live not found
+[2024-09-17 15:47:28] ERROR: Ableton Live not found
+[2024-09-17 15:47:28] INFO: Live not found, retrying...
+[2024-09-17 15:47:28] ERROR: Ableton Live not found
+[2024-09-17 15:47:29] ERROR: Ableton Live not found
+[2024-09-17 15:47:29] INFO: Live not found, retrying...
+[2024-09-17 15:47:29] ERROR: Ableton Live not found
+[2024-09-17 15:47:29] ERROR: Ableton Live not found
+[2024-09-17 15:47:29] INFO: Live not found, retrying...
+[2024-09-17 15:47:29] ERROR: Ableton Live not found
+[2024-09-17 15:47:30] ERROR: Ableton Live not found
+[2024-09-17 15:47:30] INFO: Live not found, retrying...
+[2024-09-17 15:47:30] ERROR: Ableton Live not found
+[2024-09-17 15:47:30] ERROR: Ableton Live not found
+[2024-09-17 15:47:30] INFO: Live not found, retrying...
+[2024-09-17 15:47:30] ERROR: Ableton Live not found
+[2024-09-17 15:47:31] ERROR: Ableton Live not found
+[2024-09-17 15:47:31] INFO: Live not found, retrying...
+[2024-09-17 15:47:31] ERROR: Ableton Live not found
+[2024-09-17 15:47:31] ERROR: Ableton Live not found
+[2024-09-17 15:47:31] INFO: Live not found, retrying...
+[2024-09-17 15:47:31] ERROR: Ableton Live not found
+[2024-09-17 15:47:32] ERROR: Ableton Live not found
+[2024-09-17 15:47:32] INFO: Live not found, retrying...
+[2024-09-17 15:47:32] ERROR: Ableton Live not found
+[2024-09-17 15:47:32] ERROR: Ableton Live not found
+[2024-09-17 15:47:32] INFO: Live not found, retrying...
+[2024-09-17 15:47:32] ERROR: Ableton Live not found
+[2024-09-17 15:47:33] ERROR: Ableton Live not found
+[2024-09-17 15:47:33] INFO: Live not found, retrying...
+[2024-09-17 15:47:33] ERROR: Ableton Live not found
+[2024-09-17 15:47:33] ERROR: Ableton Live not found
+[2024-09-17 15:47:33] INFO: Live not found, retrying...
+[2024-09-17 15:47:33] ERROR: Ableton Live not found
+[2024-09-17 15:47:34] ERROR: Ableton Live not found
+[2024-09-17 15:47:34] INFO: Live not found, retrying...
+[2024-09-17 15:47:34] ERROR: Ableton Live not found
+[2024-09-17 15:47:34] ERROR: Ableton Live not found
+[2024-09-17 15:47:34] INFO: Live not found, retrying...
+[2024-09-17 15:47:34] ERROR: Ableton Live not found
+[2024-09-17 15:47:35] ERROR: Ableton Live not found
+[2024-09-17 15:47:35] INFO: Live not found, retrying...
+[2024-09-17 15:47:35] ERROR: Ableton Live not found
+[2024-09-17 15:47:35] ERROR: Ableton Live not found
+[2024-09-17 15:47:35] INFO: Live not found, retrying...
+[2024-09-17 15:47:35] ERROR: Ableton Live not found
+[2024-09-17 15:47:36] ERROR: Ableton Live not found
+[2024-09-17 15:47:36] INFO: Live not found, retrying...
+[2024-09-17 15:47:36] ERROR: Ableton Live not found
+[2024-09-17 15:47:36] ERROR: Ableton Live not found
+[2024-09-17 15:47:36] INFO: Live not found, retrying...
+[2024-09-17 15:47:36] ERROR: Ableton Live not found
+[2024-09-17 15:47:37] ERROR: Ableton Live not found
+[2024-09-17 15:47:37] INFO: Live not found, retrying...
+[2024-09-17 15:47:37] ERROR: Ableton Live not found
+[2024-09-17 15:47:37] ERROR: Ableton Live not found
+[2024-09-17 15:47:37] INFO: Live not found, retrying...
+[2024-09-17 15:47:37] ERROR: Ableton Live not found
+[2024-09-17 15:47:38] ERROR: Ableton Live not found
+[2024-09-17 15:47:38] INFO: Live not found, retrying...
+[2024-09-17 15:47:38] ERROR: Ableton Live not found
+[2024-09-17 15:47:38] ERROR: Ableton Live not found
+[2024-09-17 15:47:38] INFO: Live not found, retrying...
+[2024-09-17 15:47:38] ERROR: Ableton Live not found
+[2024-09-17 15:47:39] ERROR: Ableton Live not found
+[2024-09-17 15:47:39] INFO: Live not found, retrying...
+[2024-09-17 15:47:39] ERROR: Ableton Live not found
+[2024-09-17 15:47:39] ERROR: Ableton Live not found
+[2024-09-17 15:47:39] INFO: Live not found, retrying...
+[2024-09-17 15:47:40] ERROR: Ableton Live not found
+[2024-09-17 15:47:40] ERROR: Ableton Live not found
+[2024-09-17 15:47:40] INFO: Live not found, retrying...
+[2024-09-17 15:47:40] ERROR: Ableton Live not found
+[2024-09-17 15:47:41] ERROR: Ableton Live not found
+[2024-09-17 15:47:41] INFO: Live not found, retrying...
+[2024-09-17 15:47:41] ERROR: Ableton Live not found
+[2024-09-17 15:47:41] ERROR: Ableton Live not found
+[2024-09-17 15:47:41] INFO: Live not found, retrying...
+[2024-09-17 15:47:41] ERROR: Ableton Live not found
+[2024-09-17 15:47:42] ERROR: Ableton Live not found
+[2024-09-17 15:47:42] INFO: Live not found, retrying...
+[2024-09-17 15:47:42] ERROR: Ableton Live not found
+[2024-09-17 15:47:42] ERROR: Ableton Live not found
+[2024-09-17 15:47:42] INFO: Live not found, retrying...
+[2024-09-17 15:47:42] ERROR: Ableton Live not found
+[2024-09-17 15:47:43] ERROR: Ableton Live not found
+[2024-09-17 15:47:43] INFO: Live not found, retrying...
+[2024-09-17 15:47:43] ERROR: Ableton Live not found
+[2024-09-17 15:47:43] ERROR: Ableton Live not found
+[2024-09-17 15:47:43] INFO: Live not found, retrying...
+[2024-09-17 15:47:43] ERROR: Ableton Live not found
+[2024-09-17 15:47:44] ERROR: Ableton Live not found
+[2024-09-17 15:47:44] INFO: Live not found, retrying...
+[2024-09-17 15:47:44] ERROR: Ableton Live not found
+[2024-09-17 15:47:44] ERROR: Ableton Live not found
+[2024-09-17 15:47:44] INFO: Live not found, retrying...
+[2024-09-17 15:47:44] ERROR: Ableton Live not found
+[2024-09-17 15:47:45] ERROR: Ableton Live not found
+[2024-09-17 15:47:45] INFO: Live not found, retrying...
+[2024-09-17 15:47:45] ERROR: Ableton Live not found
+[2024-09-17 15:47:45] ERROR: Ableton Live not found
+[2024-09-17 15:47:45] INFO: Live not found, retrying...
+[2024-09-17 15:47:45] ERROR: Ableton Live not found
+[2024-09-17 15:47:46] ERROR: Ableton Live not found
+[2024-09-17 15:47:46] INFO: Live not found, retrying...
+[2024-09-17 15:47:46] ERROR: Ableton Live not found
+[2024-09-17 15:47:46] ERROR: Ableton Live not found
+[2024-09-17 15:47:46] INFO: Live not found, retrying...
+[2024-09-17 15:47:46] ERROR: Ableton Live not found
+[2024-09-17 15:47:47] ERROR: Ableton Live not found
+[2024-09-17 15:47:47] INFO: Live not found, retrying...
+[2024-09-17 15:47:47] ERROR: Ableton Live not found
+[2024-09-17 15:47:47] ERROR: Ableton Live not found
+[2024-09-17 15:47:47] INFO: Live not found, retrying...
+[2024-09-17 15:47:47] ERROR: Ableton Live not found
+[2024-09-17 15:47:48] ERROR: Ableton Live not found
+[2024-09-17 15:47:48] INFO: Live not found, retrying...
+[2024-09-17 15:47:48] ERROR: Ableton Live not found
+[2024-09-17 15:47:48] ERROR: Ableton Live not found
+[2024-09-17 15:47:48] INFO: Live not found, retrying...
+[2024-09-17 15:47:48] ERROR: Ableton Live not found
+[2024-09-17 15:47:49] ERROR: Ableton Live not found
+[2024-09-17 15:47:49] INFO: Live not found, retrying...
+[2024-09-17 15:47:49] ERROR: Ableton Live not found
+[2024-09-17 15:47:49] ERROR: Ableton Live not found
+[2024-09-17 15:47:49] INFO: Live not found, retrying...
+[2024-09-17 15:47:49] ERROR: Ableton Live not found
+[2024-09-17 15:47:50] ERROR: Ableton Live not found
+[2024-09-17 15:47:50] INFO: Live not found, retrying...
+[2024-09-17 15:47:50] ERROR: Ableton Live not found
+[2024-09-17 15:47:50] ERROR: Ableton Live not found
+[2024-09-17 15:47:50] INFO: Live not found, retrying...
+[2024-09-17 15:47:50] ERROR: Ableton Live not found
+[2024-09-17 15:47:51] ERROR: Ableton Live not found
+[2024-09-17 15:47:51] INFO: Live not found, retrying...
+[2024-09-17 15:47:51] ERROR: Ableton Live not found
+[2024-09-17 15:47:51] ERROR: Ableton Live not found
+[2024-09-17 15:47:51] INFO: Live not found, retrying...
+[2024-09-17 15:47:51] ERROR: Ableton Live not found
+[2024-09-17 15:47:52] ERROR: Ableton Live not found
+[2024-09-17 15:47:52] INFO: Live not found, retrying...
+[2024-09-17 15:47:52] ERROR: Ableton Live not found
+[2024-09-17 15:47:52] ERROR: Ableton Live not found
+[2024-09-17 15:47:52] INFO: Live not found, retrying...
+[2024-09-17 15:47:52] ERROR: Ableton Live not found
+[2024-09-17 15:47:53] ERROR: Ableton Live not found
+[2024-09-17 15:47:53] INFO: Live not found, retrying...
+[2024-09-17 15:47:53] ERROR: Ableton Live not found
+[2024-09-17 15:47:53] ERROR: Ableton Live not found
+[2024-09-17 15:47:53] INFO: Live not found, retrying...
+[2024-09-17 15:47:53] ERROR: Ableton Live not found
+[2024-09-17 15:47:54] ERROR: Ableton Live not found
+[2024-09-17 15:47:54] INFO: Live not found, retrying...
+[2024-09-17 15:47:54] ERROR: Ableton Live not found
+[2024-09-17 15:47:54] ERROR: Ableton Live not found
+[2024-09-17 15:47:54] INFO: Live not found, retrying...
+[2024-09-17 15:47:55] ERROR: Ableton Live not found
+[2024-09-17 15:47:55] ERROR: Ableton Live not found
+[2024-09-17 15:47:55] INFO: Live not found, retrying...
+[2024-09-17 15:47:55] ERROR: Ableton Live not found
+[2024-09-17 15:47:56] ERROR: Ableton Live not found
+[2024-09-17 15:47:56] INFO: Live not found, retrying...
+[2024-09-17 15:47:56] ERROR: Ableton Live not found
+[2024-09-17 15:47:56] ERROR: Ableton Live not found
+[2024-09-17 15:47:56] INFO: Live not found, retrying...
+[2024-09-17 15:47:56] ERROR: Ableton Live not found
+[2024-09-17 15:47:57] ERROR: Ableton Live not found
+[2024-09-17 15:47:57] INFO: Live not found, retrying...
+[2024-09-17 15:47:57] ERROR: Ableton Live not found
+[2024-09-17 15:47:57] ERROR: Ableton Live not found
+[2024-09-17 15:47:57] INFO: Live not found, retrying...
+[2024-09-17 15:47:57] ERROR: Ableton Live not found
+[2024-09-17 15:47:58] ERROR: Ableton Live not found
+[2024-09-17 15:47:58] INFO: Live not found, retrying...
+[2024-09-17 15:47:58] ERROR: Ableton Live not found
+[2024-09-17 15:50:31] INFO: Ignition sequence started...
+[2024-09-17 15:50:31] DEBUG: int main()
+[2024-09-17 15:50:31] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:50:31] INFO: remap before remap
+[2024-09-17 15:50:31] DEBUG: remap found remap
+[2024-09-17 15:50:31] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:50:31] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:50:31] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:50:31] DEBUG: process key: ctrl+d
+[2024-09-17 15:50:31] DEBUG: parsing: ctrl+d
+[2024-09-17 15:50:31] DEBUG: key: d
+[2024-09-17 15:50:31] DEBUG: shift: 0
+[2024-09-17 15:50:31] DEBUG: ctrl: 1
+[2024-09-17 15:50:31] DEBUG: cmd: 0
+[2024-09-17 15:50:31] DEBUG: alt: 0
+[2024-09-17 15:50:31] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:50:31] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:50:31] DEBUG: process key: cmd+a
+[2024-09-17 15:50:31] DEBUG: parsing: cmd+a
+[2024-09-17 15:50:31] DEBUG: key: a
+[2024-09-17 15:50:31] DEBUG: shift: 0
+[2024-09-17 15:50:31] DEBUG: ctrl: 0
+[2024-09-17 15:50:31] DEBUG: cmd: 1
+[2024-09-17 15:50:31] DEBUG: alt: 0
+[2024-09-17 15:50:31] DEBUG: remap found remap
+[2024-09-17 15:50:31] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:50:31] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:50:31] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:50:31] DEBUG: process key: ctrl+2
+[2024-09-17 15:50:31] DEBUG: parsing: ctrl+2
+[2024-09-17 15:50:31] DEBUG: key: 2
+[2024-09-17 15:50:31] DEBUG: shift: 0
+[2024-09-17 15:50:31] DEBUG: ctrl: 1
+[2024-09-17 15:50:31] DEBUG: cmd: 0
+[2024-09-17 15:50:31] DEBUG: alt: 0
+[2024-09-17 15:50:31] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:50:31] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:50:31] DEBUG: process key: ctrl+d
+[2024-09-17 15:50:31] DEBUG: parsing: ctrl+d
+[2024-09-17 15:50:31] DEBUG: key: d
+[2024-09-17 15:50:31] DEBUG: shift: 0
+[2024-09-17 15:50:31] DEBUG: ctrl: 1
+[2024-09-17 15:50:31] DEBUG: cmd: 0
+[2024-09-17 15:50:31] DEBUG: alt: 0
+[2024-09-17 15:50:31] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:50:31] DEBUG: IPC::init() called
+[2024-09-17 15:50:31] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 15:50:31] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 15:50:31] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 15:50:32] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 15:50:32] INFO: Request pipe successfully opened for writing
+[2024-09-17 15:50:32] INFO: Message written to pipe: READY
+[2024-09-17 15:50:32] INFO: IPC::init() finished
+[2024-09-17 15:50:32] INFO: Message written to pipe: PLUGINS
+[2024-09-17 15:50:32] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 15:50:32] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 15:50:32] DEBUG: ApplicationManager::init() called
+[2024-09-17 15:50:32] DEBUG: PID::Init() called
+[2024-09-17 15:50:32] INFO: Ableton Live found with PID: 10672
+[2024-09-17 15:54:25] INFO: Ignition sequence started...
+[2024-09-17 15:54:25] DEBUG: int main()
+[2024-09-17 15:54:25] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:54:25] INFO: remap before remap
+[2024-09-17 15:54:25] DEBUG: remap found remap
+[2024-09-17 15:54:25] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:54:25] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:54:25] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:54:25] DEBUG: process key: ctrl+d
+[2024-09-17 15:54:25] DEBUG: parsing: ctrl+d
+[2024-09-17 15:54:25] DEBUG: key: d
+[2024-09-17 15:54:25] DEBUG: shift: 0
+[2024-09-17 15:54:25] DEBUG: ctrl: 1
+[2024-09-17 15:54:25] DEBUG: cmd: 0
+[2024-09-17 15:54:25] DEBUG: alt: 0
+[2024-09-17 15:54:25] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:54:25] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:54:25] DEBUG: process key: cmd+a
+[2024-09-17 15:54:25] DEBUG: parsing: cmd+a
+[2024-09-17 15:54:25] DEBUG: key: a
+[2024-09-17 15:54:25] DEBUG: shift: 0
+[2024-09-17 15:54:25] DEBUG: ctrl: 0
+[2024-09-17 15:54:25] DEBUG: cmd: 1
+[2024-09-17 15:54:25] DEBUG: alt: 0
+[2024-09-17 15:54:25] DEBUG: remap found remap
+[2024-09-17 15:54:25] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:54:25] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:54:25] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:54:25] DEBUG: process key: ctrl+2
+[2024-09-17 15:54:25] DEBUG: parsing: ctrl+2
+[2024-09-17 15:54:25] DEBUG: key: 2
+[2024-09-17 15:54:25] DEBUG: shift: 0
+[2024-09-17 15:54:25] DEBUG: ctrl: 1
+[2024-09-17 15:54:25] DEBUG: cmd: 0
+[2024-09-17 15:54:25] DEBUG: alt: 0
+[2024-09-17 15:54:25] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:54:25] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:54:25] DEBUG: process key: ctrl+d
+[2024-09-17 15:54:25] DEBUG: parsing: ctrl+d
+[2024-09-17 15:54:25] DEBUG: key: d
+[2024-09-17 15:54:25] DEBUG: shift: 0
+[2024-09-17 15:54:25] DEBUG: ctrl: 1
+[2024-09-17 15:54:25] DEBUG: cmd: 0
+[2024-09-17 15:54:25] DEBUG: alt: 0
+[2024-09-17 15:54:25] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:54:25] DEBUG: IPC::init() called
+[2024-09-17 15:54:25] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 15:54:25] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 15:54:25] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 15:54:26] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 15:54:26] INFO: Request pipe successfully opened for writing
+[2024-09-17 15:54:26] INFO: Message written to pipe: READY
+[2024-09-17 15:54:26] INFO: IPC::init() finished
+[2024-09-17 15:54:26] INFO: Message written to pipe: PLUGINS
+[2024-09-17 15:54:26] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 15:54:26] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 15:54:26] DEBUG: ApplicationManager::init() called
+[2024-09-17 15:54:26] DEBUG: PID::Init() called
+[2024-09-17 15:54:26] INFO: Ableton Live found with PID: 10672
+[2024-09-17 15:55:52] INFO: Ignition sequence started...
+[2024-09-17 15:55:52] DEBUG: int main()
+[2024-09-17 15:55:52] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:55:52] INFO: remap before remap
+[2024-09-17 15:55:52] DEBUG: remap found remap
+[2024-09-17 15:55:52] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:55:52] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:55:52] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:55:52] DEBUG: process key: ctrl+d
+[2024-09-17 15:55:52] DEBUG: parsing: ctrl+d
+[2024-09-17 15:55:52] DEBUG: key: d
+[2024-09-17 15:55:52] DEBUG: shift: 0
+[2024-09-17 15:55:52] DEBUG: ctrl: 1
+[2024-09-17 15:55:52] DEBUG: cmd: 0
+[2024-09-17 15:55:52] DEBUG: alt: 0
+[2024-09-17 15:55:52] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:55:52] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:55:52] DEBUG: process key: cmd+a
+[2024-09-17 15:55:52] DEBUG: parsing: cmd+a
+[2024-09-17 15:55:52] DEBUG: key: a
+[2024-09-17 15:55:52] DEBUG: shift: 0
+[2024-09-17 15:55:52] DEBUG: ctrl: 0
+[2024-09-17 15:55:52] DEBUG: cmd: 1
+[2024-09-17 15:55:52] DEBUG: alt: 0
+[2024-09-17 15:55:52] DEBUG: remap found remap
+[2024-09-17 15:55:52] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:55:52] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:55:52] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:55:52] DEBUG: process key: ctrl+2
+[2024-09-17 15:55:52] DEBUG: parsing: ctrl+2
+[2024-09-17 15:55:52] DEBUG: key: 2
+[2024-09-17 15:55:52] DEBUG: shift: 0
+[2024-09-17 15:55:52] DEBUG: ctrl: 1
+[2024-09-17 15:55:52] DEBUG: cmd: 0
+[2024-09-17 15:55:52] DEBUG: alt: 0
+[2024-09-17 15:55:52] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:55:52] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:55:52] DEBUG: process key: ctrl+d
+[2024-09-17 15:55:52] DEBUG: parsing: ctrl+d
+[2024-09-17 15:55:52] DEBUG: key: d
+[2024-09-17 15:55:52] DEBUG: shift: 0
+[2024-09-17 15:55:52] DEBUG: ctrl: 1
+[2024-09-17 15:55:52] DEBUG: cmd: 0
+[2024-09-17 15:55:52] DEBUG: alt: 0
+[2024-09-17 15:55:52] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:55:52] DEBUG: IPC::init() called
+[2024-09-17 15:55:52] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 15:55:52] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 15:55:52] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 15:55:53] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 15:55:53] INFO: Request pipe successfully opened for writing
+[2024-09-17 15:55:53] INFO: Message written to pipe: READY
+[2024-09-17 15:55:53] INFO: IPC::init() finished
+[2024-09-17 15:55:53] INFO: Message written to pipe: PLUGINS
+[2024-09-17 15:55:53] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 15:55:53] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 15:55:53] DEBUG: ApplicationManager::init() called
+[2024-09-17 15:55:53] DEBUG: PID::Init() called
+[2024-09-17 15:55:53] INFO: Ableton Live found with PID: 10672
+[2024-09-17 15:57:58] INFO: Ignition sequence started...
+[2024-09-17 15:57:58] DEBUG: int main()
+[2024-09-17 15:57:58] DEBUG: ApplicatonManager::init() called
+[2024-09-17 15:57:58] INFO: remap before remap
+[2024-09-17 15:57:58] DEBUG: remap found remap
+[2024-09-17 15:57:58] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 15:57:58] DEBUG: remap toStr: cmd+a
+[2024-09-17 15:57:58] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 15:57:58] DEBUG: process key: ctrl+d
+[2024-09-17 15:57:58] DEBUG: parsing: ctrl+d
+[2024-09-17 15:57:58] DEBUG: key: d
+[2024-09-17 15:57:58] DEBUG: shift: 0
+[2024-09-17 15:57:58] DEBUG: ctrl: 1
+[2024-09-17 15:57:58] DEBUG: cmd: 0
+[2024-09-17 15:57:58] DEBUG: alt: 0
+[2024-09-17 15:57:58] DEBUG: process remap: step: cmd+a
+[2024-09-17 15:57:58] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 15:57:58] DEBUG: process key: cmd+a
+[2024-09-17 15:57:58] DEBUG: parsing: cmd+a
+[2024-09-17 15:57:58] DEBUG: key: a
+[2024-09-17 15:57:58] DEBUG: shift: 0
+[2024-09-17 15:57:58] DEBUG: ctrl: 0
+[2024-09-17 15:57:58] DEBUG: cmd: 1
+[2024-09-17 15:57:58] DEBUG: alt: 0
+[2024-09-17 15:57:58] DEBUG: remap found remap
+[2024-09-17 15:57:58] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 15:57:58] DEBUG: remap toStr: ctrl+d
+[2024-09-17 15:57:58] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 15:57:58] DEBUG: process key: ctrl+2
+[2024-09-17 15:57:58] DEBUG: parsing: ctrl+2
+[2024-09-17 15:57:58] DEBUG: key: 2
+[2024-09-17 15:57:58] DEBUG: shift: 0
+[2024-09-17 15:57:58] DEBUG: ctrl: 1
+[2024-09-17 15:57:58] DEBUG: cmd: 0
+[2024-09-17 15:57:58] DEBUG: alt: 0
+[2024-09-17 15:57:58] DEBUG: process remap: step: ctrl+d
+[2024-09-17 15:57:58] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 15:57:58] DEBUG: process key: ctrl+d
+[2024-09-17 15:57:58] DEBUG: parsing: ctrl+d
+[2024-09-17 15:57:58] DEBUG: key: d
+[2024-09-17 15:57:58] DEBUG: shift: 0
+[2024-09-17 15:57:58] DEBUG: ctrl: 1
+[2024-09-17 15:57:58] DEBUG: cmd: 0
+[2024-09-17 15:57:58] DEBUG: alt: 0
+[2024-09-17 15:57:58] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 15:57:58] DEBUG: IPC::init() called
+[2024-09-17 15:57:58] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 15:57:58] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 15:57:58] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 15:57:59] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 15:57:59] INFO: Request pipe successfully opened for writing
+[2024-09-17 15:57:59] INFO: Message written to pipe: READY
+[2024-09-17 15:57:59] INFO: IPC::init() finished
+[2024-09-17 15:57:59] INFO: Message written to pipe: PLUGINS
+[2024-09-17 15:57:59] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 15:57:59] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 15:57:59] DEBUG: ApplicationManager::init() called
+[2024-09-17 15:57:59] DEBUG: PID::Init() called
+[2024-09-17 15:57:59] INFO: Ableton Live found with PID: 10672
+[2024-09-17 16:01:05] INFO: Ignition sequence started...
+[2024-09-17 16:01:05] DEBUG: int main()
+[2024-09-17 16:01:05] DEBUG: ApplicatonManager::init() called
+[2024-09-17 16:01:05] INFO: remap before remap
+[2024-09-17 16:01:05] DEBUG: remap found remap
+[2024-09-17 16:01:05] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 16:01:05] DEBUG: remap toStr: cmd+a
+[2024-09-17 16:01:05] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 16:01:05] DEBUG: process key: ctrl+d
+[2024-09-17 16:01:05] DEBUG: parsing: ctrl+d
+[2024-09-17 16:01:05] DEBUG: key: d
+[2024-09-17 16:01:05] DEBUG: shift: 0
+[2024-09-17 16:01:05] DEBUG: ctrl: 1
+[2024-09-17 16:01:05] DEBUG: cmd: 0
+[2024-09-17 16:01:05] DEBUG: alt: 0
+[2024-09-17 16:01:05] DEBUG: process remap: step: cmd+a
+[2024-09-17 16:01:05] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 16:01:05] DEBUG: process key: cmd+a
+[2024-09-17 16:01:05] DEBUG: parsing: cmd+a
+[2024-09-17 16:01:05] DEBUG: key: a
+[2024-09-17 16:01:05] DEBUG: shift: 0
+[2024-09-17 16:01:05] DEBUG: ctrl: 0
+[2024-09-17 16:01:05] DEBUG: cmd: 1
+[2024-09-17 16:01:05] DEBUG: alt: 0
+[2024-09-17 16:01:05] DEBUG: remap found remap
+[2024-09-17 16:01:05] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 16:01:05] DEBUG: remap toStr: ctrl+d
+[2024-09-17 16:01:05] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 16:01:05] DEBUG: process key: ctrl+2
+[2024-09-17 16:01:05] DEBUG: parsing: ctrl+2
+[2024-09-17 16:01:05] DEBUG: key: 2
+[2024-09-17 16:01:05] DEBUG: shift: 0
+[2024-09-17 16:01:05] DEBUG: ctrl: 1
+[2024-09-17 16:01:05] DEBUG: cmd: 0
+[2024-09-17 16:01:05] DEBUG: alt: 0
+[2024-09-17 16:01:05] DEBUG: process remap: step: ctrl+d
+[2024-09-17 16:01:05] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 16:01:05] DEBUG: process key: ctrl+d
+[2024-09-17 16:01:05] DEBUG: parsing: ctrl+d
+[2024-09-17 16:01:05] DEBUG: key: d
+[2024-09-17 16:01:05] DEBUG: shift: 0
+[2024-09-17 16:01:05] DEBUG: ctrl: 1
+[2024-09-17 16:01:05] DEBUG: cmd: 0
+[2024-09-17 16:01:05] DEBUG: alt: 0
+[2024-09-17 16:01:05] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 16:01:05] DEBUG: IPC::init() called
+[2024-09-17 16:01:05] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 16:01:05] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 16:01:05] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 16:01:06] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 16:01:06] INFO: Request pipe successfully opened for writing
+[2024-09-17 16:01:06] INFO: Message written to pipe: READY
+[2024-09-17 16:01:06] INFO: IPC::init() finished
+[2024-09-17 16:01:06] INFO: Message written to pipe: PLUGINS
+[2024-09-17 16:01:06] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 16:01:06] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 16:01:06] DEBUG: ApplicationManager::init() called
+[2024-09-17 16:01:06] DEBUG: PID::Init() called
+[2024-09-17 16:01:06] INFO: Ableton Live found with PID: 10672
+[2024-09-17 16:05:42] INFO: Ignition sequence started...
+[2024-09-17 16:05:42] DEBUG: int main()
+[2024-09-17 16:05:42] DEBUG: ApplicatonManager::init() called
+[2024-09-17 16:05:42] INFO: remap before remap
+[2024-09-17 16:05:42] DEBUG: remap found remap
+[2024-09-17 16:05:42] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 16:05:42] DEBUG: remap toStr: cmd+a
+[2024-09-17 16:05:42] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 16:05:42] DEBUG: process key: ctrl+d
+[2024-09-17 16:05:42] DEBUG: parsing: ctrl+d
+[2024-09-17 16:05:42] DEBUG: key: d
+[2024-09-17 16:05:42] DEBUG: shift: 0
+[2024-09-17 16:05:42] DEBUG: ctrl: 1
+[2024-09-17 16:05:42] DEBUG: cmd: 0
+[2024-09-17 16:05:42] DEBUG: alt: 0
+[2024-09-17 16:05:42] DEBUG: process remap: step: cmd+a
+[2024-09-17 16:05:42] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 16:05:42] DEBUG: process key: cmd+a
+[2024-09-17 16:05:42] DEBUG: parsing: cmd+a
+[2024-09-17 16:05:42] DEBUG: key: a
+[2024-09-17 16:05:42] DEBUG: shift: 0
+[2024-09-17 16:05:42] DEBUG: ctrl: 0
+[2024-09-17 16:05:42] DEBUG: cmd: 1
+[2024-09-17 16:05:42] DEBUG: alt: 0
+[2024-09-17 16:05:42] DEBUG: remap found remap
+[2024-09-17 16:05:42] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 16:05:42] DEBUG: remap toStr: ctrl+d
+[2024-09-17 16:05:42] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 16:05:42] DEBUG: process key: ctrl+2
+[2024-09-17 16:05:42] DEBUG: parsing: ctrl+2
+[2024-09-17 16:05:42] DEBUG: key: 2
+[2024-09-17 16:05:42] DEBUG: shift: 0
+[2024-09-17 16:05:42] DEBUG: ctrl: 1
+[2024-09-17 16:05:42] DEBUG: cmd: 0
+[2024-09-17 16:05:42] DEBUG: alt: 0
+[2024-09-17 16:05:42] DEBUG: process remap: step: ctrl+d
+[2024-09-17 16:05:42] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 16:05:42] DEBUG: process key: ctrl+d
+[2024-09-17 16:05:42] DEBUG: parsing: ctrl+d
+[2024-09-17 16:05:42] DEBUG: key: d
+[2024-09-17 16:05:42] DEBUG: shift: 0
+[2024-09-17 16:05:42] DEBUG: ctrl: 1
+[2024-09-17 16:05:42] DEBUG: cmd: 0
+[2024-09-17 16:05:42] DEBUG: alt: 0
+[2024-09-17 16:05:42] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 16:05:42] DEBUG: IPC::init() called
+[2024-09-17 16:05:42] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 16:05:42] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 16:05:42] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 16:05:43] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 16:05:43] INFO: Request pipe successfully opened for writing
+[2024-09-17 16:05:43] INFO: Message written to pipe: READY
+[2024-09-17 16:05:43] INFO: IPC::init() finished
+[2024-09-17 16:05:43] INFO: Message written to pipe: PLUGINS
+[2024-09-17 16:05:43] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 16:05:43] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 16:05:43] DEBUG: ApplicationManager::init() called
+[2024-09-17 16:05:43] DEBUG: PID::Init() called
+[2024-09-17 16:05:43] INFO: Ableton Live found with PID: 10672
+[2024-09-17 16:05:51] INFO: Ignition sequence started...
+[2024-09-17 16:05:51] DEBUG: int main()
+[2024-09-17 16:05:51] DEBUG: ApplicatonManager::init() called
+[2024-09-17 16:05:51] INFO: remap before remap
+[2024-09-17 16:05:51] DEBUG: remap found remap
+[2024-09-17 16:05:51] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 16:05:51] DEBUG: remap toStr: cmd+a
+[2024-09-17 16:05:51] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 16:05:51] DEBUG: process key: ctrl+d
+[2024-09-17 16:05:51] DEBUG: parsing: ctrl+d
+[2024-09-17 16:05:51] DEBUG: key: d
+[2024-09-17 16:05:51] DEBUG: shift: 0
+[2024-09-17 16:05:51] DEBUG: ctrl: 1
+[2024-09-17 16:05:51] DEBUG: cmd: 0
+[2024-09-17 16:05:51] DEBUG: alt: 0
+[2024-09-17 16:05:51] DEBUG: process remap: step: cmd+a
+[2024-09-17 16:05:51] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 16:05:51] DEBUG: process key: cmd+a
+[2024-09-17 16:05:51] DEBUG: parsing: cmd+a
+[2024-09-17 16:05:51] DEBUG: key: a
+[2024-09-17 16:05:51] DEBUG: shift: 0
+[2024-09-17 16:05:51] DEBUG: ctrl: 0
+[2024-09-17 16:05:51] DEBUG: cmd: 1
+[2024-09-17 16:05:51] DEBUG: alt: 0
+[2024-09-17 16:05:51] DEBUG: remap found remap
+[2024-09-17 16:05:51] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 16:05:51] DEBUG: remap toStr: ctrl+d
+[2024-09-17 16:05:51] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 16:05:51] DEBUG: process key: ctrl+2
+[2024-09-17 16:05:51] DEBUG: parsing: ctrl+2
+[2024-09-17 16:05:51] DEBUG: key: 2
+[2024-09-17 16:05:51] DEBUG: shift: 0
+[2024-09-17 16:05:51] DEBUG: ctrl: 1
+[2024-09-17 16:05:51] DEBUG: cmd: 0
+[2024-09-17 16:05:51] DEBUG: alt: 0
+[2024-09-17 16:05:51] DEBUG: process remap: step: ctrl+d
+[2024-09-17 16:05:51] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 16:05:51] DEBUG: process key: ctrl+d
+[2024-09-17 16:05:51] DEBUG: parsing: ctrl+d
+[2024-09-17 16:05:51] DEBUG: key: d
+[2024-09-17 16:05:51] DEBUG: shift: 0
+[2024-09-17 16:05:51] DEBUG: ctrl: 1
+[2024-09-17 16:05:51] DEBUG: cmd: 0
+[2024-09-17 16:05:51] DEBUG: alt: 0
+[2024-09-17 16:05:51] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 16:05:51] DEBUG: IPC::init() called
+[2024-09-17 16:05:51] DEBUG: Creating named pipe: C:/Users/Billy Maizere/Documents/AbletonUser Library/Remote Scripts/LiveImproved/lim_request
+[2024-09-17 16:05:51] ERROR: Failed to create named pipe: C:/Users/Billy Maizere/Documents/AbletonUser Library/Remote Scripts/LiveImproved/lim_request - 123
+[2024-09-17 16:05:51] DEBUG: IPC::init() failed
+[2024-09-17 16:05:51] ERROR: Failed to write to pipe: 6
+[2024-09-17 16:05:51] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 16:05:51] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 16:05:51] DEBUG: ApplicationManager::init() called
+[2024-09-17 16:05:51] DEBUG: PID::Init() called
+[2024-09-17 16:05:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:51] DEBUG: still transmitting
+[2024-09-17 16:05:51] INFO: Ableton Live found with PID: 10672
+[2024-09-17 16:05:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:51] DEBUG: still transmitting
+[2024-09-17 16:05:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:51] DEBUG: still transmitting
+[2024-09-17 16:05:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:51] DEBUG: still transmitting
+[2024-09-17 16:05:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:51] DEBUG: still transmitting
+[2024-09-17 16:05:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:51] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:52] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:52] DEBUG: still transmitting
+[2024-09-17 16:05:53] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:53] DEBUG: still transmitting
+[2024-09-17 16:05:53] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:53] DEBUG: still transmitting
+[2024-09-17 16:05:53] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:53] DEBUG: still transmitting
+[2024-09-17 16:05:53] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:53] DEBUG: still transmitting
+[2024-09-17 16:05:53] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:05:53] DEBUG: still transmitting
+[2024-09-17 16:05:53] ERROR: Maximum empty reads reached. Terminating read attempt.
+[2024-09-17 16:12:49] INFO: Ignition sequence started...
+[2024-09-17 16:12:49] DEBUG: int main()
+[2024-09-17 16:12:49] DEBUG: ApplicatonManager::init() called
+[2024-09-17 16:12:49] INFO: remap before remap
+[2024-09-17 16:12:49] DEBUG: remap found remap
+[2024-09-17 16:12:49] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 16:12:49] DEBUG: remap toStr: cmd+a
+[2024-09-17 16:12:49] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 16:12:49] DEBUG: process key: ctrl+d
+[2024-09-17 16:12:49] DEBUG: parsing: ctrl+d
+[2024-09-17 16:12:49] DEBUG: key: d
+[2024-09-17 16:12:49] DEBUG: shift: 0
+[2024-09-17 16:12:49] DEBUG: ctrl: 1
+[2024-09-17 16:12:49] DEBUG: cmd: 0
+[2024-09-17 16:12:49] DEBUG: alt: 0
+[2024-09-17 16:12:49] DEBUG: process remap: step: cmd+a
+[2024-09-17 16:12:49] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 16:12:49] DEBUG: process key: cmd+a
+[2024-09-17 16:12:49] DEBUG: parsing: cmd+a
+[2024-09-17 16:12:49] DEBUG: key: a
+[2024-09-17 16:12:49] DEBUG: shift: 0
+[2024-09-17 16:12:49] DEBUG: ctrl: 0
+[2024-09-17 16:12:49] DEBUG: cmd: 1
+[2024-09-17 16:12:49] DEBUG: alt: 0
+[2024-09-17 16:12:49] DEBUG: remap found remap
+[2024-09-17 16:12:49] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 16:12:49] DEBUG: remap toStr: ctrl+d
+[2024-09-17 16:12:49] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 16:12:49] DEBUG: process key: ctrl+2
+[2024-09-17 16:12:49] DEBUG: parsing: ctrl+2
+[2024-09-17 16:12:49] DEBUG: key: 2
+[2024-09-17 16:12:49] DEBUG: shift: 0
+[2024-09-17 16:12:49] DEBUG: ctrl: 1
+[2024-09-17 16:12:49] DEBUG: cmd: 0
+[2024-09-17 16:12:49] DEBUG: alt: 0
+[2024-09-17 16:12:49] DEBUG: process remap: step: ctrl+d
+[2024-09-17 16:12:49] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 16:12:49] DEBUG: process key: ctrl+d
+[2024-09-17 16:12:49] DEBUG: parsing: ctrl+d
+[2024-09-17 16:12:49] DEBUG: key: d
+[2024-09-17 16:12:49] DEBUG: shift: 0
+[2024-09-17 16:12:49] DEBUG: ctrl: 1
+[2024-09-17 16:12:49] DEBUG: cmd: 0
+[2024-09-17 16:12:49] DEBUG: alt: 0
+[2024-09-17 16:12:49] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 16:12:49] DEBUG: IPC::init() called
+[2024-09-17 16:12:49] DEBUG: Creating named pipe: C:/Users/Billy Maizere/Documents/AbletonUser Library/Remote Scripts/LiveImproved/lim_request
+[2024-09-17 16:12:49] ERROR: Failed to create named pipe: C:/Users/Billy Maizere/Documents/AbletonUser Library/Remote Scripts/LiveImproved/lim_request - 123
+[2024-09-17 16:12:49] DEBUG: IPC::init() failed
+[2024-09-17 16:12:49] ERROR: Failed to write to pipe: 6
+[2024-09-17 16:12:49] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 16:12:49] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 16:12:49] DEBUG: ApplicationManager::init() called
+[2024-09-17 16:12:49] DEBUG: PID::Init() called
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] INFO: Ableton Live found with PID: 21120
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:49] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:49] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:50] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:50] DEBUG: still transmitting
+[2024-09-17 16:12:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:51] DEBUG: still transmitting
+[2024-09-17 16:12:51] ERROR: Failed to read the header. Error: 6
+[2024-09-17 16:12:51] DEBUG: still transmitting
+[2024-09-17 16:12:51] ERROR: Maximum empty reads reached. Terminating read attempt.
+[2024-09-17 16:13:55] INFO: Ignition sequence started...
+[2024-09-17 16:13:55] DEBUG: int main()
+[2024-09-17 16:13:55] DEBUG: ApplicatonManager::init() called
+[2024-09-17 16:13:55] INFO: remap before remap
+[2024-09-17 16:13:55] DEBUG: remap found remap
+[2024-09-17 16:13:55] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 16:13:55] DEBUG: remap toStr: cmd+a
+[2024-09-17 16:13:55] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 16:13:55] DEBUG: process key: ctrl+d
+[2024-09-17 16:13:55] DEBUG: parsing: ctrl+d
+[2024-09-17 16:13:55] DEBUG: key: d
+[2024-09-17 16:13:55] DEBUG: shift: 0
+[2024-09-17 16:13:55] DEBUG: ctrl: 1
+[2024-09-17 16:13:55] DEBUG: cmd: 0
+[2024-09-17 16:13:55] DEBUG: alt: 0
+[2024-09-17 16:13:55] DEBUG: process remap: step: cmd+a
+[2024-09-17 16:13:55] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 16:13:55] DEBUG: process key: cmd+a
+[2024-09-17 16:13:55] DEBUG: parsing: cmd+a
+[2024-09-17 16:13:55] DEBUG: key: a
+[2024-09-17 16:13:55] DEBUG: shift: 0
+[2024-09-17 16:13:55] DEBUG: ctrl: 0
+[2024-09-17 16:13:55] DEBUG: cmd: 1
+[2024-09-17 16:13:55] DEBUG: alt: 0
+[2024-09-17 16:13:55] DEBUG: remap found remap
+[2024-09-17 16:13:55] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 16:13:55] DEBUG: remap toStr: ctrl+d
+[2024-09-17 16:13:55] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 16:13:55] DEBUG: process key: ctrl+2
+[2024-09-17 16:13:55] DEBUG: parsing: ctrl+2
+[2024-09-17 16:13:55] DEBUG: key: 2
+[2024-09-17 16:13:55] DEBUG: shift: 0
+[2024-09-17 16:13:55] DEBUG: ctrl: 1
+[2024-09-17 16:13:55] DEBUG: cmd: 0
+[2024-09-17 16:13:55] DEBUG: alt: 0
+[2024-09-17 16:13:55] DEBUG: process remap: step: ctrl+d
+[2024-09-17 16:13:55] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 16:13:55] DEBUG: process key: ctrl+d
+[2024-09-17 16:13:55] DEBUG: parsing: ctrl+d
+[2024-09-17 16:13:55] DEBUG: key: d
+[2024-09-17 16:13:55] DEBUG: shift: 0
+[2024-09-17 16:13:55] DEBUG: ctrl: 1
+[2024-09-17 16:13:55] DEBUG: cmd: 0
+[2024-09-17 16:13:55] DEBUG: alt: 0
+[2024-09-17 16:13:55] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 16:13:55] DEBUG: IPC::init() called
+[2024-09-17 16:13:55] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 16:13:55] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 16:13:55] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 16:13:56] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 16:13:56] INFO: Request pipe successfully opened for writing
+[2024-09-17 16:13:56] INFO: Message written to pipe: READY
+[2024-09-17 16:13:56] INFO: IPC::init() finished
+[2024-09-17 16:13:56] INFO: Message written to pipe: PLUGINS
+[2024-09-17 16:13:56] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 16:13:56] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 16:13:56] DEBUG: ApplicationManager::init() called
+[2024-09-17 16:13:56] DEBUG: PID::Init() called
+[2024-09-17 16:13:56] INFO: Ableton Live found with PID: 21120
+[2024-09-17 16:14:54] INFO: Ignition sequence started...
+[2024-09-17 16:14:54] DEBUG: int main()
+[2024-09-17 16:14:54] DEBUG: ApplicatonManager::init() called
+[2024-09-17 16:14:54] INFO: remap before remap
+[2024-09-17 16:14:54] DEBUG: remap found remap
+[2024-09-17 16:14:54] DEBUG: remap fromStr: ctrl+d
+[2024-09-17 16:14:54] DEBUG: remap toStr: cmd+a
+[2024-09-17 16:14:54] DEBUG: process remap: from: ctrl+d to: cmd+a
+[2024-09-17 16:14:54] DEBUG: process key: ctrl+d
+[2024-09-17 16:14:54] DEBUG: parsing: ctrl+d
+[2024-09-17 16:14:54] DEBUG: key: d
+[2024-09-17 16:14:54] DEBUG: shift: 0
+[2024-09-17 16:14:54] DEBUG: ctrl: 1
+[2024-09-17 16:14:54] DEBUG: cmd: 0
+[2024-09-17 16:14:54] DEBUG: alt: 0
+[2024-09-17 16:14:54] DEBUG: process remap: step: cmd+a
+[2024-09-17 16:14:54] DEBUG: process remap: not in named actions. str: cmd+a
+[2024-09-17 16:14:54] DEBUG: process key: cmd+a
+[2024-09-17 16:14:54] DEBUG: parsing: cmd+a
+[2024-09-17 16:14:54] DEBUG: key: a
+[2024-09-17 16:14:54] DEBUG: shift: 0
+[2024-09-17 16:14:54] DEBUG: ctrl: 0
+[2024-09-17 16:14:54] DEBUG: cmd: 1
+[2024-09-17 16:14:54] DEBUG: alt: 0
+[2024-09-17 16:14:54] DEBUG: remap found remap
+[2024-09-17 16:14:54] DEBUG: remap fromStr: ctrl+2
+[2024-09-17 16:14:54] DEBUG: remap toStr: ctrl+d
+[2024-09-17 16:14:54] DEBUG: process remap: from: ctrl+2 to: ctrl+d
+[2024-09-17 16:14:54] DEBUG: process key: ctrl+2
+[2024-09-17 16:14:54] DEBUG: parsing: ctrl+2
+[2024-09-17 16:14:54] DEBUG: key: 2
+[2024-09-17 16:14:54] DEBUG: shift: 0
+[2024-09-17 16:14:54] DEBUG: ctrl: 1
+[2024-09-17 16:14:54] DEBUG: cmd: 0
+[2024-09-17 16:14:54] DEBUG: alt: 0
+[2024-09-17 16:14:54] DEBUG: process remap: step: ctrl+d
+[2024-09-17 16:14:54] DEBUG: process remap: not in named actions. str: ctrl+d
+[2024-09-17 16:14:54] DEBUG: process key: ctrl+d
+[2024-09-17 16:14:54] DEBUG: parsing: ctrl+d
+[2024-09-17 16:14:54] DEBUG: key: d
+[2024-09-17 16:14:54] DEBUG: shift: 0
+[2024-09-17 16:14:54] DEBUG: ctrl: 1
+[2024-09-17 16:14:54] DEBUG: cmd: 0
+[2024-09-17 16:14:54] DEBUG: alt: 0
+[2024-09-17 16:14:54] INFO: config filepath:C:/Users/Billy Maizere/Documents/Ableton/User Library/Remote Scripts/LiveImproved/config.txt
+[2024-09-17 16:14:54] DEBUG: IPC::init() called
+[2024-09-17 16:14:54] DEBUG: Creating named pipe: \\.\pipe\lim_request
+[2024-09-17 16:14:54] DEBUG: Creating named pipe: \\.\pipe\lim_response
+[2024-09-17 16:14:54] INFO: Pipe opened for reading: \\.\pipe\lim_response
+[2024-09-17 16:14:55] DEBUG: Pipe opened for writing: \\.\pipe\lim_request
+[2024-09-17 16:14:55] INFO: Request pipe successfully opened for writing
+[2024-09-17 16:14:55] INFO: Message written to pipe: READY
+[2024-09-17 16:14:55] INFO: IPC::init() finished
+[2024-09-17 16:14:55] INFO: Message written to pipe: PLUGINS
+[2024-09-17 16:14:55] DEBUG: IPC::initReadWithEventLoop() called
+[2024-09-17 16:14:55] DEBUG: ApplicatonManager::init() finished
+[2024-09-17 16:14:55] DEBUG: ApplicationManager::init() called
+[2024-09-17 16:14:55] DEBUG: PID::Init() called
+[2024-09-17 16:14:55] INFO: Ableton Live found with PID: 21120

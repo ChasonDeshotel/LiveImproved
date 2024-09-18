@@ -9,6 +9,8 @@
 
 ResponseParser::ResponseParser() {}
 
+ResponseParser::~ResponseParser() {}
+
 std::vector<std::string> ResponseParser::split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
     std::stringstream ss(str);

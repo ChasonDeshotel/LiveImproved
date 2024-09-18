@@ -6,7 +6,7 @@
 #include "yaml-cpp/yaml.h"
 
 class LogHandler;
-class MenuItem;
+#include "Types.h"
 
 class ConfigMenu {
 public:

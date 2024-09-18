@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <filesystem>
 
 class ApplicationManager;
 class LogHandler;
@@ -26,9 +27,33 @@ private:
 
     std::string readResponseInternal(int fd);
 
-    std::string homeDir = std::string(getenv("HOME"));
-    std::string requestPipePath = homeDir + "/Documents/Ableton/User Library/Remote Scripts/LiveImproved/lim_request";
-    std::string responsePipePath = homeDir + "/Documents/Ableton/User Library/Remote Scripts/LiveImproved/lim_response";
+    // TODO DRY
+    std::filesystem::path getHomeDirectory() {
+        #ifdef _WIN32
+        const char* homeDir = getenv("USERPROFILE");
+        #else
+        const char* homeDir = getenv("HOME");
+        #endif
+
+        if (!homeDir) {
+            throw std::runtime_error("Could not find the home directory.");
+        }
+
+        return std::filesystem::path(homeDir);
+    }
+    std::filesystem::path requestPipeFilePath =
+        std::filesystem::path(getHomeDirectory())
+        / "Documents" / "Ableton" "User Library"
+        / "Remote Scripts" / "LiveImproved" / "lim_request"
+    ;
+    std::filesystem::path responsePipeFilePath =
+        std::filesystem::path(getHomeDirectory())
+        / "Documents" / "Ableton" "User Library"
+        / "Remote Scripts" / "LiveImproved" / "lim_response"
+    ;
+
+    std::string requestPipePath = requestPipeFilePath.generic_string();
+    std::string responsePipePath = responsePipeFilePath.generic_string();
 
     std::map<std::string, int> pipes_;
 

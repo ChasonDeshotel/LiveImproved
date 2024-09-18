@@ -64,12 +64,12 @@ void ApplicationManager::init() {
     ;
     configManager_  = new ConfigManager(configFilePath);
 
-    std::filesystem::path configMenuPath =
-        std::filesystem::path(getHomeDirectory())
-        / "Documents" / "Ableton" / "User Library"
-        / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
-    ;
-    configMenu_     = new ConfigMenu(configMenuPath);
+    //std::filesystem::path configMenuPath =
+    //    std::filesystem::path(getHomeDirectory())
+    //    / "Documents" / "Ableton" / "User Library"
+    //    / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
+    //;
+    //configMenu_     = new ConfigMenu(configMenuPath);
 
     ipc_            = new IPC(*this);
 

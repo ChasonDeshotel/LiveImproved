@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include <windows.h>
 #include <functional>
 #include <iostream>
@@ -10,7 +11,8 @@
 #include "PluginManager.h"
 
 IPC::IPC(ApplicationManager& appManager)
-    : app_(appManager), log_(appManager.getLogHandler()) {
+    : app_(appManager)
+    , log_(appManager.getLogHandler()) {
     init();
 }
 
@@ -249,10 +251,10 @@ bool IPC::initReadWithEventLoop(std::function<void(const std::string&)> callback
                 callback(response);
                 emptyReadCounter = 0;
             } else {
-                log_->debug("still transmitting");
+                context->first->log_->debug("still transmitting");
                 emptyReadCounter++;
                 if (emptyReadCounter > MAX_EMPTY_READS) {
-                    log_->error("Maximum empty reads reached. Terminating read attempt.");
+                    context->first->log_->error("Maximum empty reads reached. Terminating read attempt.");
                     emptyReadCounter = 0;
                     break;  // Exit the loop if too many empty reads
                 }

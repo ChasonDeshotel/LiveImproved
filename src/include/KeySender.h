@@ -2,7 +2,7 @@
 #define KEY_SENDER_H
 
 class LogHandler;
-class EKeyPress;
+#include "Types.h"
 
 class KeySender {
 public:
@@ -21,10 +21,10 @@ private:
 
     LogHandler* log_;
 
-    void sendKeyDown(const EKeyPress& kp);
-    void sendKeyUp(const EKeyPress& kp);
+    //void sendKeyDown(const EKeyPress& kp);
+    //void sendKeyUp(const EKeyPress& kp);
     void sendIndividualKeyPress(const EKeyPress& kp);
-    void sendModifiedKeyCombo(const EKeyPress& kp);
+    //void sendModifiedKeyCombo(const EKeyPress& kp);
 };
 
 #endif

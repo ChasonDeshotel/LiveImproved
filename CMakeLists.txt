@@ -70,9 +70,7 @@ set(SRC_CPP
     src/gui/SearchBox.cpp
     src/ActionHandler.cpp
     src/ResponseParser.cpp
-    src/platform/macos/IPC.cpp
 )
-
 
 if(APPLE)
     set(SRC_OBJCXX
@@ -83,6 +81,10 @@ if(APPLE)
         src/platform/macos/KeySender.mm
         src/platform/macos/LiveInterface.mm
     )
+    list(APPEND SRC_CPP
+        src/platform/macos/IPC.cpp
+    )
+
 elseif(WIN32)
     list(APPEND SRC_CPP
         src/platform/windows/IPC.cpp
@@ -145,8 +147,6 @@ if(APPLE)
 elseif(WIN32)
     target_link_libraries(LiveImproved
         PRIVATE
-            C:/path/to/harfbuzz/lib/harfbuzz.lib
-            C:/path/to/yaml-cpp/lib/yaml-cpp.lib
             user32.lib
             gdi32.lib
             shell32.lib

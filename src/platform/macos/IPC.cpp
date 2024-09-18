@@ -12,8 +12,7 @@
 
 IPC::IPC(ApplicationManager& appManager)
     : app_(appManager)
-    , log_(appManager.getLogHandler())
-{
+    , log_(appManager.getLogHandler()) {
     init();
 }
 

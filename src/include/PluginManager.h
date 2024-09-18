@@ -3,8 +3,9 @@
 
 #include <vector>
 
+#include "Types.h"
+
 class IPC;
-class Plugin;
 class ResponseParser;
 class LogHandler;
 

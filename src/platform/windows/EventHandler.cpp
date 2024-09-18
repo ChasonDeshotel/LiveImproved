@@ -192,7 +192,14 @@ LRESULT CALLBACK EventHandler::LowLevelKeyboardProc(int nCode, WPARAM wParam, LP
             // TODO cross platform send EKeyPress
             DWORD vkCode = kbdStruct->vkCode;
             std::string keyString = keyCodeToString(vkCode);
-            bool shouldPassEvent = instance->actionHandler_.handleKeyEvent(keyString, 0, "keyDown");
+            EKeyPress pressedKey;
+            pressedKey.shift = (GetAsyncKeyState(VK_SHIFT)   & 0x8000) != 0;
+            pressedKey.ctrl  = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
+            pressedKey.cmd   = (GetAsyncKeyState(VK_LWIN)    & 0x8000) != 0;
+            pressedKey.alt   = (GetAsyncKeyState(VK_MENU)    & 0x8000) != 0;
+            pressedKey.key   = keyCodeToString(kbdStruct->vkCode);
+            pressedKey.state = KeyState::Down;
+            bool shouldPassEvent = instance->actionHandler_.handleKeyEvent(pressedKey);
 
             if (!shouldPassEvent) {
                 return 1;  // Block the event if not to be passed

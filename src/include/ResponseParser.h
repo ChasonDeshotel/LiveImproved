@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class Plugin;
+#include "Types.h"
 
 class ResponseParser {
 public:

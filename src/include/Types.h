@@ -13,12 +13,6 @@
 #include <variant>
 #include <vector>
 
-#ifdef _WIN32
-	#define PACKED
-#else
-	#define PACKED __attribute__((packed))
-#endif
-
 // pid_t
 #ifdef _WIN32
 	#include <windows.h>
@@ -103,7 +97,7 @@ enum class KeyState {
 // thus the attribute packed voodoo
 // edit: this might have actually been caused
 // by running two instances
-struct PACKED EKeyPress {
+struct EKeyPress {
     KeyState state = KeyState::Unknown;
     bool shift = false;
     bool ctrl  = false;

@@ -24,15 +24,15 @@ public:
     void open() override;
     void close() override;
 
-    void setOptions(const std::vector<Plugin>& options);
+    //void setOptions(const std::vector<Plugin>& options);
 
-    void setSearchText(const std::string& text);
-    std::string getSearchText() const;
-    size_t getSearchTextLength() const;
-    void clearSearchText();
+    //void setSearchText(const std::string& text);
+    //std::string getSearchText() const;
+    //size_t getSearchTextLength() const;
+    //void clearSearchText();
 
     void textEditorTextChanged(juce::TextEditor& editor) override;
-
+    
     void* getWindowHandle() const override;
 
 protected:

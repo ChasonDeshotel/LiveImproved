@@ -76,7 +76,8 @@ void KeySender::sendIndividualKeyPress(const EKeyPress& kp) {
     }
 }
 
-void KeySender::sendKeyPress(const EKeyPress& kp) {
+void KeySender::sendKeyPress(const EKeyPress& kpRef) {
+    EKeyPress kp = kpRef; // create a copy
     log_->debug("KeySender::sendKeyPress called");
 
     log_->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd));

@@ -39,6 +39,8 @@ private:
     std::mutex logMutex;
 
     std::string logLevelToString(LogLevel level);
+
+
 };
 
 #endif
