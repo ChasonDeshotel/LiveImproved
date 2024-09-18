@@ -75,7 +75,6 @@ void ApplicationManager::init() {
 
     responseParser_ = new ResponseParser();
     pluginManager_  = new PluginManager(*ipc_, *responseParser_);
-    pluginManager_->refreshPlugins();
 
     actionHandler_  = new ActionHandler(*ipc_, *pluginManager_, *windowManager_, *configManager_);
     KeySender::getInstance();

@@ -14,6 +14,8 @@ IPC::IPC(ApplicationManager& appManager)
     : app_(appManager)
     , log_(appManager.getLogHandler()) {
     init();
+
+    // TODO needs isInitialized var
 }
 
 IPC::~IPC() {
@@ -25,6 +27,7 @@ IPC::~IPC() {
     }
 }
 
+// blocks/retries until IPC is available
 bool IPC::init() {
     log_->debug("IPC::init() called");
 
@@ -54,9 +57,13 @@ bool IPC::init() {
 
             dispatch_after(delay, backgroundQueue, ^{
                 log_->info("writing READY");
+                // TODO check response
                 writeRequest("READY");
             });
 
+            // account for Live startup delay
+            // TODO use events/accessibility to see if Live is already open
+            // and skip this delay
             delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
             dispatch_after(delay, backgroundQueue, ^{
                 log_->info("refreshing plugin cache");
@@ -69,34 +76,6 @@ bool IPC::init() {
         }
     });
     dispatch_resume(timer);
-
-    // Send "READY" signal to the Remote Script
-    //if (!writeRequest("READY")) {
-    //    log_->info("IPC::init() failed to send READY signal");
-    //    return false;
-    //}
-
-    // wait until the remote script is able to read
-    // this is probably backwards because this blocks ableton from loading
-    // or should be delayed
-    //std::string response;
-    //int max_attempts = 1000;
-    //int attempt = 0;
-    //while (attempt < max_attempts) {
-    //    if (openPipeForWrite(requestPipePath, true)) {  // Try opening in non-blocking mode
-    //        log_->info("Request pipe successfully opened for writing");
-    //        break;
-    //    }
-
-    //    log_->info("Attempt " + std::to_string(attempt + 1) + " to open request pipe for writing failed. Retrying...");
-    //    usleep(100000); // 100ms
-    //    attempt++;
-    //}
-
-    //if (pipes_[requestPipePath] == -1) {
-    //    log_->info("IPC::init() could not open request pipe after " + std::to_string(max_attempts) + " attempts");
-    //    return false;
-    //}
 
     log_->info("IPC::init() finished");
     return true;

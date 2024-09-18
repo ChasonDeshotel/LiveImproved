@@ -8,7 +8,8 @@
 PluginManager::PluginManager(IPC& ipc, ResponseParser& responseParser)
     : ipc_(ipc)
     , responseParser_(responseParser)
-    , log_(LogHandler::getInstance()) {}
+    , log_(LogHandler::getInstance()) {
+}
 
 PluginManager::~PluginManager() {}
 
