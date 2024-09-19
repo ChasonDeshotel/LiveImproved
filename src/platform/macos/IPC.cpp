@@ -10,13 +10,14 @@
 
 #include "PluginManager.h"
 
-IPC::IPC(ApplicationManager& appManager)
-    : app_(appManager)
-    , log_(appManager.getLogHandler()) {
-    init();
-
-    // TODO needs isInitialized var
-}
+IPC::IPC(std::shared_ptr<ILogHandler> logHandler)
+        : log_(std::move(logHandler))
+    {
+        if (!log_) {
+            throw std::invalid_argument("IPC requires valid logHandler and pluginManager");
+        }
+        init();
+    }
 
 IPC::~IPC() {
     for (auto& pipe : pipes_) {
@@ -27,6 +28,7 @@ IPC::~IPC() {
     }
 }
 
+// TODO *should*. idk anymore
 // blocks/retries until IPC is available
 bool IPC::init() {
     log_->debug("IPC::init() called");
@@ -41,41 +43,10 @@ bool IPC::init() {
         log_->debug("IPC::init() failed to open pipes for initial communication");
         return false;
     }
-
-    // timer to attempt opening the request pipe 
-    // without log jamming bableton
-    dispatch_queue_t queue = dispatch_get_main_queue();
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC, 0);  // 100ms interval
-    dispatch_source_set_event_handler(timer, ^{
-        if (openPipeForWrite(requestPipePath, true)) {
-            log_->info("request pipe successfully opened for writing");
-
-            dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            dispatch_time_t delay;
-            delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
-
-            dispatch_after(delay, backgroundQueue, ^{
-                log_->info("writing READY");
-                // TODO check response
-                writeRequest("READY");
-            });
-
-            // account for Live startup delay
-            // TODO use events/accessibility to see if Live is already open
-            // and skip this delay
-            delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
-            dispatch_after(delay, backgroundQueue, ^{
-                log_->info("refreshing plugin cache");
-                app_.getPluginManager().refreshPlugins();
-            });
-
-            dispatch_source_cancel(timer);
-        } else {
-            log_->error("Attempt to open request pipe for writing failed. Retrying...");
-        }
-    });
-    dispatch_resume(timer);
+    if (openPipeForWrite(requestPipePath, true)) {
+        log_->info("request pipe successfully opened for writing");
+        return false;
+    }
 
     log_->info("IPC::init() finished");
     return true;

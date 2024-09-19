@@ -1,5 +1,15 @@
 .PHONY: all clean
 
+#.PHONY: bear-build
+
+#compile_commands:
+#	@bear -- make clean
+#	@bear -- make all
+
+#cmake-configure:
+#	@mkdir -p build
+#	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B ./build
+
 all:
 	@$(MAKE) -C build
 

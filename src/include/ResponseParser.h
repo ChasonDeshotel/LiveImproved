@@ -1,10 +1,9 @@
-#ifndef RESPONSE_PARSER_H
-#define RESPONSE_PARSER_H
+#pragma once
 
 #include <string>
 #include <vector>
 
-#include "Types.h"
+class Plugin;
 
 class ResponseParser {
 public:
@@ -17,5 +16,3 @@ public:
     void sortByName(std::vector<Plugin>& plugins);
     std::vector<Plugin> getUniquePlugins(const std::vector<Plugin>& plugins);
 };
-
-#endif

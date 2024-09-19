@@ -141,22 +141,6 @@ CGEventFlags getEventFlags(const EKeyPress& kp) {
     return flags;
 }
 
-void KeySender::sendKeyDown(const EKeyPress& kp) {
-
-}
-
-void KeySender::sendKeyUp(const EKeyPress& kp) {
-
-}
-
-void KeySender::sendIndividualKeyPress(const EKeyPress& kp) {
-
-}
-
-void KeySender::sendModifiedKeyCombo(const EKeyPress& kp) {
-
-}
-
 void KeySender::sendKeyPress(const EKeyPress& kpRef) {
     EKeyPress kp = kpRef; // create a copy
 

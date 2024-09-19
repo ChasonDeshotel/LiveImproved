@@ -1,28 +1,31 @@
-#ifndef PLUGIN_MANAGER_H
-#define PLUGIN_MANAGER_H
+#pragma once
 
 #include <vector>
+#include <memory>
 
-#include "Types.h"
+#include "IPluginManager.h"
 
-class IPC;
+class IIPC;
 class ResponseParser;
-class LogHandler;
+class ILogHandler;
+class Plugin;
 
-class PluginManager {
+class PluginManager : public IPluginManager {
 public:
-    PluginManager(IPC& ipc_, ResponseParser& responseParser_);
-    ~PluginManager();
+    PluginManager(
+                  std::shared_ptr<ILogHandler> logHandler
+                  , std::shared_ptr<IIPC> ipc
+                  , std::shared_ptr<ResponseParser> responseParser
+                  );
 
-    const std::vector<Plugin>& getPlugins() const;
+    ~PluginManager() override;
 
-    void refreshPlugins();
+    const std::vector<Plugin>& getPlugins() const override;
+    void refreshPlugins() override;
 
 private:
-    LogHandler& log_;
-    IPC& ipc_;
-    ResponseParser& responseParser_;
+    std::shared_ptr<ILogHandler> log_;
+    std::shared_ptr<IIPC> ipc_;
+    std::shared_ptr<ResponseParser> responseParser_;
     std::vector<Plugin> plugins_;
 };
-
-#endif

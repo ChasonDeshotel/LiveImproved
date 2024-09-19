@@ -5,15 +5,24 @@
 #include <string>
 #include <functional>
 
-#include "Types.h"
+#include "IWindow.h"
 
 #ifdef __OBJC__
 @class ContextMenuGenerator;
 #endif
+class ILogHandler;
+class ConfigMenu;
+class ActionHandler;
+class WindowManager;
 
 class ContextMenu : public IWindow {
 public:
-    ContextMenu(std::function<void(const std::string&)> callback = nullptr);
+    ContextMenu(
+        std::shared_ptr<ILogHandler> log
+        , std::shared_ptr<ConfigMenu> configMenu 
+        , std::shared_ptr<ActionHandler> actionHandler
+        , std::shared_ptr<WindowManager> windowManager
+    );
 
     void* getWindowHandle() const override;
     void open() override;
@@ -25,8 +34,12 @@ public:
     void closeMenu();
 
 private:
+    std::shared_ptr<ILogHandler> log_;
+    std::shared_ptr<ConfigMenu> configMenu_;
+    std::shared_ptr<ActionHandler> actionHandler_;
+    std::shared_ptr<WindowManager> windowManager_;
+
     std::vector<MenuItem> menuItems_;
-    std::function<void(const std::string&)> overrideCallback_;
     bool isOpen_ = false;
 
     #ifdef __OBJC__

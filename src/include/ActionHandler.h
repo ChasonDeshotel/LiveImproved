@@ -1,5 +1,4 @@
-#ifndef ACTION_HANDLER_H
-#define ACTION_HANDLER_H
+#pragma once
 
 // TODO cross-platform
 #ifndef _WIN32
@@ -8,19 +7,27 @@
 
 #include <string>
 
+#include "IActionHandler.h"
 #include "Types.h"
 
-class LogHandler;
-class ApplicationManager;
+class ILogHandler;
 class KeyMapper;
-class PluginManager;
-class IPC;
+class IPluginManager;
+class ResponseParser;
+class IIPC;
 class WindowManager;
 class ConfigManager;
 
-class ActionHandler {
+class ActionHandler : public IActionHandler {
 public:
-    ActionHandler(IPC& ipc, PluginManager& pluginManager, WindowManager& windowManager, ConfigManager& configManager);
+    ActionHandler(
+                  std::shared_ptr<ILogHandler> logHandler
+                  , std::shared_ptr<IPluginManager> pluginManager
+                  , std::shared_ptr<WindowManager> windowManager
+                  , std::shared_ptr<ConfigManager> configManager
+                  , std::shared_ptr<IIPC> ipc
+                  );
+
     ~ActionHandler();
 
     void init();
@@ -36,11 +43,11 @@ public:
     bool loadItemByName(const std::string& itemName);
 
 private:
-    IPC& ipc_;
-    LogHandler& log_;
-    WindowManager& windowManager_;
-    ConfigManager& configManager_;
-    PluginManager& pluginManager_;
+    std::shared_ptr<IIPC> ipc_;
+    std::shared_ptr<ILogHandler> log_;
+    std::shared_ptr<IPluginManager> pluginManager_;
+    std::shared_ptr<ConfigManager> configManager_;
+    std::shared_ptr<WindowManager> windowManager_;
 
     void initializeActionMap();
     void executeMacro(const EMacro& macro);
@@ -49,5 +56,3 @@ private:
 
     //bool onEscapePress();
 };
-
-#endif

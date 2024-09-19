@@ -1,5 +1,4 @@
-#ifndef WINDOW_MANAGER_H
-#define WINDOW_MANAGER_H
+#pragma once
 
 #include <unordered_map>
 #include <string>
@@ -9,6 +8,7 @@
 
 class ApplicationManager;
 class IWindow;
+class ILogHandler;
 class WindowData;
 
 class WindowManager {
@@ -34,6 +34,7 @@ private:
 
     std::unordered_map<std::string, WindowData> windows_;
     std::unordered_map<std::string, bool> windowStates_;
+    std::shared_ptr<ILogHandler> logHandler_;
+ //   std::unordered_map<std::string, WindowFactory> windowFactories_;
+//    std::unordered_map<std::string, struct { std::unique_ptr<IWindow> window; std::function<void()> callback; }> windows_;
 };
-
-#endif

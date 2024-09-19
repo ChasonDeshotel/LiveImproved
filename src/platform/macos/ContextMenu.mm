@@ -12,19 +12,27 @@
 
 @property (nonatomic, strong) NSMenu *contextMenu;
 @property (nonatomic) std::function<void(const std::string&)> overrideCallback;
+@property (nonatomic) std::shared_ptr<WindowManager> windowManager;
+@property (nonatomic) std::shared_ptr<ActionHandler> actionHandler;
 
-- (instancetype)initWithContextMenu:(ContextMenu *)contextMenu;
+- (instancetype)initWithContextMenu:(ContextMenu *)contextMenu
+    windowManager:(std::shared_ptr<WindowManager>)windowManager
+    actionHandler:(std::shared_ptr<ActionHandler>)actionHandler;
 
-- (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items
-                         overrideCallback:(std::function<void(const std::string&)>)callback;
+- (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items;
 
 @end
 
 @implementation ContextMenuGenerator
 
-- (instancetype)initWithContextMenu:(ContextMenu *)contextMenu {
+- (instancetype)initWithContextMenu:(ContextMenu *)contextMenu
+    windowManager:(std::shared_ptr<WindowManager>)windowManager
+    actionHandler:(std::shared_ptr<ActionHandler>)actionHandler {
     self = [super init];
     if (self) {
+        self.windowManager = windowManager;
+        self.actionHandler = actionHandler;
+
         // Register for app-related notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationDidResignActive:)
@@ -89,19 +97,15 @@
 //        [self.contextMenu cancelTracking];
 //        self.contextMenu = nil;
 //    }
-    ApplicationManager::getInstance().getWindowManager()->closeWindow("ContextMenu");
+    _windowManager->closeWindow("ContextMenu");
 }
 
 - (void)menuItemAction:(id)sender {
     NSMenuItem *menuItem = (NSMenuItem *)sender;
     NSString *action = (NSString *)menuItem.representedObject;
     
-    if (self.overrideCallback) {
-        self.overrideCallback([action UTF8String]);
-    } else {
-        std::string actionString = [action UTF8String];
-        ApplicationManager::getInstance().getActionHandler()->handleAction(actionString);
-    }
+    std::string actionString = [action UTF8String];
+    _actionHandler->handleAction(actionString);
 }
 
 - (void)addMenuItems:(NSMenu *)menu fromItems:(const std::vector<MenuItem>&)items {
@@ -130,10 +134,7 @@
     }
 }
 
-- (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items
-                         overrideCallback:(std::function<void(const std::string&)>)callback {
-
-    self.overrideCallback = callback;
+- (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items {
 
     if (!self.contextMenu) {
         self.contextMenu = [[NSMenu alloc] initWithTitle:@"Context Menu"];
@@ -148,31 +149,39 @@
 
 @end
 
-ContextMenu::ContextMenu(std::function<void(const std::string&)> callback)
+ContextMenu::ContextMenu(
+        std::shared_ptr<ILogHandler> logHandler
+        , std::shared_ptr<ConfigMenu> configMenu 
+        , std::shared_ptr<ActionHandler> actionHandler
+        , std::shared_ptr<WindowManager> windowManager
+    )
     : menuItems_()
-    , overrideCallback_(callback) {
+    , log_(std::move(logHandler))
+    , configMenu_(std::move(configMenu_))
+    , actionHandler_(std::move(actionHandler_))
+    , windowManager_(std::move(windowManager_))
+    {
 
-    menuItems_ = ApplicationManager::getInstance().getConfigMenu()->getMenuData();
+    menuItems_ = configMenu_->getMenuData();
 }
 
 // NOTE: do not call directly - use WindowManager
 void ContextMenu::open() {
     if (![NSThread isMainThread]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
+            ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] initWithContextMenu:this windowManager:windowManager_ actionHandler:actionHandler_];
             this->menuGenerator_ = menuGenerator;
-            NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_ 
-                                                            overrideCallback:overrideCallback_];
+            NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_];
             NSPoint mouseLocation = [NSEvent mouseLocation];
             [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
         });
         return;
 
     } else {
-        ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] init];
+        ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] initWithContextMenu:this windowManager:windowManager_ actionHandler:actionHandler_];
         this->menuGenerator_ = menuGenerator;
         NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_ 
-                                                        overrideCallback:overrideCallback_];
+                                                        ];
         NSPoint mouseLocation = [NSEvent mouseLocation];
         [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
     }

@@ -1,29 +1,32 @@
-#ifndef IPC_H
-#define IPC_H
+#pragma once
 
 #include <iostream>
 #include <map>
 #include <string>
 #include <filesystem>
 
+#include "IIPC.h"
+
 class ApplicationManager;
-class LogHandler;
+class ILogHandler;
+class IPluginManager;
 
-class IPC {
+class IPC : public IIPC {
 public:
-    IPC(ApplicationManager& appManager);
-    ~IPC();
+    IPC(
+        std::shared_ptr<ILogHandler> log
+       );
+    ~IPC() override;
 
-    bool init();
+    bool init() override;
     
-    bool writeRequest(const std::string& message);
-    std::string readResponse();
-    bool initReadWithEventLoop(std::function<void(const std::string&)> callback);
-    void drainPipe(int fd);
+    bool writeRequest(const std::string& message) override;
+    std::string readResponse() override;
+    bool initReadWithEventLoop(std::function<void(const std::string&)> callback) override;
+    void drainPipe(int fd) override;
 
 private:
-    ApplicationManager& app_;
-    LogHandler* log_;
+    std::shared_ptr<ILogHandler> log_;
 
     std::string readResponseInternal(int fd);
 
@@ -66,5 +69,3 @@ private:
     bool writeToPipe(const std::string& pipe_name, const std::string& message);
     std::string readFromPipe(const std::string& pipe_name);
 };
-
-#endif 

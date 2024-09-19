@@ -5,20 +5,31 @@
 #include <vector>
 #include <memory>
 
-#include "Types.h" // for IWindow
+#include "IWindow.h"
 
-class LogHandler;
+class ILogHandler;
+class IPluginManager;
 
 #include <JuceHeader.h>
 
 class ApplicationManager;
 class PluginManager;
+class Plugin;
+class EventHandler;
+class ActionHandler;
+class WindowManager;
 
 class SearchBox : public juce::TopLevelWindow, public IWindow,
                      public juce::TextEditor::Listener, 
                      public juce::ListBoxModel {
 public:
-    SearchBox();
+    SearchBox(
+              std::shared_ptr<ILogHandler> logHandler
+              , std::shared_ptr<IPluginManager> pluginManager
+              , std::shared_ptr<EventHandler> eventHandler
+              , std::shared_ptr<ActionHandler> actionHandler
+              , std::shared_ptr<WindowManager> windowManager
+        );
     ~SearchBox();
 
     void open() override;
@@ -48,8 +59,10 @@ protected:
     void listBoxItemClicked(int row, const juce::MouseEvent&) override;
 
 private:
-    ApplicationManager& app_;
-    PluginManager& pluginManager_;
+    std::shared_ptr<IPluginManager> pluginManager_;
+    std::shared_ptr<EventHandler> eventHandler_;
+    std::shared_ptr<ActionHandler> actionHandler_;
+    std::shared_ptr<WindowManager> windowManager_;
 
     juce::TextEditor searchField_;
     juce::ListBox listBox_;

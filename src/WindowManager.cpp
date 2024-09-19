@@ -1,4 +1,6 @@
 #include "WindowManager.h"
+
+#include "IWindow.h"
 #include "LogHandler.h"
 #include "ApplicationManager.h"
 
@@ -12,7 +14,8 @@ std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& 
     if (windowName == "ContextMenu") {
         return std::make_unique<ContextMenu>();
     } else if (windowName == "SearchBox") {
-        return std::make_unique<SearchBox>();
+      // TODO
+//        return std::make_unique<SearchBox>();
     }
     return nullptr;
 }

@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 project(LiveImproved VERSION 1.0 LANGUAGES CXX)
 
 add_definitions(-DDEBUG)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Set the C++ standard and Objective-C++ flag
 set(CMAKE_CXX_STANDARD 20)
@@ -46,6 +47,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/include/juce
     ${CMAKE_SOURCE_DIR}/lib/juce/modules
     ${CMAKE_SOURCE_DIR}/src/include
+    ${CMAKE_SOURCE_DIR}/src/interface
 )
 if(APPLE)
     message(STATUS "Including macOS-specific directories")
@@ -60,7 +62,6 @@ target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_
 # Source files for C++ and Objective-C++
 set(SRC_CPP
     src/Main.cpp
-    src/ApplicationManager.cpp
     src/LogHandler.cpp
     src/WindowManager.cpp
     src/KeyMapper.cpp

@@ -1,11 +1,15 @@
 #include <string>
 #include <cstdlib>
 #include <filesystem>
+#include <stdexcept>
+
 
 #include "AppConfig.h"
 
 #include "ApplicationManager.h"
 #include "LogHandler.h"
+
+#include "DependencyContainer.h"
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
@@ -14,10 +18,13 @@
 #include "PlatformDependent.h"
 #include "PluginManager.h"
 #include "ResponseParser.h"
-#include "WindowManager.h"
+//#include "WindowManager.h"
+#include "IIPC.h"
+#include "IPluginManager.h"
+#include "ILogHandler.h"
 
 ApplicationManager::ApplicationManager()
-    : log_(&LogHandler::getInstance())
+    : container_(std::make_unique<DependencyContainer>())
 {}
 
 #ifdef INJECTED_LIBRARY
@@ -38,31 +45,29 @@ static void dylib_init() {
 
 #endif
 
-std::filesystem::path getHomeDirectory() {
-    #ifdef _WIN32
-		const char* homeDir = getenv("USERPROFILE");
-    #else
-		const char* homeDir = getenv("HOME");
-    #endif
-
-    if (!homeDir) {
-        throw std::runtime_error("Could not find the home directory.");
-    }
-
-    return std::filesystem::path(homeDir);
-}
+//std::filesystem::path getHomeDirectory() {
+//    #ifdef _WIN32
+//		const char* homeDir = getenv("USERPROFILE");
+//    #else
+//		const char* homeDir = getenv("HOME");
+//    #endif
+//
+//    if (!homeDir) {
+//        throw std::runtime_error("Could not find the home directory.");
+//    }
+//
+//    return std::filesystem::path(homeDir);
+//}
 
 void ApplicationManager::init() {
-    log_->debug("ApplicatonManager::init() called");
+//    log_->debug("ApplicatonManager::init() called");
 
-    windowManager_  = new WindowManager();
-
-    std::filesystem::path configFilePath =
-        std::filesystem::path(getHomeDirectory())
-        / "Documents" / "Ableton" / "User Library"
-        / "Remote Scripts" / "LiveImproved" / "config.txt"
-    ;
-    configManager_  = new ConfigManager(configFilePath);
+//    std::filesystem::path configFilePath =
+//        std::filesystem::path(getHomeDirectory())
+//        / "Documents" / "Ableton" / "User Library"
+//        / "Remote Scripts" / "LiveImproved" / "config.txt"
+//    ;
+//    configManager_  = new ConfigManager(configFilePath);
 
     //std::filesystem::path configMenuPath =
     //    std::filesystem::path(getHomeDirectory())
@@ -71,48 +76,46 @@ void ApplicationManager::init() {
     //;
     //configMenu_     = new ConfigMenu(configMenuPath);
 
-    ipc_            = new IPC(*this);
+//    ipc_            = new IPC(*this);
 
-    responseParser_ = new ResponseParser();
-    pluginManager_  = new PluginManager(*ipc_, *responseParser_);
+//    responseParser_ = new ResponseParser();
 
-    actionHandler_  = new ActionHandler(*ipc_, *pluginManager_, *windowManager_, *configManager_);
-    KeySender::getInstance();
+
+    if (!container_) {
+        throw std::runtime_error("DependencyContainer not initialized");
+    }
+
+    container_->registerSingleton<ILogHandler, LogHandler>();
+    container_->registerType<ResponseParser, ResponseParser>();
+    container_->registerType<IIPC, IPC>(
+        container_->resolve<ILogHandler>()
+        , std::weak_ptr<IPluginManager>(container_->resolve<IPluginManager>())
+    );
+
+    container_->registerType<IPluginManager, PluginManager>(
+        container_->resolve<ILogHandler>()
+        , std::weak_ptr<IIPC>(container_->resolve<IIPC>())
+        , container_->resolve<ResponseParser>()
+    );
+//
+//    container_->registerType<ResponseParser>([]() {
+//        return std::make_shared<ResponseParser>();
+//    });
+//
+//    container_->registerType<IActionHandler>([&, this]() {
+//        return std::make_shared<ActionHandler>(
+//            container_->resolve<ILogHandler>()
+//            , container_->resolve<IPluginManager>()
+//            , container_->resolve<WindowManager>()
+//            , container_->resolve<ConfigManager>()
+//            , container_->resolve<IIPC>()
+//        );
+//    });
+
+//    KeySender::getInstance();
 
     // TODO add initialized flag on PluginManager and block until we have plugins
-    eventHandler_   = new EventHandler(*windowManager_, *actionHandler_);
+//    eventHandler_   = new EventHandler(*windowManager_, *actionHandler_);
 
-    log_->debug("ApplicatonManager::init() finished");
-}
-
-LogHandler* ApplicationManager::getLogHandler() {
-    return log_;
-}
-
-WindowManager* ApplicationManager::getWindowManager() {
-    return windowManager_;
-}
-
-PluginManager& ApplicationManager::getPluginManager() {
-    return *pluginManager_;
-}
-
-ConfigManager* ApplicationManager::getConfigManager() {
-    return configManager_;
-}
-
-ConfigMenu* ApplicationManager::getConfigMenu() {
-    return configMenu_;
-}
-
-IPC* ApplicationManager::getIPC() {
-    return ipc_;
-}
-
-EventHandler* ApplicationManager::getEventHandler() {
-    return eventHandler_;
-}
-
-ActionHandler* ApplicationManager::getActionHandler() {
-    return actionHandler_;
+//    log_->debug("ApplicatonManager::init() finished");
 }

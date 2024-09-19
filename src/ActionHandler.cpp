@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 
-#include "ApplicationManager.h"
 #include "LogHandler.h"
 #include "Types.h"
 
@@ -18,12 +17,18 @@
 #include "PluginManager.h"
 #include "WindowManager.h"
 
-ActionHandler::ActionHandler(IPC& ipc, PluginManager& pluginManager, WindowManager& windowManager, ConfigManager& configManager)
-    : log_(LogHandler::getInstance())
-    , ipc_(ipc)
-    , windowManager_(windowManager)
-    , pluginManager_(pluginManager)
-    , configManager_(configManager)
+ActionHandler::ActionHandler(
+              std::shared_ptr<ILogHandler> logHandler
+              , std::shared_ptr<IPluginManager> pluginManager
+              , std::shared_ptr<WindowManager> windowManager
+              , std::shared_ptr<ConfigManager> configManager
+              , std::shared_ptr<IIPC> ipc
+              )
+    : log_(std::move(logHandler))
+    , ipc_(std::move(ipc))
+    , windowManager_(std::move(windowManager))
+    , pluginManager_(std::move(pluginManager))
+    , configManager_(std::move(configManager))
 {
     initializeActionMap();
 }
@@ -66,11 +71,11 @@ void ActionHandler::initializeActionMap() {
 
     // NOTE actions must be added here and in Types.h
     actionMap["searchbox"] = [this](const std::optional<std::string>& args) {
-        windowManager_.openWindow("SearchBox");
+        windowManager_->openWindow("SearchBox");
     };
     actionMap["write-request"] = [this](const std::optional<std::string>& args) {
         if (args) {
-            ipc_.writeRequest(*args);
+            ipc_->writeRequest(*args);
         } else {
             throw std::runtime_error("write-request action requires an argument");
         }
@@ -104,17 +109,17 @@ void ActionHandler::executeMacro(const EMacro& macro) {
         std::visit([&](auto&& item) {
             using T = std::decay_t<decltype(item)>;
             if constexpr (std::is_same_v<T, EKeyPress>) {
-                log_.debug("macro sending keypress");
+                log_->debug("macro sending keypress");
                 KeySender::getInstance().sendKeyPress(item);
             } else if constexpr (std::is_same_v<T, Action>) {
-                log_.debug("macro sending action");
+                log_->debug("macro sending action");
                 // If it's an Action, execute the action via the action map
                 auto it = actionMap.find(item.actionName);
                 if (it != actionMap.end()) {
                     std::optional<std::string> optionalArgument = item.arguments;
                     it->second(optionalArgument);
                 } else {
-                    log_.warn("Unknown action: " + item.actionName);
+                    log_->warn("Unknown action: " + item.actionName);
                 }
             }
         }, step);
@@ -122,8 +127,8 @@ void ActionHandler::executeMacro(const EMacro& macro) {
 }
 
 bool ActionHandler::closeWindows() {
-    windowManager_.closeWindow("ContextMenu");
-    windowManager_.closeWindow("SearchBox");
+    windowManager_->closeWindow("ContextMenu");
+    windowManager_->closeWindow("SearchBox");
 
 // TODO: handle in SearchBox close method
 // if close is called while text box is populated, just
@@ -139,14 +144,14 @@ bool ActionHandler::closeWindows() {
 }
 
 bool ActionHandler::loadItem(int itemIndex) {
-    ipc_.writeRequest("load_item," + std::to_string(itemIndex));
+    ipc_->writeRequest("load_item," + std::to_string(itemIndex));
     return false;
 }
 
 bool ActionHandler::loadItemByName(const std::string& itemName) {
-    for (const auto& plugin : pluginManager_.getPlugins()) {
+    for (const auto& plugin : pluginManager_->getPlugins()) {
         if (itemName == plugin.name) {
-          ipc_.writeRequest("load_item," + std::to_string(plugin.number));
+          ipc_->writeRequest("load_item," + std::to_string(plugin.number));
           return true;
         }
     }
@@ -154,11 +159,11 @@ bool ActionHandler::loadItemByName(const std::string& itemName) {
 }
 
 void ActionHandler::handleAction(const std::string action) {
-    log_.debug("handleAction called");
+    log_->debug("handleAction called");
     std::vector<std::string> actionParts = splitString(action, ",", 1);
 
       if (actionParts.empty()) {
-        log_.warn("No action provided");
+        log_->warn("No action provided");
         return;
     }
 
@@ -170,7 +175,7 @@ void ActionHandler::handleAction(const std::string action) {
         // Call the corresponding method with arguments
         actionHandler->second(args);
     } else {
-        log_.warn("No handler found for action type: " + actionType);
+        log_->warn("No handler found for action type: " + actionType);
     }
 }
 
@@ -185,13 +190,13 @@ bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
 
     // static cast probably not necessary
 
-    std::unordered_map<EKeyPress, EMacro, EMacroHash> remap = configManager_.getRemap();
+    std::unordered_map<EKeyPress, EMacro, EMacroHash> remap = configManager_->getRemap();
 
-    log_.debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
-    log_.debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
-    log_.debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
-    log_.debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
-    log_.debug("searching map for pressed sent: "  + pressedKey.key);
+    log_->debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
+    log_->debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
+    log_->debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
+    log_->debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
+    log_->debug("searching map for pressed sent: "  + pressedKey.key);
 
     // key remaps
     auto it = remap.find(pressedKey);
@@ -199,7 +204,7 @@ bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
         executeMacro(it->second);
         return false;
     } else {
-        log_.warn("Key not found in remap: " + pressedKey.key);
+        log_->warn("Key not found in remap: " + pressedKey.key);
     }
 
 //        } else if (keyString == "Escape") {
@@ -237,8 +242,8 @@ bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
 
     // when the menu is open, do not send keypresses to Live
     // or it activates your hotkeys
-    if (windowManager_.isWindowOpen("SearchBox")) {
-        log_.debug("is open, do not pass keys to Live");
+    if (windowManager_->isWindowOpen("SearchBox")) {
+        log_->debug("is open, do not pass keys to Live");
         return false;
     }
 
@@ -252,7 +257,7 @@ void ActionHandler::handleDoubleRightClick() {
     // TODO cross-platform
     #ifndef _WIN32
 		dispatch_async(dispatch_get_main_queue(), ^{
-			windowManager_.openWindow("ContextMenu");
+			windowManager_->openWindow("ContextMenu");
 		});
 	#endif
 }

@@ -1,21 +1,16 @@
-#ifndef LOG_HANDLER_H
-#define LOG_HANDLER_H
+#pragma once
 
 #include <string>
 #include <fstream>
 #include <mutex>
 
-enum class LogLevel {
-    LOG_TRACE     // For detailed tracing information
-    , LOG_DEBUG   // Renamed from DEBUG to avoid macro conflict
-    , LOG_INFO    // For informational messages
-    , LOG_WARN    // For warnings
-    , LOG_ERROR   // For error messages
-    , LOG_FATAL   // For critical issues
-};
+#include "ILogHandler.h"
 
-class LogHandler {
+class LogHandler : public ILogHandler {
 public:
+    LogHandler();
+    ~LogHandler();
+
     static LogHandler& getInstance();
 
     void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO);
@@ -28,10 +23,6 @@ public:
     void setLogLevel(LogLevel level);
 
 private:
-    LogHandler();
-    ~LogHandler();
-    LogHandler(const LogHandler&) = delete;
-    LogHandler& operator=(const LogHandler&) = delete;
 
     std::ofstream logfile;
     std::string logPath;
@@ -39,8 +30,4 @@ private:
     std::mutex logMutex;
 
     std::string logLevelToString(LogLevel level);
-
-
 };
-
-#endif

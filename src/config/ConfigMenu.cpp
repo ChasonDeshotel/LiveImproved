@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include "LogHandler.h"
 #include "ConfigMenu.h"
-#include "Types.h"
+#include "IWindow.h"
 #include "yaml-cpp/yaml.h"
 
 ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)

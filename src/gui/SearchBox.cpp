@@ -14,9 +14,9 @@
 
 class PluginListModel : public juce::ListBoxModel {
 public:
-    PluginListModel(PluginManager& pluginManager)
-        : pluginManager_(pluginManager)
-        , plugins_(pluginManager_.getPlugins())
+    PluginListModel(std::shared_ptr<IPluginManager> pluginManager)
+        : pluginManager_(std::move(pluginManager))
+        , plugins_(pluginManager_->getPlugins())
     {}
 
     int getNumRows() override {
@@ -46,15 +46,23 @@ public:
     }
 
 private:
-    PluginManager& pluginManager_;
+    std::shared_ptr<IPluginManager> pluginManager_;
     const std::vector<Plugin>& plugins_;
     const Plugin* selectedPlugin_ = nullptr;
 };
 
-SearchBox::SearchBox()
+SearchBox::SearchBox(
+                     std::shared_ptr<ILogHandler> logHandler
+                     , std::shared_ptr<IPluginManager> pluginManager
+                     , std::shared_ptr<EventHandler> eventHandler
+                     , std::shared_ptr<ActionHandler> actionHandler
+                     , std::shared_ptr<WindowManager> windowManager
+    )
     : TopLevelWindow("SearchBox", true)
-    , app_(ApplicationManager::getInstance())
-    , pluginManager_(app_.getPluginManager())
+    , pluginManager_(std::move(pluginManager))
+    , eventHandler_(std::move(eventHandler))
+    , actionHandler_(std::move(actionHandler))
+    , windowManager_(std::move(windowManager))
     {
 
     LogHandler::getInstance().debug("Creating SearchBoxWindowController");
@@ -106,7 +114,7 @@ void SearchBox::setWindowGeometry() {
         int screenHeight = primaryDisplay->totalArea.getHeight();
 
         // Get Ableton Live's window bounds (assuming you have this method)
-        ERect liveBounds = app_.getEventHandler()->getLiveBoundsRect();
+        ERect liveBounds = eventHandler_->getLiveBoundsRect();
         int widgetWidth = 600;  // Width of the widget
         int widgetHeight = 300; // Height of the widget
 
@@ -284,8 +292,8 @@ void SearchBox::handlePluginSelected(int selectedRow) {
     if (selectedRow >= 0 && selectedRow < filteredOptions_.size()) {
         int index = filteredOptions_[selectedRow].number;
         LogHandler::getInstance().debug("Plugin selected: " + std::to_string(index));
-        ApplicationManager::getInstance().getActionHandler()->loadItem(index);
-        ApplicationManager::getInstance().getWindowManager()->closeWindow("SearchBox");
+        actionHandler_->loadItem(index);
+        windowManager_->closeWindow("SearchBox");
     }
 }
 int SearchBox::getNumRows() {
