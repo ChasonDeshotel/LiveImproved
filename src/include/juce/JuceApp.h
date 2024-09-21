@@ -68,16 +68,18 @@ public:
         container.registerFactory<ILogHandler>(
             // TODO maybe
             //[](DependencyContainer&) { return std::make_shared<LogHandler>("app.log"); },
-            [](DependencyContainer&) { return std::make_shared<LogHandler>(); },
-            DependencyContainer::Lifetime::Singleton
+            [](DependencyContainer&) { return std::make_shared<LogHandler>(); }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.registerFactory<ConfigManager>(
             [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(configFilePath); }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.registerFactory<ConfigMenu>(
             [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(configMenuPath); }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.registerFactory<ResponseParser>(
@@ -90,8 +92,8 @@ public:
                 return std::make_shared<IPC>(
                     [&c]() { return c.resolve<ILogHandler>(); }
                 );
-            },
-            DependencyContainer::Lifetime::Singleton
+            }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.registerFactory<IPluginManager>(
@@ -101,8 +103,8 @@ public:
                     , [&c]() { return c.resolve<IIPC>(); }
                     , [&c]() { return c.resolve<ResponseParser>(); }
                 );
-            },
-          DependencyContainer::Lifetime::Singleton
+            }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.registerFactory<EventHandler>(
@@ -113,8 +115,8 @@ public:
                     , [&c]() { return c.resolve<IActionHandler>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
                 );
-            },
-          DependencyContainer::Lifetime::Singleton
+            }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.registerFactory<IActionHandler>(
@@ -127,8 +129,8 @@ public:
                     , [&c]() { return c.resolve<ConfigManager>(); }
                     , [&c]() { return c.resolve<IIPC>(); }
                 );
-            },
-          DependencyContainer::Lifetime::Singleton
+            }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.registerFactory<WindowManager>(
@@ -141,8 +143,8 @@ public:
                     , [&c]() { return c.resolve<IActionHandler>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
                 );
-            },
-          DependencyContainer::Lifetime::Singleton
+            }
+            , DependencyContainer::Lifetime::Singleton
         );
 
         container.resolve<IIPC>()->init();
