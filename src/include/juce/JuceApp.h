@@ -111,6 +111,17 @@ public:
           DependencyContainer::Lifetime::Singleton
         );
 
+        // TODO action handler
+//    container->registerType<IActionHandler>([&, this]() {
+//        return std::make_shared<ActionHandler>(
+//            container->resolve<ILogHandler>()
+//            , container->resolve<IPluginManager>()
+//            , container->resolve<WindowManager>()
+//            , container->resolve<ConfigManager>()
+//            , container->resolve<IIPC>()
+//        );
+//    });
+
         container.registerFactory<WindowManager>(
             [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
                 // We can delay these resolutions if needed
@@ -126,8 +137,6 @@ public:
         );
 
         container.resolve<IIPC>()->init();
-
-//        container.registerType<WindowManager, WindowManager, IPluginManager, EventHandler, IActionHandler, WindowManager>(DependencyContainer::Lifetime::Singleton);
 
 
     // timer to attempt opening the request pipe 
@@ -170,36 +179,8 @@ public:
 //    });
 //    dispatch_resume(timer);
 
-//        container->registerType<IIPC, IPC>(
-//            container->resolve<ILogHandler>()
-//            , std::weak_ptr<IPluginManager>(container->resolve<IPluginManager>())
-//        );
-//        // TODO TODO run IPC->init here
-//
-//        container->registerType<IPluginManager, PluginManager>(
-//            container->resolve<ILogHandler>()
-//            , std::weak_ptr<IIPC>(container->resolve<IIPC>())
-//            , container->resolve<ResponseParser>()
-//        );
-//
-//    container->registerType<ResponseParser>([]() {
-//        return std::make_shared<ResponseParser>();
-//    });
-//
-//    container->registerType<IActionHandler>([&, this]() {
-//        return std::make_shared<ActionHandler>(
-//            container->resolve<ILogHandler>()
-//            , container->resolve<IPluginManager>()
-//            , container->resolve<WindowManager>()
-//            , container->resolve<ConfigManager>()
-//            , container->resolve<IIPC>()
-//        );
-//    });
 
 //    KeySender::getInstance();
-
-    // TODO add initialized flag on PluginManager and block until we have plugins
-//    eventHandler_   = new EventHandler(*windowManager_, *actionHandler_);
 
 //    log_->debug("ApplicatonManager::init() finished");
 
