@@ -248,25 +248,17 @@ std::string IPC::readFromPipe(const std::string& pipe_name) {
 }
 
 std::string IPC::formatRequest(const std::string& request, uint64_t id) {
-    log_()->debug("Entering formatRequest for ID: " + std::to_string(id));
-    
     std::string message = request + "\n" + std::to_string(id);
     size_t messageLength = message.length();
     
-    log_()->debug("Message length: " + std::to_string(messageLength));
-
     std::ostringstream idStream;
     idStream << std::setw(8) << std::setfill('0') << (id % 100000000);
     std::string paddedId = idStream.str();
     
-    log_()->debug("Padded ID: " + paddedId);
-
     std::ostringstream markerStream;
     markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength;
     std::string start_marker = markerStream.str();
     
-    log_()->debug("Start marker: " + start_marker);
-
     std::string formattedRequest = start_marker + message;
     log_()->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "...");
 
@@ -274,8 +266,6 @@ std::string IPC::formatRequest(const std::string& request, uint64_t id) {
 }
 
 bool IPC::writeRequest(const std::string& message, ResponseCallback callback) {
-    log_()->debug("Entering writeRequest method");
-    
     std::lock_guard<std::mutex> lock(mutex_);
     log_()->debug("Mutex acquired in writeRequest");
 
