@@ -159,10 +159,7 @@ public:
         delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
         dispatch_after(delay, backgroundQueue, ^{
             LogHandler::getInstance().info("writing READY");
-            container.resolve<IIPC>()->writeRequest("READY");
-            // TODO loop for response
-
-			container.resolve<IIPC>()->initReadWithEventLoop([this](const std::string& response) {
+            container.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
 				LogHandler::getInstance().info("received READY response: " + response);
 			});
         });

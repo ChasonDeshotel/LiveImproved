@@ -1,9 +1,18 @@
 #include "IPC.h"
+#include <chrono>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cstring>
 #include <dispatch/dispatch.h>
+#include <queue>
+#include <map>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
+#include <thread>
+#include <iomanip>
+#include <sstream>
 
 #include "IPC.h"
 #include "LogHandler.h"
@@ -16,6 +25,8 @@ IPC::IPC(std::function<std::shared_ptr<ILogHandler>()> logHandler)
         if (!logHandler_()) {
             throw std::invalid_argument("IPC requires valid logHandler and pluginManager");
         }
+		requestWriterThread_ = std::thread(&IPC::requestWriter, this);
+		responseReaderThread_ = std::thread(&IPC::responseReader, this);
     }
 
 IPC::~IPC() {
@@ -25,6 +36,11 @@ IPC::~IPC() {
         }
         unlink(pipe.first.c_str());
     }
+	shouldStop_ = true;
+	cv_.notify_one();
+	if (requestWriterThread_.joinable()) {
+		requestWriterThread_.join();
+	}
 }
 
 bool IPC::init() {
@@ -115,6 +131,39 @@ bool IPC::init() {
     }
 }
 
+void IPC::trackRequest(uint64_t id, const std::string& status) {
+	std::lock_guard<std::mutex> lock(mutex_);
+	auto& info = requestTracker_[id];
+	if (status == "created") {
+		info.creationTime = std::chrono::system_clock::now();
+		info.status = "created";
+	} else if (status == "written") {
+		info.writeTime = std::chrono::system_clock::now();
+		info.status = "written";
+	} else if (status == "responded") {
+		info.responseTime = std::chrono::system_clock::now();
+		info.status = "completed";
+		log_()->debug("Request " + std::to_string(id) + " completed in " +
+					std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+						info.responseTime - info.creationTime).count()) + "ms");
+		requestTracker_.erase(id);
+	}
+}
+
+// TODO 
+//void IPC::checkStuckRequests() {
+//    std::lock_guard<std::mutex> lock(trackerMutex_);
+//    auto now = std::chrono::system_clock::now();
+//    for (const auto& pair : requestTracker_) {
+//        auto& info = pair.second;
+//        auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - info.creationTime).count();
+//        if (duration > 60) {  // Example: Flag requests older than 60 seconds
+//            log_()->warn("Request " + std::to_string(pair.first) + " has been stuck in state '" + 
+//                         info.status + "' for " + std::to_string(duration) + " seconds");
+//        }
+//    }
+//}
+
 void IPC::removePipeIfExists(const std::string& pipe_name) {
     if (access(pipe_name.c_str(), F_OK) != -1) {
         // File exists, so remove it
@@ -198,33 +247,75 @@ std::string IPC::readFromPipe(const std::string& pipe_name) {
     return std::string();
 }
 
-bool IPC::writeRequest(const std::string& message) {
-    // Check if the pipe is already open for writing
-    if (pipes_[requestPipePath] == -1) {
-        if (!openPipeForWrite(requestPipePath, true)) {  // Open in non-blocking mode
-            return false;
-        }
-    }
+std::string IPC::formatRequest(const std::string& request, uint64_t id) {
+    log_()->debug("Entering formatRequest for ID: " + std::to_string(id));
+    
+    std::string message = request + "\n" + std::to_string(id);
+    size_t messageLength = message.length();
+    
+    log_()->debug("Message length: " + std::to_string(messageLength));
 
-    int fd = pipes_[requestPipePath];
-    if (fd == -1) {
-        log_()->error("Request pipe not opened for writing: " + requestPipePath);
+    std::ostringstream idStream;
+    idStream << std::setw(8) << std::setfill('0') << (id % 100000000);
+    std::string paddedId = idStream.str();
+    
+    log_()->debug("Padded ID: " + paddedId);
+
+    std::ostringstream markerStream;
+    markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength;
+    std::string start_marker = markerStream.str();
+    
+    log_()->debug("Start marker: " + start_marker);
+
+    std::string formattedRequest = start_marker + message;
+    log_()->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "...");
+
+    return formattedRequest;
+}
+
+bool IPC::writeRequest(const std::string& message, ResponseCallback callback) {
+    log_()->debug("Entering writeRequest method");
+    
+    std::lock_guard<std::mutex> lock(mutex_);
+    log_()->debug("Mutex acquired in writeRequest");
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    uint64_t id = nextRequestId_++;
+    log_()->debug("Generated request ID: " + std::to_string(id));
+    
+    std::string formattedRequest;
+    try {
+        formattedRequest = formatRequest(message, id);
+        log_()->debug("Request formatted successfully");
+    } catch (const std::exception& e) {
+        log_()->error("Exception in formatRequest: " + std::string(e.what()));
         return false;
     }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    log_()->debug("Time taken to format request: " + std::to_string(duration.count()) + "ms");
 
-    drainPipe(pipes_[responsePipePath]);
-
-    ssize_t result = write(fd, message.c_str(), message.length());
-    if (result == -1) {
-        if (errno == EAGAIN) {
-            log_()->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
-        } else {
-            log_()->error("Failed to write to request pipe: " + requestPipePath + " - " + strerror(errno));
-        }
-        return false;
+    if (duration > std::chrono::seconds(5)) {
+        log_()->warn("Request formatting took longer than 5 seconds");
     }
 
-    log_()->info("Message: (" + message + ") written to request pipe");
+    if (callback) {
+        log_()->debug("Storing callback for request ID: " + std::to_string(id));
+        pendingCallbacks_[id] = std::move(callback);
+    } else {
+        log_()->debug("No callback provided for request ID: " + std::to_string(id));
+    }
+    
+    log_()->debug("Pushing request to queue. Current queue size: " + std::to_string(requestQueue_.size()));
+    requestQueue_.push(formattedRequest);
+    log_()->debug("Request pushed. New queue size: " + std::to_string(requestQueue_.size()));
+    
+    cv_.notify_one();
+    log_()->debug("Condition variable notified");
+    
+    log_()->debug("Exiting writeRequest method");
     return true;
 }
 
@@ -321,64 +412,99 @@ std::string IPC::readResponse() {
     return message;
 }
 
-bool IPC::initReadWithEventLoop(std::function<void(const std::string&)> callback) {
-    log_()->debug("IPC::initReadWithEventLoop() called");
+void IPC::processResponse(const std::string& response) {
+	size_t idPos = response.find_last_of('\n');
+	if (idPos == std::string::npos) {
+		log_()->error("Invalid response format");
+		return;
+	}
+	uint64_t id = std::stoull(response.substr(idPos + 1));
+	std::string actualResponse = response.substr(0, idPos);
 
-    int fd = pipes_[responsePipePath];
+	trackRequest(id, "responded");
 
-    if (fd == -1) {
-        log_()->debug("IPC::initReadWithEventLoop() failed to open pipes for reading");
-        if (!openPipeForRead(responsePipePath, true)) {  // Open in non-blocking mode
-            return false;
-        }
-        fd = pipes_[responsePipePath];  // Reassign fd after reopening the pipe
-    }
+	ResponseCallback callback;
+	{
+		std::lock_guard<std::mutex> lock(mutex_);
+		auto it = pendingCallbacks_.find(id);
+		if (it == pendingCallbacks_.end()) {
+			// No callback for this ID, which is fine for requests without callbacks
+			return;
+		}
+		callback = it->second;
+		pendingCallbacks_.erase(it);
+	}
+	callback(actualResponse);
+}
 
-    // Set up a dispatch source to monitor the pipe for read availability
-    dispatch_queue_t queue = dispatch_get_main_queue();
-    dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, fd, 0, queue);
+void IPC::requestWriter() {
+    log_()->debug("requestWriter thread started");
+    while (!shouldStop_) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        cv_.wait(lock, [this] { return !requestQueue_.empty() || shouldStop_; });
 
-    if (!source) {
-        log_()->error("Failed to create dispatch source.");
-        return false;
-    }
+        if (shouldStop_) {
+			log_()->debug("requestWriter thread stopping");
+			break;
+		}
 
-    const int MAX_EMPTY_READS = 20;
-    __block int emptyReadCounter = 0;
+        std::string request = requestQueue_.front();
+        requestQueue_.pop();
+        lock.unlock();
 
-    // Convert the C++ lambda to a dispatch_block_t
-    dispatch_block_t block = ^{
-        size_t estimated = dispatch_source_get_data(source);
-        log_()->debug("Data available in pipe: " + std::to_string(estimated) + " bytes");
-
-        if (estimated > 0) {
-            std::string response = this->readResponseInternal(fd);
-            if (!response.empty()) {
-                callback(response);
-                emptyReadCounter = 0;
-            } else {
-                log_()->debug("still transmitting");
-                emptyReadCounter++;
-                if (emptyReadCounter > MAX_EMPTY_READS) {
-                    log_()->error("Maximum empty reads reached. Terminating read attempt.");
-                    emptyReadCounter = 0;
-                }
-            }
+		log_()->debug("Attempting to write request: " + request);
+        if (!writeRequestInternal(request)) {
+            log_()->error("Failed to write request: " + request);
+            // Handle error, possibly by requeueing the request or notifying the callback of failure
         } else {
-            log_()->warn("No data available to read.");
+            log_()->debug("Successfully wrote request: " + request);
         }
-    };
+    }
+}
 
-    // Set the event handler using the converted block
-    dispatch_source_set_event_handler(source, block);
+void IPC::responseReader() {
+    while (!shouldStop_) {
+        std::string response = readResponseInternal(pipes_[responsePipePath]);
+        if (!response.empty()) {
+            processResponse(response);
+        }
+        // Add a small sleep to prevent busy-waiting
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
 
-    dispatch_source_set_cancel_handler(source, ^{
-        log_()->warn("Dispatch source canceled.");
-        close(fd);
-    });
+bool IPC::writeRequestInternal(const std::string& message) {
+	// Extract the request ID from the formatted message
+	size_t idStart = message.find("START_") + 6;
+	size_t idEnd = message.find_first_of('_', idStart);
+	uint64_t id = std::stoull(message.substr(idStart, idEnd - idStart));
 
-    dispatch_resume(source);
-    return true;
+
+	// Check if the pipe is already open for writing
+	if (pipes_[requestPipePath] == -1) {
+		if (!openPipeForWrite(requestPipePath, true)) {  // Open in non-blocking mode
+			return false;
+		}
+	}
+	int fd = pipes_[requestPipePath];
+	if (fd == -1) {
+		log_()->error("Request pipe not opened for writing: " + requestPipePath);
+		return false;
+	}
+	drainPipe(pipes_[responsePipePath]);
+	ssize_t result = write(fd, message.c_str(), message.length());
+	if (result == -1) {
+		if (errno == EAGAIN) {
+			log_()->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
+		} else {
+			log_()->error("Failed to write to request pipe: " + requestPipePath + " - " + strerror(errno));
+		}
+		return false;
+	}
+
+	trackRequest(id, "written");
+	log_()->info("Message: (" + message + ") written to request pipe");
+	return true;
 }
 
 std::string IPC::readResponseInternal(int fd) {

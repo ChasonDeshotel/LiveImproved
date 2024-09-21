@@ -4,6 +4,9 @@
 #include <map>
 #include <string>
 #include <filesystem>
+#include <thread>
+#include <string>
+#include <queue>
 
 #include "IIPC.h"
 
@@ -11,8 +14,17 @@ class ApplicationManager;
 class ILogHandler;
 class IPluginManager;
 
+struct RequestInfo {
+    std::chrono::system_clock::time_point creationTime;
+    std::chrono::system_clock::time_point writeTime;
+    std::chrono::system_clock::time_point responseTime;
+    std::string status;
+};
+
 class IPC : public IIPC {
 public:
+    using ResponseCallback = std::function<void(const std::string&)>;
+
     IPC(
         std::function<std::shared_ptr<ILogHandler>()> logHandler
        );
@@ -20,16 +32,38 @@ public:
 
     bool init() override;
     
-    bool writeRequest(const std::string& message) override;
+    bool writeRequest(const std::string& message, ResponseCallback callback) override;
+    bool writeRequest(const std::string& message) override {
+        return writeRequest(message, nullptr);
+    }
+
     std::string readResponse() override;
-    bool initReadWithEventLoop(std::function<void(const std::string&)> callback) override;
     void drainPipe(int fd) override;
 
 private:
     std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::shared_ptr<ILogHandler> log_() { return logHandler_(); };
 
+	std::map<uint64_t, RequestInfo> requestTracker_;
+	void trackRequest(uint64_t id, const std::string& status);
+
+    std::queue<std::string> requestQueue_;
+    std::map<uint64_t, ResponseCallback> pendingCallbacks_;
+    std::atomic<uint64_t> nextRequestId_;
+    std::mutex mutex_;
+    std::condition_variable cv_;
+    std::thread requestWriterThread_;
+    std::thread responseReaderThread_;
+    std::atomic<bool> shouldStop_{false};
+
+	std::string formatRequest(const std::string& request, uint64_t id);
+
+	void processResponse(const std::string& response);
+	void requestWriter();
+	void responseReader();
+	
     std::string readResponseInternal(int fd);
+    bool writeRequestInternal(const std::string& message);
 
     // TODO DRY
     std::filesystem::path getHomeDirectory() {

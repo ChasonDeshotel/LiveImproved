@@ -23,10 +23,7 @@ const std::vector<Plugin>& PluginManager::getPlugins() const {
 
 void PluginManager::refreshPlugins() {
     auto ipc = ipc_();
-    ipc->writeRequest("PLUGINS");
-
-    // Set up a callback to handle the response asynchronously using dispatch
-    ipc->initReadWithEventLoop([this](const std::string& response) {
+    ipc->writeRequest("PLUGINS", [this](const std::string& response) {
         auto responseParser = responseParser_();
         auto log = log_();
         try {
