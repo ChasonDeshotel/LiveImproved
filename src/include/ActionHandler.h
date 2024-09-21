@@ -21,11 +21,11 @@ class ConfigManager;
 class ActionHandler : public IActionHandler {
 public:
     ActionHandler(
-                  std::shared_ptr<ILogHandler> logHandler
-                  , std::shared_ptr<IPluginManager> pluginManager
-                  , std::shared_ptr<WindowManager> windowManager
-                  , std::shared_ptr<ConfigManager> configManager
-                  , std::shared_ptr<IIPC> ipc
+                  std::function<std::shared_ptr<ILogHandler>()> logHandler
+                  , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+                  , std::function<std::shared_ptr<WindowManager>()> windowManager
+                  , std::function<std::shared_ptr<ConfigManager>()> configManager
+                  , std::function<std::shared_ptr<IIPC>()> ipc
                   );
 
     ~ActionHandler();
@@ -43,11 +43,18 @@ public:
     bool loadItemByName(const std::string& itemName);
 
 private:
-    std::shared_ptr<IIPC> ipc_;
-    std::shared_ptr<ILogHandler> log_;
-    std::shared_ptr<IPluginManager> pluginManager_;
-    std::shared_ptr<ConfigManager> configManager_;
-    std::shared_ptr<WindowManager> windowManager_;
+    std::function<std::shared_ptr<IIPC>()> ipc_;
+    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
+    std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
+    std::function<std::shared_ptr<ConfigManager>()> configManager_;
+    std::function<std::shared_ptr<WindowManager>()> windowManager_;
+
+    std::shared_ptr<ILogHandler> log() { return logHandler_(); }
+    std::shared_ptr<WindowManager> windowManager() { return windowManager_(); }
+    std::shared_ptr<ConfigManager> configManager() { return configManager_(); }
+    std::shared_ptr<IIPC> ipc() { return ipc_(); }
+    std::shared_ptr<IPluginManager> pluginManager() { return pluginManager_(); }
+
 
     void initializeActionMap();
     void executeMacro(const EMacro& macro);

@@ -1,4 +1,5 @@
 #include <JuceHeader.h>
+#include <dispatch/dispatch.h>
 #include "LogHandler.h"
 #include "DependencyContainer.h"
 
@@ -45,6 +46,7 @@ public:
         std::locale::global(std::locale("en_US.UTF-8"));
         LogHandler::getInstance().info("Ignition sequence started...");
 
+        // TODO cheap file exists checks
         std::filesystem::path configFilePath =
             std::filesystem::path(getHomeDirectory())
             / "Documents" / "Ableton" / "User Library"
@@ -56,14 +58,10 @@ public:
             / "Documents" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
         ;
-        
-        // TODO cheap file exists checks
 
+        // TODO use events/accessibility to see if Live is already open
+        // and skip this delay
         PID::getInstance().livePIDBlocking();
-
-//    configManager_  = new ConfigManager(configFilePath);
-
-    //configMenu_     = new ConfigMenu(configMenuPath);
 
         DependencyContainer& container = DependencyContainer::getInstance();
 
@@ -72,6 +70,14 @@ public:
             //[](DependencyContainer&) { return std::make_shared<LogHandler>("app.log"); },
             [](DependencyContainer&) { return std::make_shared<LogHandler>(); },
             DependencyContainer::Lifetime::Singleton
+        );
+
+        container.registerFactory<ConfigManager>(
+            [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(configFilePath); }
+        );
+
+        container.registerFactory<ConfigMenu>(
+            [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(configMenuPath); }
         );
 
         container.registerFactory<ResponseParser>(
@@ -111,16 +117,19 @@ public:
           DependencyContainer::Lifetime::Singleton
         );
 
-        // TODO action handler
-//    container->registerType<IActionHandler>([&, this]() {
-//        return std::make_shared<ActionHandler>(
-//            container->resolve<ILogHandler>()
-//            , container->resolve<IPluginManager>()
-//            , container->resolve<WindowManager>()
-//            , container->resolve<ConfigManager>()
-//            , container->resolve<IIPC>()
-//        );
-//    });
+        container.registerFactory<IActionHandler>(
+            [](DependencyContainer& c) -> std::shared_ptr<ActionHandler> {
+                // We can delay these resolutions if needed
+                return std::make_shared<ActionHandler>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                    , [&c]() { return c.resolve<IPluginManager>(); }
+                    , [&c]() { return c.resolve<WindowManager>(); }
+                    , [&c]() { return c.resolve<ConfigManager>(); }
+                    , [&c]() { return c.resolve<IIPC>(); }
+                );
+            },
+          DependencyContainer::Lifetime::Singleton
+        );
 
         container.registerFactory<WindowManager>(
             [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
@@ -138,57 +147,26 @@ public:
 
         container.resolve<IIPC>()->init();
 
+        // TODO plugin refresh as callback from async init
+        dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_time_t delay;
+        delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
 
-    // timer to attempt opening the request pipe 
-    // without log jamming bableton
-//    dispatch_queue_t queue = dispatch_get_main_queue();
-//    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-//    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC, 0);  // 100ms interval
-//    dispatch_source_set_event_handler(timer, ^{
-//        if (openPipeForWrite(requestPipePath, true)) {
-//            log_->info("request pipe successfully opened for writing");
-//
-//            dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-//            dispatch_time_t delay;
-//            delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
-//
-//            dispatch_after(delay, backgroundQueue, ^{
-//                log_->info("writing READY");
-//                // TODO check response
-//                writeRequest("READY");
-//            });
-//
-//            // account for Live startup delay
-//            // TODO use events/accessibility to see if Live is already open
-//            // and skip this delay
-//            delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
-//            dispatch_after(delay, backgroundQueue, ^{
-//                log_->info("refreshing plugin cache");
-//                auto pluginManager = pluginManager_.lock();
-//                if (pluginManager) {
-//                    pluginManager->refreshPlugins();
-//                } else {
-//                    log_->error("PluginManager is no longer available");
-//                }
-//            });
-//
-//            dispatch_source_cancel(timer);
-//        } else {
-//            log_->error("Attempt to open request pipe for writing failed. Retrying...");
-//        }
-//    });
-//    dispatch_resume(timer);
+        dispatch_after(delay, backgroundQueue, ^{
+            LogHandler::getInstance().info("writing READY");
+            // TODO check response
+            container.resolve<IIPC>()->writeRequest("READY");
+        });
 
+        delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
+        dispatch_after(delay, backgroundQueue, ^{
+            LogHandler::getInstance().info("refreshing plugin cache");
+            container.resolve<IPluginManager>()->refreshPlugins();
+        });
 
 //    KeySender::getInstance();
 
 //    log_->debug("ApplicatonManager::init() finished");
-
-        // Block until Live is running
-        // file pipes act fucky on windows
-        // Live doesn't boot first
-        // TODO implement monitoring to see when
-        // live opens and closes instead of looping
         
 //        #ifndef _WIN32
 //			PlatformInitializer::init();

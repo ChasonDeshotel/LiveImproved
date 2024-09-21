@@ -27,8 +27,6 @@ IPC::~IPC() {
     }
 }
 
-// TODO *should*. idk anymore
-// blocks/retries until IPC is available
 bool IPC::init() {
     log_()->debug("IPC::init() called");
 
@@ -37,19 +35,121 @@ bool IPC::init() {
         return false;
     }
 
-    // make sure we can open/read the response pipe
-    if (!openPipeForRead(responsePipePath, true)) {
-        log_()->debug("IPC::init() failed to open pipes for initial communication");
-        return false;
-    }
-    if (openPipeForWrite(requestPipePath, true)) {
-        log_()->info("request pipe successfully opened for writing");
-        return false;
-    }
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
-    log_()->info("IPC::init() finished");
-    return true;
+    __block bool readSuccess = false;
+    __block bool writeSuccess = false;
+    __block int readAttempts = 0;
+    __block int writeAttempts = 0;
+    __block int maxAttempts = 100;
+
+    // Read pipe initialization
+    dispatch_group_async(group, queue, ^{
+        dispatch_source_t readTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+        dispatch_source_set_timer(readTimer, DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC, 0);
+        dispatch_source_set_event_handler(readTimer, ^{
+            if (openPipeForRead(responsePipePath, true)) {
+                log_()->info("Response pipe successfully opened for reading");
+                readSuccess = true;
+                dispatch_source_cancel(readTimer);
+            } else {
+                log_()->error("Attempt to open response pipe for reading failed. Retrying...");
+                if (++readAttempts >= maxAttempts) {
+                    log_()->error("Max attempts reached for opening response pipe");
+                    dispatch_source_cancel(readTimer);
+                }
+            }
+        });
+        dispatch_resume(readTimer);
+    });
+
+    // Write pipe initialization
+    dispatch_group_async(group, queue, ^{
+        dispatch_source_t writeTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+        dispatch_source_set_timer(writeTimer, DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC, 0);
+        dispatch_source_set_event_handler(writeTimer, ^{
+            if (openPipeForWrite(requestPipePath, true)) {
+                log_()->info("Request pipe successfully opened for writing");
+                writeSuccess = true;
+                dispatch_source_cancel(writeTimer);
+            } else {
+                log_()->error("Attempt to open request pipe for writing failed. Retrying...");
+                if (++writeAttempts >= maxAttempts) {
+                    log_()->error("Max attempts reached for opening request pipe");
+                    dispatch_source_cancel(writeTimer);
+                }
+            }
+        });
+        dispatch_resume(writeTimer);
+    });
+
+    // Wait for both operations to complete
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+
+    // for async/callback
+    //dispatch_group_notify(group, queue, ^{
+    //    bool success = readSuccess && writeSuccess;
+    //    if (success) {
+    //        log_()->info("IPC::initAsync() finished successfully");
+    //    } else {
+    //        log_()->error("IPC::initAsync() failed");
+    //    }
+    //    // Call the callback on the main queue
+    //    dispatch_async(dispatch_get_main_queue(), ^{
+    //        callback(success);
+    //    });
+    //});
+
+    if (readSuccess && writeSuccess) {
+        log_()->info("IPC::init() finished successfully");
+        return true;
+    } else {
+        log_()->error("IPC::init() failed");
+        return false;
+    }
 }
+
+
+
+
+// TODO *should*. idk anymore
+// blocks/retries until IPC is available
+//bool IPC::init() {
+//    log_()->debug("IPC::init() called");
+//
+//    if (!createPipe(requestPipePath) || !createPipe(responsePipePath)) {
+//        log_()->debug("IPC::init() failed");
+//        return false;
+//    }
+//
+//    // make sure we can open/read the response pipe
+//    if (!openPipeForRead(responsePipePath, true)) {
+//        log_()->debug("IPC::init() failed to open pipes for initial communication");
+//        return false;
+//    }
+//    if (openPipeForWrite(requestPipePath, true)) {
+//        log_()->info("request pipe successfully opened for writing");
+//        return false;
+//    }
+//
+//    dispatch_queue_t queue = dispatch_get_main_queue();
+//    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+//    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC, 0);  // 100ms interval
+//    dispatch_source_set_event_handler(timer, ^{
+//        if (openPipeForWrite(requestPipePath, true)) {
+//            log_()->info("request pipe successfully opened for writing");
+//
+//            dispatch_source_cancel(timer);
+//        } else {
+//            log_()->error("Attempt to open request pipe for writing failed. Retrying...");
+//        }
+//    });
+//    dispatch_resume(timer);
+//
+//    log_()->info("IPC::init() finished");
+//    return true;
+//}
 
 void IPC::removePipeIfExists(const std::string& pipe_name) {
     if (access(pipe_name.c_str(), F_OK) != -1) {
