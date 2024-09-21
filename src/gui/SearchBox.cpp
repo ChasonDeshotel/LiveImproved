@@ -1,12 +1,13 @@
 #define NOMINMAX
 #include <JuceHeader.h>
 #include <algorithm>
+#include <functional>
 
-#include "ApplicationManager.h"
 #include "LogHandler.h"
 #include "Types.h"
 
-#include "ActionHandler.h"
+#include "EventHandler.h"
+#include "IActionHandler.h"
 #include "PID.h"
 #include "PluginManager.h"
 #include "SearchBox.h"
@@ -52,11 +53,11 @@ private:
 };
 
 SearchBox::SearchBox(
-                     std::shared_ptr<ILogHandler> logHandler
-                     , std::shared_ptr<IPluginManager> pluginManager
-                     , std::shared_ptr<EventHandler> eventHandler
-                     , std::shared_ptr<ActionHandler> actionHandler
-                     , std::shared_ptr<WindowManager> windowManager
+                     std::function<std::shared_ptr<ILogHandler>()> logHandler
+                     , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+                     , std::function<std::shared_ptr<EventHandler>()> eventHandler
+                     , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+                     , std::function<std::shared_ptr<WindowManager>()> windowManager
     )
     : TopLevelWindow("SearchBox", true)
     , pluginManager_(std::move(pluginManager))
@@ -67,7 +68,7 @@ SearchBox::SearchBox(
 
     LogHandler::getInstance().debug("Creating SearchBoxWindowController");
 
-    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_);
+    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_());
     listBox_.setModel(pluginListModel_.get());
     listBox_.setRowHeight(30);
     addAndMakeVisible(listBox_);
@@ -114,7 +115,7 @@ void SearchBox::setWindowGeometry() {
         int screenHeight = primaryDisplay->totalArea.getHeight();
 
         // Get Ableton Live's window bounds (assuming you have this method)
-        ERect liveBounds = eventHandler_->getLiveBoundsRect();
+        ERect liveBounds = eventHandler_()->getLiveBoundsRect();
         int widgetWidth = 600;  // Width of the widget
         int widgetHeight = 300; // Height of the widget
 
@@ -292,8 +293,8 @@ void SearchBox::handlePluginSelected(int selectedRow) {
     if (selectedRow >= 0 && selectedRow < filteredOptions_.size()) {
         int index = filteredOptions_[selectedRow].number;
         LogHandler::getInstance().debug("Plugin selected: " + std::to_string(index));
-        actionHandler_->loadItem(index);
-        windowManager_->closeWindow("SearchBox");
+        actionHandler_()->loadItem(index);
+        windowManager_()->closeWindow("SearchBox");
     }
 }
 int SearchBox::getNumRows() {

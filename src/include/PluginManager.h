@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <vector>
 #include <memory>
 
@@ -13,9 +14,9 @@ class Plugin;
 class PluginManager : public IPluginManager {
 public:
     PluginManager(
-                  std::shared_ptr<ILogHandler> logHandler
-                  , std::shared_ptr<IIPC> ipc
-                  , std::shared_ptr<ResponseParser> responseParser
+                  std::function<std::shared_ptr<ILogHandler>()> logHandler
+                  , std::function<std::shared_ptr<IIPC>()> ipc
+                  , std::function<std::shared_ptr<ResponseParser>()> responseParser
                   );
 
     ~PluginManager() override;
@@ -24,8 +25,8 @@ public:
     void refreshPlugins() override;
 
 private:
-    std::shared_ptr<ILogHandler> log_;
-    std::shared_ptr<IIPC> ipc_;
-    std::shared_ptr<ResponseParser> responseParser_;
+    std::function<std::shared_ptr<ILogHandler>()> log_;
+    std::function<std::shared_ptr<IIPC>()> ipc_;
+    std::function<std::shared_ptr<ResponseParser>()> responseParser_;
     std::vector<Plugin> plugins_;
 };

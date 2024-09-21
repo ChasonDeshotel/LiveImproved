@@ -1,5 +1,4 @@
 #import <Cocoa/Cocoa.h>
-#include "ApplicationManager.h"
 #include "LogHandler.h"
 #include "Types.h"
 

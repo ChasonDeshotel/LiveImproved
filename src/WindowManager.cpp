@@ -1,21 +1,32 @@
 #include "WindowManager.h"
 
 #include "IWindow.h"
+#include "ILogHandler.h"
 #include "LogHandler.h"
-#include "ApplicationManager.h"
 
 #include "ContextMenu.h"
 #include "SearchBox.h"
 
-WindowManager::WindowManager() {}
+WindowManager::WindowManager(
+                             std::function<std::shared_ptr<ILogHandler>()> logHandler
+                             , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+                             , std::function<std::shared_ptr<EventHandler>()> eventHandler
+                             , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+                             , std::function<std::shared_ptr<WindowManager>()> windowManager)
+    : logHandler_(std::move(logHandler))
+    , pluginManager_(std::move(pluginManager))
+    , eventHandler_(std::move(eventHandler))
+    , actionHandler_(std::move(actionHandler))
+    , windowManager_(std::move(windowManager))
+{}
 
 // Factory function to create window instances dynamically based on the name
 std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& windowName) {
     if (windowName == "ContextMenu") {
-        return std::make_unique<ContextMenu>();
+        //return std::make_unique<ContextMenu>();
     } else if (windowName == "SearchBox") {
       // TODO
-//        return std::make_unique<SearchBox>();
+        return std::make_unique<SearchBox>(logHandler_, pluginManager_, eventHandler_, actionHandler_, windowManager_);
     }
     return nullptr;
 }

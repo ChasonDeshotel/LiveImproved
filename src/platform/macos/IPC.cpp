@@ -3,20 +3,19 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cstring>
+#include <dispatch/dispatch.h>
 
 #include "IPC.h"
-#include "ApplicationManager.h"
 #include "LogHandler.h"
 
 #include "PluginManager.h"
 
-IPC::IPC(std::shared_ptr<ILogHandler> logHandler)
-        : log_(std::move(logHandler))
+IPC::IPC(std::function<std::shared_ptr<ILogHandler>()> logHandler)
+        : logHandler_(std::move(logHandler))
     {
-        if (!log_) {
+        if (!logHandler_()) {
             throw std::invalid_argument("IPC requires valid logHandler and pluginManager");
         }
-        init();
     }
 
 IPC::~IPC() {
@@ -31,24 +30,24 @@ IPC::~IPC() {
 // TODO *should*. idk anymore
 // blocks/retries until IPC is available
 bool IPC::init() {
-    log_->debug("IPC::init() called");
+    log_()->debug("IPC::init() called");
 
     if (!createPipe(requestPipePath) || !createPipe(responsePipePath)) {
-        log_->debug("IPC::init() failed");
+        log_()->debug("IPC::init() failed");
         return false;
     }
 
     // make sure we can open/read the response pipe
     if (!openPipeForRead(responsePipePath, true)) {
-        log_->debug("IPC::init() failed to open pipes for initial communication");
+        log_()->debug("IPC::init() failed to open pipes for initial communication");
         return false;
     }
     if (openPipeForWrite(requestPipePath, true)) {
-        log_->info("request pipe successfully opened for writing");
+        log_()->info("request pipe successfully opened for writing");
         return false;
     }
 
-    log_->info("IPC::init() finished");
+    log_()->info("IPC::init() finished");
     return true;
 }
 
@@ -56,9 +55,9 @@ void IPC::removePipeIfExists(const std::string& pipe_name) {
     if (access(pipe_name.c_str(), F_OK) != -1) {
         // File exists, so remove it
         if (unlink(pipe_name.c_str()) == 0) {
-            log_->debug("Removed existing pipe: " + pipe_name);
+            log_()->debug("Removed existing pipe: " + pipe_name);
         } else {
-            log_->error("Failed to remove existing pipe: " + pipe_name + " - " + strerror(errno));
+            log_()->error("Failed to remove existing pipe: " + pipe_name + " - " + strerror(errno));
         }
     }
 }
@@ -71,7 +70,7 @@ bool IPC::createPipe(const std::string& pipe_name) {
     struct stat st;
     if (stat(directory.c_str(), &st) == -1) {
         if (mkdir(directory.c_str(), 0777) == -1) {
-            log_->error("Failed to create directory: " + directory + " - " + strerror(errno));
+            log_()->error("Failed to create directory: " + directory + " - " + strerror(errno));
             return false;
         }
     }
@@ -79,13 +78,13 @@ bool IPC::createPipe(const std::string& pipe_name) {
     // Now create the pipe
     if (mkfifo(pipe_name.c_str(), 0666) == -1) {
         if (errno == EEXIST) {
-            log_->warn("Pipe already exists: " + pipe_name);
+            log_()->warn("Pipe already exists: " + pipe_name);
         } else {
-            log_->error("Failed to create named pipe: " + pipe_name + " - " + strerror(errno));
+            log_()->error("Failed to create named pipe: " + pipe_name + " - " + strerror(errno));
             return false;
         }
     } else {
-        log_->debug("Pipe created: " + pipe_name);
+        log_()->debug("Pipe created: " + pipe_name);
     }
     
     // Init file descriptor -- indicates pipe has not yet been opened
@@ -101,12 +100,12 @@ bool IPC::openPipeForWrite(const std::string& pipe_name, bool non_blocking) {
 
     int fd = open(pipe_name.c_str(), flags);
     if (fd == -1) {
-        log_->error("Failed to open pipe for writing: " + pipe_name + " - " + strerror(errno));
+        log_()->error("Failed to open pipe for writing: " + pipe_name + " - " + strerror(errno));
         return false;
     }
 
     pipes_[pipe_name] = fd;
-    log_->debug("Pipe opened for writing: " + pipe_name);
+    log_()->debug("Pipe opened for writing: " + pipe_name);
     return true;
 }
 
@@ -118,12 +117,12 @@ bool IPC::openPipeForRead(const std::string& pipe_name, bool non_blocking) {
 
     int fd = open(pipe_name.c_str(), flags);
     if (fd == -1) {
-        log_->error("Failed to open pipe for reading: " + pipe_name + " - " + strerror(errno));
+        log_()->error("Failed to open pipe for reading: " + pipe_name + " - " + strerror(errno));
         return false;
     }
 
     pipes_[pipe_name] = fd;
-    log_->info("Pipe opened for reading: " + pipe_name);
+    log_()->info("Pipe opened for reading: " + pipe_name);
     return true;
 }
 
@@ -145,7 +144,7 @@ bool IPC::writeRequest(const std::string& message) {
 
     int fd = pipes_[requestPipePath];
     if (fd == -1) {
-        log_->error("Request pipe not opened for writing: " + requestPipePath);
+        log_()->error("Request pipe not opened for writing: " + requestPipePath);
         return false;
     }
 
@@ -154,14 +153,14 @@ bool IPC::writeRequest(const std::string& message) {
     ssize_t result = write(fd, message.c_str(), message.length());
     if (result == -1) {
         if (errno == EAGAIN) {
-            log_->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
+            log_()->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
         } else {
-            log_->error("Failed to write to request pipe: " + requestPipePath + " - " + strerror(errno));
+            log_()->error("Failed to write to request pipe: " + requestPipePath + " - " + strerror(errno));
         }
         return false;
     }
 
-    log_->info("Message: (" + message + ") written to request pipe");
+    log_()->info("Message: (" + message + ") written to request pipe");
     return true;
 }
 
@@ -177,12 +176,12 @@ void IPC::drainPipe(int fd) {
 }
 
 std::string IPC::readResponse() {
-    log_->debug("IPC::readResponse() called");
+    log_()->debug("IPC::readResponse() called");
 
     int fd = pipes_[responsePipePath];
 
     if (fd == -1) {
-        log_->error("Response pipe is not open for reading.");
+        log_()->error("Response pipe is not open for reading.");
         if (!openPipeForRead(responsePipePath, true)) {  // Open in non-blocking mode
             return "";
         }
@@ -200,7 +199,7 @@ std::string IPC::readResponse() {
     while (totalHeaderRead < HEADER_SIZE && retry_count < max_retries) {
         bytesRead = read(fd, header + totalHeaderRead, HEADER_SIZE - totalHeaderRead);
         if (bytesRead <= 0) {
-            log_->error("Failed to read the full header. Bytes read: " + std::to_string(totalHeaderRead));
+            log_()->error("Failed to read the full header. Bytes read: " + std::to_string(totalHeaderRead));
             retry_count++;
             usleep(20000);
             continue;
@@ -209,7 +208,7 @@ std::string IPC::readResponse() {
     }
 
     if (totalHeaderRead != HEADER_SIZE) {
-        log_->error("Failed to read the full header after " + std::to_string(retry_count) + " retries.");
+        log_()->error("Failed to read the full header after " + std::to_string(retry_count) + " retries.");
         return "";
     }
 
@@ -217,7 +216,7 @@ std::string IPC::readResponse() {
 
     // Convert the header to an integer representing the message size
     size_t messageSize = std::stoull(header);  // Handle larger numbers
-    log_->debug("Message size to read: " + std::to_string(messageSize));
+    log_()->debug("Message size to read: " + std::to_string(messageSize));
 
     // Step 2: Read the message in chunks
     std::string message;
@@ -230,41 +229,41 @@ std::string IPC::readResponse() {
         bytesRead = read(fd, buffer, bytesToRead);
 
         if (bytesRead <= 0) {
-            log_->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
+            log_()->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
             break;
         }
 
         message.append(buffer, bytesRead);
         totalBytesRead += bytesRead;
-        log_->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
+        log_()->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
     }
 
-    log_->debug("Total bytes read: " + std::to_string(totalBytesRead));
+    log_()->debug("Total bytes read: " + std::to_string(totalBytesRead));
 
     // Verify if the message was fully read
     if (totalBytesRead != messageSize) {
-        log_->error("Message read was incomplete.");
+        log_()->error("Message read was incomplete.");
     } else {
-        log_->debug("Message: read the entire message.");
+        log_()->debug("Message: read the entire message.");
     }
 
-    log_->debug("Message read from response pipe: " + responsePipePath);
+    log_()->debug("Message read from response pipe: " + responsePipePath);
     if (message.length() > 100) {
-        log_->debug("Message truncated to 100 characters");
-        log_->debug("Message: " + message.substr(0,100));
+        log_()->debug("Message truncated to 100 characters");
+        log_()->debug("Message: " + message.substr(0,100));
     } else {
-        log_->debug("Message: " + message);
+        log_()->debug("Message: " + message);
     }
     return message;
 }
 
 bool IPC::initReadWithEventLoop(std::function<void(const std::string&)> callback) {
-    log_->debug("IPC::initReadWithEventLoop() called");
+    log_()->debug("IPC::initReadWithEventLoop() called");
 
     int fd = pipes_[responsePipePath];
 
     if (fd == -1) {
-        log_->debug("IPC::initReadWithEventLoop() failed to open pipes for reading");
+        log_()->debug("IPC::initReadWithEventLoop() failed to open pipes for reading");
         if (!openPipeForRead(responsePipePath, true)) {  // Open in non-blocking mode
             return false;
         }
@@ -276,7 +275,7 @@ bool IPC::initReadWithEventLoop(std::function<void(const std::string&)> callback
     dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, fd, 0, queue);
 
     if (!source) {
-        log_->error("Failed to create dispatch source.");
+        log_()->error("Failed to create dispatch source.");
         return false;
     }
 
@@ -286,7 +285,7 @@ bool IPC::initReadWithEventLoop(std::function<void(const std::string&)> callback
     // Convert the C++ lambda to a dispatch_block_t
     dispatch_block_t block = ^{
         size_t estimated = dispatch_source_get_data(source);
-        log_->debug("Data available in pipe: " + std::to_string(estimated) + " bytes");
+        log_()->debug("Data available in pipe: " + std::to_string(estimated) + " bytes");
 
         if (estimated > 0) {
             std::string response = this->readResponseInternal(fd);
@@ -294,15 +293,15 @@ bool IPC::initReadWithEventLoop(std::function<void(const std::string&)> callback
                 callback(response);
                 emptyReadCounter = 0;
             } else {
-                log_->debug("still transmitting");
+                log_()->debug("still transmitting");
                 emptyReadCounter++;
                 if (emptyReadCounter > MAX_EMPTY_READS) {
-                    log_->error("Maximum empty reads reached. Terminating read attempt.");
+                    log_()->error("Maximum empty reads reached. Terminating read attempt.");
                     emptyReadCounter = 0;
                 }
             }
         } else {
-            log_->warn("No data available to read.");
+            log_()->warn("No data available to read.");
         }
     };
 
@@ -310,7 +309,7 @@ bool IPC::initReadWithEventLoop(std::function<void(const std::string&)> callback
     dispatch_source_set_event_handler(source, block);
 
     dispatch_source_set_cancel_handler(source, ^{
-        log_->warn("Dispatch source canceled.");
+        log_()->warn("Dispatch source canceled.");
         close(fd);
     });
 
@@ -343,28 +342,28 @@ std::string IPC::readResponseInternal(int fd) {
                 headerBuffer.append(headerChunk, bytesRead);
             } else if (bytesRead < 0) {
                 if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                    log_->debug("Waiting for more data.");
+                    log_()->debug("Waiting for more data.");
                     return ""; // No data available right now, but the pipe is still open.
                 } else {
-                    log_->error("Failed to read the header. Error: " + std::string(strerror(errno)));
+                    log_()->error("Failed to read the header. Error: " + std::string(strerror(errno)));
                     return ""; // An unrecoverable error occurred, signal this as an empty response.
                 }
             } else {
-                log_->error("Unexpected end of file while reading the header.");
+                log_()->error("Unexpected end of file while reading the header.");
                 return ""; // No data available and the pipe might be closed.
             }
         }
 
         // Now we have the full header
         if (headerBuffer.compare(0, START_MARKER_SIZE, startMarker) != 0) {
-            log_->error("Invalid start marker. Discarding data.");
+            log_()->error("Invalid start marker. Discarding data.");
             headerBuffer.clear(); // Clear the buffer and wait for a valid start marker
             return "";
         }
 
         requestId = headerBuffer.substr(START_MARKER_SIZE, REQUEST_ID_SIZE);
         messageSize = std::stoull(headerBuffer.substr(START_MARKER_SIZE + REQUEST_ID_SIZE, 8));
-        log_->debug("Header read complete. Request ID: " + requestId + ", Expected message size: " + std::to_string(messageSize));
+        log_()->debug("Header read complete. Request ID: " + requestId + ", Expected message size: " + std::to_string(messageSize));
 
         headerRead = true; // Mark the header as read
     }
@@ -379,14 +378,14 @@ std::string IPC::readResponseInternal(int fd) {
         bytesRead = read(fd, buffer, bytesToRead);
 
         if (bytesRead == 0) {
-            log_->debug("End of file or no data available temporarily. Waiting for more data.");
+            log_()->debug("End of file or no data available temporarily. Waiting for more data.");
             return "";  // No more data is available at this moment, but we should wait for more.
         } else if (bytesRead < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                log_->debug("Waiting for more data.");
+                log_()->debug("Waiting for more data.");
                 return ""; // No data available right now, but the pipe is still open.
             } else {
-                log_->error("Failed to read the message. Error: " + std::string(strerror(errno)));
+                log_()->error("Failed to read the message. Error: " + std::string(strerror(errno)));
                 return ""; // An unrecoverable error occurred, signal this as an empty response.
             }
         }
@@ -394,12 +393,12 @@ std::string IPC::readResponseInternal(int fd) {
         message.append(buffer, bytesRead);
         totalBytesRead += bytesRead;
 
-        log_->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
+        log_()->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
         // Check if the end marker is present in the accumulated message
         if (message.size() >= endMarker.size()) {
             if (message.compare(message.size() - endMarker.size(), endMarker.size(), endMarker) == 0) {
-                log_->debug("End of message marker found.");
+                log_()->debug("End of message marker found.");
                 message = message.substr(0, message.size() - endMarker.size()); // Remove the end marker
                 break;
             }
@@ -408,7 +407,7 @@ std::string IPC::readResponseInternal(int fd) {
 
     // Verify that the message was fully read
     if (totalBytesRead >= messageSize) {
-        log_->info("Message: read the entire message.");
+        log_()->info("Message: read the entire message.");
         std::string completeMessage = message;
 
         // Reset static variables for the next read operation
@@ -419,7 +418,7 @@ std::string IPC::readResponseInternal(int fd) {
 
         return completeMessage;
     } else {
-        log_->warn("Message read is incomplete. Waiting for more data.");
+        log_()->warn("Message read is incomplete. Waiting for more data.");
         return ""; // Return empty string, indicating that we're still waiting for more data.
     }
 }

@@ -65,17 +65,70 @@ public:
 
     //configMenu_     = new ConfigMenu(configMenuPath);
 
-        std::unique_ptr<DependencyContainer> container;
-        container = std::make_unique<DependencyContainer>();
-        if (!container) {
-            throw std::runtime_error("DependencyContainer not initialized");
-        }
+        DependencyContainer& container = DependencyContainer::getInstance();
 
-        container->registerType<ILogHandler, LogHandler>(DependencyContainer::Lifetime::Singleton);
+        container.registerFactory<ILogHandler>(
+            // TODO maybe
+            //[](DependencyContainer&) { return std::make_shared<LogHandler>("app.log"); },
+            [](DependencyContainer&) { return std::make_shared<LogHandler>(); },
+            DependencyContainer::Lifetime::Singleton
+        );
 
-        container->registerType<ResponseParser, ResponseParser>();
+        container.registerFactory<ResponseParser>(
+            [](DependencyContainer&) { return std::make_shared<ResponseParser>(); }
+        );
 
-        container->registerType<IIPC, IPC, ILogHandler>(DependencyContainer::Lifetime::Singleton);
+        container.registerFactory<IIPC>(
+            [](DependencyContainer& c) -> std::shared_ptr<IPC> {
+                // We can delay these resolutions if needed
+                return std::make_shared<IPC>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                );
+            },
+            DependencyContainer::Lifetime::Singleton
+        );
+
+        container.registerFactory<IPluginManager>(
+            [](DependencyContainer& c) -> std::shared_ptr<IPluginManager> {
+                return std::make_shared<PluginManager>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                    , [&c]() { return c.resolve<IIPC>(); }
+                    , [&c]() { return c.resolve<ResponseParser>(); }
+                );
+            },
+          DependencyContainer::Lifetime::Singleton
+        );
+
+        container.registerFactory<EventHandler>(
+            [](DependencyContainer& c) -> std::shared_ptr<EventHandler> {
+                // We can delay these resolutions if needed
+                return std::make_shared<EventHandler>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                    , [&c]() { return c.resolve<IActionHandler>(); }
+                    , [&c]() { return c.resolve<WindowManager>(); }
+                );
+            },
+          DependencyContainer::Lifetime::Singleton
+        );
+
+        container.registerFactory<WindowManager>(
+            [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
+                // We can delay these resolutions if needed
+                return std::make_shared<WindowManager>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                    , [&c]() { return c.resolve<IPluginManager>(); }
+                    , [&c]() { return c.resolve<EventHandler>(); }
+                    , [&c]() { return c.resolve<IActionHandler>(); }
+                    , [&c]() { return c.resolve<WindowManager>(); }
+                );
+            },
+          DependencyContainer::Lifetime::Singleton
+        );
+
+        container.resolve<IIPC>()->init();
+
+//        container.registerType<WindowManager, WindowManager, IPluginManager, EventHandler, IActionHandler, WindowManager>(DependencyContainer::Lifetime::Singleton);
+
 
     // timer to attempt opening the request pipe 
     // without log jamming bableton

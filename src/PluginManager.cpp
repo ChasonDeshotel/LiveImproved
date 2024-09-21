@@ -1,3 +1,4 @@
+#include <functional>
 #include "PluginManager.h"
 #include "ILogHandler.h"
 #include "ResponseParser.h"
@@ -5,11 +6,10 @@
 
 #include "Types.h"
 
-
 PluginManager::PluginManager(
-                             std::shared_ptr<ILogHandler> logHandler
-                             , std::shared_ptr<IIPC> ipc
-                             , std::shared_ptr<ResponseParser> responseParser
+                             std::function<std::shared_ptr<ILogHandler>()> logHandler
+                             , std::function<std::shared_ptr<IIPC>()> ipc
+                             , std::function<std::shared_ptr<ResponseParser>()> responseParser
     )
     : ipc_(std::move(ipc))
     , responseParser_(std::move(responseParser))
@@ -22,16 +22,19 @@ const std::vector<Plugin>& PluginManager::getPlugins() const {
 }
 
 void PluginManager::refreshPlugins() {
-    ipc_->writeRequest("PLUGINS");
+    auto ipc = ipc_();
+    ipc->writeRequest("PLUGINS");
 
     // Set up a callback to handle the response asynchronously using dispatch
-    ipc_->initReadWithEventLoop([this](const std::string& response) {
+    ipc->initReadWithEventLoop([this](const std::string& response) {
+        auto responseParser = responseParser_();
+        auto log = log_();
         try {
             if (!response.empty()) {
                 //log_.debug("Received response: " + response);
-                plugins_ = responseParser_->parsePlugins(response);
+                plugins_ = responseParser->parsePlugins(response);
             } else {
-                log_->error("Failed to receive a valid response.");
+                log->error("Failed to receive a valid response.");
             }
         } catch (const std::exception &e) {
             throw std::runtime_error("Error fetching plugins: " + std::string(e.what()));

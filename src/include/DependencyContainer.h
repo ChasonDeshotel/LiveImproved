@@ -14,6 +14,18 @@ public:
         Singleton
     };
 
+    static DependencyContainer& getInstance() {
+        static DependencyContainer instance;
+        return instance;
+    }
+
+    // Delete copy and move constructors and assign operators
+    DependencyContainer(DependencyContainer const&) = delete;
+    DependencyContainer(DependencyContainer&&) = delete;
+    DependencyContainer& operator=(DependencyContainer const&) = delete;
+    DependencyContainer& operator=(DependencyContainer &&) = delete;
+
+
     template<typename Interface, typename Impl, typename... Args>
     void registerType(Lifetime lifetime = Lifetime::Transient) {
         factories_[typeid(Interface)] = [this, lifetime](const std::type_info& type) -> std::shared_ptr<void> {
@@ -34,6 +46,23 @@ public:
         };
     }
 
+    template<typename Interface>
+    void registerFactory(std::function<std::shared_ptr<Interface>(DependencyContainer&)> factory, Lifetime lifetime = Lifetime::Transient) {
+        factories_[typeid(Interface)] = [this, factory, lifetime](const std::type_info& type) -> std::shared_ptr<void> {
+            if (lifetime == Lifetime::Singleton) {
+                auto it = singletons_.find(type);
+                if (it != singletons_.end()) {
+                    return it->second;
+                }
+            }
+            auto instance = factory(*this);
+            if (lifetime == Lifetime::Singleton) {
+                singletons_[type] = instance;
+            }
+            return instance;
+        };
+    }
+
     template<typename T>
     std::shared_ptr<T> resolve() {
         auto it = factories_.find(typeid(T));
@@ -44,6 +73,8 @@ public:
     }
 
 private:
+    DependencyContainer() = default;
+
     template<typename T>
     std::shared_ptr<T> resolveArg() {
         return resolve<T>();

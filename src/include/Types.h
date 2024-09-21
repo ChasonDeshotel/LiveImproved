@@ -22,6 +22,13 @@
 	#include <unistd.h>
 #endif
 
+struct ERect {
+    int x;
+    int y;
+    int width;
+    int height;
+};
+
 // Actions
 struct NamedActions {
     static const std::unordered_set<std::string>& get() {

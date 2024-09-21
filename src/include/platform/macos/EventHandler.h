@@ -1,23 +1,25 @@
 #ifndef EVENT_HANDLER_H
 #define EVENT_HANDLER_H
 
+#include <memory>
+#include <functional>
+
 #include <ApplicationServices/ApplicationServices.h>
 
-class LogHandler;
-class ActionHandler;
+#include "Types.h"
+
+class ILogHandler;
+class IActionHandler;
 class WindowManager;
 class PID;
 
-struct ERect {
-    int x;
-    int y;
-    int width;
-    int height;
-};
-
 class EventHandler {
 public:
-    EventHandler(WindowManager& windowManager, ActionHandler& actionHandler);
+    EventHandler(
+        std::function<std::shared_ptr<ILogHandler>()> logHandler
+        , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+        , std::function<std::shared_ptr<WindowManager>()> windowManager
+    );
     ~EventHandler();
 
     void setupQuartzEventTap();
@@ -29,9 +31,9 @@ public:
     ERect getLiveBoundsRect();
 
 private:
-    WindowManager& windowManager_;
-    ActionHandler& actionHandler_;
-    LogHandler& log_;
+    std::function<std::shared_ptr<ILogHandler>()> log_;
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
+    std::function<std::shared_ptr<WindowManager>()> windowManager_;
 
     static void focusApplication(pid_t pid);
 

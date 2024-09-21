@@ -16,7 +16,7 @@ class ApplicationManager;
 class PluginManager;
 class Plugin;
 class EventHandler;
-class ActionHandler;
+class IActionHandler;
 class WindowManager;
 
 class SearchBox : public juce::TopLevelWindow, public IWindow,
@@ -24,11 +24,11 @@ class SearchBox : public juce::TopLevelWindow, public IWindow,
                      public juce::ListBoxModel {
 public:
     SearchBox(
-              std::shared_ptr<ILogHandler> logHandler
-              , std::shared_ptr<IPluginManager> pluginManager
-              , std::shared_ptr<EventHandler> eventHandler
-              , std::shared_ptr<ActionHandler> actionHandler
-              , std::shared_ptr<WindowManager> windowManager
+              std::function<std::shared_ptr<ILogHandler>()> logHandler
+              , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+              , std::function<std::shared_ptr<EventHandler>()> eventHandler
+              , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+              , std::function<std::shared_ptr<WindowManager>()> windowManager
         );
     ~SearchBox();
 
@@ -59,10 +59,11 @@ protected:
     void listBoxItemClicked(int row, const juce::MouseEvent&) override;
 
 private:
-    std::shared_ptr<IPluginManager> pluginManager_;
-    std::shared_ptr<EventHandler> eventHandler_;
-    std::shared_ptr<ActionHandler> actionHandler_;
-    std::shared_ptr<WindowManager> windowManager_;
+    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
+    std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
+    std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
+    std::function<std::shared_ptr<WindowManager>()> windowManager_;
 
     juce::TextEditor searchField_;
     juce::ListBox listBox_;

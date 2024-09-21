@@ -14,7 +14,7 @@ class IPluginManager;
 class IPC : public IIPC {
 public:
     IPC(
-        std::shared_ptr<ILogHandler> log
+        std::function<std::shared_ptr<ILogHandler>()> logHandler
        );
     ~IPC() override;
 
@@ -26,16 +26,17 @@ public:
     void drainPipe(int fd) override;
 
 private:
-    std::shared_ptr<ILogHandler> log_;
+    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
+    std::shared_ptr<ILogHandler> log_() { return logHandler_(); };
 
     std::string readResponseInternal(int fd);
 
     // TODO DRY
     std::filesystem::path getHomeDirectory() {
         #ifdef _WIN32
-        const char* homeDir = getenv("USERPROFILE");
+            const char* homeDir = getenv("USERPROFILE");
         #else
-        const char* homeDir = getenv("HOME");
+            const char* homeDir = getenv("HOME");
         #endif
 
         if (!homeDir) {
@@ -46,12 +47,12 @@ private:
     }
     std::filesystem::path requestPipeFilePath =
         std::filesystem::path(getHomeDirectory())
-        / "Documents" / "Ableton" "User Library"
+        / "Documents" / "Ableton" / "User Library"
         / "Remote Scripts" / "LiveImproved" / "lim_request"
     ;
     std::filesystem::path responsePipeFilePath =
         std::filesystem::path(getHomeDirectory())
-        / "Documents" / "Ableton" "User Library"
+        / "Documents" / "Ableton" / "User Library"
         / "Remote Scripts" / "LiveImproved" / "lim_response"
     ;
 
