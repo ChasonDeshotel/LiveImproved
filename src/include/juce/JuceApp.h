@@ -164,15 +164,15 @@ public:
             container.resolve<IPluginManager>()->refreshPlugins();
         });
 
-//    KeySender::getInstance();
+    KeySender::getInstance();
 
 //    log_->debug("ApplicatonManager::init() finished");
         
-//        #ifndef _WIN32
-//			PlatformInitializer::init();
-//			appManager.getEventHandler()->setupQuartzEventTap();
-//			PlatformInitializer::run();
-//        #endif
+        #ifndef _WIN32
+			PlatformInitializer::init();
+			container.resolve<EventHandler>()->setupQuartzEventTap();
+			PlatformInitializer::run();
+        #endif
     }
 
     void shutdown() override {
