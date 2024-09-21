@@ -86,6 +86,11 @@ public:
             [](DependencyContainer&) { return std::make_shared<ResponseParser>(); }
         );
 
+        container.registerFactory<KeySender>(
+            [](DependencyContainer&) { return std::make_shared<KeySender>(); }
+            , DependencyContainer::Lifetime::Singleton
+        );
+
         container.registerFactory<IIPC>(
             [](DependencyContainer& c) -> std::shared_ptr<IPC> {
                 // We can delay these resolutions if needed
@@ -165,8 +170,6 @@ public:
             LogHandler::getInstance().info("refreshing plugin cache");
             container.resolve<IPluginManager>()->refreshPlugins();
         });
-
-    KeySender::getInstance();
 
 //    log_->debug("ApplicatonManager::init() finished");
         
