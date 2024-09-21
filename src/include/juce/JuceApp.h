@@ -11,9 +11,6 @@
 #include "PluginManager.h"
 #include "ResponseParser.h"
 #include "WindowManager.h"
-#include "IIPC.h"
-#include "IPluginManager.h"
-#include "ILogHandler.h"
 
 // TODO DRY violation
 inline std::filesystem::path getHomeDirectory() {
@@ -39,7 +36,7 @@ public:
     }
 
     const juce::String getApplicationVersion() override {
-        return "0.0.0.1";
+        return "0.69.420";
     }
 
     void initialise(const juce::String&) override {
@@ -60,7 +57,7 @@ public:
         ;
 
         // TODO use events/accessibility to see if Live is already open
-        // and skip this delay
+        // and skip the delay
         PID::getInstance().livePIDBlocking();
 
         DependencyContainer& container = DependencyContainer::getInstance();
@@ -153,16 +150,21 @@ public:
         );
 
         container.resolve<IIPC>()->init();
+        LogHandler::getInstance().info("IPC read/write enabled");
 
         // TODO plugin refresh as callback from async init
         dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_time_t delay;
-        delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
 
+        delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
         dispatch_after(delay, backgroundQueue, ^{
             LogHandler::getInstance().info("writing READY");
-            // TODO check response
             container.resolve<IIPC>()->writeRequest("READY");
+            // TODO loop for response
+
+			container.resolve<IIPC>()->initReadWithEventLoop([this](const std::string& response) {
+				LogHandler::getInstance().info("received READY response: " + response);
+			});
         });
 
         delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
@@ -171,8 +173,6 @@ public:
             container.resolve<IPluginManager>()->refreshPlugins();
         });
 
-//    log_->debug("ApplicatonManager::init() finished");
-        
         #ifndef _WIN32
 			PlatformInitializer::init();
 			container.resolve<EventHandler>()->setupQuartzEventTap();

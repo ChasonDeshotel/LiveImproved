@@ -6,6 +6,9 @@ class LogHandler;
 
 class KeySender {
 public:
+    KeySender();
+    ~KeySender();
+
     static KeySender& getInstance() {
         static KeySender instance;
         return instance;
@@ -13,8 +16,6 @@ public:
     void sendKeyPress(const EKeyPress& kp);
 
 private:
-    KeySender();
-    ~KeySender();
 
     KeySender(const KeySender&) = delete;
     KeySender& operator=(const KeySender&) = delete;
