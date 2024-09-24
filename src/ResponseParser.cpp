@@ -1,4 +1,3 @@
-#include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
@@ -6,48 +5,18 @@
 
 #include "ResponseParser.h"
 #include "Types.h"
+#include "Utils.h"
 
 ResponseParser::ResponseParser() {}
 
 ResponseParser::~ResponseParser() {}
 
-std::vector<std::string> ResponseParser::split(const std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::stringstream ss(str);
-    std::string token;
-
-    while (std::getline(ss, token, delimiter)) {
-        tokens.push_back(token);
-    }
-
-    return tokens;
-}
-
-std::vector<std::string> ResponseParser::splitStringInPlace(std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    char* start = &str[0];  // Pointer to the beginning of the string
-    char* end = start;
-
-    while (*end != '\0') {  // Loop until the end of the string
-        if (*end == delimiter) {
-            *end = '\0';  // Replace the delimiter with a null terminator
-            tokens.push_back(start);  // Store the start pointer as a string in the vector
-            start = end + 1;  // Move the start pointer to the next character
-        }
-        end++;
-    }
-
-    tokens.push_back(start);  // Add the last token after the loop ends
-
-    return tokens;
-}
-
 std::vector<Plugin> ResponseParser::parsePlugins(const std::string& input) {
     std::vector<Plugin> plugins;
-    std::vector<std::string> entries = split(input, '|');
+    std::vector<std::string> entries = Utils::split(input, '|');
 
     for (const std::string& entry : entries) {
-        std::vector<std::string> fields = split(entry, ',');
+        std::vector<std::string> fields = Utils::split(entry, ',');
         if (fields.size() == 3) {
             Plugin plugin;
             plugin.number = std::stoi(fields[0]);

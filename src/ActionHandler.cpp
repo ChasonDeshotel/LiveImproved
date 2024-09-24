@@ -8,6 +8,7 @@
 
 #include "LogHandler.h"
 #include "Types.h"
+#include "Utils.h"
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
@@ -37,22 +38,6 @@ ActionHandler::~ActionHandler() {}
 
 void ActionHandler::init() {
     // should do the mapping / read config or something
-}
-
-// TODO DRY violation
-std::vector<std::string> splitString(const std::string& str, const std::string& delimiter = ",", size_t maxSplits = std::string::npos) {
-    std::vector<std::string> tokens;
-    size_t start = 0;
-    size_t end = 0;
-    size_t splits = 0;
-
-    while ((end = str.find(delimiter, start)) != std::string::npos && splits < maxSplits) {
-        tokens.push_back(str.substr(start, end - start));  // Add substring before the delimiter
-        start = end + delimiter.length();                  // Move past the delimiter
-    }
-
-    tokens.push_back(str.substr(start));  // Add the remaining part after the last delimiter
-    return tokens;
 }
 
 // need to block all events when 
@@ -160,7 +145,7 @@ bool ActionHandler::loadItemByName(const std::string& itemName) {
 
 void ActionHandler::handleAction(const std::string action) {
     log()->debug("handleAction called");
-    std::vector<std::string> actionParts = splitString(action, ",", 1);
+    std::vector<std::string> actionParts = Utils::splitString(action, ",", 1);
 
       if (actionParts.empty()) {
         log()->warn("No action provided");
