@@ -8,6 +8,7 @@
 #include <string>
 #include <queue>
 
+#include "Utils.h"
 #include "IIPC.h"
 
 class ApplicationManager;
@@ -65,27 +66,13 @@ private:
     std::string readResponseInternal(int fd);
     bool writeRequestInternal(const std::string& message);
 
-    // TODO DRY
-    std::filesystem::path getHomeDirectory() {
-        #ifdef _WIN32
-            const char* homeDir = getenv("USERPROFILE");
-        #else
-            const char* homeDir = getenv("HOME");
-        #endif
-
-        if (!homeDir) {
-            throw std::runtime_error("Could not find the home directory.");
-        }
-
-        return std::filesystem::path(homeDir);
-    }
     std::filesystem::path requestPipeFilePath =
-        std::filesystem::path(getHomeDirectory())
+        std::filesystem::path(Utils::getHomeDirectory())
         / "Documents" / "Ableton" / "User Library"
         / "Remote Scripts" / "LiveImproved" / "lim_request"
     ;
     std::filesystem::path responsePipeFilePath =
-        std::filesystem::path(getHomeDirectory())
+        std::filesystem::path(Utils::getHomeDirectory())
         / "Documents" / "Ableton" / "User Library"
         / "Remote Scripts" / "LiveImproved" / "lim_response"
     ;
