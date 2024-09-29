@@ -247,8 +247,7 @@ std::string IPC::readFromPipe(const std::string& pipe_name) {
     return std::string();
 }
 
-std::string IPC::formatRequest(const std::string& request, uint64_t id) {
-    std::string message = request + "\n" + std::to_string(id);
+std::string IPC::formatRequest(const std::string& message, uint64_t id) {
     size_t messageLength = message.length();
     
     std::ostringstream idStream;
