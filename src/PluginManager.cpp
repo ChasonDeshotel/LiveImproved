@@ -29,8 +29,9 @@ void PluginManager::refreshPlugins() {
         try {
             if (!response.empty()) {
                 plugins_ = responseParser->parsePlugins(response);
+                log->info("Plugin cache refreshed");
             } else {
-                log->error("Failed to receive a valid response.");
+                log->error("Failed to receive a valid response");
             }
         } catch (const std::exception &e) {
             throw std::runtime_error("Error fetching plugins: " + std::string(e.what()));
