@@ -39,6 +39,7 @@ public:
     void close() override;
 
     bool keyPressed(const juce::KeyPress& key, juce::Component* originatingComponent) override;
+    void mouseDown(const juce::MouseEvent& event) override;
 
     //void setOptions(const std::vector<Plugin>& options);
 

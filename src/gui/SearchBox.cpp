@@ -15,14 +15,16 @@
 
 class PluginListModel : public juce::ListBoxModel {
 public:
-    PluginListModel(std::shared_ptr<IPluginManager> pluginManager)
+    PluginListModel(std::shared_ptr<IPluginManager> pluginManager, std::shared_ptr<IActionHandler> actionHandler, std::shared_ptr<WindowManager> windowManager)
         : pluginManager_(std::move(pluginManager))
+        , actionHandler_(std::move(actionHandler))
+        , windowManager_(std::move(windowManager))
         , plugins_(pluginManager_->getPlugins())
         , filteredPlugins_(plugins_)
     {}
 
     int getNumRows() override {
-        return static_cast<int>(plugins_.size());
+        return static_cast<int>(filteredPlugins_.size());
     }
 
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override {
@@ -40,6 +42,11 @@ public:
         if (row >= 0 && row < plugins_.size()) {
             selectedPlugin_ = &plugins_[row];
             juce::Logger::writeToLog("Selected plugin: " + selectedPlugin_->name);
+
+            juce::Timer::callAfterDelay(100, [this]() {
+                actionHandler_->loadItem(selectedPlugin_->number);
+                windowManager_->closeWindow("SearchBox");
+            });
         }
     }
 
@@ -65,6 +72,8 @@ public:
 
 private:
     std::shared_ptr<IPluginManager> pluginManager_;
+    std::shared_ptr<IActionHandler> actionHandler_;
+    std::shared_ptr<WindowManager> windowManager_;
     const std::vector<Plugin>& plugins_;
     std::vector<Plugin> filteredPlugins_;
     const Plugin* selectedPlugin_ = nullptr;
@@ -87,7 +96,7 @@ SearchBox::SearchBox(
 
     LogHandler::getInstance().debug("Creating SearchBoxWindowController");
 
-    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_());
+    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_(), actionHandler_(), windowManager_());
     listBox_.setModel(pluginListModel_.get());
     listBox_.setRowHeight(30);
     addAndMakeVisible(listBox_);
@@ -120,6 +129,8 @@ void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
         // Call the filter method on the PluginListModel
         pluginListModel_->filterPlugins(searchText);
 
+        listBox_.selectRow(0);
+
         listBox_.updateContent();
         listBox_.repaint();
     }
@@ -138,21 +149,23 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
         return true;  // Key press handled
     }
 
-    // Handle Arrow keys for navigating the list box
-    //if (key == juce::KeyPress::upKey || key == juce::KeyPress::downKey) {
-    //    int currentIndex = listBox_.getSelectedRow();
-    //    int numRows = listBox_.getNumRows();
+    if (key == juce::KeyPress::upKey || key == juce::KeyPress::downKey) {
+        int currentIndex = listBox_.getSelectedRow();
+        int numRows = listBox_.getListBoxModel()->getNumRows();
+        if (!numRows) {
+            return true;
+        }
 
-    //    if (key == juce::KeyPress::upKey && currentIndex > 0) {
-    //        listBox_.selectRow(currentIndex - 1);
-    //    } else if (key == juce::KeyPress::downKey && currentIndex < numRows - 1) {
-    //        listBox_.selectRow(currentIndex + 1);
-    //    }
+        if (key == juce::KeyPress::upKey && currentIndex > 0) {
+            listBox_.selectRow(currentIndex - 1);
+        } else if (key == juce::KeyPress::downKey && currentIndex < numRows - 1) {
+            listBox_.selectRow(currentIndex + 1);
+        }
 
-    //    // Keep focus on the searchField_
-    //    searchField_.grabKeyboardFocus();
-    //    return true;  // Key press handled
-    //}
+        // Keep focus on the searchField_
+        searchField_.grabKeyboardFocus();
+        return true;  // Key press handled
+    }
 
     return false;  // Key press not handled
 }
@@ -218,6 +231,13 @@ void SearchBox::focus() {
         searchField_.grabKeyboardFocus();  // Try to grab focus
         juce::Timer::callAfterDelay(100, [this]() { focus(); });  // Continue checking until focus is gained
     }
+}
+
+void SearchBox::mouseDown(const juce::MouseEvent& event) {
+    searchField_.grabKeyboardFocus();  // Force focus back to the search box
+
+    // You can call the base class mouseDown if needed
+    juce::Component::mouseDown(event);
 }
 
 void SearchBox::close() {
