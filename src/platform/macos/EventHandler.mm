@@ -133,18 +133,21 @@ void EventHandler::focusApplication(pid_t pid) {
     }
 }
 
-void EventHandler::focusWindow(juce::ComponentPeer* componentPeer) {
-    if (componentPeer == nullptr) return;
+void EventHandler::focusWindow(void* nativeWindowHandle) {
+    if (nativeWindowHandle == nullptr) return;
 
     [NSApp activateIgnoringOtherApps:YES];
 
-    NSView* view = (NSView*)componentPeer->getNativeHandle();
+    NSView* view = (NSView*)nativeWindowHandle;
     if (view != nil) {
-        NSWindow* window = [view window];
-        [window makeKeyAndOrderFront:nil];
-        [window makeFirstResponder:view];
+        NSWindow* window = [view window];  // Get the NSWindow that contains this NSView
+        if (window != nil) {
+            [window makeKeyAndOrderFront:nil];  // Bring the window to the front and make it key
+            [window makeFirstResponder:view];   // Set the first responder to the view
+        }
     }
 }
+
 
 NSRect getLiveBounds() {
     NSRect appBounds = NSMakeRect(0, 0, 0, 0);

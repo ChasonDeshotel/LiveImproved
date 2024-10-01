@@ -134,9 +134,8 @@ void SearchBox::setWindowGeometry() {
 }
 
 void SearchBox::open() {
-    logHandler_()->info("open called");
     eventHandler_()->focusLim();
-    eventHandler_()->focusWindow(this->getPeer());
+    eventHandler_()->focusWindow(this->getWindowHandle());
 
     listBox_.selectRow(0);
     setVisible(true);
@@ -152,7 +151,6 @@ void SearchBox::open() {
 }
 
 void SearchBox::focus() {
-    logHandler_()->info("focus check");
     if (!searchField_.hasKeyboardFocus(false)) {
         searchField_.grabKeyboardFocus();  // Try to grab focus
         juce::Timer::callAfterDelay(100, [this]() { focus(); });  // Continue checking until focus is gained

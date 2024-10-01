@@ -28,7 +28,7 @@ public:
 
     static void focusLim();
     static void focusLive();
-    static void focusWindow(juce::ComponentPeer* componentPeer);
+    static void focusWindow(void* nativeWindowHandle);
 
     ERect getLiveBoundsRect();
 
