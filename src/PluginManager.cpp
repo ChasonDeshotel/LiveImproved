@@ -28,7 +28,7 @@ void PluginManager::refreshPlugins() {
         auto log = log_();
         try {
             if (!response.empty()) {
-                //log_.debug("Received response: " + response);
+                log->debug("Received response: " + response);
                 plugins_ = responseParser->parsePlugins(response);
             } else {
                 log->error("Failed to receive a valid response.");

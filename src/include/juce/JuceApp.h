@@ -143,13 +143,13 @@ public:
         dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_time_t delay;
 
-        delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
-        dispatch_after(delay, backgroundQueue, ^{
-            LogHandler::getInstance().info("writing READY");
-            container.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
-				LogHandler::getInstance().info("received READY response: " + response);
-			});
-        });
+//        delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
+//        dispatch_after(delay, backgroundQueue, ^{
+//            LogHandler::getInstance().info("writing READY");
+//            container.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
+//				LogHandler::getInstance().info("received READY response: " + response);
+//			});
+//        });
 
         delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
         dispatch_after(delay, backgroundQueue, ^{

@@ -38,7 +38,7 @@ public:
         return writeRequest(message, nullptr);
     }
 
-    std::string readResponse() override;
+    std::string readResponse(ResponseCallback callback) override;
     void drainPipe(int fd) override;
 
 private:
@@ -62,6 +62,7 @@ private:
 	void processResponse(const std::string& response);
 	void requestWriter();
 	void responseReader();
+    void resetResponsePipe();
 	
     std::string readResponseInternal(int fd);
     bool writeRequestInternal(const std::string& message);
