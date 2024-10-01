@@ -250,6 +250,7 @@ void IPC::processNextRequest() {
     log_()->debug("Processing next request: " + nextRequest.first);
     std::thread([this, nextRequest]() {
         this->writeRequestInternal(nextRequest.first, nextRequest.second);
+        usleep(100000); // Live operates on 100ms tick -- without this sleep commands are skipped
         this->processNextRequest();
     }).detach();
 }
@@ -346,7 +347,7 @@ std::string IPC::readResponse(ResponseCallback callback) {
 
     // Retry loop in case of empty or partial reads
     int retry_count = 0;
-    int max_retries = 5000;
+    int max_retries = 100;
     while (totalHeaderRead < HEADER_SIZE && retry_count < max_retries) {
         bytesRead = read(fd, header + totalHeaderRead, HEADER_SIZE - totalHeaderRead);
 
