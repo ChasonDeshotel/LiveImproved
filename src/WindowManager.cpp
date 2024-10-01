@@ -1,5 +1,6 @@
 #include "WindowManager.h"
 
+#include "EventHandler.h"
 #include "IWindow.h"
 #include "ILogHandler.h"
 #include "LogHandler.h"
@@ -88,6 +89,7 @@ void WindowManager::closeWindow(const std::string& windowName) {
     windowStates_[windowName] = false;
     LogHandler::getInstance().debug("updated window state to close");
     LogHandler::getInstance().debug("close - Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    eventHandler_()->focusLive();
 }
 
 void WindowManager::toggleWindow(const std::string& windowName) {

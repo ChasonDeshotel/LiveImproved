@@ -18,6 +18,7 @@ public:
     PluginListModel(std::shared_ptr<IPluginManager> pluginManager)
         : pluginManager_(std::move(pluginManager))
         , plugins_(pluginManager_->getPlugins())
+        , filteredPlugins_(plugins_)
     {}
 
     int getNumRows() override {
@@ -29,8 +30,8 @@ public:
             g.fillAll(juce::Colours::lightblue);
 
         g.setColour(juce::Colours::black);
-        if (rowNumber < plugins_.size()) {
-            auto& plugin = plugins_[rowNumber];
+        if (rowNumber < filteredPlugins_.size()) {
+            auto& plugin = filteredPlugins_[rowNumber];
             g.drawText(plugin.name, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
         }
     }
@@ -46,9 +47,26 @@ public:
         return selectedPlugin_;
     }
 
+    void filterPlugins(const juce::String& searchText) {
+        filteredPlugins_.clear();
+
+        // Filter based on searchText
+        for (const auto& plugin : plugins_) {
+            juce::String pluginName(plugin.name);
+            if (pluginName.containsIgnoreCase(searchText)) {
+                filteredPlugins_.push_back(plugin);  // Add matching plugins
+            }
+        }
+    }
+
+    void resetFilters() {
+        filteredPlugins_ = plugins_;
+    }
+
 private:
     std::shared_ptr<IPluginManager> pluginManager_;
     const std::vector<Plugin>& plugins_;
+    std::vector<Plugin> filteredPlugins_;
     const Plugin* selectedPlugin_ = nullptr;
 };
 
@@ -74,7 +92,6 @@ SearchBox::SearchBox(
     listBox_.setRowHeight(30);
     addAndMakeVisible(listBox_);
 
-
     setUsingNativeTitleBar(false);
     setAlwaysOnTop(true);
 
@@ -82,6 +99,7 @@ SearchBox::SearchBox(
     searchField_.setReturnKeyStartsNewLine(false);
 //    searchField_.setTextToShowWhenEmpty("Type to search...", juce::Colours::grey);
     searchField_.addListener(this);
+    searchField_.addKeyListener(this);
     addAndMakeVisible(searchField_);
 
     // Configure the options list (ListBox in JUCE)
@@ -97,7 +115,52 @@ void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
     if (&editor == &searchField_) {
         LogHandler::getInstance().debug("Search text changed: " + editor.getText().toStdString());
         // Handle the text change (e.g., update search results)
+        juce::String searchText = searchField_.getText();
+
+        // Call the filter method on the PluginListModel
+        pluginListModel_->filterPlugins(searchText);
+
+        listBox_.updateContent();
+        listBox_.repaint();
     }
+}
+
+bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
+    LogHandler::getInstance().info("search box key pressed: " + std::to_string(key.getKeyCode()));
+
+    if (key == juce::KeyPress::escapeKey) {
+        if (searchField_.getText().isNotEmpty()) {
+            searchField_.clear();
+            resetFilters();
+        } else {
+            windowManager_()->closeWindow("SearchBox");
+        }
+        return true;  // Key press handled
+    }
+
+    // Handle Arrow keys for navigating the list box
+    //if (key == juce::KeyPress::upKey || key == juce::KeyPress::downKey) {
+    //    int currentIndex = listBox_.getSelectedRow();
+    //    int numRows = listBox_.getNumRows();
+
+    //    if (key == juce::KeyPress::upKey && currentIndex > 0) {
+    //        listBox_.selectRow(currentIndex - 1);
+    //    } else if (key == juce::KeyPress::downKey && currentIndex < numRows - 1) {
+    //        listBox_.selectRow(currentIndex + 1);
+    //    }
+
+    //    // Keep focus on the searchField_
+    //    searchField_.grabKeyboardFocus();
+    //    return true;  // Key press handled
+    //}
+
+    return false;  // Key press not handled
+}
+
+void SearchBox::resetFilters() {
+    pluginListModel_->resetFilters();
+    listBox_.updateContent();
+    listBox_.repaint();
 }
 
 void SearchBox::setWindowGeometry() {
@@ -162,11 +225,13 @@ void SearchBox::close() {
         setVisible(false);
         //window->closeButtonPressed();
         searchField_.clear();
+        resetFilters();
     } else {
         juce::MessageManager::callAsync([this]() {
             setVisible(false);
             //window->closeButtonPressed();
             searchField_.clear();
+            resetFilters();
         });
     }
 }
@@ -190,7 +255,6 @@ void* SearchBox::getWindowHandle() const {
 
     return handle;
 }
-
 
 //std::string SearchBox::getSearchText() const {
 //    if (searchField_) {

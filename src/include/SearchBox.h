@@ -19,9 +19,12 @@ class EventHandler;
 class IActionHandler;
 class WindowManager;
 
+class PluginListModel;
+
 class SearchBox : public juce::TopLevelWindow, public IWindow,
-                     public juce::TextEditor::Listener, 
-                     public juce::ListBoxModel {
+                  public juce::KeyListener,
+                  public juce::TextEditor::Listener,
+                  public juce::ListBoxModel {
 public:
     SearchBox(
               std::function<std::shared_ptr<ILogHandler>()> logHandler
@@ -34,6 +37,8 @@ public:
 
     void open() override;
     void close() override;
+
+    bool keyPressed(const juce::KeyPress& key, juce::Component* originatingComponent) override;
 
     //void setOptions(const std::vector<Plugin>& options);
 
@@ -67,12 +72,14 @@ private:
 
     juce::TextEditor searchField_;
     juce::ListBox listBox_;
-    std::unique_ptr<juce::ListBoxModel> pluginListModel_;
+    std::unique_ptr<PluginListModel> pluginListModel_;
+
     std::vector<Plugin> options_;
     std::vector<Plugin> filteredOptions_;
 
     void focus();
     void setWindowGeometry();
+    void resetFilters();
 
     //void filterOptions(const juce::String& text);
     void handlePluginSelected(int selectedRow);
