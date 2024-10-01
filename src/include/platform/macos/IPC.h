@@ -26,8 +26,8 @@ public:
 
     bool init() override;
     
-    bool writeRequest(const std::string& message, ResponseCallback callback) override;
-    bool writeRequest(const std::string& message) override {
+    void writeRequest(const std::string& message, ResponseCallback callback) override;
+    void writeRequest(const std::string& message) override {
         return writeRequest(message, nullptr);
     }
 
@@ -38,7 +38,15 @@ private:
     std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::shared_ptr<ILogHandler> log_() { return logHandler_(); };
 
-    std::queue<std::string> requestQueue_;
+    std::queue<std::pair<std::string, ResponseCallback>> requestQueue_;
+    std::mutex queueMutex_;
+    std::condition_variable queueCondition_;
+    bool isProcessingRequest_;
+
+    // Method to enqueue requests
+    bool writeRequestInternal(const std::string& message, ResponseCallback callback);
+    void processNextRequest();
+
     std::atomic<uint64_t> nextRequestId_;
 
 	std::string formatRequest(const std::string& request, uint64_t id);

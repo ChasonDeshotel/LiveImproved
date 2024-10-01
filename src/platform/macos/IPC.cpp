@@ -15,7 +15,7 @@
 #include "PluginManager.h"
 
 IPC::IPC(std::function<std::shared_ptr<ILogHandler>()> logHandler)
-    : logHandler_(std::move(logHandler)) {
+    : logHandler_(std::move(logHandler)), isProcessingRequest_(false) {
     if (!logHandler_()) {
         throw std::invalid_argument("IPC requires valid logHandler");
     }
@@ -221,7 +221,40 @@ std::string IPC::formatRequest(const std::string& message, uint64_t id) {
     return formattedRequest;
 }
 
-bool IPC::writeRequest(const std::string& message, ResponseCallback callback) {
+// add request to queue
+void IPC::writeRequest(const std::string& message, ResponseCallback callback) {
+    std::unique_lock<std::mutex> lock(queueMutex_);
+    requestQueue_.emplace(message, callback);
+    lock.unlock();
+    log_()->debug("Request enqueued: " + message);
+
+    // If no request is currently being processed, start processing
+    if (!isProcessingRequest_) {
+        processNextRequest();
+    }
+}
+
+void IPC::processNextRequest() {
+    std::unique_lock<std::mutex> lock(queueMutex_);
+    if (requestQueue_.empty()) {
+        isProcessingRequest_ = false;
+        return;
+    }
+
+    isProcessingRequest_ = true;
+
+    auto nextRequest = requestQueue_.front();
+    requestQueue_.pop();
+    lock.unlock();
+
+    log_()->debug("Processing next request: " + nextRequest.first);
+    std::thread([this, nextRequest]() {
+        this->writeRequestInternal(nextRequest.first, nextRequest.second);
+        this->processNextRequest();
+    }).detach();
+}
+
+bool IPC::writeRequestInternal(const std::string& message, ResponseCallback callback) {
 	// Check if the pipe is already open for writing
 	if (pipes_[requestPipePath] == -1) {
 		if (!openPipeForWrite(requestPipePath, true)) {  // Open in non-blocking mode
@@ -392,7 +425,7 @@ std::string IPC::readResponse(ResponseCallback callback) {
         }
     }
 
-    log_()->debug("Total bytes read: " + std::to_string(totalBytesRead));
+    log_()->debug("Total bytes read: " + std::to_string(totalBytesRead - endMarker.size()));
 
     log_()->debug("Message read from response pipe: " + responsePipePath);
     if (message.length() > 100) {

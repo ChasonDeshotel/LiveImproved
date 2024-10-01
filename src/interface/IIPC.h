@@ -13,8 +13,8 @@ public:
 
     virtual bool init() = 0;
 
-    virtual bool writeRequest(const std::string& message) = 0;
-    virtual bool writeRequest(const std::string& message, ResponseCallback callback) = 0;
+    virtual void writeRequest(const std::string& message) = 0;
+    virtual void writeRequest(const std::string& message, ResponseCallback callback) = 0;
 
     virtual std::string readResponse(ResponseCallback callback) = 0;
     virtual void drainPipe(int fd) = 0;
