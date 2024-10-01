@@ -222,7 +222,7 @@ std::string IPC::formatRequest(const std::string& message, uint64_t id) {
 }
 
 // add request to queue
-void IPC::writeRequest(const std::string& message, ResponseCallback callback) {
+void IPC::writeRequest(const std::string& message, ResponseCallback callback = [](const std::string&) {}) {
     std::unique_lock<std::mutex> lock(queueMutex_);
     requestQueue_.emplace(message, callback);
     lock.unlock();
@@ -436,6 +436,9 @@ std::string IPC::readResponse(ResponseCallback callback) {
         log_()->debug("Message: " + message);
     }
 
-    callback(message);
+    if (callback) {
+        callback(message);
+    }
+
     return message;
 }
