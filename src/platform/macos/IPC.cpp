@@ -20,12 +20,11 @@
 #include "PluginManager.h"
 
 IPC::IPC(std::function<std::shared_ptr<ILogHandler>()> logHandler)
-    : logHandler_(std::move(logHandler)), shouldStop_(false) {
+    : logHandler_(std::move(logHandler)) {
     if (!logHandler_()) {
         throw std::invalid_argument("IPC requires valid logHandler");
     }
 }
-
 
 IPC::~IPC() {
     for (auto& pipe : pipes_) {
@@ -135,39 +134,6 @@ void IPC::resetResponsePipe() {
     }
 }
 
-void IPC::trackRequest(uint64_t id, const std::string& status) {
-	std::lock_guard<std::mutex> lock(mutex_);
-	auto& info = requestTracker_[id];
-	if (status == "created") {
-		info.creationTime = std::chrono::system_clock::now();
-		info.status = "created";
-	} else if (status == "written") {
-		info.writeTime = std::chrono::system_clock::now();
-		info.status = "written";
-	} else if (status == "responded") {
-		info.responseTime = std::chrono::system_clock::now();
-		info.status = "completed";
-		log_()->debug("Request " + std::to_string(id) + " completed in " +
-					std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
-						info.responseTime - info.creationTime).count()) + "ms");
-		requestTracker_.erase(id);
-	}
-}
-
-// TODO 
-//void IPC::checkStuckRequests() {
-//    std::lock_guard<std::mutex> lock(trackerMutex_);
-//    auto now = std::chrono::system_clock::now();
-//    for (const auto& pair : requestTracker_) {
-//        auto& info = pair.second;
-//        auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - info.creationTime).count();
-//        if (duration > 60) {  // Example: Flag requests older than 60 seconds
-//            log_()->warn("Request " + std::to_string(pair.first) + " has been stuck in state '" + 
-//                         info.status + "' for " + std::to_string(duration) + " seconds");
-//        }
-//    }
-//}
-
 void IPC::removePipeIfExists(const std::string& pipe_name) {
     if (access(pipe_name.c_str(), F_OK) != -1) {
         // File exists, so remove it
@@ -241,14 +207,6 @@ bool IPC::openPipeForRead(const std::string& pipe_name, bool non_blocking) {
     pipes_[pipe_name] = fd;
     log_()->info("Pipe opened for reading: " + pipe_name);
     return true;
-}
-
-bool IPC::writeToPipe(const std::string& pipe_name, const std::string& message) {
-    return false;
-}
-
-std::string IPC::readFromPipe(const std::string& pipe_name) {
-    return std::string();
 }
 
 std::string IPC::formatRequest(const std::string& message, uint64_t id) {
@@ -346,8 +304,15 @@ std::string IPC::readResponse(ResponseCallback callback) {
         fd = pipes_[responsePipePath];  // Reassign fd after reopening the pipe
     }
 
-    const size_t HEADER_SIZE = 22;  // 'START_' + 8 chars for request ID + 8 chars for message size
+    const std::string startMarker = "START_";
+    const std::string endMarker = "END_OF_MESSAGE";
+    std::string requestId;
+
+    const size_t START_MARKER_SIZE = 6;
+    const size_t REQUEST_ID_SIZE = 8;
+    const size_t HEADER_SIZE = START_MARKER_SIZE + REQUEST_ID_SIZE + 8;
     char header[HEADER_SIZE + 1];   // +1 for null-termination
+
     ssize_t bytesRead = 0;
     size_t totalHeaderRead = 0;
 
@@ -405,11 +370,11 @@ std::string IPC::readResponse(ResponseCallback callback) {
 
     std::string message;
     size_t totalBytesRead = 0;
-    const size_t bufferSize = 4096;
+    const size_t bufferSize = 8192;
     char buffer[bufferSize];
 
-    while (totalBytesRead < messageSize) {
-        size_t bytesToRead = std::min(bufferSize, messageSize - totalBytesRead);
+    while (totalBytesRead < messageSize + endMarker.size()) {
+        size_t bytesToRead = std::min(bufferSize, messageSize + endMarker.size() - totalBytesRead);
         bytesRead = read(fd, buffer, bytesToRead);
 
         if (bytesRead <= 0) {
@@ -420,130 +385,6 @@ std::string IPC::readResponse(ResponseCallback callback) {
 
         message.append(buffer, bytesRead);
         totalBytesRead += bytesRead;
-        log_()->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
-    }
-
-    log_()->debug("Total bytes read: " + std::to_string(totalBytesRead));
-
-    if (totalBytesRead != messageSize) {
-        log_()->error("Message read was incomplete.");
-    } else {
-        log_()->debug("Message: read the entire message.");
-    }
-
-    log_()->debug("Message read from response pipe: " + responsePipePath);
-    if (message.length() > 100) {
-        log_()->debug("Message truncated to 100 characters");
-        log_()->debug("Message: " + message.substr(0, 100));
-    } else {
-        log_()->debug("Message: " + message);
-    }
-
-    callback(message);
-    return message;
-}
-
-void IPC::processResponse(const std::string& response) {
-	size_t idPos = response.find_last_of('\n');
-	if (idPos == std::string::npos) {
-		log_()->error("Invalid response format");
-		return;
-	}
-	uint64_t id = std::stoull(response.substr(idPos + 1));
-	std::string actualResponse = response.substr(0, idPos);
-
-	trackRequest(id, "responded");
-
-	ResponseCallback callback;
-	{
-		std::lock_guard<std::mutex> lock(mutex_);
-		auto it = pendingCallbacks_.find(id);
-		if (it == pendingCallbacks_.end()) {
-			// No callback for this ID, which is fine for requests without callbacks
-			return;
-		}
-		callback = it->second;
-		pendingCallbacks_.erase(it);
-	}
-	callback(actualResponse);
-}
-
-std::string IPC::readResponseInternal(int fd) {
-    static size_t messageSize = 0;  // Static to retain value across calls
-    static std::string message;     // Static to accumulate the message
-    static std::string headerBuffer; // Static to accumulate header bytes
-    static bool headerRead = false; // Static flag to ensure header is only read once
-    static const std::string startMarker = "START_"; // Start of message marker
-    static const std::string endMarker = "END_OF_MESSAGE"; // End of message marker
-    static std::string requestId; // Store request ID
-
-    const size_t START_MARKER_SIZE = 6; // "START_" size
-    const size_t REQUEST_ID_SIZE = 8; // Request ID size
-    const size_t HEADER_SIZE = START_MARKER_SIZE + REQUEST_ID_SIZE + 8; // Full header size
-    ssize_t bytesRead = 0;
-
-    // Step 1: Read the start marker and header, but only once it's fully received
-    if (!headerRead) {
-        while (headerBuffer.size() < HEADER_SIZE) {
-            char headerChunk[HEADER_SIZE];
-            size_t headerBytesToRead = HEADER_SIZE - headerBuffer.size();
-
-            bytesRead = read(fd, headerChunk, headerBytesToRead);
-            if (bytesRead > 0) {
-                headerBuffer.append(headerChunk, bytesRead);
-            } else if (bytesRead < 0) {
-                if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                    log_()->debug("Waiting for more data.");
-                    return ""; // No data available right now, but the pipe is still open.
-                } else {
-                    log_()->error("Failed to read the header. Error: " + std::string(strerror(errno)));
-                    return ""; // An unrecoverable error occurred, signal this as an empty response.
-                }
-            } else {
-                log_()->error("Unexpected end of file while reading the header.");
-                return ""; // No data available and the pipe might be closed.
-            }
-        }
-
-        // Now we have the full header
-        if (headerBuffer.compare(0, START_MARKER_SIZE, startMarker) != 0) {
-            log_()->error("Invalid start marker. Discarding data.");
-            headerBuffer.clear(); // Clear the buffer and wait for a valid start marker
-            return "";
-        }
-
-        requestId = headerBuffer.substr(START_MARKER_SIZE, REQUEST_ID_SIZE);
-        messageSize = std::stoull(headerBuffer.substr(START_MARKER_SIZE + REQUEST_ID_SIZE, 8));
-        log_()->debug("Header read complete. Request ID: " + requestId + ", Expected message size: " + std::to_string(messageSize));
-
-        headerRead = true; // Mark the header as read
-    }
-
-    // Step 2: Read the message content in chunks based on the size from the header
-    const size_t bufferSize = 8192;
-    char buffer[bufferSize];
-    size_t totalBytesRead = message.size(); // Track progress using the accumulated message size
-
-    while (totalBytesRead < messageSize + endMarker.size()) {
-        size_t bytesToRead = std::min(bufferSize, messageSize + endMarker.size() - totalBytesRead);
-        bytesRead = read(fd, buffer, bytesToRead);
-
-        if (bytesRead == 0) {
-            log_()->debug("End of file or no data available temporarily. Waiting for more data.");
-            return "";  // No more data is available at this moment, but we should wait for more.
-        } else if (bytesRead < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                log_()->debug("Waiting for more data.");
-                return ""; // No data available right now, but the pipe is still open.
-            } else {
-                log_()->error("Failed to read the message. Error: " + std::string(strerror(errno)));
-                return ""; // An unrecoverable error occurred, signal this as an empty response.
-            }
-        }
-
-        message.append(buffer, bytesRead);
-        totalBytesRead += bytesRead;
-
         log_()->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
         // Check if the end marker is present in the accumulated message
@@ -556,20 +397,16 @@ std::string IPC::readResponseInternal(int fd) {
         }
     }
 
-    // Verify that the message was fully read
-    if (totalBytesRead >= messageSize) {
-        log_()->info("Message: read the entire message.");
-        std::string completeMessage = message;
+    log_()->debug("Total bytes read: " + std::to_string(totalBytesRead));
 
-        // Reset static variables for the next read operation
-        message.clear();
-        headerBuffer.clear();
-        messageSize = 0;
-        headerRead = false;
-
-        return completeMessage;
+    log_()->debug("Message read from response pipe: " + responsePipePath);
+    if (message.length() > 100) {
+        log_()->debug("Message truncated to 100 characters");
+        log_()->debug("Message: " + message.substr(0, 100));
     } else {
-        log_()->warn("Message read is incomplete. Waiting for more data.");
-        return ""; // Return empty string, indicating that we're still waiting for more data.
+        log_()->debug("Message: " + message);
     }
+
+    callback(message);
+    return message;
 }
