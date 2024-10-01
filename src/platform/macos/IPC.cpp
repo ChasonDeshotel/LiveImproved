@@ -351,7 +351,7 @@ std::string IPC::readResponse(ResponseCallback callback) {
     size_t messageSize;
     try {
         // Extract the response size (last 8 characters of the header)
-        std::string messageSizeStr(header + 12);  // Skip 'START_' and the 8 characters of request ID
+        std::string messageSizeStr(header + 14);  // Skip 'START_' and the 8 characters of request ID
         messageSize = std::stoull(messageSizeStr);  // Convert to size_t
     } catch (const std::invalid_argument& e) {
         log_()->error("Invalid header. Could not parse message size: " + std::string(e.what()));
