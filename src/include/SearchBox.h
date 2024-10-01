@@ -78,6 +78,9 @@ private:
     std::vector<Plugin> options_;
     std::vector<Plugin> filteredOptions_;
 
+    void setSelectedRow(int row);
+    int selectedRow_;
+
     void focus();
     void setWindowGeometry();
     void resetFilters();

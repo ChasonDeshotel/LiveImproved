@@ -40,7 +40,6 @@ public:
 
     void listBoxItemClicked(int row, const juce::MouseEvent&) override {
         if (row >= 0 && row < plugins_.size()) {
-            selectedPlugin_ = &plugins_[row];
             juce::Logger::writeToLog("Selected plugin: " + selectedPlugin_->name);
 
             juce::Timer::callAfterDelay(100, [this]() {
@@ -50,8 +49,11 @@ public:
         }
     }
 
-    const Plugin* getSelectedPlugin() const {
-        return selectedPlugin_;
+    const Plugin* getPluginAtRow(int row) const {
+        if (row >= 0 && row < filteredPlugins_.size()) {
+            return &filteredPlugins_[row];
+        }
+        return nullptr;
     }
 
     void filterPlugins(const juce::String& searchText) {
@@ -149,6 +151,17 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
         return true;  // Key press handled
     }
 
+    if (key == juce::KeyPress::returnKey) {
+        LogHandler::getInstance().info("enter key pressed");
+        int selectedRow = listBox_.getSelectedRow();
+        const Plugin* plugin = pluginListModel_->getPluginAtRow(selectedRow);
+        if (plugin) {
+            actionHandler_()->loadItem(plugin->number);
+            windowManager_()->closeWindow("SearchBox");
+        }
+        return true;
+    }
+
     if (key == juce::KeyPress::upKey || key == juce::KeyPress::downKey) {
         int currentIndex = listBox_.getSelectedRow();
         int numRows = listBox_.getListBoxModel()->getNumRows();
@@ -168,6 +181,10 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
     }
 
     return false;  // Key press not handled
+}
+
+void SearchBox::setSelectedRow(int row) {
+    selectedRow_ = row;
 }
 
 void SearchBox::resetFilters() {
