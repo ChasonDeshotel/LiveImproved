@@ -71,6 +71,7 @@ private:
     std::vector<Plugin> options_;
     std::vector<Plugin> filteredOptions_;
 
+    void focus();
     void setWindowGeometry();
 
     //void filterOptions(const juce::String& text);

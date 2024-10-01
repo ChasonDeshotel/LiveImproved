@@ -23,9 +23,9 @@ WindowManager::WindowManager(
 // Factory function to create window instances dynamically based on the name
 std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& windowName) {
     if (windowName == "ContextMenu") {
+        // TODO
         //return std::make_unique<ContextMenu>();
     } else if (windowName == "SearchBox") {
-      // TODO
         return std::make_unique<SearchBox>(logHandler_, pluginManager_, eventHandler_, actionHandler_, windowManager_);
     }
     return nullptr;

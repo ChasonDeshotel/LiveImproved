@@ -60,6 +60,7 @@ SearchBox::SearchBox(
                      , std::function<std::shared_ptr<WindowManager>()> windowManager
     )
     : TopLevelWindow("SearchBox", true)
+    , logHandler_(std::move(logHandler))
     , pluginManager_(std::move(pluginManager))
     , eventHandler_(std::move(eventHandler))
     , actionHandler_(std::move(actionHandler))
@@ -133,10 +134,29 @@ void SearchBox::setWindowGeometry() {
 }
 
 void SearchBox::open() {
+    logHandler_()->info("open called");
+    eventHandler_()->focusLim();
+    eventHandler_()->focusWindow(this->getPeer());
+
     listBox_.selectRow(0);
     setVisible(true);
+    searchField_.setWantsKeyboardFocus(true);
     searchField_.grabKeyboardFocus();
     toFront(true);
+
+    // hack for macOS
+    // https://forum.juce.com/t/keyboard-focus-on-application-startup/9382/2
+    juce::Timer::callAfterDelay(100, [this]() {
+        focus();
+    });
+}
+
+void SearchBox::focus() {
+    logHandler_()->info("focus check");
+    if (!searchField_.hasKeyboardFocus(false)) {
+        searchField_.grabKeyboardFocus();  // Try to grab focus
+        juce::Timer::callAfterDelay(100, [this]() { focus(); });  // Continue checking until focus is gained
+    }
 }
 
 void SearchBox::close() {

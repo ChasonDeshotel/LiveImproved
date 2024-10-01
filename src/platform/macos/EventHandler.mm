@@ -133,6 +133,19 @@ void EventHandler::focusApplication(pid_t pid) {
     }
 }
 
+void EventHandler::focusWindow(juce::ComponentPeer* componentPeer) {
+    if (componentPeer == nullptr) return;
+
+    [NSApp activateIgnoringOtherApps:YES];
+
+    NSView* view = (NSView*)componentPeer->getNativeHandle();
+    if (view != nil) {
+        NSWindow* window = [view window];
+        [window makeKeyAndOrderFront:nil];
+        [window makeFirstResponder:view];
+    }
+}
+
 NSRect getLiveBounds() {
     NSRect appBounds = NSMakeRect(0, 0, 0, 0);
 

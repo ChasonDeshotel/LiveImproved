@@ -1,6 +1,7 @@
 #ifndef EVENT_HANDLER_H
 #define EVENT_HANDLER_H
 
+#include <JuceHeader.h>
 #include <memory>
 #include <functional>
 
@@ -27,6 +28,7 @@ public:
 
     static void focusLim();
     static void focusLive();
+    static void focusWindow(juce::ComponentPeer* componentPeer);
 
     ERect getLiveBoundsRect();
 
