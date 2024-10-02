@@ -21,6 +21,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(lib/JUCE)
 add_subdirectory(lib/yaml-cpp)
 add_subdirectory(lib/harfbuzz)
+add_subdirectory(lib/pugixml)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/lib/yaml-cpp)
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/lib/harfbuzz)
@@ -40,6 +41,7 @@ target_link_libraries(LiveImproved
         juce::juce_data_structures
         yaml-cpp
         harfbuzz
+        pugixml
 )
 
 # cross-platform nclude directories
@@ -66,6 +68,8 @@ set(SRC_CPP
     src/WindowManager.cpp
     src/KeyMapper.cpp
     src/PluginManager.cpp
+    src/Theme.cpp
+    src/JuceTheme.cpp
     src/config/ConfigManager.cpp
     src/config/ConfigMenu.cpp
     src/gui/SearchBox.cpp

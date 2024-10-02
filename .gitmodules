@@ -7,3 +7,6 @@
 [submodule "lib/juce"]
 	path = lib/juce
 	url = https://github.com/juce-framework/JUCE.git
+[submodule "lib/pugixml"]
+	path = lib/pugixml
+	url = https://github.com/zeux/pugixml

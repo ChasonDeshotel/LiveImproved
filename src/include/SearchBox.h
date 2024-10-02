@@ -18,6 +18,8 @@ class Plugin;
 class EventHandler;
 class IActionHandler;
 class WindowManager;
+class LimLookAndFeel;
+class Theme;
 
 class PluginListModel;
 
@@ -32,6 +34,8 @@ public:
               , std::function<std::shared_ptr<EventHandler>()> eventHandler
               , std::function<std::shared_ptr<IActionHandler>()> actionHandler
               , std::function<std::shared_ptr<WindowManager>()> windowManager
+              , std::function<std::shared_ptr<Theme>()> theme
+              , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
         );
     ~SearchBox();
 
@@ -70,6 +74,8 @@ private:
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
+    std::function<std::shared_ptr<Theme>()> theme_;
+    std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel_;
 
     juce::TextEditor searchField_;
     juce::ListBox listBox_;

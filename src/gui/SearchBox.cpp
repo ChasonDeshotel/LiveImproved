@@ -12,13 +12,16 @@
 #include "PluginManager.h"
 #include "SearchBox.h"
 #include "WindowManager.h"
+#include "JuceTheme.h"
+#include "Theme.h"
 
 class PluginListModel : public juce::ListBoxModel {
 public:
-    PluginListModel(std::shared_ptr<IPluginManager> pluginManager, std::shared_ptr<IActionHandler> actionHandler, std::shared_ptr<WindowManager> windowManager)
+    PluginListModel(std::shared_ptr<IPluginManager> pluginManager, std::shared_ptr<IActionHandler> actionHandler, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<Theme> theme)
         : pluginManager_(std::move(pluginManager))
         , actionHandler_(std::move(actionHandler))
         , windowManager_(std::move(windowManager))
+        , theme_(std::move(theme))
         , plugins_(pluginManager_->getPlugins())
         , filteredPlugins_(plugins_)
     {}
@@ -28,10 +31,12 @@ public:
     }
 
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override {
-        if (rowIsSelected)
-            g.fillAll(juce::Colours::lightblue);
-
-        g.setColour(juce::Colours::black);
+        if (rowIsSelected) {
+            g.fillAll(theme_->getColorValue("SelectionBackground"));
+            g.setColour(theme_->getColorValue("SelectionForeground"));
+        } else {
+            g.setColour(theme_->getColorValue("ControlForeground"));
+        }
         if (rowNumber < filteredPlugins_.size()) {
             auto& plugin = filteredPlugins_[rowNumber];
             g.drawText(plugin.name, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
@@ -76,6 +81,7 @@ private:
     std::shared_ptr<IPluginManager> pluginManager_;
     std::shared_ptr<IActionHandler> actionHandler_;
     std::shared_ptr<WindowManager> windowManager_;
+    std::shared_ptr<Theme> theme_;
     const std::vector<Plugin>& plugins_;
     std::vector<Plugin> filteredPlugins_;
     const Plugin* selectedPlugin_ = nullptr;
@@ -87,6 +93,8 @@ SearchBox::SearchBox(
                      , std::function<std::shared_ptr<EventHandler>()> eventHandler
                      , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                      , std::function<std::shared_ptr<WindowManager>()> windowManager
+                     , std::function<std::shared_ptr<Theme>()> theme
+                     , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
     )
     : TopLevelWindow("SearchBox", true)
     , logHandler_(std::move(logHandler))
@@ -94,13 +102,18 @@ SearchBox::SearchBox(
     , eventHandler_(std::move(eventHandler))
     , actionHandler_(std::move(actionHandler))
     , windowManager_(std::move(windowManager))
+    , theme_(std::move(theme))
+    , limLookAndFeel_(std::move(limLookAndFeel))
     {
 
     LogHandler::getInstance().debug("Creating SearchBoxWindowController");
 
-    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_(), actionHandler_(), windowManager_());
+    juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_().get());
+
+    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_(), actionHandler_(), windowManager_(), theme_());
     listBox_.setModel(pluginListModel_.get());
     listBox_.setRowHeight(30);
+    listBox_.setLookAndFeel(limLookAndFeel_().get());
     addAndMakeVisible(listBox_);
 
     setUsingNativeTitleBar(false);
@@ -210,7 +223,7 @@ void SearchBox::setWindowGeometry() {
 
         // Get Ableton Live's window bounds (assuming you have this method)
         ERect liveBounds = eventHandler_()->getLiveBoundsRect();
-        int widgetWidth = 600;  // Width of the widget
+        int widgetWidth = 350;  // Width of the widget
         int widgetHeight = 300; // Height of the widget
 
         // Center the widget inside Ableton Live's bounds
@@ -224,6 +237,16 @@ void SearchBox::setWindowGeometry() {
         // Set the position and size of the window
         setBounds(xPos, yPos, widgetWidth, widgetHeight);
     }
+}
+
+void SearchBox::resized() {
+    const int padding = 15;
+    const int listBoxOffset = 10;
+
+    auto bounds = getLocalBounds().reduced(padding);
+    searchField_.setBounds(bounds.removeFromTop(30));
+
+    listBox_.setBounds(bounds.translated(0, listBoxOffset));
 }
 
 void SearchBox::open() {
@@ -422,10 +445,10 @@ int SearchBox::getNumRows() {
 
 void SearchBox::paint(juce::Graphics& g) {
     // Clear the background
-    g.fillAll(juce::Colours::white);
+    g.fillAll(theme_()->getColorValue("SurfaceBackground"));
 
     // Set the color for drawing
-    g.setColour(juce::Colours::black);
+    g.setColour(theme_()->getColorValue("ControlForeground"));
 
     // Example: draw a rectangle
     g.drawRect(getLocalBounds(), 1);
@@ -448,13 +471,6 @@ void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, in
 
 void SearchBox::listBoxItemClicked(int row, const juce::MouseEvent&) {
     handlePluginSelected(row);
-}
-
-void SearchBox::resized() {
-    // Set the bounds for search field and options list
-    auto bounds = getLocalBounds();
-    searchField_.setBounds(bounds.removeFromTop(30));
-    listBox_.setBounds(bounds);
 }
 
 //void SearchBox::mousePressEvent(QMouseEvent* event) {

@@ -4,6 +4,7 @@
 #include "IWindow.h"
 #include "ILogHandler.h"
 #include "LogHandler.h"
+#include "Theme.h"
 
 #include "ContextMenu.h"
 #include "SearchBox.h"
@@ -13,12 +14,16 @@ WindowManager::WindowManager(
                              , std::function<std::shared_ptr<IPluginManager>()> pluginManager
                              , std::function<std::shared_ptr<EventHandler>()> eventHandler
                              , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-                             , std::function<std::shared_ptr<WindowManager>()> windowManager)
+                             , std::function<std::shared_ptr<WindowManager>()> windowManager
+                             , std::function<std::shared_ptr<Theme>()> theme
+                             , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel)
     : logHandler_(std::move(logHandler))
     , pluginManager_(std::move(pluginManager))
     , eventHandler_(std::move(eventHandler))
     , actionHandler_(std::move(actionHandler))
     , windowManager_(std::move(windowManager))
+    , theme_(std::move(theme))
+    , limLookAndFeel_(std::move(limLookAndFeel))
 {}
 
 // Factory function to create window instances dynamically based on the name
@@ -27,7 +32,7 @@ std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& 
         // TODO
         //return std::make_unique<ContextMenu>();
     } else if (windowName == "SearchBox") {
-        return std::make_unique<SearchBox>(logHandler_, pluginManager_, eventHandler_, actionHandler_, windowManager_);
+        return std::make_unique<SearchBox>(logHandler_, pluginManager_, eventHandler_, actionHandler_, windowManager_, theme_, limLookAndFeel_);
     }
     return nullptr;
 }

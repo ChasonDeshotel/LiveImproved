@@ -13,6 +13,8 @@
 #include "PlatformDependent.h"
 #include "PluginManager.h"
 #include "ResponseParser.h"
+#include "Theme.h"
+#include "JuceTheme.h"
 #include "WindowManager.h"
 
 class JuceApp : public juce::JUCEApplication {
@@ -44,6 +46,11 @@ public:
             / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
         ;
 
+        std::filesystem::path themeFilePath =
+            std::filesystem::path("/") / "Applications" / "Ableton Live 12 Suite.app"
+            / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask"
+        ;
+
         // TODO use events/accessibility to see if Live is already open
         // and skip the delay
         PID::getInstance().livePIDBlocking();
@@ -54,6 +61,20 @@ public:
             // TODO maybe
             //[](DependencyContainer&) { return std::make_shared<LogHandler>("app.log"); },
             [](DependencyContainer&) { return std::make_shared<LogHandler>(); }
+            , DependencyContainer::Lifetime::Singleton
+        );
+
+        container.registerFactory<Theme>(
+            [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(themeFilePath); }
+            , DependencyContainer::Lifetime::Singleton
+        );
+
+        container.registerFactory<LimLookAndFeel>(
+            [](DependencyContainer& c) -> std::shared_ptr<LimLookAndFeel> {
+                return std::make_shared<LimLookAndFeel>(
+                    [&c]() { return c.resolve<Theme>(); }
+                );
+            }
             , DependencyContainer::Lifetime::Singleton
         );
 
@@ -132,6 +153,8 @@ public:
                     , [&c]() { return c.resolve<EventHandler>(); }
                     , [&c]() { return c.resolve<IActionHandler>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
+                    , [&c]() { return c.resolve<Theme>(); }
+                    , [&c]() { return c.resolve<LimLookAndFeel>(); }
                 );
             }
             , DependencyContainer::Lifetime::Singleton
