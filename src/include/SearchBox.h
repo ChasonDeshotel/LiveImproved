@@ -66,7 +66,6 @@ protected:
     // ListBoxModel methods
     int getNumRows() override;
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
-    void listBoxItemClicked(int row, const juce::MouseEvent&) override;
 
 private:
     std::function<std::shared_ptr<ILogHandler>()> logHandler_;
@@ -92,7 +91,7 @@ private:
     void resetFilters();
 
     //void filterOptions(const juce::String& text);
-    void handlePluginSelected(int selectedRow);
+    void handlePluginSelected();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SearchBox)
 };

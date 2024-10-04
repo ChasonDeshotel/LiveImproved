@@ -44,13 +44,15 @@ public:
     }
 
     void listBoxItemClicked(int row, const juce::MouseEvent&) override {
-        if (row >= 0 && row < plugins_.size()) {
-            juce::Logger::writeToLog("Selected plugin: " + selectedPlugin_->name);
-
-            juce::Timer::callAfterDelay(100, [this]() {
-                actionHandler_->loadItem(selectedPlugin_->number);
-                windowManager_->closeWindow("SearchBox");
-            });
+        if (row >= 0 && row < filteredPlugins_.size()) {
+            const Plugin* plugin = getPluginAtRow(row);
+            if (plugin) {
+                int pluginID = plugin->number;
+                juce::Timer::callAfterDelay(100, [this, pluginID]() {
+                    actionHandler_->loadItem(pluginID);
+                    windowManager_->closeWindow("SearchBox");
+                });
+            }
         }
     }
 
@@ -169,8 +171,11 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
         int selectedRow = listBox_.getSelectedRow();
         const Plugin* plugin = pluginListModel_->getPluginAtRow(selectedRow);
         if (plugin) {
-            actionHandler_()->loadItem(plugin->number);
-            windowManager_()->closeWindow("SearchBox");
+            int pluginID = plugin->number;
+            juce::Timer::callAfterDelay(100, [this, pluginID]() {
+                actionHandler_()->loadItem(pluginID);
+                windowManager_()->closeWindow("SearchBox");
+            });
         }
         return true;
     }
@@ -316,35 +321,6 @@ void* SearchBox::getWindowHandle() const {
     return handle;
 }
 
-//std::string SearchBox::getSearchText() const {
-//    if (searchField_) {
-//        return searchField_->text().toStdString();
-//    } else {
-//        LogHandler::getInstance().error("searchField_ is not initialized");
-//        return "";
-//    }
-//}
-
-//size_t SearchBox::getSearchTextLength() const {
-//    if (searchField_) {
-//        return searchField_->text().length();
-//    } else {
-//        LogHandler::getInstance().error("searchField_ is not initialized");
-//        return 0;
-//    }
-//}
-
-//void SearchBox::setOptions(const std::vector<Plugin>& options) {
-//    // Update the options and filteredOptions_ with the provided list of plugins
-//    options_ = options;
-//    filteredOptions_ = options_;  // Initially, all options are visible
-//
-//    // Tell the ListBox to refresh and display the new content
-//    listBox_.updateContent();
-//
-//    LogHandler::getInstance().info("Options set successfully with " + std::to_string(options.size()) + " items.");
-//}
-
 //void SearchBox::filterOptions(const QString &text) {
 //    if (!optionsList_ || !originalItems_) {
 //        LogHandler::getInstance().error("optionsList_ or originalItems_ is not initialized");
@@ -431,14 +407,15 @@ void* SearchBox::getWindowHandle() const {
 //    }
 //}
 
-void SearchBox::handlePluginSelected(int selectedRow) {
-    if (selectedRow >= 0 && selectedRow < filteredOptions_.size()) {
-        int index = filteredOptions_[selectedRow].number;
-        LogHandler::getInstance().debug("Plugin selected: " + std::to_string(index));
-        actionHandler_()->loadItem(index);
+void SearchBox::handlePluginSelected() {
+    int selectedRow = listBox_.getSelectedRow();
+    const Plugin* plugin = pluginListModel_->getPluginAtRow(selectedRow);
+    if (plugin) {
+        actionHandler_()->loadItem(plugin->number);
         windowManager_()->closeWindow("SearchBox");
     }
 }
+
 int SearchBox::getNumRows() {
     return static_cast<int>(filteredOptions_.size());
 }
@@ -468,189 +445,3 @@ void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, in
         g.drawText(plugin.name, 0, 0, width, height, juce::Justification::centredLeft);  // Draw plugin name
     }
 }
-
-void SearchBox::listBoxItemClicked(int row, const juce::MouseEvent&) {
-    handlePluginSelected(row);
-}
-
-//void SearchBox::mousePressEvent(QMouseEvent* event) {
-//    if (event->button() == Qt::LeftButton) {
-//        mousePressed_ = true;
-//        mouseStartPosition_ = event->globalPosition().toPoint();
-//        windowStartPosition_ = this->frameGeometry().topLeft();
-//    }
-//}
-
-//void SearchBox::mouseMoveEvent(QMouseEvent* event) {
-//    if (mousePressed_) {
-//        QPoint delta = event->globalPosition().toPoint() - mouseStartPosition_;
-//        this->move(windowStartPosition_ + delta);
-//    }
-//}
-//
-//void SearchBox::mouseReleaseEvent(QMouseEvent* event) {
-//    if (event->button() == Qt::LeftButton) {
-//        mousePressed_ = false;
-//    }
-//}
-
-//void SearchBox::onItemDoubleClicked(QListWidgetItem* item) {
-//    if (!item) {
-//        LogHandler::getInstance().error("No item selected on double-click");
-//        return;
-//    }
-//
-//    handlePluginSelected(item);
-//}
-
-//void SearchBox::keyPressEvent(QKeyEvent* event) {
-//    QWidget::keyPressEvent(event);
-//
-//    if (event->modifiers() & Qt::ShiftModifier) {
-//        LogHandler::getInstance().info("Shift modifier is pressed");
-//    }
-//    if (event->modifiers() & Qt::ControlModifier) {
-//        LogHandler::getInstance().info("Control modifier is pressed");
-//    }
-//    if (event->modifiers() & Qt::AltModifier) {
-//        LogHandler::getInstance().info("Alt modifier is pressed");
-//    }
-//    if (event->modifiers() & Qt::MetaModifier) {
-//        LogHandler::getInstance().info("Meta (Command) modifier is pressed");
-//    }
-//
-//    int itemsPerPage = optionsList_->height() / optionsList_->sizeHintForRow(0);
-//
-//    if (event->key() == Qt::Key_F && (event->modifiers() & Qt::ControlModifier)) {
-//        LogHandler::getInstance().info("cmd+f pressed");
-//        searchField_->setFocus();
-//        searchField_->selectAll();
-//
-//    } else if (event->key() == Qt::Key_Up) {
-//        LogHandler::getInstance().info("Up pressed");
-//
-//        int currentIndex = optionsList_->currentRow();
-//        if (currentIndex > 0) {
-//            for (int i = currentIndex - 1; i >= 0; --i) {
-//                if (!optionsList_->item(i)->isHidden()) {
-//                    optionsList_->setCurrentRow(i);
-//                    break;
-//                }
-//            }
-//        }
-//
-//    } else if (event->key() == Qt::Key_Down) {
-//        LogHandler::getInstance().info("Down pressed");
-//
-//        int currentIndex = optionsList_->currentRow();
-//        if (currentIndex < optionsList_->count() - 1) {
-//            for (int i = currentIndex + 1; i < optionsList_->count(); ++i) {
-//                if (!optionsList_->item(i)->isHidden()) {
-//                    optionsList_->setCurrentRow(i);
-//                    break;
-//                }
-//            }
-//        }
-//
-//    } else if (event->key() == Qt::Key_PageUp) {
-//        LogHandler::getInstance().info("PageUp pressed");
-//
-//        int currentIndex = optionsList_->currentRow();
-//        int itemsMoved = 0;
-//
-//        // Move up by `itemsPerPage` visible items
-//        for (int i = currentIndex - 1; i >= 0 && itemsMoved < itemsPerPage; --i) {
-//            if (!optionsList_->item(i)->isHidden()) {
-//                itemsMoved++;
-//                if (itemsMoved == itemsPerPage) {
-//                    optionsList_->setCurrentRow(i);
-//                }
-//            }
-//        }
-//
-//        // If less than `itemsPerPage` items were moved, select the first visible item
-//        if (itemsMoved < itemsPerPage) {
-//            for (int i = 0; i <= currentIndex; ++i) {
-//                if (!optionsList_->item(i)->isHidden()) {
-//                    optionsList_->setCurrentRow(i);
-//                    break;
-//                }
-//            }
-//        }
-//
-//    } else if (event->key() == Qt::Key_PageDown) {
-//        LogHandler::getInstance().info("PageDown pressed");
-//
-//        int currentIndex = optionsList_->currentRow();
-//        int itemsMoved = 0;
-//
-//        // Move down by `itemsPerPage` visible items
-//        for (int i = currentIndex + 1; i < optionsList_->count() && itemsMoved < itemsPerPage; ++i) {
-//            if (!optionsList_->item(i)->isHidden()) {
-//                itemsMoved++;
-//                if (itemsMoved == itemsPerPage) {
-//                    optionsList_->setCurrentRow(i);
-//                }
-//            }
-//        }
-//
-//        // If less than `itemsPerPage` items were moved, select the last visible item
-//        if (itemsMoved < itemsPerPage) {
-//            for (int i = optionsList_->count() - 1; i >= currentIndex; --i) {
-//                if (!optionsList_->item(i)->isHidden()) {
-//                    optionsList_->setCurrentRow(i);
-//                    break;
-//                }
-//            }
-//        }
-//
-//    } else if (event->key() == Qt::Key_Home) {
-//        LogHandler::getInstance().info("Home pressed");
-//        for (int i = 0; i < optionsList_->count(); ++i) {
-//            if (!optionsList_->item(i)->isHidden()) {
-//                optionsList_->setCurrentRow(i);
-//                break;
-//            }
-//        }
-//
-//    } else if (event->key() == Qt::Key_End) {
-//        LogHandler::getInstance().info("End pressed");
-//        for (int i = optionsList_->count() - 1; i >= 0; --i) {
-//            if (!optionsList_->item(i)->isHidden()) {
-//                optionsList_->setCurrentRow(i);
-//                break;
-//            }
-//        }
-//
-//    } else if (event->key() == Qt::Key_Escape) {
-//        if (searchField_->text().length()) {
-//            searchField_->clear();
-//            optionsList_->clearSelection();
-//        } else {
-//            closeSearchBox();
-//        }
-//
-//    } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-//        LogHandler::getInstance().info("enter pressed");
-//        QListWidgetItem* selectedItem = optionsList_->currentItem();
-//
-//        if (selectedItem && selectedItem->isSelected()) {
-//            handlePluginSelected(selectedItem);
-//        }
-//
-//    } else {
-//        LogHandler::getInstance().info("KEY pressed: " + std::to_string(event->key()));
-//    }
-//
-//
-//    // Log the key press event if needed
-//    LogHandler::getInstance().info("Key Pressed: " + std::to_string(event->key()));
-//}
-//
-//// Handle key release events
-//void SearchBox::keyReleaseEvent(QKeyEvent* event) {
-//    QWidget::keyReleaseEvent(event);  // Call the base class implementation
-//
-//    // Log the key release event if needed
-//    LogHandler::getInstance().info("Key Released: " + std::to_string(event->key()));
-//}
