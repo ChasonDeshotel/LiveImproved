@@ -72,11 +72,6 @@ public:
         return std::static_pointer_cast<T>(it->second(typeid(T)));
     }
 
-    void resetDependencies() {
-        factories_.clear();
-        singletons_.clear();
-    }
-
 private:
     DependencyContainer() = default;
 

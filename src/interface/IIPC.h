@@ -18,4 +18,7 @@ public:
 
     virtual std::string readResponse(ResponseCallback callback) = 0;
     virtual void drainPipe(int fd) = 0;
+    virtual void closeAndDeletePipes() = 0;
+
+    virtual void stopIPC() = 0;
 };

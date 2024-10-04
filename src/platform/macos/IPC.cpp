@@ -8,6 +8,8 @@
 #include <map>
 #include <thread>
 #include <sstream>
+#include <errno.h>
+#include <cstring>
 
 #include "IPC.h"
 #include "LogHandler.h"
@@ -28,10 +30,13 @@ IPC::~IPC() {
         }
         unlink(pipe.first.c_str());
     }
+    std::filesystem::remove(requestPipePath);
+    std::filesystem::remove(responsePipePath);
 }
 
 bool IPC::init() {
     log_()->debug("IPC::init() called");
+    stopIPC_ = false;
 
     if (!createPipe(requestPipePath) || !createPipe(responsePipePath)) {
         log_()->debug("IPC::init() failed");
@@ -53,6 +58,12 @@ bool IPC::init() {
 		dispatch_source_t readTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
 		dispatch_source_set_timer(readTimer, DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC, 0);
 		dispatch_source_set_event_handler(readTimer, ^{
+            if (stopIPC_) {
+                log_()->info("IPC read initialization cancelled during read pipe setup.");
+                dispatch_source_cancel(readTimer);
+                dispatch_semaphore_signal(readSemaphore);
+                return;
+            }
 			if (openPipeForRead(responsePipePath, true)) {
 				log_()->info("Response pipe successfully opened for reading");
 				readSuccess = true;
@@ -70,11 +81,20 @@ bool IPC::init() {
 		dispatch_resume(readTimer);
 	});
 
+    // TODO: if Live is writing when the app is closed, the pipe can't be opened -- I think?
+    // -- should delete/reset the pipe after so many tries
+    //
 	// Write pipe initialization
 	dispatch_async(queue, ^{
 		dispatch_source_t writeTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
 		dispatch_source_set_timer(writeTimer, DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC, 0);
 		dispatch_source_set_event_handler(writeTimer, ^{
+            if (stopIPC_) {
+                log_()->info("IPC write initialization cancelled during read pipe setup.");
+                dispatch_source_cancel(writeTimer);
+                dispatch_semaphore_signal(writeSemaphore);
+                return;
+            }
 			if (openPipeForWrite(requestPipePath, true)) {
 				log_()->info("Request pipe successfully opened for writing");
 				writeSuccess = true;
@@ -110,12 +130,23 @@ bool IPC::init() {
     //});
 
     if (readSuccess && writeSuccess) {
-        log_()->info("IPC::init() successfully opened both pipes");
+        log_()->info("IPC::init() read/write enabled");
         return true;
     } else {
         log_()->error("IPC::init() failed");
         return false;
     }
+}
+
+void IPC::closeAndDeletePipes() {
+    for (auto& [pipeName, pipeFD] : pipes_) {
+        if (pipeFD != -1) {
+            close(pipeFD);
+            pipeFD = -1;  // Reset the file descriptor after closing
+        }
+    }
+    std::filesystem::remove(requestPipePath);
+    std::filesystem::remove(responsePipePath);
 }
 
 void IPC::resetResponsePipe() {
@@ -236,6 +267,13 @@ void IPC::writeRequest(const std::string& message, ResponseCallback callback = [
 
 void IPC::processNextRequest() {
     std::unique_lock<std::mutex> lock(queueMutex_);
+
+    if (stopIPC_) {
+        log_()->info("Stopping IPC request processing.");
+        isProcessingRequest_ = false;
+        return;
+    }
+
     if (requestQueue_.empty()) {
         isProcessingRequest_ = false;
         return;
@@ -249,9 +287,15 @@ void IPC::processNextRequest() {
 
     log_()->debug("Processing next request: " + nextRequest.first);
     std::thread([this, nextRequest]() {
-        this->writeRequestInternal(nextRequest.first, nextRequest.second);
+        if (!stopIPC_) {
+            this->writeRequestInternal(nextRequest.first, nextRequest.second);
+        }
+
         usleep(100000); // Live operates on 100ms tick -- without this sleep commands are skipped
-        this->processNextRequest();
+
+        if (!stopIPC_) {
+            this->processNextRequest();
+        }
     }).detach();
 }
 
@@ -349,6 +393,10 @@ std::string IPC::readResponse(ResponseCallback callback) {
     int retry_count = 0;
     int max_retries = 100;
     while (totalHeaderRead < HEADER_SIZE && retry_count < max_retries) {
+        if (stopIPC_) {
+            log_()->info("IPC write initialization cancelled during read pipe setup.");
+            return "";
+        }
         bytesRead = read(fd, header + totalHeaderRead, HEADER_SIZE - totalHeaderRead);
 
         log_()->debug("Header partial read: " + std::string(header, totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
@@ -403,6 +451,10 @@ std::string IPC::readResponse(ResponseCallback callback) {
     char buffer[bufferSize];
 
     while (totalBytesRead < messageSize + endMarker.size()) {
+        if (stopIPC_) {
+            log_()->info("IPC write initialization cancelled during read pipe setup.");
+            return "";
+        }
         size_t bytesToRead = std::min(bufferSize, messageSize + endMarker.size() - totalBytesRead);
         bytesRead = read(fd, buffer, bytesToRead);
 
@@ -436,7 +488,7 @@ std::string IPC::readResponse(ResponseCallback callback) {
         log_()->debug("Message: " + message);
     }
 
-    if (callback) {
+    if (callback && !stopIPC_) {
         callback(message);
     }
 

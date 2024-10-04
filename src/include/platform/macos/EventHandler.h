@@ -31,7 +31,8 @@ public:
 
     ERect getLiveBoundsRect();
 
-    void registerForAppTermination(std::function<void()> onTerminationCallback);
+    void registerAppLaunch(std::function<void()> onLaunchCallback);
+    void registerAppTermination(std::function<void()> onTerminationCallback);
 
 private:
     std::function<std::shared_ptr<ILogHandler>()> log_;

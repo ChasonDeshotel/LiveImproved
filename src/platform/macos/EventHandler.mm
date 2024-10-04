@@ -10,6 +10,7 @@
 #include <optional>
 #include <memory>
 #include <functional>
+#include <unistd.h>
 
 #include "EventHandler.h"
 // TODO
@@ -274,7 +275,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
                 log->debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
 
                 if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
-                    //handler->log_->info("double right click");
+                    //handler->log_->info(        log_()->debug("Termination detected for PID: " + std::to_string(terminatedPID));"double right click");
                     dispatch_async(dispatch_get_main_queue(), ^{
                         actionHandler->handleDoubleRightClick();
                     });
@@ -361,7 +362,27 @@ bool isElementFocused(AXUIElementRef element) {
     return false;
 }
 
-void EventHandler::registerForAppTermination(std::function<void()> onTerminationCallback) {
+void EventHandler::registerAppLaunch(std::function<void()> onLaunchCallback) {
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidLaunchApplicationNotification
+                                                                    object:nil
+                                                                     queue:nil
+                                                                usingBlock:^(NSNotification *notification) {
+        NSDictionary *userInfo = [notification userInfo];
+        NSRunningApplication *launchedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
+
+        pid_t launchedPID = [launchedApp processIdentifier];
+        NSString *bundleID = [launchedApp bundleIdentifier];
+
+        if ([bundleID isEqualToString:@"com.ableton.live"]) {
+            LogHandler::getInstance().info("Target app launched with PID: " + std::to_string(launchedPID));
+            if (onLaunchCallback) {
+                onLaunchCallback();
+            }
+        }
+    }];
+}
+
+void EventHandler::registerAppTermination(std::function<void()> onTerminationCallback) {
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidTerminateApplicationNotification
                                                                     object:nil
                                                                      queue:nil
@@ -369,7 +390,9 @@ void EventHandler::registerForAppTermination(std::function<void()> onTermination
         NSDictionary *userInfo = [notification userInfo];
         NSRunningApplication *terminatedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
         pid_t terminatedPID = [terminatedApp processIdentifier];
-        
+
+        log_()->debug("Termination detected for PID: " + std::to_string(terminatedPID));
+
         if (terminatedPID == PID::getInstance().livePID()) {
             NSLog(@"Target application with PID %d has been terminated", terminatedPID);
             log_()->debug("Live terminated -- restarting");

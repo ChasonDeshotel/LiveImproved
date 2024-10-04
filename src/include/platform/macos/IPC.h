@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <iostream>
 #include <map>
 #include <string>
@@ -33,6 +34,12 @@ public:
 
     std::string readResponse(ResponseCallback callback) override;
     void drainPipe(int fd) override;
+    void closeAndDeletePipes() override;
+
+    std::atomic<bool> stopIPC_{false};
+    void stopIPC() override {
+        stopIPC_ = true;
+    }
 
 private:
     std::function<std::shared_ptr<ILogHandler>()> logHandler_;

@@ -1,5 +1,7 @@
 #include <JuceHeader.h>
 #include <dispatch/dispatch.h>
+#include <unistd.h>
+#include <future>
 
 #include "LogHandler.h"
 #include "Utils.h"
@@ -31,10 +33,70 @@ public:
         return "0.69.420";
     }
 
+    void restartApplication() {
+        juce::String executablePath = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getFullPathName();
+
+        // Spawn a new process to re-launch the application
+        juce::ChildProcess process;
+        if (process.start(executablePath)) {
+            juce::Logger::writeToLog("Restarting application...");
+
+            // delay so the new process can spawn. 1000 was not enough
+            juce::Thread::sleep(5000);
+        } else {
+            juce::Logger::writeToLog("Failed to start new process");
+        }
+    }
+
     void initialise(const juce::String& commandLineArgs = "") override {
         std::locale::global(std::locale("en_US.UTF-8"));
         LogHandler::getInstance().info("Ignition sequence started...");
 
+        container_.registerFactory<EventHandler>(
+            [](DependencyContainer& c) -> std::shared_ptr<EventHandler> {
+                // We can delay these resolutions if needed
+                return std::make_shared<EventHandler>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                    , [&c]() { return c.resolve<IActionHandler>(); }
+                    , [&c]() { return c.resolve<WindowManager>(); }
+                );
+            }
+            , DependencyContainer::Lifetime::Singleton
+        );
+
+        container_.resolve<EventHandler>()->registerAppTermination([this]() {
+            LogHandler::getInstance().info("termination callback called");
+
+            auto ipc = this->container_.resolve<IIPC>();
+            ipc->stopIPC();
+
+            std::promise<void> closePromise;
+            std::future<void> closeFuture = closePromise.get_future();
+
+            std::thread([&closePromise, ipc, this]() {
+                ipc->closeAndDeletePipes();
+                closePromise.set_value();  // Notify that pipes are closed
+            }).detach();
+            closeFuture.wait();
+
+            LogHandler::getInstance().info("restarting");
+            restartApplication();
+        });
+
+        // TODO needs a isRunning for multiple instances?
+        if (PID::getInstance().livePID() == -1) {
+            container_.resolve<EventHandler>()->registerAppLaunch([this]() {
+                LogHandler::getInstance().info("launch callback called");
+                // delay to let Live fully start up
+                sleep(10);
+                this->onLiveLaunch();
+            });
+        } else {
+            onLiveLaunch();
+        }
+    }
+
+    void onLiveLaunch() {
         // TODO cheap file exists checks
         std::filesystem::path configFilePath =
             std::filesystem::path(Utils::getHomeDirectory())
@@ -52,8 +114,6 @@ public:
             std::filesystem::path("/") / "Applications" / "Ableton Live 12 Suite.app"
             / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask"
         ;
-
-        PID::getInstance().livePIDBlocking();
 
         container_.registerFactory<ILogHandler>(
             // TODO maybe
@@ -116,29 +176,6 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container_.registerFactory<EventHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<EventHandler> {
-                // We can delay these resolutions if needed
-                return std::make_shared<EventHandler>(
-                    [&c]() { return c.resolve<ILogHandler>(); }
-                    , [&c]() { return c.resolve<IActionHandler>(); }
-                    , [&c]() { return c.resolve<WindowManager>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-        container_.resolve<EventHandler>()->registerForAppTermination([this]() {
-            this->container_.resetDependencies();
-
-            // delay or the app will re-init before Live has finished closing
-            dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            dispatch_time_t delay;
-            delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
-            dispatch_after(delay, backgroundQueue, ^{
-                this->initialise();
-            });
-        });
-
         container_.registerFactory<IActionHandler>(
             [](DependencyContainer& c) -> std::shared_ptr<ActionHandler> {
                 // We can delay these resolutions if needed
@@ -170,25 +207,21 @@ public:
         );
 
         container_.resolve<IIPC>()->init();
-        LogHandler::getInstance().info("IPC read/write enabled");
 
         // TODO plugin refresh as callback from async init
         dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_time_t delay;
 
-        delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
-        dispatch_after(delay, backgroundQueue, ^{
-            LogHandler::getInstance().info("writing READY");
-            container_.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
-				LogHandler::getInstance().info("received READY response: " + response);
-			});
+        sleep(4);
+        LogHandler::getInstance().info("writing READY");
+        container_.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
+            LogHandler::getInstance().info("received READY response: " + response);
         });
 
-        delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
-        dispatch_after(delay, backgroundQueue, ^{
-            LogHandler::getInstance().info("refreshing plugin cache");
-            container_.resolve<IPluginManager>()->refreshPlugins();
-        });
+        // TODO: IPC queue should be able to handle more writes without sleep
+        sleep(4);
+        LogHandler::getInstance().info("refreshing plugin cache");
+        container_.resolve<IPluginManager>()->refreshPlugins();
 
         #ifndef _WIN32
 			PlatformInitializer::init();
