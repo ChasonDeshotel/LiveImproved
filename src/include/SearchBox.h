@@ -45,13 +45,6 @@ public:
     bool keyPressed(const juce::KeyPress& key, juce::Component* originatingComponent) override;
     void mouseDown(const juce::MouseEvent& event) override;
 
-    //void setOptions(const std::vector<Plugin>& options);
-
-    //void setSearchText(const std::string& text);
-    //std::string getSearchText() const;
-    //size_t getSearchTextLength() const;
-    //void clearSearchText();
-
     void textEditorTextChanged(juce::TextEditor& editor) override;
     
     void* getWindowHandle() const override;
@@ -61,9 +54,6 @@ protected:
     void resized() override;
     void paint(juce::Graphics& g) override;
 
-    // TextEditor listener
-
-    // ListBoxModel methods
     int getNumRows() override;
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
 
@@ -89,9 +79,6 @@ private:
     void focus();
     void setWindowGeometry();
     void resetFilters();
-
-    //void filterOptions(const juce::String& text);
-    void handlePluginSelected();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SearchBox)
 };

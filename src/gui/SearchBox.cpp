@@ -70,7 +70,7 @@ public:
         for (const auto& plugin : plugins_) {
             juce::String pluginName(plugin.name);
             if (pluginName.containsIgnoreCase(searchText)) {
-                filteredPlugins_.push_back(plugin);  // Add matching plugins
+                filteredPlugins_.push_back(plugin);
             }
         }
     }
@@ -128,10 +128,6 @@ SearchBox::SearchBox(
     searchField_.addKeyListener(this);
     addAndMakeVisible(searchField_);
 
-    // Configure the options list (ListBox in JUCE)
-//    optionsList_.setModel(this);
-//    addAndMakeVisible(optionsList_);
-
     setWindowGeometry();
 }
 
@@ -140,10 +136,8 @@ SearchBox::~SearchBox() {}
 void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
     if (&editor == &searchField_) {
         LogHandler::getInstance().debug("Search text changed: " + editor.getText().toStdString());
-        // Handle the text change (e.g., update search results)
         juce::String searchText = searchField_.getText();
 
-        // Call the filter method on the PluginListModel
         pluginListModel_->filterPlugins(searchText);
 
         listBox_.selectRow(0);
@@ -272,29 +266,28 @@ void SearchBox::open() {
 }
 
 void SearchBox::focus() {
+    // hack for macOS
+    // https://forum.juce.com/t/keyboard-focus-on-application-startup/9382/2
     if (!searchField_.hasKeyboardFocus(false)) {
-        searchField_.grabKeyboardFocus();  // Try to grab focus
-        juce::Timer::callAfterDelay(100, [this]() { focus(); });  // Continue checking until focus is gained
+        searchField_.grabKeyboardFocus();
+        juce::Timer::callAfterDelay(100, [this]() { focus(); });
     }
 }
 
 void SearchBox::mouseDown(const juce::MouseEvent& event) {
-    searchField_.grabKeyboardFocus();  // Force focus back to the search box
+    searchField_.grabKeyboardFocus();
 
-    // You can call the base class mouseDown if needed
     juce::Component::mouseDown(event);
 }
 
 void SearchBox::close() {
     if (juce::MessageManager::getInstance()->isThisTheMessageThread()) {
         setVisible(false);
-        //window->closeButtonPressed();
         searchField_.clear();
         resetFilters();
     } else {
         juce::MessageManager::callAsync([this]() {
             setVisible(false);
-            //window->closeButtonPressed();
             searchField_.clear();
             resetFilters();
         });
@@ -321,116 +314,18 @@ void* SearchBox::getWindowHandle() const {
     return handle;
 }
 
-//void SearchBox::filterOptions(const QString &text) {
-//    if (!optionsList_ || !originalItems_) {
-//        LogHandler::getInstance().error("optionsList_ or originalItems_ is not initialized");
-//        return;
-//    }
-//
-//    optionsList_->clearSelection();
-//    optionsList_->clear();
-//
-//    QListWidgetItem* firstVisibleItem = nullptr;
-//
-//    if (text.startsWith("r/")) {
-//        if (text.length() == 2) {
-//            QListWidgetItem* hintItem = new QListWidgetItem("Regex searching. Use r/<pattern>/");
-//            hintItem->setFlags(hintItem->flags() & ~Qt::ItemIsSelectable);  // Make the item unselectable
-//            optionsList_->addItem(hintItem);
-//            return;
-//        }
-//
-//        QString regexPattern = text.mid(2, text.length() - 3);
-//        QRegularExpression regex(regexPattern, QRegularExpression::CaseInsensitiveOption);
-//
-//        if (!regex.isValid()) {
-//            QListWidgetItem* errorItem = new QListWidgetItem("Invalid regex format. Use r/<pattern>/");
-//            errorItem->setFlags(errorItem->flags() & ~Qt::ItemIsSelectable);
-//            optionsList_->addItem(errorItem);
-//            return;
-//        }
-//
-//        for (int i = 0; i < originalItems_->count(); ++i) {
-//            QListWidgetItem* item = originalItems_->item(i);
-//            QString itemText = item->text();
-//
-//            QRegularExpressionMatch match = regex.match(itemText);
-//
-//            if (match.hasMatch()) {
-//                optionsList_->addItem(new QListWidgetItem(*item));
-//                if (!firstVisibleItem) {
-//                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
-//                }
-//            }
-//        }
-//    } else {
-//        QString searchText = text.toLower();
-//        QStringList searchWords = searchText.split(' ', Qt::SkipEmptyParts);
-//
-//        for (int i = 0; i < originalItems_->count(); ++i) {
-//            QListWidgetItem* item = originalItems_->item(i);
-//            QString itemText = item->text().toLower();
-//
-//            QStringList itemWords = itemText.split(' ', Qt::SkipEmptyParts);
-//            QString acronym;
-//            for (const QString& word : itemWords) {
-//                if (!word.isEmpty()) {
-//                    acronym += word[0];
-//                }
-//            }
-//
-//            bool match = false;
-//
-//            if (acronym.startsWith(searchText)) {
-//                match = true;
-//            } else {
-//                for (const QString& searchWord : searchWords) {
-//                    if (itemText.contains(searchWord)) {
-//                        match = true;
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            if (match) {
-//                optionsList_->addItem(new QListWidgetItem(*item));
-//                if (!firstVisibleItem) {
-//                    firstVisibleItem = optionsList_->item(optionsList_->count() - 1);
-//                }
-//            }
-//        }
-//    }
-//
-//    if (firstVisibleItem) {
-//        optionsList_->setCurrentItem(firstVisibleItem);
-//        firstVisibleItem->setSelected(true);
-//    }
-//}
-
-void SearchBox::handlePluginSelected() {
-    int selectedRow = listBox_.getSelectedRow();
-    const Plugin* plugin = pluginListModel_->getPluginAtRow(selectedRow);
-    if (plugin) {
-        actionHandler_()->loadItem(plugin->number);
-        windowManager_()->closeWindow("SearchBox");
-    }
-}
-
 int SearchBox::getNumRows() {
     return static_cast<int>(filteredOptions_.size());
 }
 
 void SearchBox::paint(juce::Graphics& g) {
-    // Clear the background
     g.fillAll(theme_()->getColorValue("SurfaceBackground"));
 
     // Set the color for drawing
     g.setColour(theme_()->getColorValue("ControlForeground"));
 
-    // Example: draw a rectangle
     g.drawRect(getLocalBounds(), 1);
 
-    // Optionally, draw text or other graphics
     g.drawText("SearchBox", getLocalBounds(), juce::Justification::centred, true);
 }
 
@@ -442,6 +337,6 @@ void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, in
     g.setColour(juce::Colours::white);
     if (rowNumber < filteredOptions_.size()) {
         const auto& plugin = filteredOptions_[rowNumber];  // Get the plugin for this row
-        g.drawText(plugin.name, 0, 0, width, height, juce::Justification::centredLeft);  // Draw plugin name
+        g.drawText(plugin.name, 0, 0, width, height, juce::Justification::centredLeft);
     }
 }
