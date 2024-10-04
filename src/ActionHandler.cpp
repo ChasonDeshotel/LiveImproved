@@ -36,13 +36,6 @@ ActionHandler::ActionHandler(
 
 ActionHandler::~ActionHandler() {}
 
-void ActionHandler::init() {
-    // should do the mapping / read config or something
-}
-
-// need to block all events when 
-// app_.getGUISearchBox()->isOpen() = true
-
 // Define a function type for action handlers
 using ActionHandlerFunction = std::function<void(const std::optional<std::string>& args)>;
 
@@ -73,11 +66,6 @@ void ActionHandler::initializeActionMap() {
             throw std::runtime_error("plugin action requires an argument");
         }
     };
-   // app_.getIPC()->writeRequest("RELOAD");
-   // app_.refreshPluginCache();
-   // windowManager_()->openWindow("ContextMenu");
-   // windowManager_()->closeWindow("ContextMenu");
-   // closeWindows();
 }
 
 void ActionHandler::executeMacro(const EMacro& macro) {
@@ -88,7 +76,7 @@ void ActionHandler::executeMacro(const EMacro& macro) {
 //        log_.info("ActionHandler:: execMacro shift: " + std::to_string(key.shift));
 //        log_.info("ActionHandler:: execMacro sent: "  + key.key);
 //    }
-//    macro.sendKeys();  // Send each individual key press
+
     for (const auto& step : macro.steps) {
         // Use std::visit to handle the variant type (EKeyPress or Action)
         std::visit([&](auto&& item) {
@@ -115,16 +103,6 @@ bool ActionHandler::closeWindows() {
     windowManager()->closeWindow("ContextMenu");
     windowManager()->closeWindow("SearchBox");
 
-// TODO: handle in SearchBox close method
-// if close is called while text box is populated, just
-// clear textbox; otherwise, close
-//    if (app_.getGUISearchBox()->isOpen()) {
-//        if (app_.getGUISearchBox()->getSearchTextLength()) {
-//            app_.getGUISearchBox()->clearSearchText();
-//        } else {
-//            app_.getGUISearchBox()->closeSearchBox();
-//        }
-//    }
     return false;
 }
 
@@ -191,39 +169,6 @@ bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
     } else {
         log()->warn("Key not found in remap: " + pressedKey.key);
     }
-
-//        } else if (keyString == "Escape") {
-
-            // hjkl navigation
-//            case 4:
-//              if (app_.getGUISearchBox()->isOpen()) {
-//                  return true;
-//              } else {
-//                  app_.getKeySender()->sendKeyPress(123, 256);
-//                  return false;
-//              }
-//            case 38:
-//              if (app_.getGUISearchBox()->isOpen()) {
-//                  return true;
-//              } else {
-//                  app_.getKeySender()->sendKeyPress(125, 256);
-//                  return false;
-//              }
-//            case 40:
-//              if (app_.getGUISearchBox()->isOpen()) {
-//                  return true;
-//              } else {
-//                  app_.getKeySender()->sendKeyPress(126, 256);
-//                  return false;
-//              }
-//            case 37:
-//              if (app_.getGUISearchBox()->isOpen()) {
-//                  return true;
-//              } else {
-//                  app_.getKeySender()->sendKeyPress(124, 256);
-//                  return false;
-//              }
-
 
     // when the menu is open, do not send keypresses to Live
     // or it activates your hotkeys

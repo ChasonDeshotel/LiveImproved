@@ -30,8 +30,6 @@ public:
 
     ~ActionHandler();
 
-    void init();
-
     void handleAction(std::string);
 
     // returns if the event should be blocking
