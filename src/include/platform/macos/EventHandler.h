@@ -12,7 +12,6 @@
 class ILogHandler;
 class IActionHandler;
 class WindowManager;
-class PID;
 
 class EventHandler {
 public:
@@ -31,6 +30,9 @@ public:
     static void focusWindow(void* nativeWindowHandle);
 
     ERect getLiveBoundsRect();
+
+    void init();
+    void registerForAppTermination(pid_t targetPID);
 
 private:
     std::function<std::shared_ptr<ILogHandler>()> log_;

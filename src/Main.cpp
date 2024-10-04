@@ -51,8 +51,6 @@ public:
             / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask"
         ;
 
-        // TODO use events/accessibility to see if Live is already open
-        // and skip the delay
         PID::getInstance().livePIDBlocking();
 
         DependencyContainer& container = DependencyContainer::getInstance();
@@ -129,6 +127,8 @@ public:
             }
             , DependencyContainer::Lifetime::Singleton
         );
+        container.resolve<EventHandler>()->init();
+
 
         container.registerFactory<IActionHandler>(
             [](DependencyContainer& c) -> std::shared_ptr<ActionHandler> {

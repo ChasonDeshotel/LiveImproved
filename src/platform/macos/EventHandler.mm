@@ -12,6 +12,8 @@
 #include <functional>
 
 #include "EventHandler.h"
+// TODO
+#include "ILogHandler.h"
 #include "LogHandler.h"
 
 #include "IActionHandler.h"
@@ -357,4 +359,25 @@ bool isElementFocused(AXUIElementRef element) {
         CFRelease(focused);
     }
     return false;
+}
+
+void EventHandler::init() {
+    registerForAppTermination(PID::getInstance().livePID());
+}
+
+void EventHandler::registerForAppTermination(pid_t targetPID) {
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidTerminateApplicationNotification
+                                                                    object:nil
+                                                                     queue:nil
+                                                                usingBlock:^(NSNotification *notification) {
+        NSDictionary *userInfo = [notification userInfo];
+        NSRunningApplication *terminatedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
+        pid_t terminatedPID = [terminatedApp processIdentifier];
+        
+        if (terminatedPID == targetPID) {
+            NSLog(@"Target application with PID %d has been terminated", terminatedPID);
+            log_()->debug("Live terminated -- restarting");
+            // Handle reinitialization or cleanup here
+        }
+    }];
 }
