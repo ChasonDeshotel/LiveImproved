@@ -361,11 +361,7 @@ bool isElementFocused(AXUIElementRef element) {
     return false;
 }
 
-void EventHandler::init() {
-    registerForAppTermination(PID::getInstance().livePID());
-}
-
-void EventHandler::registerForAppTermination(pid_t targetPID) {
+void EventHandler::registerForAppTermination(std::function<void()> onTerminationCallback) {
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidTerminateApplicationNotification
                                                                     object:nil
                                                                      queue:nil
@@ -374,10 +370,12 @@ void EventHandler::registerForAppTermination(pid_t targetPID) {
         NSRunningApplication *terminatedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
         pid_t terminatedPID = [terminatedApp processIdentifier];
         
-        if (terminatedPID == targetPID) {
+        if (terminatedPID == PID::getInstance().livePID()) {
             NSLog(@"Target application with PID %d has been terminated", terminatedPID);
             log_()->debug("Live terminated -- restarting");
-            // Handle reinitialization or cleanup here
+            if (onTerminationCallback) {
+                onTerminationCallback();
+            }
         }
     }];
 }

@@ -19,7 +19,9 @@
 
 class JuceApp : public juce::JUCEApplication {
 public:
-    JuceApp() {}
+    JuceApp()
+        : container_(DependencyContainer::getInstance())
+    {}
 
     const juce::String getApplicationName() override {
         return "Live Improved";
@@ -29,7 +31,7 @@ public:
         return "0.69.420";
     }
 
-    void initialise(const juce::String&) override {
+    void initialise(const juce::String& commandLineArgs = "") override {
         std::locale::global(std::locale("en_US.UTF-8"));
         LogHandler::getInstance().info("Ignition sequence started...");
 
@@ -53,21 +55,19 @@ public:
 
         PID::getInstance().livePIDBlocking();
 
-        DependencyContainer& container = DependencyContainer::getInstance();
-
-        container.registerFactory<ILogHandler>(
+        container_.registerFactory<ILogHandler>(
             // TODO maybe
             //[](DependencyContainer&) { return std::make_shared<LogHandler>("app.log"); },
             [](DependencyContainer&) { return std::make_shared<LogHandler>(); }
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<Theme>(
+        container_.registerFactory<Theme>(
             [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(themeFilePath); }
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<LimLookAndFeel>(
+        container_.registerFactory<LimLookAndFeel>(
             [](DependencyContainer& c) -> std::shared_ptr<LimLookAndFeel> {
                 return std::make_shared<LimLookAndFeel>(
                     [&c]() { return c.resolve<Theme>(); }
@@ -76,26 +76,26 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<ConfigManager>(
+        container_.registerFactory<ConfigManager>(
             [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(configFilePath); }
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<ConfigMenu>(
+        container_.registerFactory<ConfigMenu>(
             [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(configMenuPath); }
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<ResponseParser>(
+        container_.registerFactory<ResponseParser>(
             [](DependencyContainer&) { return std::make_shared<ResponseParser>(); }
         );
 
-        container.registerFactory<KeySender>(
+        container_.registerFactory<KeySender>(
             [](DependencyContainer&) { return std::make_shared<KeySender>(); }
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<IIPC>(
+        container_.registerFactory<IIPC>(
             [](DependencyContainer& c) -> std::shared_ptr<IPC> {
                 // We can delay these resolutions if needed
                 return std::make_shared<IPC>(
@@ -105,7 +105,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<IPluginManager>(
+        container_.registerFactory<IPluginManager>(
             [](DependencyContainer& c) -> std::shared_ptr<IPluginManager> {
                 return std::make_shared<PluginManager>(
                     [&c]() { return c.resolve<ILogHandler>(); }
@@ -116,7 +116,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<EventHandler>(
+        container_.registerFactory<EventHandler>(
             [](DependencyContainer& c) -> std::shared_ptr<EventHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<EventHandler>(
@@ -127,10 +127,19 @@ public:
             }
             , DependencyContainer::Lifetime::Singleton
         );
-        container.resolve<EventHandler>()->init();
+        container_.resolve<EventHandler>()->registerForAppTermination([this]() {
+            this->container_.resetDependencies();
 
+            // delay or the app will re-init before Live has finished closing
+            dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_time_t delay;
+            delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
+            dispatch_after(delay, backgroundQueue, ^{
+                this->initialise();
+            });
+        });
 
-        container.registerFactory<IActionHandler>(
+        container_.registerFactory<IActionHandler>(
             [](DependencyContainer& c) -> std::shared_ptr<ActionHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<ActionHandler>(
@@ -144,7 +153,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.registerFactory<WindowManager>(
+        container_.registerFactory<WindowManager>(
             [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
                 // We can delay these resolutions if needed
                 return std::make_shared<WindowManager>(
@@ -160,7 +169,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container.resolve<IIPC>()->init();
+        container_.resolve<IIPC>()->init();
         LogHandler::getInstance().info("IPC read/write enabled");
 
         // TODO plugin refresh as callback from async init
@@ -170,7 +179,7 @@ public:
         delay = dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC);
         dispatch_after(delay, backgroundQueue, ^{
             LogHandler::getInstance().info("writing READY");
-            container.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
+            container_.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
 				LogHandler::getInstance().info("received READY response: " + response);
 			});
         });
@@ -178,12 +187,12 @@ public:
         delay = dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC);
         dispatch_after(delay, backgroundQueue, ^{
             LogHandler::getInstance().info("refreshing plugin cache");
-            container.resolve<IPluginManager>()->refreshPlugins();
+            container_.resolve<IPluginManager>()->refreshPlugins();
         });
 
         #ifndef _WIN32
 			PlatformInitializer::init();
-			container.resolve<EventHandler>()->setupQuartzEventTap();
+			container_.resolve<EventHandler>()->setupQuartzEventTap();
 			PlatformInitializer::run();
         #endif
     }
@@ -192,6 +201,9 @@ public:
         // Clean up
         // TODO delete file pipes
     }
+
+private:
+    DependencyContainer& container_;
 };
 
 START_JUCE_APPLICATION(JuceApp)
