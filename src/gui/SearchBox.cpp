@@ -174,23 +174,34 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
         return true;
     }
 
-    if (key == juce::KeyPress::upKey || key == juce::KeyPress::downKey) {
+    if (key == juce::KeyPress::upKey || key == juce::KeyPress::downKey ||
+        key == juce::KeyPress::pageUpKey || key == juce::KeyPress::pageDownKey)
+    {
         int currentIndex = listBox_.getSelectedRow();
         int numRows = listBox_.getListBoxModel()->getNumRows();
         if (!numRows) {
             return true;
         }
 
+        int visibleRows = listBox_.getHeight() / listBox_.getRowHeight();
+
         if (key == juce::KeyPress::upKey && currentIndex > 0) {
             listBox_.selectRow(currentIndex - 1);
         } else if (key == juce::KeyPress::downKey && currentIndex < numRows - 1) {
             listBox_.selectRow(currentIndex + 1);
+        } else if (key == juce::KeyPress::pageUpKey && currentIndex > 0) {
+            int targetRow = juce::jmax(0, currentIndex - visibleRows);
+            listBox_.selectRow(targetRow);
+        } else if (key == juce::KeyPress::pageDownKey && currentIndex < numRows - 1) {
+            int targetRow = juce::jmin(numRows - 1, currentIndex + visibleRows);
+            listBox_.selectRow(targetRow);
         }
 
         // Keep focus on the searchField_
         searchField_.grabKeyboardFocus();
         return true;  // Key press handled
     }
+
 
     return false;  // Key press not handled
 }
