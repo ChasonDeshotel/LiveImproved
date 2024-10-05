@@ -12,7 +12,7 @@
 #include "PluginManager.h"
 #include "SearchBox.h"
 #include "WindowManager.h"
-#include "JuceTheme.h"
+#include "LimLookAndFeel.h"
 #include "Theme.h"
 
 class PluginListModel : public juce::ListBoxModel {
@@ -31,10 +31,16 @@ public:
     }
 
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override {
+//        juce::Graphics::ScopedSaveState saveState(g);
+//
+//        // Extend the clipping region to include the scrollbar area
+//        g.reduceClipRegion(-18, 0, width + 18, height);
+
         if (rowIsSelected) {
             g.fillAll(theme_->getColorValue("SelectionBackground"));
             g.setColour(theme_->getColorValue("SelectionForeground"));
         } else {
+            g.fillAll(juce::Colours::transparentBlack);
             g.setColour(theme_->getColorValue("ControlForeground"));
         }
         if (rowNumber < filteredPlugins_.size()) {
@@ -110,20 +116,27 @@ SearchBox::SearchBox(
 
     LogHandler::getInstance().debug("Creating SearchBoxWindowController");
 
+    setOpaque(false);
+    setDropShadowEnabled(false);
+
+    // Remove any default border
+    setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
+    setColour(juce::TextEditor::focusedOutlineColourId, juce::Colours::transparentBlack);
+
     juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_().get());
 
     pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_(), actionHandler_(), windowManager_(), theme_());
     listBox_.setModel(pluginListModel_.get());
-    listBox_.setRowHeight(30);
-    listBox_.setLookAndFeel(limLookAndFeel_().get());
     addAndMakeVisible(listBox_);
 
     setUsingNativeTitleBar(false);
     setAlwaysOnTop(true);
 
+    searchField_.setIndents(searchField_.getLeftIndent(), 0);
+    searchField_.setJustification(juce::Justification::centredLeft);
     searchField_.setMultiLine(false);
     searchField_.setReturnKeyStartsNewLine(false);
-//    searchField_.setTextToShowWhenEmpty("Type to search...", juce::Colours::grey);
+    searchField_.setTextToShowWhenEmpty("Search", theme_()->getColorValue("RetroDisplayForegroundDisabled"));
     searchField_.addListener(this);
     searchField_.addKeyListener(this);
     addAndMakeVisible(searchField_);
@@ -233,8 +246,10 @@ void SearchBox::setWindowGeometry() {
 
         // Get Ableton Live's window bounds (assuming you have this method)
         ERect liveBounds = eventHandler_()->getLiveBoundsRect();
-        int widgetWidth = 350;  // Width of the widget
-        int widgetHeight = 300; // Height of the widget
+        int widgetWidth = 350;
+
+        // TODO calculate height from listbox row height + searchBox + padding
+        int widgetHeight = 300;
 
         // Center the widget inside Ableton Live's bounds
         int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
@@ -256,10 +271,21 @@ void SearchBox::resized() {
     auto bounds = getLocalBounds().reduced(padding);
     searchField_.setBounds(bounds.removeFromTop(30));
 
+    listBox_.setRowHeight(20);
+    int numVisibleItems = 11;
+    int totalHeight = listBox_.getRowHeight() * numVisibleItems;
+
     listBox_.setBounds(bounds.translated(0, listBoxOffset));
+    listBox_.setBounds(listBox_.getX(), listBox_.getY(), listBox_.getWidth(), totalHeight);
+
+//    juce::Rectangle<int> listBoxBounds = getLocalBounds();
+//    listBoxBounds = listBoxBounds.withTrimmedBottom(5);
+//    listBox_.setBounds(listBoxBounds);
 }
 
 void SearchBox::open() {
+    setWindowGeometry();
+
     eventHandler_()->focusLim();
     eventHandler_()->focusWindow(this->getWindowHandle());
 
@@ -330,24 +356,27 @@ int SearchBox::getNumRows() {
 }
 
 void SearchBox::paint(juce::Graphics& g) {
-    g.fillAll(theme_()->getColorValue("SurfaceBackground"));
+    auto bounds = getLocalBounds().toFloat().reduced(0.5f); // Reduce by 0.5 to avoid anti-aliasing artifacts
 
-    // Set the color for drawing
-    g.setColour(theme_()->getColorValue("ControlForeground"));
+    g.setColour(theme_()->getColorValue("SceneContrast"));
+    g.fillRoundedRectangle(bounds, 6.0f); // bounds, cornerSize
 
-    g.drawRect(getLocalBounds(), 1);
+    // Draw the border
+    g.setColour(theme_()->getColorValue("SelectionFrame"));
+    g.drawRoundedRectangle(bounds.reduced(8.0f), 6.0f, 2.0f); // bounds, cornerSize, borderThickness
+                                                 //
+    // Fill the background
+    g.setColour(theme_()->getColorValue("SurfaceBackground"));
+    g.fillRoundedRectangle(bounds.reduced(10.0f), 3.0f); // bounds, cornerSize
 
-    g.drawText("SearchBox", getLocalBounds(), juce::Justification::centred, true);
+//    g.setColour(theme_()->getColorValue("SceneContrast"));
+//    g.fillRoundedRectangle(bounds.reduced(11.0f), 3.0f); // bounds, cornerSize
+
+    // Draw the text
+    g.setFont(getHeight() * 0.7f);
+
 }
 
 void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) {
-    if (rowIsSelected) {
-        g.fillAll(juce::LookAndFeel::getDefaultLookAndFeel().findColour(juce::TextEditor::highlightColourId));
-    }
-
-    g.setColour(juce::Colours::white);
-    if (rowNumber < filteredOptions_.size()) {
-        const auto& plugin = filteredOptions_[rowNumber];  // Get the plugin for this row
-        g.drawText(plugin.name, 0, 0, width, height, juce::Justification::centredLeft);
-    }
+    return;
 }

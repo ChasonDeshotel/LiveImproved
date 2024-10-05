@@ -23,6 +23,77 @@ class Theme;
 
 class PluginListModel;
 
+class OverlayComponent : public juce::Component
+{
+public:
+    OverlayComponent()
+    {
+        // Ensure the component ignores mouse clicks
+        setInterceptsMouseClicks(false, false);
+    }
+
+    void paint(juce::Graphics& g) override
+    {
+        // Define the bounds
+        auto bounds = getLocalBounds().toFloat();
+
+        // Set the color for the background (or fake corners)
+        g.setColour(juce::Colours::orange);  // You can change this
+
+        const float cornerSize = 10.0f;
+        juce::Path fakeRoundedCorners;
+
+        // Draw the main rectangle and subtract the corners
+        fakeRoundedCorners.addRectangle(bounds);
+        fakeRoundedCorners.setUsingNonZeroWinding(false); // Enable subtractive operation
+        fakeRoundedCorners.addRoundedRectangle(bounds, cornerSize); // Subtract corners
+
+        // Draw the fake rounded corners or background shape
+        g.fillPath(fakeRoundedCorners);
+    }
+
+    bool hitTest(int x, int y) override
+    {
+        // Let mouse events pass through
+        return false;
+    }
+};
+
+class CenteredTextEditor : public juce::TextEditor {
+public:
+    CenteredTextEditor() = default;
+
+        void resized() override
+    {
+        // Define the padding/margins
+        const int leftPadding = 10;
+        const int rightPadding = 10;
+        const int topPadding = 8;
+        const int bottomPadding = 8;
+
+        // Calculate the reduced bounds with padding applied
+        juce::Rectangle<int> bounds = getLocalBounds();
+        bounds.reduce(leftPadding, topPadding);  // Reduces both horizontally and vertically
+        bounds.removeFromBottom(bottomPadding);  // Adjust bottom padding
+        bounds.removeFromRight(rightPadding);    // Adjust right padding
+
+        // Call the base class resized() to handle other resizing logic
+        juce::TextEditor::resized();
+
+        // You can also adjust any child components or internal layout here if necessary
+    }
+    //void resized() override
+    //{
+    //    // Calculate the vertical offset without calling setBorder directly
+    //    int editorHeight = getHeight();
+    //    int textHeight = getFont().getHeight();
+    //    int padding = (editorHeight - textHeight) / 2;
+
+    //    // Manually set vertical padding using text offset instead of setBorder
+    //    juce::TextEditor::resized();
+    //}
+};
+
 class SearchBox : public juce::TopLevelWindow, public IWindow,
                   public juce::KeyListener,
                   public juce::TextEditor::Listener,
@@ -46,7 +117,7 @@ public:
     void mouseDown(const juce::MouseEvent& event) override;
 
     void textEditorTextChanged(juce::TextEditor& editor) override;
-    
+
     void* getWindowHandle() const override;
 
 protected:
@@ -66,8 +137,9 @@ private:
     std::function<std::shared_ptr<Theme>()> theme_;
     std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel_;
 
-    juce::TextEditor searchField_;
+    CenteredTextEditor searchField_;
     juce::ListBox listBox_;
+    OverlayComponent overlayComponent_;
     std::unique_ptr<PluginListModel> pluginListModel_;
 
     std::vector<Plugin> options_;

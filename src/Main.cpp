@@ -12,11 +12,11 @@
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
 #include "KeySender.h"
+#include "LimLookAndFeel.h"
 #include "PlatformDependent.h"
 #include "PluginManager.h"
 #include "ResponseParser.h"
 #include "Theme.h"
-#include "JuceTheme.h"
 #include "WindowManager.h"
 
 class JuceApp : public juce::JUCEApplication {
@@ -51,6 +51,8 @@ public:
     void initialise(const juce::String& commandLineArgs = "") override {
         std::locale::global(std::locale("en_US.UTF-8"));
         LogHandler::getInstance().info("Ignition sequence started...");
+
+        juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
         container_.registerFactory<EventHandler>(
             [](DependencyContainer& c) -> std::shared_ptr<EventHandler> {
@@ -89,14 +91,14 @@ public:
                 LogHandler::getInstance().info("launch callback called");
                 // delay to let Live fully start up
                 sleep(10);
-                this->onLiveLaunch();
+                this->onLiveLaunch(0);
             });
         } else {
-            onLiveLaunch();
+            onLiveLaunch(5);
         }
     }
 
-    void onLiveLaunch() {
+    void onLiveLaunch(int ipcCallDelay) {
         // TODO cheap file exists checks
         std::filesystem::path configFilePath =
             std::filesystem::path(Utils::getHomeDirectory())
@@ -208,18 +210,15 @@ public:
 
         container_.resolve<IIPC>()->init();
 
-        // TODO plugin refresh as callback from async init
-        dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        dispatch_time_t delay;
+        if (ipcCallDelay > 0) sleep(ipcCallDelay);
 
-        sleep(4);
         LogHandler::getInstance().info("writing READY");
         container_.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
             LogHandler::getInstance().info("received READY response: " + response);
         });
 
         // TODO: IPC queue should be able to handle more writes without sleep
-        sleep(4);
+        sleep(2);
         LogHandler::getInstance().info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 
@@ -231,12 +230,24 @@ public:
     }
 
     void shutdown() override {
-        // Clean up
-        // TODO delete file pipes
+        auto ipc = this->container_.resolve<IIPC>();
+        ipc->stopIPC();
+
+        std::promise<void> closePromise;
+        std::future<void> closeFuture = closePromise.get_future();
+
+        std::thread([&closePromise, ipc, this]() {
+            ipc->closeAndDeletePipes();
+            closePromise.set_value();  // Notify that pipes are closed
+        }).detach();
+        closeFuture.wait();
+
+        LogHandler::getInstance().info("bye");
     }
 
 private:
     DependencyContainer& container_;
+    std::unique_ptr<LimLookAndFeel> limLookAndFeel_;
 };
 
 START_JUCE_APPLICATION(JuceApp)

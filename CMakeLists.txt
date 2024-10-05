@@ -69,7 +69,6 @@ set(SRC_CPP
     src/KeyMapper.cpp
     src/PluginManager.cpp
     src/Theme.cpp
-    src/JuceTheme.cpp
     src/config/ConfigManager.cpp
     src/config/ConfigMenu.cpp
     src/gui/SearchBox.cpp
