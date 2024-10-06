@@ -210,6 +210,7 @@ const int doubleClickThresholdMs = 300;
 std::shared_ptr<LiveInterface> liveInterface = std::make_shared<LiveInterface>();
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
+    CGEventRef retainedEvent = (CGEventRef)CFRetain(event);
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
     // TODO store/pass these so we don't have to call them every time
@@ -224,17 +225,17 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     if (windowManager->isWindowOpen("SearchBox")) {
         if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                // TODO TODO TODO
-                // crashes if you open the SearchBox, tab to another application
-                // then click an item in the list
-                pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
-
+                if (!event) return;
+                // Retain the event to ensure it stays valid
+                
                 //handler->log_->info("event pid: " + std::to_string(eventPID));
                 //handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
                 //handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
                 //handler->log_->info("target pid: " + std::to_string(targetPID));
-
-                CGPoint location = CGEventGetLocation(event);
+                
+                pid_t targetPID = (pid_t)CGEventGetIntegerValueField(retainedEvent, kCGEventTargetUnixProcessID);
+                CGPoint location = CGEventGetLocation(retainedEvent);
+                CFRelease(retainedEvent);
 
                 NSView *nativeView = reinterpret_cast<NSView *>(windowManager->getWindowHandle("SearchBox"));
                 LogHandler::getInstance().debug("got window handle");
