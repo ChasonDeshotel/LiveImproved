@@ -166,7 +166,7 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
             //log_->info("sending keyUp: " + std::to_string(keyCode));
             CGEventRef keyUp = CGEventCreateKeyboardEvent(NULL, keyCode, false);
             CGEventSetFlags(keyUp, flags);
-            CGEventPost(kCGAnnotatedSessionEventTap, keyDown);
+            CGEventPost(kCGAnnotatedSessionEventTap, keyUp);
             CFRelease(keyUp);
         }
     });
