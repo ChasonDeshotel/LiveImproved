@@ -18,6 +18,7 @@
 #include "ResponseParser.h"
 #include "Theme.h"
 #include "WindowManager.h"
+#include "LiveInterface.h"
 
 class JuceApp : public juce::JUCEApplication {
 public:
@@ -152,6 +153,16 @@ public:
             [](DependencyContainer&) { return std::make_shared<ResponseParser>(); }
         );
 
+        container_.registerFactory<ILiveInterface>(
+            [](DependencyContainer& c) -> std::shared_ptr<LiveInterface> {
+                // We can delay these resolutions if needed
+                return std::make_shared<LiveInterface>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                );
+            }
+            , DependencyContainer::Lifetime::Singleton
+        );
+
         container_.registerFactory<KeySender>(
             [](DependencyContainer&) { return std::make_shared<KeySender>(); }
             , DependencyContainer::Lifetime::Singleton
@@ -168,7 +179,7 @@ public:
         );
 
         container_.registerFactory<IPluginManager>(
-            [](DependencyContainer& c) -> std::shared_ptr<IPluginManager> {
+            [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
                 return std::make_shared<PluginManager>(
                     [&c]() { return c.resolve<ILogHandler>(); }
                     , [&c]() { return c.resolve<IIPC>(); }
@@ -187,6 +198,8 @@ public:
                     , [&c]() { return c.resolve<WindowManager>(); }
                     , [&c]() { return c.resolve<ConfigManager>(); }
                     , [&c]() { return c.resolve<IIPC>(); }
+                    , [&c]() { return c.resolve<EventHandler>(); }
+                    , [&c]() { return c.resolve<ILiveInterface>(); }
                 );
             }
             , DependencyContainer::Lifetime::Singleton

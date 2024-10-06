@@ -17,6 +17,8 @@ class ResponseParser;
 class IIPC;
 class WindowManager;
 class ConfigManager;
+class EventHandler;
+class ILiveInterface;
 
 class ActionHandler : public IActionHandler {
 public:
@@ -26,6 +28,8 @@ public:
                   , std::function<std::shared_ptr<WindowManager>()> windowManager
                   , std::function<std::shared_ptr<ConfigManager>()> configManager
                   , std::function<std::shared_ptr<IIPC>()> ipc
+                  , std::function<std::shared_ptr<EventHandler>()> eventHandler
+                  , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
                   );
 
     ~ActionHandler();
@@ -34,7 +38,7 @@ public:
 
     // returns if the event should be blocking
     bool handleKeyEvent(EKeyPress pressedKey);
-    
+
     void handleDoubleRightClick();
 
     bool loadItem(int itemIndex);
@@ -46,12 +50,15 @@ private:
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
+    std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
 
     std::shared_ptr<ILogHandler> log() { return logHandler_(); }
     std::shared_ptr<WindowManager> windowManager() { return windowManager_(); }
     std::shared_ptr<ConfigManager> configManager() { return configManager_(); }
     std::shared_ptr<IIPC> ipc() { return ipc_(); }
     std::shared_ptr<IPluginManager> pluginManager() { return pluginManager_(); }
+    void getMostRecentFloatingWindowDelayed(std::function<void(int)> callback);
 
 
     void initializeActionMap();

@@ -17,6 +17,8 @@
 #include "KeySender.h"
 #include "PluginManager.h"
 #include "WindowManager.h"
+#include "EventHandler.h"
+#include "LiveInterface.h"
 
 ActionHandler::ActionHandler(
               std::function<std::shared_ptr<ILogHandler>()> logHandler
@@ -24,12 +26,16 @@ ActionHandler::ActionHandler(
               , std::function<std::shared_ptr<WindowManager>()> windowManager
               , std::function<std::shared_ptr<ConfigManager>()> configManager
               , std::function<std::shared_ptr<IIPC>()> ipc
+              , std::function<std::shared_ptr<EventHandler>()> eventHandler
+              , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
               )
     : logHandler_(std::move(logHandler))
     , ipc_(std::move(ipc))
     , windowManager_(std::move(windowManager))
     , pluginManager_(std::move(pluginManager))
     , configManager_(std::move(configManager))
+    , eventHandler_(std::move(eventHandler))
+    , liveInterface_(std::move(liveInterface))
 {
     initializeActionMap();
 }
@@ -106,8 +112,32 @@ bool ActionHandler::closeWindows() {
     return false;
 }
 
+void ActionHandler::getMostRecentFloatingWindowDelayed(std::function<void(int)> callback) {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Delay for a short period (e.g., 500 milliseconds)
+        usleep(250000); // .25 seconds
+
+        int windowID = liveInterface_()->getMostRecentFloatingWindow();
+
+        // Call the callback on the main thread
+        dispatch_async(dispatch_get_main_queue(), ^{
+            callback(windowID);
+        });
+    });
+}
+
 bool ActionHandler::loadItem(int itemIndex) {
     ipc()->writeRequest("load_item," + std::to_string(itemIndex));
+    getMostRecentFloatingWindowDelayed([this](int windowID) {
+        if (windowID != 0) {
+            std::cout << "Most recent floating window ID: " << windowID << std::endl;
+            // Do something with the window ID
+        } else {
+            std::cout << "No floating window found." << std::endl;
+        }
+        liveInterface_()->focusWindow(windowID);
+    });
+
     return false;
 }
 

@@ -1,9 +1,15 @@
-#include "LiveInterface.h"
-#include "PID.h"
+#include <ApplicationServices/ApplicationServices.h>
 #include <iostream>
 
+#include "LiveInterface.h"
+#include "PID.h"
+
+extern "C" AXError _AXUIElementGetWindow(AXUIElementRef element, CGWindowID* windowID);
+
 // Constructor
-LiveInterface::LiveInterface() {}
+LiveInterface::LiveInterface(std::function<std::shared_ptr<ILogHandler>()> logHandler)
+    : logHandler_(std::move(logHandler))
+    {}
 
 // Destructor
 LiveInterface::~LiveInterface() {}
@@ -608,6 +614,284 @@ void LiveInterface::setTextInElement(AXUIElementRef element, const char* text) {
     CFStringRef cfText = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
     AXUIElementSetAttributeValue(element, kAXValueAttribute, cfText);
     CFRelease(cfText);
+}
+
+AXUIElementRef LiveInterface::getAppElement() {
+    AXUIElementRef appElement = AXUIElementCreateApplication(PID::getInstance().livePID());
+    if (appElement == nullptr) {
+        std::cout << "Failed to create application element for Live" << std::endl;
+        return 0;
+    }
+    return appElement;
+}
+
+void printElementInfo(AXUIElementRef element, const std::string& prefix = "") {
+    CFStringRef role, subrole, title, identifier;
+    char buffer[256];
+
+    if (AXUIElementCopyAttributeValue(element, kAXRoleAttribute, (CFTypeRef*)&role) == kAXErrorSuccess) {
+        CFStringGetCString(role, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+        std::cout << prefix << "Role: " << buffer << std::endl;
+        CFRelease(role);
+    }
+
+    if (AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*)&subrole) == kAXErrorSuccess) {
+        CFStringGetCString(subrole, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+        std::cout << prefix << "Subrole: " << buffer << std::endl;
+        CFRelease(subrole);
+    }
+
+    if (AXUIElementCopyAttributeValue(element, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess) {
+        CFStringGetCString(title, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+        std::cout << prefix << "Title: " << buffer << std::endl;
+        CFRelease(title);
+    }
+
+    if (AXUIElementCopyAttributeValue(element, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess) {
+        CFStringGetCString(identifier, buffer, sizeof(buffer), kCFStringEncodingUTF8);
+        std::cout << prefix << "Identifier (Class): " << buffer << std::endl;
+        CFRelease(identifier);
+    }
+
+    CGWindowID windowID;
+    AXError error = _AXUIElementGetWindow(element, &windowID);
+    if (error == kAXErrorSuccess) {
+        std::cout << prefix << "ID: " << windowID << std::endl;
+    }
+}
+
+std::string getStringFromCFString(CFStringRef cfString) {
+    if (!cfString) return "";
+    
+    CFIndex length = CFStringGetLength(cfString);
+    CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+    std::vector<char> buffer(maxSize);
+    
+    if (CFStringGetCString(cfString, buffer.data(), maxSize, kCFStringEncodingUTF8)) {
+        return std::string(buffer.data());
+    }
+    return "";
+}
+
+std::string getElementClass(AXUIElementRef element) {
+    CFStringRef className = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(element, CFSTR("AXClassName"), (CFTypeRef*)&className);
+    if (error == kAXErrorSuccess && className) {
+        std::string result = getStringFromCFString(className);
+        CFRelease(className);
+        return result;
+    }
+    return "";
+}
+
+bool isPluginWindowTitle(const std::string& title) {
+    // This regex matches titles like "aa/2-Audio"
+    std::regex pattern(R"(^.*/.*)");
+    return std::regex_match(title, pattern);
+}
+
+int LiveInterface::getMostRecentFloatingWindow() {
+    pid_t livePID = PID::getInstance().livePID();
+    std::cout << "Live application PID: " << livePID << std::endl;
+
+    AXUIElementRef appElement = AXUIElementCreateApplication(livePID);
+    if (appElement == nullptr) {
+        std::cerr << "Failed to create application element for Live" << std::endl;
+        return 0;
+    }
+    std::cout << "Successfully created application element" << std::endl;
+
+    // Get the main window (TCocoaWindow)
+    AXUIElementRef mainWindow;
+    AXError error = AXUIElementCopyAttributeValue(appElement, kAXMainWindowAttribute, (CFTypeRef*)&mainWindow);
+    if (error != kAXErrorSuccess) {
+        std::cerr << "Failed to get main window. Error: " << error << std::endl;
+        CFRelease(appElement);
+        return 0;
+    }
+    std::cout << "Successfully got main window" << std::endl;
+    ::printElementInfo(mainWindow, "Main Window: ");
+
+    CFArrayRef children;
+    error = AXUIElementCopyAttributeValues(appElement, kAXChildrenAttribute, 0, 100, &children);
+    if (error != kAXErrorSuccess) {
+        std::cerr << "Failed to get children of app. Error: " << error << std::endl;
+        CFRelease(mainWindow);
+        CFRelease(appElement);
+        return 0;
+    }
+
+    CFIndex childCount = CFArrayGetCount(children);
+    std::cout << "Children count of main window: " << childCount << std::endl;
+
+//    std::vector<AXUIElementRef> floatingWindows;
+    
+    // newest plugin opened seems to always be child[0]
+    for (CFIndex i = 0; i < childCount; i++) {
+        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+        std::cout << "\nChild " << i << ":" << std::endl;
+        ::printElementInfo(child, "  ");
+
+        CFStringRef role = nullptr, subrole = nullptr, title = nullptr;
+        AXUIElementCopyAttributeValue(child, kAXRoleAttribute, (CFTypeRef*)&role);
+        AXUIElementCopyAttributeValue(child, kAXSubroleAttribute, (CFTypeRef*)&subrole);
+        AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title);
+
+        std::string roleStr = getStringFromCFString(role);
+        std::string subroleStr = getStringFromCFString(subrole);
+        std::string titleStr = getStringFromCFString(title);
+
+        std::cout << "  Role: " << roleStr << std::endl;
+        std::cout << "  Subrole: " << subroleStr << std::endl;
+        std::cout << "  Title: " << titleStr << std::endl;
+
+        if (role) CFRelease(role);
+        if (subrole) CFRelease(subrole);
+        if (title) CFRelease(title);
+
+        if (roleStr == "AXWindow" && 
+            subroleStr == "AXFloatingWindow" && 
+            isPluginWindowTitle(titleStr)) {
+//            floatingWindows.push_back(child);
+            std::cout << "  Found OPluginCocoaWindow!" << std::endl;
+
+            CGWindowID windowID;
+            AXError error = _AXUIElementGetWindow(child, &windowID);
+            if (error == kAXErrorSuccess) {
+                std::cout << "Floating window found. ID: " << windowID << std::endl;
+                return windowID;
+                CFRelease(children);
+                CFRelease(mainWindow);
+                CFRelease(appElement);
+                return static_cast<int>(windowID);
+            }
+        }
+    }
+
+    return 0;
+
+//    std::cout << "\nFloating windows found: " << floatingWindows.size() << std::endl;
+
+//    CGWindowID mostRecentWindowID = 0;
+//
+//    for (const auto& window : floatingWindows) {
+//        CGWindowID windowID;
+//        AXError error = _AXUIElementGetWindow(window, &windowID);
+//        if (error == kAXErrorSuccess) {
+//            std::cout << "Floating window found. ID: " << windowID << std::endl;
+//            ::printElementInfo(window, "  ");
+//
+//            if (windowID > mostRecentWindowID) {
+//                mostRecentWindowID = windowID;
+//            }
+//        } else {
+//            std::cerr << "Failed to get window ID for a floating window. Error: " << error << std::endl;
+//        }
+//    }
+
+
+    // Clean up
+//    CFRelease(children);
+//    CFRelease(mainWindow);
+//    CFRelease(appElement);
+
+//    std::cout << "Most recent floating window ID: " << mostRecentWindowID << std::endl;
+
+//    return static_cast<int>(mostRecentWindowID);
+}
+
+CFStringRef LiveInterface::getRole(AXUIElementRef elementRef) {
+    CFStringRef role = nullptr;  // Initialize role to null
+    AXError error = AXUIElementCopyAttributeValue(elementRef, kAXRoleAttribute, (CFTypeRef *)&role);
+
+    if (error != kAXErrorSuccess || !role) {
+        std::cout << "Failed to get role for element. Error: " << error << std::endl;
+        return nullptr;  // Return null if there was an error
+    }
+
+    return role;  // Return the role if successful
+}
+
+CFArrayRef LiveInterface::getAllWindows() {
+    AXUIElementRef appElement = getAppElement();
+
+    CFArrayRef windowList = nullptr;
+    AXError error = AXUIElementCopyAttributeValues(appElement, kAXWindowsAttribute, 0, 100, &windowList);
+    
+    CFRelease(appElement);
+
+    if (error != kAXErrorSuccess) {
+        std::cerr << "Failed to get window list. Error: " << error << std::endl;
+        return nullptr;
+    }
+
+    return windowList;
+}
+
+bool LiveInterface::focusWindow(int windowID) {
+    // Get the application's main window
+    AXUIElementRef mainWindow = findApplicationWindow();
+    if (!mainWindow) {
+        std::cerr << "Failed to find application window." << std::endl;
+        return false;
+    }
+
+    // Get all windows of the application
+    AXUIElementRef appElement = AXUIElementCreateApplication(PID::getInstance().livePID());
+    if (!appElement) {
+        std::cerr << "Failed to create application element." << std::endl;
+        return false;
+    }
+
+    CFArrayRef windowList = nullptr;
+    AXError error = AXUIElementCopyAttributeValues(appElement, kAXWindowsAttribute, 0, 100, &windowList);
+    
+    if (error != kAXErrorSuccess || !windowList) {
+        std::cerr << "Failed to get window list. Error: " << error << std::endl;
+        CFRelease(appElement);
+        return false;
+    }
+
+    // Find the window with the matching ID
+    AXUIElementRef targetWindow = nullptr;
+    CFIndex windowCount = CFArrayGetCount(windowList);
+    
+    for (CFIndex i = 0; i < windowCount; i++) {
+        AXUIElementRef window = (AXUIElementRef)CFArrayGetValueAtIndex(windowList, i);
+        
+        // Get the window ID
+        CGWindowID currentWindowID;
+        _AXUIElementGetWindow(window, &currentWindowID);
+        
+        if (currentWindowID == (CGWindowID)windowID) {
+            targetWindow = window;
+            CFRetain(targetWindow);
+            break;
+        }
+    }
+
+    // Clean up
+    CFRelease(windowList);
+    CFRelease(appElement);
+
+    if (!targetWindow) {
+        std::cerr << "Window with ID " << windowID << " not found." << std::endl;
+        return false;
+    }
+
+    // Attempt to focus the window
+    error = AXUIElementPerformAction(targetWindow, kAXRaiseAction);
+    if (error != kAXErrorSuccess) {
+        std::cerr << "Failed to raise window. Error: " << error << std::endl;
+        CFRelease(targetWindow);
+        return false;
+    }
+
+    // Set the focused attribute
+    focusElement(targetWindow);
+
+    CFRelease(targetWindow);
+    return true;
 }
 
 // Method to find and interact with the "Search, text field"

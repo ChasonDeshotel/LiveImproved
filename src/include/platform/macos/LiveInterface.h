@@ -1,17 +1,21 @@
-#ifndef LIVE_INTERFACE_H
-#define LIVE_INTERFACE_H
+#pragma once
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <functional>
 #include <vector>
 
-class LiveInterface {
+#include "ILiveInterface.h"
+
+class ILogHandler;
+
+class LiveInterface : public ILiveInterface {
 public:
     // Constructor
-    LiveInterface();
+    LiveInterface(std::function<std::shared_ptr<ILogHandler>()> logHandler);
 
     // Destructor
-    ~LiveInterface();
+    ~LiveInterface() override;
 
     bool isAnyTextFieldFocused();
 
@@ -20,6 +24,12 @@ public:
 
     // Method to focus the element
     void focusElement(AXUIElementRef element);
+    int getMostRecentFloatingWindow() override;
+    bool focusWindow(int windowID) override;
+    CFArrayRef getAllWindows();
+    AXUIElementRef getAppElement();
+    CFStringRef getRole(AXUIElementRef elementRef);
+    CFStringRef getSubrole(AXUIElementRef elementRef);
 
     // Method to set text in the element
     void setTextInElement(AXUIElementRef element, const char* text);
@@ -40,8 +50,8 @@ public:
     void printElementInfo(AXUIElementRef element);
 
 private:
+    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
+
     AXUIElementRef findApplicationWindow();
     AXUIElementRef mainWindow_;
 };
-
-#endif

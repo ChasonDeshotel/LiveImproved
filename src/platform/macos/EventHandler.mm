@@ -151,7 +151,6 @@ void EventHandler::focusWindow(void* nativeWindowHandle) {
     }
 }
 
-
 NSRect getLiveBounds() {
     NSRect appBounds = NSMakeRect(0, 0, 0, 0);
 
@@ -168,6 +167,17 @@ NSRect getLiveBounds() {
         CFNumberGetValue(windowPID, kCFNumberIntType, &windowPidValue);
 
         if (windowPidValue == PID::getInstance().livePID()) {
+            // Get the window level to determine if it's a floating window or standard window
+            // must do this or we'll return the plugin popup's bounds
+            CFNumberRef windowLevel = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowLayer);
+            int level;
+            CFNumberGetValue(windowLevel, kCFNumberIntType, &level);
+
+            // Standard windows typically have a layer of 0, floating windows are higher
+            if (level != 0) {
+                continue;  // Skip non-standard windows (likely pop-ups)
+            }
+
             CFDictionaryRef boundsDict = (CFDictionaryRef)CFDictionaryGetValue(windowInfo, kCGWindowBounds);
             CGRect bounds;
             CGRectMakeWithDictionaryRepresentation(boundsDict, &bounds);
@@ -207,7 +217,8 @@ const int doubleClickThresholdMs = 300;
 // accessibility elements are focused or in edit mode, and then modify their
 // content (e.g., typing into a text field).
 
-std::shared_ptr<LiveInterface> liveInterface = std::make_shared<LiveInterface>();
+// TODO
+//std::shared_ptr<LiveInterface> liveInterface = std::make_shared<LiveInterface>();
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogEventType, CGEventRef ogEvent, void *refcon) {
     // fix some edge cases where event gets destroyed
@@ -232,11 +243,12 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                 //handler->log_->info("event pid: " + std::to_string(eventPID));
                 //handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
                 //handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
-                //handler->log_->info("target pid: " + std::to_string(targetPID));
                 
                 pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
                 CGPoint location = CGEventGetLocation(event);
                 CFRelease(event);
+
+                handler->log_()->info("target pid: " + std::to_string(targetPID));
 
                 NSView *nativeView = reinterpret_cast<NSView *>(windowManager->getWindowHandle("SearchBox"));
                 LogHandler::getInstance().debug("got window handle");
@@ -296,10 +308,11 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
         } else if (eventType == kCGEventKeyDown) {
             log->debug("Ableton Live keydown event detected.");
 
-            if (liveInterface->isAnyTextFieldFocused()) {
-                log->debug("Ableton Live text field has focus. Passing event.");
-                return event;
-            }
+// TODO fix
+//            if (liveInterface->isAnyTextFieldFocused()) {
+//                log->debug("Ableton Live text field has focus. Passing event.");
+//                return event;
+//            }
 
             CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);
