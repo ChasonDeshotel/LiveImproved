@@ -1,5 +1,4 @@
-#ifndef CONTEXT_MENU_H
-#define CONTEXT_MENU_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -7,11 +6,9 @@
 
 #include "IWindow.h"
 
-#ifdef __OBJC__
 @class ContextMenuGenerator;
-#else
-class ContextMenuGenerator;
-#endif
+@class NSMenu;
+
 class ILogHandler;
 class ConfigMenu;
 class IActionHandler;
@@ -45,8 +42,7 @@ private:
     std::vector<MenuItem> menuItems_;
     bool isOpen_ = false;
 
+    NSMenu* contextMenu_;
     ContextMenuGenerator* menuGenerator_;
     void generateMenu();
 };
-
-#endif
