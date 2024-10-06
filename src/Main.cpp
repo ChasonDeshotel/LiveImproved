@@ -203,6 +203,7 @@ public:
                     , [&c]() { return c.resolve<WindowManager>(); }
                     , [&c]() { return c.resolve<Theme>(); }
                     , [&c]() { return c.resolve<LimLookAndFeel>(); }
+                    , [&c]() { return c.resolve<ConfigMenu>(); }
                 );
             }
             , DependencyContainer::Lifetime::Singleton

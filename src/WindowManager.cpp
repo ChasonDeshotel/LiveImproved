@@ -16,7 +16,9 @@ WindowManager::WindowManager(
                              , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                              , std::function<std::shared_ptr<WindowManager>()> windowManager
                              , std::function<std::shared_ptr<Theme>()> theme
-                             , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel)
+                             , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
+                             , std::function<std::shared_ptr<ConfigMenu>()> configMenu
+                             )
     : logHandler_(std::move(logHandler))
     , pluginManager_(std::move(pluginManager))
     , eventHandler_(std::move(eventHandler))
@@ -24,13 +26,14 @@ WindowManager::WindowManager(
     , windowManager_(std::move(windowManager))
     , theme_(std::move(theme))
     , limLookAndFeel_(std::move(limLookAndFeel))
+    , configMenu_(std::move(configMenu))
 {}
 
 // Factory function to create window instances dynamically based on the name
 std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& windowName) {
     if (windowName == "ContextMenu") {
         // TODO
-        //return std::make_unique<ContextMenu>();
+        return std::make_unique<ContextMenu>(logHandler_, configMenu_, actionHandler_, windowManager_);
     } else if (windowName == "SearchBox") {
         return std::make_unique<SearchBox>(logHandler_, pluginManager_, eventHandler_, actionHandler_, windowManager_, theme_, limLookAndFeel_);
     }
@@ -72,6 +75,7 @@ void WindowManager::openWindow(const std::string& windowName) {
     }
 
     if (it->second.callback) {
+        LogHandler::getInstance().debug("WM calling callback");
         it->second.callback();
     }
 
@@ -80,6 +84,7 @@ void WindowManager::openWindow(const std::string& windowName) {
         // TODO: making some assumptions by setting this to true before
         // calling `open()`, but the context menu is blocking so...
         windowStates_[windowName] = true;
+        LogHandler::getInstance().debug("WM calling open");
         it->second.window->open();
     }
 }

@@ -1,8 +1,10 @@
 #import <Cocoa/Cocoa.h>
+#include "ILogHandler.h"
 #include "LogHandler.h"
 #include "Types.h"
+#include "Utils.h"
 
-#include "ActionHandler.h"
+#include "IActionHandler.h"
 #include "ConfigMenu.h"
 #include "ContextMenu.h"
 #include "WindowManager.h"
@@ -11,12 +13,13 @@
 
 @property (nonatomic, strong) NSMenu *contextMenu;
 @property (nonatomic) std::function<void(const std::string&)> overrideCallback;
-@property (nonatomic) std::shared_ptr<WindowManager> windowManager;
-@property (nonatomic) std::shared_ptr<ActionHandler> actionHandler;
+@property (nonatomic) std::function<std::shared_ptr<WindowManager>()> windowManager;
+@property (nonatomic) std::function<std::shared_ptr<IActionHandler>()> actionHandler;
+@property (nonatomic, strong) ContextMenuGenerator *menuGenerator;
 
 - (instancetype)initWithContextMenu:(ContextMenu *)contextMenu
-    windowManager:(std::shared_ptr<WindowManager>)windowManager
-    actionHandler:(std::shared_ptr<ActionHandler>)actionHandler;
+    windowManager:(std::function<std::shared_ptr<WindowManager>()>)windowManager
+    actionHandler:(std::function<std::shared_ptr<IActionHandler>()>)actionHandler;
 
 - (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items;
 
@@ -25,8 +28,8 @@
 @implementation ContextMenuGenerator
 
 - (instancetype)initWithContextMenu:(ContextMenu *)contextMenu
-    windowManager:(std::shared_ptr<WindowManager>)windowManager
-    actionHandler:(std::shared_ptr<ActionHandler>)actionHandler {
+    windowManager:(std::function<std::shared_ptr<WindowManager>()>)windowManager
+    actionHandler:(std::function<std::shared_ptr<IActionHandler>()>)actionHandler {
     self = [super init];
     if (self) {
         self.windowManager = windowManager;
@@ -91,20 +94,45 @@
     }
 }
 
+// clean up observers
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [super dealloc];
+}
+
 - (void)closeMenu {
 //    if (self.contextMenu) {
 //        [self.contextMenu cancelTracking];
 //        self.contextMenu = nil;
 //    }
-    _windowManager->closeWindow("ContextMenu");
+    _windowManager()->closeWindow("ContextMenu");
 }
 
 - (void)menuItemAction:(id)sender {
+    LogHandler::getInstance().error("Menu item action called");
     NSMenuItem *menuItem = (NSMenuItem *)sender;
     NSString *action = (NSString *)menuItem.representedObject;
-    
-    std::string actionString = [action UTF8String];
-    _actionHandler->handleAction(actionString);
+    if (action) {
+        if (_actionHandler) {
+            std::string actionString = "plugin." + std::string([action UTF8String]);
+            Utils::trim(actionString);
+            std::vector<std::string> toRemove = {" VST3", " AU", " VST"};
+            Utils::removeSubstrings(actionString, toRemove);
+
+            if (![NSThread isMainThread]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    _actionHandler()->handleAction(actionString);
+                });
+            } else {
+                _actionHandler()->handleAction(actionString);
+            }
+        } else {
+            LogHandler::getInstance().error("Action handler is null");
+        }
+
+    } else {
+        LogHandler::getInstance().error("Menu item action was nil");
+    }
 }
 
 - (void)addMenuItems:(NSMenu *)menu fromItems:(const std::vector<MenuItem>&)items {
@@ -149,51 +177,81 @@
 @end
 
 ContextMenu::ContextMenu(
-        std::shared_ptr<ILogHandler> logHandler
-        , std::shared_ptr<ConfigMenu> configMenu 
-        , std::shared_ptr<ActionHandler> actionHandler
-        , std::shared_ptr<WindowManager> windowManager
+        std::function<std::shared_ptr<ILogHandler>()> logHandler
+        , std::function<std::shared_ptr<ConfigMenu>()> configMenu 
+        , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+        , std::function<std::shared_ptr<WindowManager>()> windowManager
     )
-    : menuItems_()
-    , log_(std::move(logHandler))
-    , configMenu_(std::move(configMenu_))
-    , actionHandler_(std::move(actionHandler_))
-    , windowManager_(std::move(windowManager_))
-    {
+    : log_(std::move(logHandler))
+    , configMenu_(std::move(configMenu))
+    , actionHandler_(std::move(actionHandler))
+    , windowManager_(std::move(windowManager))
+    , menuItems_(configMenu_()->getMenuData())
+    , menuGenerator_(nullptr)
+    {}
 
-    menuItems_ = configMenu_->getMenuData();
+ContextMenu::~ContextMenu() {
+    #ifdef __OBJC__
+        // Clean up the Objective-C object
+        if (menuGenerator_) {
+            [menuGenerator_ release];
+            menuGenerator_ = nil;
+        }
+    #endif
+}
+
+void ContextMenu::generateMenu() {
+    #ifdef __OBJC__
+    NSLog(@"ContextMenu this pointer: %p", this);
+
+    auto wm = windowManager_();
+    auto ah = actionHandler_();
+    if (wm) {
+        NSLog(@"windowManager_ pointer: %p", wm.get());  // Dereference the shared pointer
+    }
+    if (ah) {
+        NSLog(@"actionHandler_ pointer: %p", ah.get());  // Dereference the shared pointer
+    }
+    if (wm && ah) {
+        menuGenerator_ = [[ContextMenuGenerator alloc] initWithContextMenu:this
+                                                             windowManager:windowManager_
+                                                             actionHandler:actionHandler_];
+
+    } else {
+        NSLog(@"Error: windowManager_ or actionHandler_ is nullptr!");
+        return;
+    }
+    #endif
+
+    if (this->menuGenerator_) {
+        NSMenu *contextMenu = [this->menuGenerator_ createContextMenuWithItems:menuItems_];
+        this->menuGenerator_ = nil;
+        NSPoint mouseLocation = [NSEvent mouseLocation];
+        [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
+    }
+
 }
 
 // NOTE: do not call directly - use WindowManager
 void ContextMenu::open() {
     if (![NSThread isMainThread]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] initWithContextMenu:this windowManager:windowManager_ actionHandler:actionHandler_];
-            this->menuGenerator_ = menuGenerator;
-            NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_];
-            NSPoint mouseLocation = [NSEvent mouseLocation];
-            [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
+            this->generateMenu();
         });
         return;
-
     } else {
-        ContextMenuGenerator *menuGenerator = [[ContextMenuGenerator alloc] initWithContextMenu:this windowManager:windowManager_ actionHandler:actionHandler_];
-        this->menuGenerator_ = menuGenerator;
-        NSMenu *contextMenu = [menuGenerator createContextMenuWithItems:menuItems_ 
-                                                        ];
-        NSPoint mouseLocation = [NSEvent mouseLocation];
-        [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
+        this->generateMenu();
     }
 }
 
 void ContextMenu::close() {
-    LogHandler::getInstance().debug("C++ close called");
-    if (menuGenerator_ && menuGenerator_.contextMenu) {
-// TODO: this prevents actions from being fired but is 
-// necessary to close with keyboard
-// add an optional argument i guess?
-//        [menuGenerator_.contextMenu cancelTracking];
-    }
+    log_()->debug("C++ close called");
+//    if (menuGenerator_ && menuGenerator_.contextMenu) {
+//// TODO: this prevents actions from being fired but is 
+//// necessary to close with keyboard
+//// add an optional argument i guess?
+////        [menuGenerator_.contextMenu cancelTracking];
+//    }
 }
 
 void* ContextMenu::getWindowHandle() const {

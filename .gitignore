@@ -5,6 +5,7 @@ compile_commands.json
 NOTES
 .DS_Store
 build/
+build-xcode/
 logs/
 
 method_dump.txt

@@ -9,20 +9,23 @@
 
 #ifdef __OBJC__
 @class ContextMenuGenerator;
+#else
+class ContextMenuGenerator;
 #endif
 class ILogHandler;
 class ConfigMenu;
-class ActionHandler;
+class IActionHandler;
 class WindowManager;
 
 class ContextMenu : public IWindow {
 public:
     ContextMenu(
-        std::shared_ptr<ILogHandler> log
-        , std::shared_ptr<ConfigMenu> configMenu 
-        , std::shared_ptr<ActionHandler> actionHandler
-        , std::shared_ptr<WindowManager> windowManager
+        std::function<std::shared_ptr<ILogHandler>()> log
+        , std::function<std::shared_ptr<ConfigMenu>()> configMenu
+        , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+        , std::function<std::shared_ptr<WindowManager>()> windowManager
     );
+    ~ContextMenu(); // Define a destructor to clean up the Objective-C object
 
     void* getWindowHandle() const override;
     void open() override;
@@ -34,17 +37,16 @@ public:
     void closeMenu();
 
 private:
-    std::shared_ptr<ILogHandler> log_;
-    std::shared_ptr<ConfigMenu> configMenu_;
-    std::shared_ptr<ActionHandler> actionHandler_;
-    std::shared_ptr<WindowManager> windowManager_;
+    std::function<std::shared_ptr<ILogHandler>()> log_;
+    std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
+    std::function<std::shared_ptr<WindowManager>()> windowManager_;
 
     std::vector<MenuItem> menuItems_;
     bool isOpen_ = false;
 
-    #ifdef __OBJC__
-        ContextMenuGenerator* menuGenerator_;
-    #endif
+    ContextMenuGenerator* menuGenerator_;
+    void generateMenu();
 };
 
 #endif

@@ -224,6 +224,9 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     if (windowManager->isWindowOpen("SearchBox")) {
         if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                // TODO TODO TODO
+                // crashes if you open the SearchBox, tab to another application
+                // then click an item in the list
                 pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
 
                 //handler->log_->info("event pid: " + std::to_string(eventPID));

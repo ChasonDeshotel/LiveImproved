@@ -2,6 +2,9 @@
 
 #include <sstream>
 #include <filesystem>
+#include <algorithm>
+#include <cctype>
+#include <locale>
 
 namespace Utils {
     static std::filesystem::path getHomeDirectory() {
@@ -63,4 +66,39 @@ namespace Utils {
 
         return tokens;
     }
+
+    inline void removeSubstrings(std::string& str, const std::vector<std::string>& substrings) {
+        for (const auto& sub : substrings) {
+            size_t pos;
+            // Keep finding and erasing the substring until it no longer exists
+            while ((pos = str.find(sub)) != std::string::npos) {
+                str.erase(pos, sub.length());
+            }
+        }
+    }
+
+    inline std::string& ltrim(std::string& str) {
+        str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+        }));
+        return str;
+    }
+
+    inline std::string& rtrim(std::string& str) {
+        str.erase(std::find_if(str.rbegin(), str.rend(), [](unsigned char ch) {
+            return !std::isspace(ch);
+        }).base(), str.end());
+        return str;
+    }
+
+    inline std::string& trim(std::string& str) {
+        return ltrim(rtrim(str));
+    }
+
+    inline void chomp(std::string& str) {
+        while (!str.empty() && (str.back() == '\n' || str.back() == '\r')) {
+            str.pop_back();
+        }
+    }
+
 }

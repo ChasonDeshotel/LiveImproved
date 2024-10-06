@@ -16,6 +16,7 @@ class EventHandler;
 class IActionHandler;
 class LimLookAndFeel;
 class Theme;
+class ConfigMenu;
 
 class WindowManager {
 public:
@@ -26,7 +27,8 @@ public:
                  , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                  , std::function<std::shared_ptr<WindowManager>()> windowManager
                  , std::function<std::shared_ptr<Theme>()> theme
-                 , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel 
+                 , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
+                 , std::function<std::shared_ptr<ConfigMenu>()> configMenu
        );
 
     // TODO remove unused "override callback" param
@@ -50,6 +52,7 @@ private:
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
     std::function<std::shared_ptr<Theme>()> theme_;
     std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel_;
+    std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
 
     // Factory function to create window instances based on window name
     std::unique_ptr<IWindow> createWindowInstance(const std::string& windowName);

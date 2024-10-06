@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+set(BUILD_TESTING OFF)
 
 # Set project name and version
 project(LiveImproved VERSION 1.0 LANGUAGES CXX)

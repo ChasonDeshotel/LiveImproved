@@ -121,24 +121,52 @@ bool ActionHandler::loadItemByName(const std::string& itemName) {
     return false;
 }
 
-void ActionHandler::handleAction(const std::string action) {
+void ActionHandler::handleAction(std::string action) {
     log()->debug("handleAction called");
-    std::vector<std::string> actionParts = Utils::splitString(action, ",", 1);
 
-      if (actionParts.empty()) {
-        log()->warn("No action provided");
+    // Split by ',' to get individual actions
+    std::vector<std::string> actions = Utils::splitString(action, ",");
+
+    if (actions.empty()) {
+        log()->warn("No actions provided");
         return;
     }
 
-    std::string actionType = actionParts[0];
-    std::string args = actionParts[1];
+    // Loop through each action
+    for (auto& act : actions) {
+        Utils::trim(act);
 
-    auto actionHandler = actionMap.find(actionType);
-    if (actionHandler != actionMap.end()) {
-        // Call the corresponding method with arguments
-        actionHandler->second(args);
-    } else {
-        log()->warn("No handler found for action type: " + actionType);
+        // Split by '.' to get the action type and optional argument
+        std::vector<std::string> actionParts = Utils::splitString(act, ".", 1);
+
+        if (actionParts.empty()) {
+            log()->warn("Malformed action: " + act);
+            continue;
+        }
+
+        // Get the action type (first part before '.')
+        std::string actionType = Utils::trim(actionParts[0]);
+        log()->debug("Processing actionType: " + actionType);
+
+        // Try to find the action handler in the map
+        auto actionHandler = actionMap.find(actionType);
+        if (actionHandler != actionMap.end()) {
+            // Check if there is an argument (second part after '.')
+            if (actionParts.size() > 1) {
+                std::string args = Utils::trim(actionParts[1]);
+                log()->debug("Action has argument: " + args);
+
+                // Call the handler with the argument
+                actionHandler->second(args);
+            } else {
+                // No argument, pass std::nullopt
+                log()->debug("No argument provided for action: " + actionType);
+                actionHandler->second(std::nullopt);
+            }
+        } else {
+            // No handler found for this action type
+            log()->warn("No handler found for action type: " + actionType);
+        }
     }
 }
 
