@@ -47,8 +47,8 @@ pid_t PID::findLivePID() {
         return -1;
     }
 
-    int procCount = len / sizeof(struct kinfo_proc);
-
+    int procCount = static_cast<int>(len / sizeof(struct kinfo_proc));
+    
     for (int i = 0; i < procCount; i++) {
         struct kinfo_proc *proc = &procs[i];
 //        LogHandler::getInstance().info(proc->kp_proc.p_comm);

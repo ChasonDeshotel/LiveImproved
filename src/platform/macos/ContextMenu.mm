@@ -245,6 +245,7 @@ void ContextMenu::open() {
 
 // NOTE: do not call directly - use WindowManager
 void ContextMenu::close() {
+    return;
 // psure this is needed to call `close` programatically
 // but it prevents actions from firing
 //    if (contextMenu_) {

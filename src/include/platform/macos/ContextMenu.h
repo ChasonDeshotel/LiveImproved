@@ -6,8 +6,13 @@
 
 #include "IWindow.h"
 
+#ifdef __OBJC__
 @class ContextMenuGenerator;
 @class NSMenu;
+#else
+class ContextMenuGenerator;
+class NSMenu;
+#endif
 
 class ILogHandler;
 class ConfigMenu;
