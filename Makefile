@@ -1,5 +1,8 @@
 .PHONY: all clean
 
+# xcode build
+# cmake -G "Xcode" -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DBUILD_TESTING=OFF ..
+
 #.PHONY: bear-build
 
 #compile_commands:
