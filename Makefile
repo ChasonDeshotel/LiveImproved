@@ -1,5 +1,8 @@
 .PHONY: all clean
 
+# standard build
+# cmake -Bbuild -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+
 # xcode build
 # cmake -G "Xcode" -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DBUILD_TESTING=OFF ..
 
