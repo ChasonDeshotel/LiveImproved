@@ -209,11 +209,15 @@ const int doubleClickThresholdMs = 300;
 
 std::shared_ptr<LiveInterface> liveInterface = std::make_shared<LiveInterface>();
 
-CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eventType, CGEventRef event, void *refcon) {
-    CGEventRef retainedEvent = (CGEventRef)CFRetain(event);
+CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogEventType, CGEventRef ogEvent, void *refcon) {
+    // fix some edge cases where event gets destroyed
+    CGEventRef event = (CGEventRef)CFRetain(ogEvent);
+    CGEventType eventType = CGEventGetType(event);
     EventHandler* handler = static_cast<EventHandler*>(refcon);
 
     // TODO store/pass these so we don't have to call them every time
+    // or at least only call these where necessary
+    // and/or call the log via the singleton interface
     auto windowManager = handler->windowManager_();
     auto log = handler->log_();
     auto actionHandler = handler->actionHandler_();
@@ -225,17 +229,14 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType eve
     if (windowManager->isWindowOpen("SearchBox")) {
         if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (!event) return;
-                // Retain the event to ensure it stays valid
-                
                 //handler->log_->info("event pid: " + std::to_string(eventPID));
                 //handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
                 //handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
                 //handler->log_->info("target pid: " + std::to_string(targetPID));
                 
-                pid_t targetPID = (pid_t)CGEventGetIntegerValueField(retainedEvent, kCGEventTargetUnixProcessID);
-                CGPoint location = CGEventGetLocation(retainedEvent);
-                CFRelease(retainedEvent);
+                pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
+                CGPoint location = CGEventGetLocation(event);
+                CFRelease(event);
 
                 NSView *nativeView = reinterpret_cast<NSView *>(windowManager->getWindowHandle("SearchBox"));
                 LogHandler::getInstance().debug("got window handle");
