@@ -1,13 +1,22 @@
-#ifndef EVENT_HANDLER_H
-#define EVENT_HANDLER_H
+#pragma once
+
+#include <ApplicationServices/ApplicationServices.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 #include <JuceHeader.h>
 #include <memory>
 #include <functional>
 
-#include <ApplicationServices/ApplicationServices.h>
-
 #include "Types.h"
+
+#ifdef __OBJC__
+    @class NSView;
+    @class NSWindow;
+#else
+    // Forward declare as empty structs for pure C++ compatibility
+    struct NSView;
+    struct NSWindow;
+#endif
 
 class ILogHandler;
 class IActionHandler;
@@ -28,6 +37,10 @@ public:
     static void focusLim();
     static void focusLive();
     static void focusWindow(void* nativeWindowHandle);
+    static void focusWindow(int windowID);
+
+    NSView* getViewFromWindowID(int windowID);
+    NSWindow* getWindowFromWindowID(int windowID);
 
     ERect getLiveBoundsRect();
 
@@ -47,5 +60,3 @@ private:
     CFRunLoopSourceRef runLoopSource;
 
 };
-
-#endif

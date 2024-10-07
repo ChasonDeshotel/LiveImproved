@@ -2,7 +2,7 @@
 
 // TODO cross-platform
 #ifndef _WIN32
-	#include <CoreGraphics/CoreGraphics.h>
+	#import <CoreGraphics/CoreGraphics.h>
 #endif
 
 #include <string>

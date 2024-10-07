@@ -11,6 +11,7 @@
 #include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
+#include "EventHandler.h"
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
 #include "PlatformDependent.h"
@@ -153,23 +154,13 @@ public:
             [](DependencyContainer&) { return std::make_shared<ResponseParser>(); }
         );
 
-        container_.registerFactory<ILiveInterface>(
-            [](DependencyContainer& c) -> std::shared_ptr<LiveInterface> {
-                // We can delay these resolutions if needed
-                return std::make_shared<LiveInterface>(
-                    [&c]() { return c.resolve<ILogHandler>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
         container_.registerFactory<KeySender>(
             [](DependencyContainer&) { return std::make_shared<KeySender>(); }
             , DependencyContainer::Lifetime::Singleton
         );
 
         container_.registerFactory<IIPC>(
-            [](DependencyContainer& c) -> std::shared_ptr<IPC> {
+            [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
                 // We can delay these resolutions if needed
                 return std::make_shared<IPC>(
                     [&c]() { return c.resolve<ILogHandler>(); }
@@ -190,7 +181,7 @@ public:
         );
 
         container_.registerFactory<IActionHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<ActionHandler> {
+            [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<ActionHandler>(
                     [&c]() { return c.resolve<ILogHandler>(); }
@@ -204,6 +195,19 @@ public:
             }
             , DependencyContainer::Lifetime::Singleton
         );
+
+        container_.registerFactory<ILiveInterface>(
+            [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
+                // We can delay these resolutions if needed
+                return std::make_shared<LiveInterface>(
+                    [&c]() { return c.resolve<ILogHandler>(); }
+                    , [&c]() { return c.resolve<EventHandler>(); }
+                );
+            }
+            , DependencyContainer::Lifetime::Singleton
+        );
+        // kick off the window observers
+        container_.resolve<ILiveInterface>();
 
         container_.registerFactory<WindowManager>(
             [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {

@@ -36,6 +36,7 @@ struct NamedActions {
             "load_item"
             , "plugin"
             , "searchbox"
+            , "closeFocusedPlugin"
         };
         return namedActions;
     }

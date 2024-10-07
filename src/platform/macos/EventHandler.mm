@@ -1,6 +1,7 @@
-#include <ApplicationServices/ApplicationServices.h>
-#include <CoreFoundation/CoreFoundation.h>
-#include <Cocoa/Cocoa.h>
+#import <ApplicationServices/ApplicationServices.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
 #include <functional>
 #include <string>
 #include <iostream>
@@ -136,20 +137,80 @@ void EventHandler::focusApplication(pid_t pid) {
     }
 }
 
+// TODO TODO Ensure this method is called on the main thread
 void EventHandler::focusWindow(void* nativeWindowHandle) {
-    if (nativeWindowHandle == nullptr) return;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (nativeWindowHandle == nullptr) return;
 
-    [NSApp activateIgnoringOtherApps:YES];
+        [NSApp activateIgnoringOtherApps:YES];
 
-    NSView* view = (NSView*)nativeWindowHandle;
-    if (view != nil) {
-        NSWindow* window = [view window];  // Get the NSWindow that contains this NSView
-        if (window != nil) {
-            [window makeKeyAndOrderFront:nil];  // Bring the window to the front and make it key
-            [window makeFirstResponder:view];   // Set the first responder to the view
+        NSView* view = (NSView*)nativeWindowHandle;
+        if (view != nil) {
+            NSWindow* window = [view window];  // Get the NSWindow that contains this NSView
+            if (window != nil) {
+                [window makeKeyAndOrderFront:nil];  // Bring the window to the front and make it key
+                [window makeFirstResponder:view];   // Set the first responder to the view
+            }
         }
-    }
+    });
 }
+
+NSView* EventHandler::getViewFromWindowID(int windowID) {
+    NSWindow* window = [NSApp windowWithWindowNumber:windowID];
+    if (window) {
+        return [window contentView];
+    }
+    return nil;
+}
+
+void* getViewPointerFromWindowID(int windowID) {
+    NSWindow* window = [NSApp windowWithWindowNumber:windowID];
+    if (window) {
+        return (__bridge void*)[window contentView];
+    }
+    return nil;
+}
+
+NSWindow* EventHandler::getWindowFromWindowID(int windowID) {
+    NSWindow* window = [NSApp windowWithWindowNumber:windowID];
+    if (window) {
+        return window;
+    }
+    return nil;
+}
+
+void EventHandler::focusWindow(int windowID) {
+    if (windowID == 0) return;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LogHandler::getInstance().debug("focusing window with int windowID");
+        void* viewPointer = getViewPointerFromWindowID(windowID);
+
+        if (viewPointer == nullptr) return;
+
+        [NSApp activateIgnoringOtherApps:YES];
+
+        NSView* view = (NSView*)viewPointer;
+        if (view != nil) {
+            NSWindow* window = [view window];  // Get the NSWindow that contains this NSView
+            if (window != nil) {
+                [window makeKeyAndOrderFront:nil];  // Bring the window to the front and make it key
+                [window makeFirstResponder:view];   // Set the first responder to the view
+            }
+        }
+    });
+}
+
+//void EventHandler::focusWindow(int windowID) {
+//    NSView* view = (NSView*)windowID;
+//    if (view != nil) {
+//        NSWindow* window = [view window];  // Get the NSWindow that contains this NSView
+//        if (window != nil) {
+//            [window makeKeyAndOrderFront:nil];  // Bring the window to the front and make it key
+//            [window makeFirstResponder:view];   // Set the first responder to the view
+//        }
+//    }
+//}
 
 NSRect getLiveBounds() {
     NSRect appBounds = NSMakeRect(0, 0, 0, 0);
