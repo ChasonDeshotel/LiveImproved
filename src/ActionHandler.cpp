@@ -55,6 +55,7 @@ void ActionHandler::initializeActionMap() {
 
     // NOTE actions must be added here and in Types.h
     actionMap["closeFocusedPlugin"] = [this](const std::optional<std::string>& args) {
+//        eventHandler_()->test();
         liveInterface_()->closeFocusedPluginWindow();
     };
 

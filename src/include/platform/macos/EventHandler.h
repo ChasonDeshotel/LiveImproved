@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ApplicationServices/ApplicationServices.h>
-#include <CoreFoundation/CoreFoundation.h>
 
 #include <JuceHeader.h>
 #include <memory>
@@ -10,12 +9,17 @@
 #include "Types.h"
 
 #ifdef __OBJC__
+#include <CoreFoundation/CoreFoundation.h>
     @class NSView;
     @class NSWindow;
+    @class NSDictionary;
+    @class NSArray;
 #else
     // Forward declare as empty structs for pure C++ compatibility
     struct NSView;
     struct NSWindow;
+    struct NSDictionary;
+    struct NSArray;
 #endif
 
 class ILogHandler;
@@ -38,9 +42,15 @@ public:
     static void focusLive();
     static void focusWindow(void* nativeWindowHandle);
     static void focusWindow(int windowID);
+    bool isWindowFocused(int windowID);
+    void test();
 
     NSView* getViewFromWindowID(int windowID);
     NSWindow* getWindowFromWindowID(int windowID);
+    NSArray* getAllWindowsForApp();
+    NSDictionary *getMainWindowForApp(NSArray *appWindows);
+    void logWindowInfo(NSDictionary* windowInfo);
+
 
     ERect getLiveBoundsRect();
 

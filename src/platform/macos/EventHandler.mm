@@ -155,6 +155,95 @@ void EventHandler::focusWindow(void* nativeWindowHandle) {
     });
 }
 
+bool EventHandler::isWindowFocused(int windowID) {
+    NSArray *windows = [NSApp windows];
+    for (NSWindow *window in windows) {
+        if ([window windowNumber] == windowID) {
+            return [window isKeyWindow];
+        }
+    }
+    return false;
+}
+
+void EventHandler::test() {
+    for (NSDictionary *windowInfo in getAllWindowsForApp()) {
+        logWindowInfo(windowInfo);
+    }
+}
+
+void EventHandler::logWindowInfo(NSDictionary *windowInfo) {
+    // Get window name
+    NSString *windowName = (__bridge NSString *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowName);
+    if (!windowName) windowName = @"Unnamed Window";
+
+    // Get window bounds
+    NSDictionary *boundsDict = (__bridge NSDictionary *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowBounds);
+    CGRect windowBounds;
+    CGRectMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)boundsDict, &windowBounds);
+
+    // Get window ID
+    NSNumber *windowID = (__bridge NSNumber *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowNumber);
+
+    // Get window layer
+    NSNumber *windowLayer = (__bridge NSNumber *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowLayer);
+
+    // Build the debug log string
+    std::string debugInfo = "Window ID: " + std::to_string([windowID intValue]) + "\n";
+    debugInfo += "Window Name: " + std::string([windowName UTF8String]) + "\n";
+    debugInfo += "Window Layer: " + std::to_string([windowLayer intValue]) + "\n";
+    debugInfo += "Window Bounds: (" + std::to_string(windowBounds.origin.x) + ", " + std::to_string(windowBounds.origin.y) + 
+                 "), Size: (" + std::to_string(windowBounds.size.width) + ", " + std::to_string(windowBounds.size.height) + ")\n";
+
+    // Use logHandler_()->debug to print the debug information
+    log_()->debug(debugInfo);
+}
+
+NSArray *EventHandler::getAllWindowsForApp() {
+    NSMutableArray *appWindows = [NSMutableArray array];
+
+    CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+
+    for (CFIndex i = 0; i < CFArrayGetCount(windowList); i++) {
+        CFDictionaryRef windowInfo = (CFDictionaryRef)CFArrayGetValueAtIndex(windowList, i);
+        CFNumberRef windowPID = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowOwnerPID);
+
+        pid_t windowPidValue;
+        CFNumberGetValue(windowPID, kCFNumberIntType, &windowPidValue);
+
+        if (windowPidValue == PID::getInstance().livePID()) {
+            // Get the window level to determine if it's a floating window or standard window
+            // must do this or we'll return the plugin popup's bounds
+            CFNumberRef windowLevel = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowLayer);
+            int level;
+            CFNumberGetValue(windowLevel, kCFNumberIntType, &level);
+
+            // Live main window is level 0
+            // plugin windows are level 3
+//            if (level != 0) {
+//                continue;  // Skip non-standard windows (likely pop-ups)
+//            }
+            [appWindows addObject:(__bridge NSDictionary *)windowInfo];
+
+            CFDictionaryRef boundsDict = (CFDictionaryRef)CFDictionaryGetValue(windowInfo, kCGWindowBounds);
+            CGRect bounds;
+            CGRectMakeWithDictionaryRepresentation(boundsDict, &bounds);
+        }
+    }
+
+    CFRelease(windowList);
+
+    return appWindows;
+}
+
+NSDictionary *getMainWindowForApp(NSArray *appWindows) {
+    // Assuming the main window is the first window in the list, or you can use additional criteria
+    if ([appWindows count] > 0) {
+        return [appWindows firstObject];  // Main window could be the first one, adjust logic as needed
+    }
+    
+    return nil;
+}
+
 NSView* EventHandler::getViewFromWindowID(int windowID) {
     NSWindow* window = [NSApp windowWithWindowNumber:windowID];
     if (window) {
@@ -374,6 +463,12 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
 //                log->debug("Ableton Live text field has focus. Passing event.");
 //                return event;
 //            }
+
+            // TODO
+            // You can use the CGWindowListCopyWindowInfo function to get information about
+            // all windows on the screen and correlate it with the window receiving the event
+            // like see if the event app bounds match live's to determine if live is receiving
+            // the event vs a plugin window
 
             CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);

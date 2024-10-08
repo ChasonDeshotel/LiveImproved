@@ -54,14 +54,18 @@ public:
     AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level);
     std::vector<AXUIElementRef> findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level);
     void printAllAttributes(AXUIElementRef element);
+    void printAllAttributeValues(AXUIElementRef element);
     void searchFocusedTextField(AXUIElementRef element);
     void printFocusedElementInChildren(AXUIElementRef element);
     void printFocusedElementInfo(AXUIElementRef element);
     void printFocusedChildElementInfo(AXUIElementRef element);
     void printElementInfo(AXUIElementRef element, std::string prefix);
+    void printAXElementChildrenRecursively(AXUIElementRef element, int depth, int currentDepth);
     void setupPluginWindowChangeObserver(std::function<void()> callback) override;
     void removePluginWindowChangeObserver() override;
     bool isPluginWindow(AXUIElementRef element);
+    CFArrayRef getAllWindows();
+    AXUIElementRef getFrontmostWindow();
     void closeFocusedPluginWindow() override;
     void closeSpecificWindow(WindowHandle element) override;
 
@@ -80,6 +84,8 @@ private:
     std::vector<AXUIElementRef> getCurrentPluginWindows();
     bool isAnyPluginWindowFocused();
     AXUIElementRef getFocusedPluginWindow();
+    AXUIElementRef getFocusedElement();
+
 
     bool isElementValid(AXUIElementRef element);
 

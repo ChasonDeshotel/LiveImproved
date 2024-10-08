@@ -67,6 +67,19 @@ void LiveInterface::printElementInfo(AXUIElementRef element, std::string prefix 
 //        std::cout << prefix << "Identifier (Class): " << buffer << std::endl;
 //        CFRelease(identifier);
 //    }
+    CFTypeRef attributeValue = nullptr;
+    const char* cString = "AXFocused";
+    CFStringRef attributeName = CFStringCreateWithCString(NULL, cString, kCFStringEncodingUTF8);
+
+    error = AXUIElementCopyAttributeValue(element, attributeName, &attributeValue);
+    CFRelease(attributeName);
+    if (error == kAXErrorSuccess && attributeValue != nullptr) {
+        if (CFGetTypeID(attributeValue) == CFBooleanGetTypeID()) {
+            // If the value is a boolean
+            Boolean boolValue = CFBooleanGetValue((CFBooleanRef)attributeValue);
+            std::cout << prefix << "AXFocused: " << (boolValue ? "true" : "false") << std::endl;
+        }
+    }
 }
 
 std::string getStringFromCFString(CFStringRef cfString) {
@@ -321,6 +334,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
         LogHandler::getInstance().error("Failed to raise the next window. AXError: " + std::to_string(error));
     } else {
         LogHandler::getInstance().info("Successfully raised the next window.");
+//        interface->printAllAttributeValues(interface->getAppElement());
     }
     CFRelease(windowToFocus);
 
@@ -331,16 +345,178 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
     }
 }
 
+AXUIElementRef LiveInterface::getFocusedElement() {
+    AXUIElementRef appElement = getAppElement();
+    AXUIElementRef focusedElement = nullptr;
+
+    AXError error = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
+    if (error == kAXErrorSuccess && focusedElement != nullptr) {
+        printAllAttributeValues(focusedElement);
+        CFRelease(focusedElement);
+        return(focusedElement);
+    }
+
+//    if (error == kAXErrorSuccess && focusedElement != nullptr) {
+//        for (AXUIElementRef pluginWindow : pluginWindows) {
+//            if (CFEqual(focusedElement, pluginWindow)) {
+//                logHandler_()->info("One of the plugin windows is currently focused.");
+//                // You can take actions based on the focus state
+//            }
+//        }
+//        CFRelease(focusedElement);
+//    } else {
+//        logHandler_()->warn("No focused element found.");
+//    }
+
+    CFRelease(appElement);
+    return nullptr;
+}
+
+
+void LiveInterface::printAXElementChildrenRecursively(AXUIElementRef element, int depth = 5, int currentDepth = 0) {
+    if (currentDepth >= depth) {
+        return; // Stop recursion when reaching the depth limit
+    }
+
+    CFTypeRef childrenValue = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(element, kAXChildrenAttribute, &childrenValue);
+
+    if (error == kAXErrorSuccess && childrenValue != nullptr) {
+        if (CFGetTypeID(childrenValue) == CFArrayGetTypeID()) {
+            CFArrayRef children = (CFArrayRef)childrenValue;
+            CFIndex childCount = CFArrayGetCount(children);
+
+            for (CFIndex i = 0; i < childCount; i++) {
+                AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+
+                // Call printAllAttributeValues on each child
+                printAllAttributeValues(child);
+
+                // Recursively go through the child's children
+                printAXElementChildrenRecursively(child, depth, currentDepth + 1);
+            }
+        }
+        CFRelease(childrenValue); // Don't forget to release when done
+    }
+}
+
+AXUIElementRef LiveInterface::getFrontmostWindow() {
+    AXUIElementRef frontmostWindow;
+    AXUIElementRef appElement = getAppElement();
+
+    AXError result = AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
+    
+    if (result == kAXErrorSuccess && frontmostWindow) {
+        CFRelease(appElement);
+        logHandler_()->debug("Successfully obtained the frontmost window.");
+    } else {
+        logHandler_()->debug("Failed to get the frontmost window.");
+    }
+
+    return frontmostWindow;
+}
+
+CFArrayRef LiveInterface::getAllWindows() {
+    CFArrayRef windows;
+    AXError result = AXUIElementCopyAttributeValue(getAppElement(), kAXWindowsAttribute, (CFTypeRef *)&windows);
+    
+    if (result == kAXErrorSuccess && windows) {
+        CFIndex windowCount = CFArrayGetCount(windows);
+        logHandler_()->debug("Number of windows: " + std::to_string(windowCount));
+        
+        for (CFIndex i = 0; i < windowCount; i++) {
+            AXUIElementRef window = (AXUIElementRef)CFArrayGetValueAtIndex(windows, i);
+            
+            CFStringRef windowTitle;
+            AXUIElementCopyAttributeValue(window, kAXTitleAttribute, (CFTypeRef *)&windowTitle);
+            
+            if (windowTitle) {
+                // Convert CFStringRef to std::string
+                NSString *nsString = (__bridge NSString *)windowTitle;
+                std::string title([nsString UTF8String]);
+                logHandler_()->debug("Window " + std::to_string(i) + ": " + title);
+                CFRelease(windowTitle);
+            } else {
+                logHandler_()->debug("Window " + std::to_string(i) + ": (No Title)");
+            }
+        }
+        return windows;
+        CFRelease(windows);
+    } else {
+        logHandler_()->debug("Failed to get windows.");
+    }
+    return nullptr;
+}
+
 void LiveInterface::closeFocusedPluginWindow() {
-    // not really focused.. more like topmost
-    auto windows = getPluginWindowsFromLiveAX(1);
-    if (windows.empty()) {
+    AXUIElementRef frontmostWindow = getFrontmostWindow();
+
+    CFStringRef frontmostTitle = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(frontmostWindow, kAXTitleAttribute, (CFTypeRef *)&frontmostTitle);
+    
+    if (error != kAXErrorSuccess || !frontmostTitle) {
+        logHandler_()->debug("Failed to get title of frontmost window.");
+        CFRelease(frontmostWindow);
         return;
     }
-    AXUIElementRef focusedPlugin = windows[0];
-    closeSpecificWindow(focusedPlugin);
 
-    CFRelease(focusedPlugin);
+    // Convert the frontmost window title to a std::string
+    NSString *frontmostTitleNS = (__bridge NSString *)frontmostTitle;
+    std::string frontmostTitleStr([frontmostTitleNS UTF8String]);
+
+    // Get plugin windows from Live
+    auto windows = getPluginWindowsFromLiveAX();
+    if (windows.empty()) {
+        logHandler_()->debug("No plugin windows found.");
+        CFRelease(frontmostTitle);
+        CFRelease(frontmostWindow);
+        return;
+    }
+
+    // if the frontmost window != a plugin window title, we bail
+    bool found = false;
+    for (const auto& pluginWindow : windows) {
+        // Get the title of the plugin window
+        CFStringRef pluginTitle = nullptr;
+        AXError pluginError = AXUIElementCopyAttributeValue(pluginWindow, kAXTitleAttribute, (CFTypeRef *)&pluginTitle);
+
+        if (pluginError == kAXErrorSuccess && pluginTitle) {
+            // Convert the plugin window title to a std::string
+            NSString *pluginTitleNS = (__bridge NSString *)pluginTitle;
+            std::string pluginTitleStr([pluginTitleNS UTF8String]);
+
+            // Compare titles
+            if (frontmostTitleStr == pluginTitleStr) {
+                logHandler_()->debug("Frontmost window matches plugin window by title.");
+                found = true;
+                CFRelease(pluginTitle); // Release after use
+                break;
+            }
+            CFRelease(pluginTitle); // Release after use
+        }
+    }
+    if (!found) {
+        logHandler_()->debug("not found - returning");
+        return;
+    }
+
+//    printAXElementChildrenRecursively(getAppElement());
+
+//    //printAllAttributeValues(getAppElement());
+
+    AXUIElementRef highestPlugin = windows[0];
+
+    CGWindowID windowID;
+    error = _AXUIElementGetWindow(highestPlugin, &windowID);
+    if (error == kAXErrorSuccess) {
+        logHandler_()->debug("ID: " + std::to_string(static_cast<int>(windowID)));
+//        if (eventHandler_()->isWindowFocused(static_cast<int>(windowID))) {
+//            logHandler_()->debug("closing window");
+            closeSpecificWindow(highestPlugin);
+//        }
+    }
+
+    CFRelease(highestPlugin);
 }
 
 void LiveInterface::closeSpecificWindow(WindowHandle windowHandle) {
@@ -855,6 +1031,76 @@ void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
     }
 
     CFRelease(children);
+}
+void LiveInterface::printAllAttributeValues(AXUIElementRef element) {
+    CFArrayRef attributeNames;
+    AXUIElementCopyAttributeNames(element, &attributeNames);
+
+    CFIndex count = CFArrayGetCount(attributeNames);
+    for (CFIndex i = 0; i < count; i++) {
+        CFStringRef attributeName = (CFStringRef)CFArrayGetValueAtIndex(attributeNames, i);
+        char nameBuffer[256];
+        CFStringGetCString(attributeName, nameBuffer, sizeof(nameBuffer), kCFStringEncodingUTF8);
+        logHandler_()->debug("Attribute: " + std::string(nameBuffer));
+
+        // Get the attribute value
+        CFTypeRef attributeValue = nullptr;
+        AXError error = AXUIElementCopyAttributeValue(element, attributeName, &attributeValue);
+        if (error == kAXErrorSuccess && attributeValue != nullptr) {
+            // Handle different types of attribute values
+            if (CFGetTypeID(attributeValue) == CFStringGetTypeID()) {
+                // If the value is a string
+                char valueBuffer[256];
+                CFStringGetCString((CFStringRef)attributeValue, valueBuffer, sizeof(valueBuffer), kCFStringEncodingUTF8);
+                logHandler_()->debug("  Value (string): " + std::string(valueBuffer));
+            } else if (CFGetTypeID(attributeValue) == CFNumberGetTypeID()) {
+                // If the value is a number
+                int intValue;
+                CFNumberGetValue((CFNumberRef)attributeValue, kCFNumberIntType, &intValue);
+                logHandler_()->debug("  Value (number): " + std::to_string(intValue));
+            } else if (CFGetTypeID(attributeValue) == CFBooleanGetTypeID()) {
+                // If the value is a boolean
+                Boolean boolValue = CFBooleanGetValue((CFBooleanRef)attributeValue);
+                logHandler_()->debug("  Value (boolean): " + std::string(boolValue ? "true" : "false"));
+            } else if (CFGetTypeID(attributeValue) == CFArrayGetTypeID()) {
+                // If the value is an array
+                CFArrayRef arrayValue = (CFArrayRef)attributeValue;
+                CFIndex arrayCount = CFArrayGetCount(arrayValue);
+                logHandler_()->debug("  Value (array), size: " + std::to_string(arrayCount));
+                for (CFIndex j = 0; j < arrayCount; j++) {
+                    CFTypeRef arrayElement = CFArrayGetValueAtIndex(arrayValue, j);
+                    // You can recursively print array elements based on type here, if needed
+                }
+            } else if (CFGetTypeID(attributeValue) == AXValueGetTypeID()) {
+                // If the value is an AXValue (like a CGPoint, CGSize, etc.)
+                // You can handle other AXValue types (CGRect, etc.) as needed.
+                // If the value is an AXValue (like a CGPoint, CGSize, etc.)
+//                AXValueType valueType = AXValueGetType((AXValueRef)attributeValue);
+//                if (valueType == kAXValueCGPointType) {
+//                    CGPoint point;
+//                    AXValueGetValue((AXValueRef)attributeValue, kAXValueCGPointType, &point);
+//                    std::cout << "  Value (CGPoint): (" << point.x << ", " << point.y << ")" << std::endl;
+//                } else if (valueType == kAXValueCGSizeType) {
+//                    CGSize size;
+//                    AXValueGetValue((AXValueRef)attributeValue, kAXValueCGSizeType, &size);
+//                    std::cout << "  Value (CGSize): (" << size.width << ", " << size.height << ")" << std::endl;
+//                }
+                // You can handle other AXValue types (CGRect, etc.) as needed.
+            } else {
+                // Handle other types or unknown types
+                logHandler_()->debug("  Value (unknown type)");
+            }
+
+            // Release the attribute value after use
+            CFRelease(attributeValue);
+        } else {
+            logHandler_()->debug("  Failed to get value for this attribute");
+        }
+    }
+
+    if (attributeNames) {
+        CFRelease(attributeNames);
+    }
 }
 
 void LiveInterface::printAllAttributes(const AXUIElementRef element) {
