@@ -65,10 +65,23 @@ public:
 
     template<typename T>
     std::shared_ptr<T> resolve() {
-        auto it = factories_.find(typeid(T));
+        return resolveImpl<T>(std::vector<std::type_index>());
+    }
+
+private:
+    template<typename T>
+    std::shared_ptr<T> resolveImpl(std::vector<std::type_index> resolutionStack) {
+        auto typeIndex = std::type_index(typeid(T));
+        if (std::find(resolutionStack.begin(), resolutionStack.end(), typeIndex) != resolutionStack.end()) {
+            throw std::runtime_error("Circular dependency detected: " + std::string(typeid(T).name()));
+        }
+
+        auto it = factories_.find(typeIndex);
         if (it == factories_.end()) {
             throw std::runtime_error("Type not registered: " + std::string(typeid(T).name()));
         }
+
+        resolutionStack.push_back(typeIndex);
         return std::static_pointer_cast<T>(it->second(typeid(T)));
     }
 
@@ -77,11 +90,11 @@ private:
 
     template<typename T>
     std::shared_ptr<T> resolveArg() {
-        return resolve<T>();
+        return resolveImpl<T>(std::vector<std::type_index>());
     }
 
     std::unordered_map<
-        std::type_index, 
+        std::type_index,
         std::function<std::shared_ptr<void>(const std::type_info&)>
     > factories_;
 
