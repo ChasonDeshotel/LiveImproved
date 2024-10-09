@@ -20,7 +20,8 @@ extern "C" AXError _AXUIElementGetWindow(AXUIElementRef element, CGWindowID* win
 
 // Constructor
 LiveInterface::LiveInterface(std::function<std::shared_ptr<ILogHandler>()> logHandler, std::function<std::shared_ptr<EventHandler>()> eventHandler)
-    : logHandler_(std::move(logHandler))
+    : ILiveInterface()
+    , logHandler_(std::move(logHandler))
     , eventHandler_(std::move(eventHandler))
     , pluginWindows_()
     {
