@@ -17,9 +17,6 @@ public:
     IIPC(IIPC&&) = delete;
     IIPC& operator=(IIPC&&) = delete;
 
-protected:
-    IIPC() = default;  // Protected default constructor
-
     virtual bool init() = 0;
 
     virtual void writeRequest(const std::string& message) = 0;
@@ -30,4 +27,7 @@ protected:
     virtual void closeAndDeletePipes() = 0;
 
     virtual void stopIPC() = 0;
+
+protected:
+    IIPC() = default;  // Protected default constructor
 };
