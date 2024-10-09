@@ -11,9 +11,10 @@
 #include "LogHandler.h"
 #include "PluginManager.h"
 
-IPC::IPC(ApplicationManager& appManager)
-    : app_(appManager)
-    , log_(appManager.getLogHandler()) {
+IPC::IPC(
+    std::function<std::shared_ptr<ILogHandler>()> logHandler
+)
+    : log_(std::move(logHandler)) {
     init();
 }
 
