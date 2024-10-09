@@ -181,7 +181,7 @@ public:
         );
 
         container_.registerFactory<IActionHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
+            [](DependencyContainer& c) -> std::shared_ptr<ActionHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<ActionHandler>(
                     [&c]() { return c.resolve<ILogHandler>(); }
