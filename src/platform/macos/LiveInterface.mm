@@ -862,6 +862,9 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
         return nullptr;  // If failed, return early to avoid accessing nullptr
     }
 
+    // Ensure children is released at the end of the function
+    std::unique_ptr<void, decltype(&CFRelease)> childrenGuard(children, CFRelease);
+
     CFIndex count = CFArrayGetCount(children);
     std::cerr << "Number of children at level " << level << ": " << count << std::endl;
 
@@ -1196,44 +1199,54 @@ CFStringRef LiveInterface::getRole(AXUIElementRef elementRef) {
 
 // Method to find and interact with the "Search, text field"
 void LiveInterface::findAndInteractWithSearchField() {
-    if (mainWindow_) {
-        CFArrayRef children;
-        AXUIElementCopyAttributeValue(mainWindow_, kAXChildrenAttribute, (CFTypeRef*)&children);
-
-        for (CFIndex i = 0; i < CFArrayGetCount(children); i++) {
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
-            
-            CFStringRef role;
-            AXUIElementCopyAttributeValue(child, kAXRoleAttribute, (CFTypeRef*)&role);
-            
-            if (CFStringCompare(role, kAXTextFieldRole, 0) == kCFCompareEqualTo) {
-                CFStringRef description;
-                AXUIElementCopyAttributeValue(child, kAXDescriptionAttribute, (CFTypeRef*)&description);
-                
-                if (CFStringCompare(description, CFSTR("Search"), 0) == kCFCompareEqualTo) {
-                    printf("Found the Search, text field in app");
-
-                    // Check if it's focused
-                    if (!isElementFocused(child)) {
-                        printf("Search field is not focused. Focusing now...\n");
-                        focusElement(child);
-                    } else {
-                        printf("Search field is already focused.\n");
-                    }
-
-                    // Send text to the search field
-                    setTextInElement(child, "Hello, world!");
-                    printf("Text sent to search field.\n");
-                }
-                
-                CFRelease(description);
-            }
-            CFRelease(role);
-        }
-
-        CFRelease(children);
-    } else {
+    if (!mainWindow_) {
         printf("Failed to get main window for app");
+        return;
     }
+
+    CFArrayRef children = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(mainWindow_, kAXChildrenAttribute, (CFTypeRef*)&children);
+    if (error != kAXErrorSuccess || !children) {
+        printf("Failed to get children of main window. Error: %d\n", error);
+        return;
+    }
+
+    std::unique_ptr<void, decltype(&CFRelease)> childrenGuard(children, CFRelease);
+
+    for (CFIndex i = 0; i < CFArrayGetCount(children); i++) {
+        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+        if (!child) continue;
+
+        CFStringRef role = nullptr;
+        error = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, (CFTypeRef*)&role);
+        if (error != kAXErrorSuccess || !role) continue;
+
+        std::unique_ptr<void, decltype(&CFRelease)> roleGuard(role, CFRelease);
+        
+        if (CFStringCompare(role, kAXTextFieldRole, 0) == kCFCompareEqualTo) {
+            CFStringRef description = nullptr;
+            error = AXUIElementCopyAttributeValue(child, kAXDescriptionAttribute, (CFTypeRef*)&description);
+            if (error != kAXErrorSuccess || !description) continue;
+
+            std::unique_ptr<void, decltype(&CFRelease)> descriptionGuard(description, CFRelease);
+            
+            if (CFStringCompare(description, CFSTR("Search"), 0) == kCFCompareEqualTo) {
+                printf("Found the Search, text field in app\n");
+
+                if (!isElementFocused(child)) {
+                    printf("Search field is not focused. Focusing now...\n");
+                    focusElement(child);
+                } else {
+                    printf("Search field is already focused.\n");
+                }
+
+                setTextInElement(child, "Hello, world!");
+                printf("Text sent to search field.\n");
+                return;
+            }
+        }
+    }
+
+    printf("Search field not found\n");
 }
 
