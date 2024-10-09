@@ -7,9 +7,9 @@
 #include "Types.h"
 #include "Utils.h"
 
-ResponseParser::ResponseParser() {}
+ResponseParser::ResponseParser() = default;
 
-ResponseParser::~ResponseParser() {}
+ResponseParser::~ResponseParser() = default;
 
 std::vector<Plugin> ResponseParser::parsePlugins(const std::string& input) {
     std::vector<Plugin> plugins;
@@ -64,6 +64,6 @@ std::vector<Plugin> ResponseParser::getUniquePlugins(const std::vector<Plugin>& 
     for (const auto& pair : uniquePlugins) {
         result.push_back(pair.second);
     }
-    
+
     return result;
 }
