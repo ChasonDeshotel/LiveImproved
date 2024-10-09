@@ -38,6 +38,15 @@ juce_add_gui_app(LiveImproved
     PRODUCT_NAME "LiveImproved"
 )
 
+# Add custom target for running clang-tidy
+add_custom_target(
+    tidy
+    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
+    COMMAND ${CMAKE_COMMAND} -E env find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | xargs clang-tidy -p ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running clang-tidy on source files"
+)
+
 # Add the necessary JUCE modules
 target_link_libraries(LiveImproved
     PRIVATE
