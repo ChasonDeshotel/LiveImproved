@@ -20,15 +20,15 @@ extern "C" AXError _AXUIElementGetWindow(AXUIElementRef element, CGWindowID* win
 
 // Constructor
 LiveInterface::LiveInterface(std::function<std::shared_ptr<ILogHandler>()> logHandler, std::function<std::shared_ptr<EventHandler>()> eventHandler)
-    : ILiveInterface()
+    : ILiveInterface()  // Explicitly call the base class constructor
     , logHandler_(std::move(logHandler))
     , eventHandler_(std::move(eventHandler))
     , pluginWindows_()
-    {
-        setupPluginWindowChangeObserver([]() {
-//            std::cout << "Window change detected!" << std::endl;
-        });
-    }
+{
+    setupPluginWindowChangeObserver([]() {
+//        std::cout << "Window change detected!" << std::endl;
+    });
+}
 
 // Destructor
 LiveInterface::~LiveInterface() {}

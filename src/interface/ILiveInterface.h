@@ -7,6 +7,7 @@ using WindowHandle = const void*;
 
 class ILiveInterface {
 public:
+  ILiveInterface() = default;  // Add default constructor
   virtual ~ILiveInterface() = default;
 
   ILiveInterface(const ILiveInterface &) = default;
