@@ -18,7 +18,7 @@ if(CLANG_TIDY_EXE)
     set(CMAKE_CXX_CLANG_TIDY 
         ${CLANG_TIDY_EXE}
         -p=${CMAKE_BINARY_DIR}
-        -header-filter=.*\.(cpp|h)$
+        -header-filter=.*\\.(cpp|h)$
         -checks=-*,cppcoreguidelines-*,modernize-*
     )
 else()
@@ -33,7 +33,7 @@ add_custom_target(
     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
     COMMAND find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | 
             grep -v "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml" |
-            xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} -header-filter=.*\\.(cpp|h)$ -checks=-*,cppcoreguidelines-*,modernize-* {}
+            xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} -header-filter=.*\\\\.(cpp|h)$ -checks=-*,cppcoreguidelines-*,modernize-* {}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files"
 )
