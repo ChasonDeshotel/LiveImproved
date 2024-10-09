@@ -30,5 +30,6 @@ public:
   virtual void setLogLevel(LogLevel level) = 0;
 
 protected:
-    virtual auto logLevelToString(LogLevel level) -> std::string = 0;
+  ILogHandler() = default;  // Protected default constructor
+  virtual auto logLevelToString(LogLevel level) -> std::string = 0;
 };
