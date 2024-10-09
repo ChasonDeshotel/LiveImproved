@@ -1,4 +1,5 @@
 Checks: '-*,cppcoreguidelines-*,modernize-*'
 WarningsAsErrors: ''
-HeaderFilterRegex: 'src/.*\.(cpp|h)$'
+HeaderFilterRegex: '.*\.(cpp|h)$'
 FormatStyle: file
+ExcludePatterns: ['lib/.*', 'test/.*', 'build/.*']
