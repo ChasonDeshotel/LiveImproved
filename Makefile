@@ -1,5 +1,7 @@
 .PHONY: all clean
 
+# clang-tidy -checks='cppcoreguidelines-*,modernize-*' <file.cpp>
+#
 # standard build
 # cmake -Bbuild -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
 
