@@ -1,5 +1,4 @@
-Checks: '-*,cppcoreguidelines-*,modernize-*'
+Checks: '-*,cppcoreguidelines-*,modernize-*,-modernize-use-trailing-return-type'
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*\.(cpp|h)$'
 FormatStyle: file
-ExcludePatterns: ['lib/.*', 'test/.*', 'build/.*']

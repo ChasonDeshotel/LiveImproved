@@ -15,7 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Define CMAKE_CXX_CLANG_TIDY target
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
-    set(CMAKE_CXX_CLANG_TIDY 
+    set(CMAKE_CXX_CLANG_TIDY
         ${CLANG_TIDY_EXE}
         -p=${CMAKE_BINARY_DIR}
         -header-filter=.*\\.(cpp|h)$
@@ -28,14 +28,14 @@ endif()
 message(STATUS "Note: HarfBuzz is planning to remove CMake support in the future. Consider using Meson for HarfBuzz.")
 
 # Custom target for running clang-tidy
-add_custom_target(
-    tidy
-    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-    COMMAND find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | 
-            grep -v "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml" |
-            xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} -header-filter=.*\\\\.(cpp|h)$ -checks=-*,cppcoreguidelines-*,modernize-* {}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy on source files"
+ add_custom_target(
+     tidy
+     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
+     COMMAND find src -name '*.cpp' -or -name '*.h' |
+             grep -v "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml" |
+             xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} '-header-filter=.*\\.(cpp|h)'$ -checks=-*,cppcoreguidelines-*,modernize-* {}
+     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+     COMMENT "Running clang-tidy on source files"
 )
 
 # Set the C++ standard and Objective-C++ flag
