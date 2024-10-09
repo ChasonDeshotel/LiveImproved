@@ -13,12 +13,17 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Define CMAKE_CXX_CLANG_TIDY target
-set(CMAKE_CXX_CLANG_TIDY 
-    clang-tidy;
-    -p=${CMAKE_BINARY_DIR};
-    -header-filter=.*\.(cpp|h)$;
-    -checks=-*,cppcoreguidelines-*,modernize-*
-)
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+if(CLANG_TIDY_EXE)
+    set(CMAKE_CXX_CLANG_TIDY 
+        ${CLANG_TIDY_EXE}
+        -p=${CMAKE_BINARY_DIR}
+        -header-filter=.*\.(cpp|h)$
+        -checks=-*,cppcoreguidelines-*,modernize-*
+    )
+else()
+    message(WARNING "clang-tidy not found. Static analysis will be skipped.")
+endif()
 
 message(STATUS "Note: HarfBuzz is planning to remove CMake support in the future. Consider using Meson for HarfBuzz.")
 
@@ -26,8 +31,8 @@ message(STATUS "Note: HarfBuzz is planning to remove CMake support in the future
 add_custom_target(
     tidy
     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-    COMMAND ${CMAKE_COMMAND} -E env find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | 
-            xargs -I {} ${CMAKE_CXX_CLANG_TIDY} {}
+    COMMAND find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | 
+            xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} -header-filter=.*\\.(cpp|h)$ -checks=-*,cppcoreguidelines-*,modernize-* {}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files"
 )
