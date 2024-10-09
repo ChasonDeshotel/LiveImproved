@@ -32,6 +32,7 @@ add_custom_target(
     tidy
     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
     COMMAND find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | 
+            grep -v "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml" |
             xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} -header-filter=.*\\.(cpp|h)$ -checks=-*,cppcoreguidelines-*,modernize-* {}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files"
@@ -49,6 +50,7 @@ endif()
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# Add subdirectories after the tidy target
 add_subdirectory(lib/JUCE)
 add_subdirectory(lib/yaml-cpp)
 add_subdirectory(lib/harfbuzz)
