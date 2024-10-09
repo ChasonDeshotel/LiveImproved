@@ -7,10 +7,28 @@
 #include <stdexcept>
 #include <sstream>
 
+class Scope {
+public:
+    template<typename T>
+    std::shared_ptr<T> resolve(const std::function<std::shared_ptr<T>()>& factory) {
+        auto it = instances_.find(typeid(T));
+        if (it != instances_.end()) {
+            return std::static_pointer_cast<T>(it->second);
+        }
+        auto instance = factory();
+        instances_[typeid(T)] = instance;
+        return instance;
+    }
+
+private:
+    std::unordered_map<std::type_index, std::shared_ptr<void>> instances_;
+};
+
 class DependencyContainer {
 public:
     enum class Lifetime {
         Transient,
+        Scoped,
         Singleton
     };
 
@@ -25,7 +43,6 @@ public:
     DependencyContainer& operator=(DependencyContainer const&) = delete;
     DependencyContainer& operator=(DependencyContainer &&) = delete;
 
-
     template<typename Interface, typename Impl, typename... Args>
     void registerType(Lifetime lifetime = Lifetime::Transient) {
         factories_[typeid(Interface)] = [this, lifetime](const std::type_info& type) -> std::shared_ptr<void> {
@@ -36,7 +53,15 @@ public:
                 }
             }
 
-            auto instance = std::make_shared<Impl>(resolveArg<Args>()...);
+            auto createInstance = [this]() {
+                return std::make_shared<Impl>(resolveArg<Args>()...);
+            };
+
+            if (lifetime == Lifetime::Scoped && currentScope_) {
+                return currentScope_->resolve<Interface>(createInstance);
+            }
+
+            auto instance = createInstance();
 
             if (lifetime == Lifetime::Singleton) {
                 singletons_[type] = instance;
@@ -55,10 +80,21 @@ public:
                     return it->second;
                 }
             }
-            auto instance = factory(*this);
+
+            auto createInstance = [this, factory]() {
+                return factory(*this);
+            };
+
+            if (lifetime == Lifetime::Scoped && currentScope_) {
+                return currentScope_->resolve<Interface>(createInstance);
+            }
+
+            auto instance = createInstance();
+
             if (lifetime == Lifetime::Singleton) {
                 singletons_[type] = instance;
             }
+
             return instance;
         };
     }
@@ -66,6 +102,18 @@ public:
     template<typename T>
     std::shared_ptr<T> resolve() {
         return resolveImpl<T>(std::vector<std::type_index>());
+    }
+
+    Scope createScope() {
+        return Scope();
+    }
+
+    void beginScope(Scope& scope) {
+        currentScope_ = &scope;
+    }
+
+    void endScope() {
+        currentScope_ = nullptr;
     }
 
 private:
@@ -85,7 +133,6 @@ private:
         return std::static_pointer_cast<T>(it->second(typeid(T)));
     }
 
-private:
     DependencyContainer() = default;
 
     template<typename T>
@@ -99,4 +146,5 @@ private:
     > factories_;
 
     std::unordered_map<std::type_index, std::shared_ptr<void>> singletons_;
+    Scope* currentScope_ = nullptr;
 };
