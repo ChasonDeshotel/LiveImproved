@@ -1,14 +1,18 @@
 #pragma once
 
-#include <memory>
 #include <vector>
-#include "IPluginManager.h"
 
 class Plugin;
 
 class IPluginManager {
 public:
     virtual ~IPluginManager() = default;
-    virtual const std::vector<Plugin>& getPlugins() const = 0;
+
+    IPluginManager(const IPluginManager&) = delete;
+    IPluginManager& operator=(const IPluginManager&) = delete;
+    IPluginManager(IPluginManager&&) = delete;
+    IPluginManager& operator=(IPluginManager&&) = delete;
+
+    [[nodiscard]] virtual auto getPlugins() const -> std::vector<Plugin>& = 0;
     virtual void refreshPlugins() = 0;
 };
