@@ -20,6 +20,8 @@ set(CMAKE_CXX_CLANG_TIDY
     -checks=-*,cppcoreguidelines-*,modernize-*
 )
 
+message(STATUS "Note: HarfBuzz is planning to remove CMake support in the future. Consider using Meson for HarfBuzz.")
+
 # Custom target for running clang-tidy
 add_custom_target(
     tidy
@@ -53,24 +55,6 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/lib/harfbuzz)
 # Set up your project with JUCE modules
 juce_add_gui_app(LiveImproved
     PRODUCT_NAME "LiveImproved"
-)
-
-# Add custom target for running clang-tidy
-add_custom_target(
-    tidy
-    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-    COMMAND ${CMAKE_COMMAND} -E env find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | xargs clang-tidy -p ${CMAKE_BINARY_DIR}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy on source files"
-)
-
-# Add custom target for running clang-tidy
-add_custom_target(
-    tidy
-    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-    COMMAND ${CMAKE_COMMAND} -E env find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | xargs clang-tidy -p ${CMAKE_BINARY_DIR}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy on source files"
 )
 
 # Add the necessary JUCE modules
