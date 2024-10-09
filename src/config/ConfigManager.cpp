@@ -10,9 +10,10 @@
 #include "KeyMapper.h"
 
 ConfigManager::ConfigManager(const std::filesystem::path& configFile)
-    : configFile_(configFile) 
+    : configFile_(configFile)
     , log_(&LogHandler::getInstance())
-    , km_(new KeyMapper()) {
+    , km_(new KeyMapper())
+    , initRetries_() {
     loadConfig();
 
     log_->info("config filepath:" + configFile.generic_string());
@@ -40,15 +41,15 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
                 log_->debug("remap found remap");
                 log_->debug("remap fromStr: " + item.first.as<std::string>());
                 log_->debug("remap toStr: "   + item.second.as<std::string>());
-            
+
                 processRemap(item.first.as<std::string>(), item.second.as<std::string>());
             }
         }
 
         if (config["rename-plugins"] && config["rename-plugins"].IsMap()) {
             for (const auto &item : config["rename-plugins"]) {
-                std::string originalName = item.first.as<std::string>();
-                std::string newName = item.second.as<std::string>();
+                auto originalName = item.first.as<std::string>();
+                auto newName = item.second.as<std::string>();
                 renamePlugins_[originalName] = newName;
             }
         } else {
@@ -66,8 +67,8 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
 
         if (config["window"] && config["window"].IsMap()) {
             for (const auto &item : config["window"]) {
-                std::string windowName = item.first.as<std::string>();
-                std::string setting = item.second.as<std::string>();
+                auto windowName = item.first.as<std::string>();
+                auto setting = item.second.as<std::string>();
                 windowSettings_[windowName] = setting;
             }
         } else {
@@ -79,8 +80,8 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
             for (const auto& item : config["shortcuts"]) {
                 std::unordered_map<std::string, std::string> shortcutMap;
                 for (const auto& pair : item) {
-                    std::string key = pair.first.as<std::string>();
-                    std::string value = pair.second.as<std::string>();
+                    auto key = pair.first.as<std::string>();
+                    auto value = pair.second.as<std::string>();
                     shortcutMap[key] = value;
                 }
                 shortcuts_.push_back(shortcutMap);
