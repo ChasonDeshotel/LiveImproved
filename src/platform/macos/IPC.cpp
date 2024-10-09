@@ -19,7 +19,8 @@
 IPC::IPC(
     std::function<std::shared_ptr<ILogHandler>()> logHandler
 )
-    : logHandler_(std::move(logHandler))
+    : IIPC()
+    , logHandler_(std::move(logHandler))
     , isProcessingRequest_(false) {
     if (!logHandler_()) {
         throw std::invalid_argument("IPC requires valid logHandler");

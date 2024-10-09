@@ -14,7 +14,8 @@
 IPC::IPC(
     std::function<std::shared_ptr<ILogHandler>()> logHandler
 )
-    : log_(std::move(logHandler)) {
+    : IIPC()
+    , log_(std::move(logHandler)) {
     init();
 }
 
