@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#include "LogHandler.h"
+#include "ILogHandler.h"
 #include "Types.h"
 #include "Utils.h"
 
