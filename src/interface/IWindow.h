@@ -8,9 +8,15 @@
 class IWindow {
 public:
     virtual ~IWindow() = default;
+
+    IWindow(const IWindow&) = delete;
+    IWindow& operator=(const IWindow&) = delete;
+    IWindow(IWindow&&) = delete;
+    IWindow& operator=(IWindow&&) = delete;
+
     virtual void open() = 0;
     virtual void close() = 0;
-    virtual void* getWindowHandle() const = 0;
+    [[nodiscard]] virtual auto getWindowHandle() const -> void * = 0;
 };
 
 enum class Window {
