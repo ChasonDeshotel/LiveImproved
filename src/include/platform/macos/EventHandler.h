@@ -10,16 +10,16 @@
 
 #ifdef __OBJC__
 #include <CoreFoundation/CoreFoundation.h>
-    @class NSView;
-    @class NSWindow;
-    @class NSDictionary;
-    @class NSArray;
+@class NSView;
+@class NSWindow;
+@class NSDictionary;
+@class NSArray;
 #else
-    // Forward declare as empty structs for pure C++ compatibility
-    struct NSView;
-    struct NSWindow;
-    struct NSDictionary;
-    struct NSArray;
+// Forward declare as empty structs for pure C++ compatibility
+struct NSView;
+struct NSWindow;
+struct NSDictionary;
+struct NSArray;
 #endif
 
 class ILogHandler;

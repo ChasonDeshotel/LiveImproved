@@ -12,7 +12,6 @@
 #include <cstring>
 
 #include "IPC.h"
-#include "LogHandler.h"
 
 #include "PluginManager.h"
 
@@ -199,7 +198,7 @@ bool IPC::createPipe(const std::string& pipe_name) {
     } else {
         log_()->debug("Pipe created: " + pipe_name);
     }
-    
+
     // Init file descriptor -- indicates pipe has not yet been opened
     pipes_[pipe_name] = -1;
     return true;
@@ -241,15 +240,15 @@ bool IPC::openPipeForRead(const std::string& pipe_name, bool non_blocking) {
 
 std::string IPC::formatRequest(const std::string& message, uint64_t id) {
     size_t messageLength = message.length();
-    
+
     std::ostringstream idStream;
     idStream << std::setw(8) << std::setfill('0') << (id % 100000000);
     std::string paddedId = idStream.str();
-    
+
     std::ostringstream markerStream;
     markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength;
     std::string start_marker = markerStream.str();
-    
+
     std::string formattedRequest = start_marker + message;
     log_()->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "...");
 
@@ -327,7 +326,7 @@ bool IPC::writeRequestInternal(const std::string& message, ResponseCallback call
         log_()->error("Exception in formatRequest: " + std::string(e.what()));
         return false;
     }
-    
+
     log_()->debug("Writing request: " + formattedRequest);
 
 	ssize_t result = write(fd, formattedRequest.c_str(), formattedRequest.length());
