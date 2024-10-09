@@ -12,11 +12,16 @@ class IActionHandler {
 public:
     virtual ~IActionHandler() = default;
 
-    virtual void handleAction(std::string) = 0;
+    IActionHandler(const IActionHandler &) = default;
+    IActionHandler(IActionHandler &&) = delete;
+    IActionHandler &operator=(const IActionHandler &) = default;
+    IActionHandler &operator=(IActionHandler &&) = delete;
+
+    virtual void handleAction(std::string action) = 0;
     virtual bool handleKeyEvent(EKeyPress pressedKey) = 0;
     virtual void handleDoubleRightClick() = 0;
     virtual bool loadItem(int itemIndex) = 0;
-    virtual bool loadItemByName(const std::string& itemName) = 0;
+    virtual auto loadItemByName(const std::string &itemName) -> bool = 0;
 
 protected:
     IActionHandler() = default;

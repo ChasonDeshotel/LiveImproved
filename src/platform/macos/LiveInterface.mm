@@ -20,7 +20,7 @@ extern "C" AXError _AXUIElementGetWindow(AXUIElementRef element, CGWindowID* win
 
 // Constructor
 LiveInterface::LiveInterface(std::function<std::shared_ptr<ILogHandler>()> logHandler, std::function<std::shared_ptr<EventHandler>()> eventHandler)
-    : ILiveInterface()  // Explicitly call the base class constructor
+    : ILiveInterface()
     , logHandler_(std::move(logHandler))
     , eventHandler_(std::move(eventHandler))
     , pluginWindows_()
@@ -864,7 +864,7 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
     }
 
     // Ensure children is released at the end of the function
-    std::unique_ptr<void, decltype(&CFRelease)> childrenGuard(children, CFRelease);
+    std::unique_ptr<const __CFArray, decltype(&CFRelease)> childrenGuard(children, CFRelease);
 
     CFIndex count = CFArrayGetCount(children);
     std::cerr << "Number of children at level " << level << ": " << count << std::endl;
@@ -1211,8 +1211,8 @@ void LiveInterface::findAndInteractWithSearchField() {
         return;
     }
 
-    std::unique_ptr<void, decltype(&CFRelease)> childrenGuard(children, CFRelease);
-
+    std::unique_ptr<const __CFArray, decltype(&CFRelease)> childrenGuard(children, CFRelease);
+    
     for (CFIndex i = 0; i < CFArrayGetCount(children); i++) {
         AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
         if (!child) continue;
@@ -1221,14 +1221,14 @@ void LiveInterface::findAndInteractWithSearchField() {
         error = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, (CFTypeRef*)&role);
         if (error != kAXErrorSuccess || !role) continue;
 
-        std::unique_ptr<void, decltype(&CFRelease)> roleGuard(role, CFRelease);
+        std::unique_ptr<const __CFString, decltype(&CFRelease)> roleGuard(role, CFRelease);
         
         if (CFStringCompare(role, kAXTextFieldRole, 0) == kCFCompareEqualTo) {
             CFStringRef description = nullptr;
             error = AXUIElementCopyAttributeValue(child, kAXDescriptionAttribute, (CFTypeRef*)&description);
             if (error != kAXErrorSuccess || !description) continue;
 
-            std::unique_ptr<void, decltype(&CFRelease)> descriptionGuard(description, CFRelease);
+            std::unique_ptr<const __CFString, decltype(&CFRelease)> descriptionGuard(description, CFRelease);
             
             if (CFStringCompare(description, CFSTR("Search"), 0) == kCFCompareEqualTo) {
                 printf("Found the Search, text field in app\n");

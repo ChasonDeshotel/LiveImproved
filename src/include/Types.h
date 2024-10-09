@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -46,8 +47,8 @@ struct Action {
     std::string actionName;
     std::optional<std::string> arguments;
 
-    Action(const std::string& actionName, const std::optional<std::string>& args = std::nullopt)
-        : actionName(actionName), arguments(args) {}
+    Action(std::string actionName, const std::optional<std::string>& args = std::nullopt)
+        : actionName(std::move(actionName)), arguments(args) {}
 
     bool operator==(const Action& other) const {
     return actionName == other.actionName &&

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "IPluginManager.h"
+#include "Types.h"
 
 class IIPC;
 class ResponseParser;
@@ -26,7 +27,7 @@ public:
     PluginManager(PluginManager&&) = delete;
     PluginManager& operator=(PluginManager&&) = delete;
 
-    [[nodiscard]] auto getPlugins() const -> const std::vector<Plugin>& override;
+    const std::vector<Plugin>& getPlugins() const override;
     void refreshPlugins() override;
 
 private:

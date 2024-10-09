@@ -14,12 +14,12 @@ public:
     IWindow(IWindow&&) = delete;
     IWindow& operator=(IWindow&&) = delete;
 
-protected:
-    IWindow() = default;
-
     virtual void open() = 0;
     virtual void close() = 0;
     [[nodiscard]] virtual auto getWindowHandle() const -> void * = 0;
+
+protected:
+    IWindow() = default;
 };
 
 enum class Window {

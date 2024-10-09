@@ -7,7 +7,6 @@ using WindowHandle = const void*;
 
 class ILiveInterface {
 public:
-  ILiveInterface() = default;  // Add default constructor
   virtual ~ILiveInterface() = default;
 
   ILiveInterface(const ILiveInterface &) = default;
@@ -20,4 +19,7 @@ public:
 
   virtual void setupPluginWindowChangeObserver(std::function<void()> callback) = 0;
   virtual void removePluginWindowChangeObserver() = 0;
+
+protected:
+  ILiveInterface() = default;
 };

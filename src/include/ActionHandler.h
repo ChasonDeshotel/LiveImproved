@@ -22,27 +22,30 @@ class ILiveInterface;
 
 class ActionHandler : public IActionHandler {
 public:
-    ActionHandler(
-                  std::function<std::shared_ptr<ILogHandler>()> logHandler
-                  , std::function<std::shared_ptr<IPluginManager>()> pluginManager
-                  , std::function<std::shared_ptr<WindowManager>()> windowManager
-                  , std::function<std::shared_ptr<ConfigManager>()> configManager
-                  , std::function<std::shared_ptr<IIPC>()> ipc
-                  , std::function<std::shared_ptr<EventHandler>()> eventHandler
-                  , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
-                  );
+  ActionHandler(std::function<std::shared_ptr<ILogHandler>()> logHandler,
+                std::function<std::shared_ptr<IPluginManager>()> pluginManager,
+                std::function<std::shared_ptr<WindowManager>()> windowManager,
+                std::function<std::shared_ptr<ConfigManager>()> configManager,
+                std::function<std::shared_ptr<IIPC>()> ipc,
+                std::function<std::shared_ptr<EventHandler>()> eventHandler,
+                std::function<std::shared_ptr<ILiveInterface>()> liveInterface);
 
-    ~ActionHandler();
+  ~ActionHandler() override;
 
-    void handleAction(std::string);
+  ActionHandler(const ActionHandler &) = default;
+  ActionHandler(ActionHandler &&) = delete;
+  ActionHandler &operator=(const ActionHandler &) = default;
+  ActionHandler &operator=(ActionHandler &&) = delete;
 
-    // returns if the event should be blocking
-    bool handleKeyEvent(EKeyPress pressedKey);
+  void handleAction(std::string) override;
 
-    void handleDoubleRightClick();
+  // returns if the event should be blocking
+  bool handleKeyEvent(EKeyPress pressedKey) override;
 
-    bool loadItem(int itemIndex);
-    bool loadItemByName(const std::string& itemName);
+  void handleDoubleRightClick() override;
+
+  bool loadItem(int itemIndex) override;
+  bool loadItemByName(const std::string &itemName) override;
 
 private:
     std::function<std::shared_ptr<IIPC>()> ipc_;

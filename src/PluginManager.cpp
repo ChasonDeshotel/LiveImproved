@@ -15,7 +15,7 @@ PluginManager::PluginManager(
     , responseParser_(std::move(responseParser))
     , log_(std::move(logHandler)) {}
 
-PluginManager::~PluginManager() {}
+PluginManager::~PluginManager() = default;
 
 const std::vector<Plugin>& PluginManager::getPlugins() const {
     return plugins_;

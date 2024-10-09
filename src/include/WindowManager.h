@@ -33,7 +33,7 @@ public:
 
     // TODO remove unused "override callback" param
     void registerWindow(const std::string& windowName, std::function<void()> callback = nullptr);
-    void* getWindowHandle(const std::string& windowName) const;
+    [[nodiscard]] void* getWindowHandle(const std::string& windowName) const;
 
     void openWindow(const std::string& windowName);
 
@@ -42,7 +42,7 @@ public:
     void toggleWindow(const std::string& windowName);
 
     // Check if a window is open
-    bool isWindowOpen(const std::string& windowName) const;
+    [[nodiscard]] bool isWindowOpen(const std::string& windowName) const;
 
 private:
     std::function<std::shared_ptr<ILogHandler>()> logHandler_;
