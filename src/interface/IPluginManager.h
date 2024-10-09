@@ -13,6 +13,9 @@ public:
     IPluginManager(IPluginManager&&) = delete;
     IPluginManager& operator=(IPluginManager&&) = delete;
 
-    [[nodiscard]] virtual auto getPlugins() const -> std::vector<Plugin>& = 0;
+    [[nodiscard]] virtual auto getPlugins() const -> const std::vector<Plugin>& = 0;
     virtual void refreshPlugins() = 0;
+
+protected:
+    IPluginManager() = default;
 };

@@ -26,7 +26,7 @@ public:
     PluginManager(PluginManager&&) = delete;
     PluginManager& operator=(PluginManager&&) = delete;
 
-    const std::vector<Plugin>& getPlugins() const override;
+    [[nodiscard]] auto getPlugins() const -> const std::vector<Plugin>& override;
     void refreshPlugins() override;
 
 private:
