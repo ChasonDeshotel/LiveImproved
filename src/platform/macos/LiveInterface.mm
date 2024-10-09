@@ -909,7 +909,6 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
 
     // Release children if nothing is found
     std::cerr << "Releasing children array at level " << level << std::endl;
-    CFRelease(children);
     std::cerr << "No match found at level " << level << std::endl;
     return nullptr;
 }
