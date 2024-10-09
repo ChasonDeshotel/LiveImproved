@@ -10,8 +10,25 @@ project(LiveImproved VERSION 1.0 LANGUAGES CXX)
 add_definitions(-DDEBUG)
 set(CMAKE_BUILD_TYPE Debug)
 
-set(CMAKE_CXX_CLANG_TIDY clang-tidy;-p=${CMAKE_BINARY_DIR})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Define CMAKE_CXX_CLANG_TIDY target
+set(CMAKE_CXX_CLANG_TIDY 
+    clang-tidy;
+    -p=${CMAKE_BINARY_DIR};
+    -header-filter=.*\.(cpp|h)$;
+    -checks=-*,cppcoreguidelines-*,modernize-*
+)
+
+# Custom target for running clang-tidy
+add_custom_target(
+    tidy
+    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
+    COMMAND ${CMAKE_COMMAND} -E env find ${CMAKE_SOURCE_DIR}/src -name '*.cpp' -or -name '*.h' | 
+            xargs -I {} ${CMAKE_CXX_CLANG_TIDY} {}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running clang-tidy on source files"
+)
 
 # Set the C++ standard and Objective-C++ flag
 set(CMAKE_CXX_STANDARD 20)

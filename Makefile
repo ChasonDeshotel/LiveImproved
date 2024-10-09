@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean tidy
 
 # clang-tidy -checks='cppcoreguidelines-*,modernize-*' <file.cpp>
 #
@@ -32,3 +32,6 @@ run:
 
 clean:
 	@$(MAKE) -C build clean
+
+tidy:
+	@$(MAKE) -C build tidy
