@@ -11,7 +11,8 @@ PluginManager::PluginManager(
                              , std::function<std::shared_ptr<IIPC>()> ipc
                              , std::function<std::shared_ptr<ResponseParser>()> responseParser
     )
-    : ipc_(std::move(ipc))
+    : IPluginManager()
+    , ipc_(std::move(ipc))
     , responseParser_(std::move(responseParser))
     , log_(std::move(logHandler)) {}
 

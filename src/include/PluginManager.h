@@ -21,6 +21,11 @@ public:
 
     ~PluginManager() override;
 
+    PluginManager(const PluginManager&) = delete;
+    PluginManager& operator=(const PluginManager&) = delete;
+    PluginManager(PluginManager&&) = delete;
+    PluginManager& operator=(PluginManager&&) = delete;
+
     const std::vector<Plugin>& getPlugins() const override;
     void refreshPlugins() override;
 
