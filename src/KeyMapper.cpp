@@ -6,7 +6,7 @@ KeyMapper::KeyMapper()
     : log_(&LogHandler::getInstance())
     , valid(false) {}
 
-EKeyPress KeyMapper::processKeyPress(const std::string& keypress) {
+auto KeyMapper::processKeyPress(const std::string& keypress) -> EKeyPress {
     log_->debug("process key: " + keypress);
     if (validateHotkey(keypress)) {
         this->keypress = parseKeyPress(keypress);
