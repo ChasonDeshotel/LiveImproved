@@ -187,7 +187,8 @@ ContextMenu::ContextMenu(
         , std::function<std::shared_ptr<IActionHandler>()> actionHandler
         , std::function<std::shared_ptr<WindowManager>()> windowManager
     )
-    : log_(std::move(logHandler))
+    : IWindow()
+    , log_(std::move(logHandler))
     , configMenu_(std::move(configMenu))
     , actionHandler_(std::move(actionHandler))
     , windowManager_(std::move(windowManager))
