@@ -10,6 +10,8 @@ project(LiveImproved VERSION 1.0 LANGUAGES CXX)
 add_definitions(-DDEBUG)
 set(CMAKE_BUILD_TYPE Debug)
 
+set(CMAKE_CXX_CLANG_TIDY clang-tidy;-p=${CMAKE_BINARY_DIR})
+
 # Set the C++ standard and Objective-C++ flag
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
