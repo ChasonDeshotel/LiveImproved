@@ -11,6 +11,7 @@ add_definitions(-DDEBUG)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_CLANG_TIDY clang-tidy;-p=${CMAKE_BINARY_DIR})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Set the C++ standard and Objective-C++ flag
 set(CMAKE_CXX_STANDARD 20)

@@ -1,0 +1,7 @@
+Checks: '-*,cppcoreguidelines-*,modernize-*'
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*\.h$'
+FormatStyle: file
+
+# Only include files in the src directory
+IncludePatterns: ['src/.*']
