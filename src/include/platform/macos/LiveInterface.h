@@ -68,10 +68,12 @@ public:
     AXUIElementRef getFrontmostWindow();
     void closeFocusedPluginWindow() override;
     void closeSpecificWindow(WindowHandle element) override;
+    void tilePluginWindows();
 
 private:
     std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height);
 
     bool windowCloseInProgress_ = false;
     AXUIElementRef findApplicationWindow();
@@ -96,4 +98,48 @@ private:
     std::function<void()> destroyCallback_;
     static void pluginWindowDestroyCallback(AXObserverRef observer, AXUIElementRef element,
                                      CFStringRef notification, void* context);
+
+    void tilePluginWindows() {
+        std::vector<AXUIElementRef> pluginWindows = getPluginWindowsFromLiveAX(0);  // Get all plugin windows
+        if (pluginWindows.empty()) return;
+
+        // Get the screen size
+        CGRect screenBounds = [[NSScreen mainScreen] frame];
+        int screenWidth = screenBounds.size.width;
+        int screenHeight = screenBounds.size.height;
+
+        // Calculate the number of rows and columns
+        int numWindows = pluginWindows.size();
+        int numCols = std::ceil(std::sqrt(numWindows));
+        int numRows = std::ceil(static_cast<double>(numWindows) / numCols);
+
+        // Calculate window size
+        int windowWidth = screenWidth / numCols;
+        int windowHeight = screenHeight / numRows;
+
+        // Arrange windows
+        for (int i = 0; i < numWindows; ++i) {
+            int row = i / numCols;
+            int col = i % numCols;
+
+            int x = col * windowWidth;
+            int y = row * windowHeight;
+
+            setWindowBounds(pluginWindows[i], x, y, windowWidth, windowHeight);
+        }
+    }
+
+    void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height) {
+        CGPoint position = CGPointMake(x, y);
+        CGSize size = CGSizeMake(width, height);
+
+        AXValueRef positionRef = AXValueCreate(kAXValueCGPointType, &position);
+        AXValueRef sizeRef = AXValueCreate(kAXValueCGSizeType, &size);
+
+        AXUIElementSetAttributeValue(window, kAXPositionAttribute, positionRef);
+        AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
+
+        CFRelease(positionRef);
+        CFRelease(sizeRef);
+    }
 };
