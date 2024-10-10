@@ -14,7 +14,7 @@ class ILogHandler;
 class KeyMapper;
 class IPluginManager;
 class ResponseParser;
-class IIPC;
+class IIPCCore;
 class WindowManager;
 class ConfigManager;
 class EventHandler;
@@ -26,7 +26,7 @@ public:
                 std::function<std::shared_ptr<IPluginManager>()> pluginManager,
                 std::function<std::shared_ptr<WindowManager>()> windowManager,
                 std::function<std::shared_ptr<ConfigManager>()> configManager,
-                std::function<std::shared_ptr<IIPC>()> ipc,
+                std::function<std::shared_ptr<IIPCCore>()> ipc,
                 std::function<std::shared_ptr<EventHandler>()> eventHandler,
                 std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     );
@@ -49,7 +49,7 @@ public:
     bool loadItemByName(const std::string &itemName) override;
 
 private:
-    std::function<std::shared_ptr<IIPC>()> ipc_;
+    std::function<std::shared_ptr<IIPCCore>()> ipc_;
     std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
@@ -57,11 +57,11 @@ private:
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
 
-    std::shared_ptr<ILogHandler> log() { return logHandler_(); }
-    std::shared_ptr<WindowManager> windowManager() { return windowManager_(); }
-    std::shared_ptr<ConfigManager> configManager() { return configManager_(); }
-    std::shared_ptr<IIPC> ipc() { return ipc_(); }
-    std::shared_ptr<IPluginManager> pluginManager() { return pluginManager_(); }
+//    std::shared_ptr<ILogHandler> log() { return logHandler_(); }
+//    std::shared_ptr<WindowManager> windowManager() { return windowManager_(); }
+//    std::shared_ptr<ConfigManager> configManager() { return configManager_(); }
+//    std::shared_ptr<IIPCCore> ipc() { return ipc_(); }
+//    std::shared_ptr<IPluginManager> pluginManager() { return pluginManager_(); }
     void getMostRecentFloatingWindowDelayed(std::function<void(int)> callback);
 
 

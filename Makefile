@@ -3,10 +3,11 @@
 # clang-tidy -checks='cppcoreguidelines-*,modernize-*' <file.cpp>
 #
 # standard build
+# make -C build VERBOSE=1 LDFLAGS="-v"
 # cmake -Bbuild -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
 
 # xcode build
-# cmake -G "Xcode" -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DBUILD_TESTING=OFF ..
+# cmake -G "Xcode" -DBUILD_TESTING=OFF -B./build-xcode .
 
 #.PHONY: bear-build
 

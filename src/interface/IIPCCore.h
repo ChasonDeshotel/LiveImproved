@@ -5,17 +5,17 @@
 
 class ILogHandler;
 
-class IIPC {
+class IIPCCore {
 public:
     using ResponseCallback = std::function<void(const std::string&)>;
 
-    virtual ~IIPC() = default;
+    virtual ~IIPCCore() = default;
 
     // Disable copying and moving
-    IIPC(const IIPC&) = delete;
-    IIPC& operator=(const IIPC&) = delete;
-    IIPC(IIPC&&) = delete;
-    IIPC& operator=(IIPC&&) = delete;
+    IIPCCore(const IIPCCore&) = delete;
+    IIPCCore& operator=(const IIPCCore&) = delete;
+    IIPCCore(IIPCCore&&) = delete;
+    IIPCCore& operator=(IIPCCore&&) = delete;
 
     virtual bool init() = 0;
     virtual bool isInitialized() const = 0;
@@ -30,5 +30,5 @@ public:
     virtual void stopIPC() = 0;
 
 protected:
-    IIPC() = default;  // Protected default constructor
+    IIPCCore() = default;  // Protected default constructor
 };

@@ -124,13 +124,17 @@ private:
             throw std::runtime_error("Circular dependency detected: " + std::string(typeid(T).name()));
         }
 
+        resolutionStack.push_back(typeIndex);
+
         auto it = factories_.find(typeIndex);
         if (it == factories_.end()) {
             throw std::runtime_error("Type not registered: " + std::string(typeid(T).name()));
         }
 
-        resolutionStack.push_back(typeIndex);
+        // get the resolved instance
         return std::static_pointer_cast<T>(it->second(typeid(T)));
+
+        resolutionStack.pop_back();
     }
 
     DependencyContainer() = default;

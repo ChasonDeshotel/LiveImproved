@@ -8,20 +8,20 @@
 #include <queue>
 
 #include "Utils.h"
-#include "IIPC.h"
+#include "IIPCCore.h"
 
 class ApplicationManager;
 class ILogHandler;
 class IPluginManager;
 
-class IPC : public IIPC {
+class IPCCore : public IIPCCore {
 public:
     using ResponseCallback = std::function<void(const std::string&)>;
 
-    IPC(
+    IPCCore(
         std::function<std::shared_ptr<ILogHandler>()> logHandler
        );
-    ~IPC() override;
+    ~IPCCore() override;
 
     bool init() override;
 

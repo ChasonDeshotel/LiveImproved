@@ -15,9 +15,7 @@ IPCResilienceDecorator::IPCResilienceDecorator(
 {
     auto log = logHandler_();
     log->debug("IPCResilienceDecorator constructed");
-    if (!checkAndReestablishConnection()) {
-        log->error("Failed to establish initial IPC connection");
-    }
+    init();
 }
 
 template<typename Func>
@@ -55,50 +53,38 @@ void IPCResilienceDecorator::logMessage(const std::string& message, LogLevel lev
             break;
         case LogLevel::LOG_TRACE:
         case LogLevel::LOG_FATAL:
-            // Handle these cases as appropriate for your application
-            logHandler_()->error(message);  // Default to error for now
+            logHandler_()->error(message);
             break;
     }
 }
 
 bool IPCResilienceDecorator::checkAndReestablishConnection() {
-    auto log = logHandler_();
-    if (!instance_ || !instance_->isInitialized()) {
+    if (!isInitialized()) {
+        auto log = logHandler_();
         log->info("IPC connection lost or not initialized. Attempting to establish...");
-        
-        // Create a new instance
-        auto newInstance = ipcFactory_();
-        
-        if (newInstance) {
-            if (newInstance->init()) {
-                // If initialization of the new instance succeeds, replace the old one
-                if (instance_) {
-                    // Perform any necessary cleanup on the old instance
-                    instance_->stopIPC();
-                }
-                instance_ = std::move(newInstance);
-                log->info("New IPC connection established successfully.");
-                return true;
-            } else {
-                log->error("Failed to initialize new IPC connection.");
-            }
-        } else {
-            log->error("Failed to create new IPC instance.");
-        }
-        return false;
+        return init();
     }
     return true;
 }
 
-
 bool IPCResilienceDecorator::init() {
     return handleError("init", [this]() {
         if (!instance_) {
-            auto log = logHandler_();
-            log->error("Attempted to initialize null IPC instance");
+            instance_ = ipcFactory_();
+            if (!instance_) {
+                logHandler_()->error("Failed to create IPC instance");
+                return false;
+            }
+        }
+
+        if (!instance_->init()) {
+            logHandler_()->error("Failed to initialize IPC instance");
+            instance_ = nullptr;  // Reset the instance so we can try again later
             return false;
         }
-        return instance_->init();
+
+        logHandler_()->info("IPC connection established successfully");
+        return true;
     });
 }
 

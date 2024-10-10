@@ -13,7 +13,9 @@
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
 #include "EventHandler.h"
-#include "IPC.h"
+#include "IPCCore.h"
+#include "IIPCCore.h"
+#include "IPCResilienceDecorator.h"
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
 #include "LiveInterface.h"
@@ -73,7 +75,7 @@ public:
         container_.resolve<EventHandler>()->registerAppTermination([this]() {
             LogHandler::getInstance().info("termination callback called");
 
-            auto ipc = this->container_.resolve<IIPC>();
+            auto ipc = this->container_.resolve<IIPCCore>();
             ipc->stopIPC();
 
             std::promise<void> closePromise;
@@ -121,6 +123,7 @@ public:
             / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask"
         ;
 
+        container_.registerType<ILogHandler, LogHandler>(DependencyContainer::Lifetime::Singleton);
         container_.registerFactory<ILogHandler>(
             // TODO maybe
             //[](DependencyContainer&) { return std::make_shared<LogHandler>("app.log"); },
@@ -161,30 +164,25 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container_.registerFactory<IIPC>(
-            [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
-                // We can delay these resolutions if needed
-                return std::make_shared<IPC>(
+        container_.registerFactory<IIPCCore>(
+            [](DependencyContainer& c) -> std::shared_ptr<IIPCCore> {
+                return std::make_shared<IPCResilienceDecorator>(
+                    [&c]() {
+                        return std::make_shared<IPCCore>(
+                            [&c]() { return c.resolve<ILogHandler>(); }
+                        );
+                    },
                     [&c]() { return c.resolve<ILogHandler>(); }
                 );
             }
             , DependencyContainer::Lifetime::Singleton
         );
-        //container_.registerFactory<IIPC>(
-        //    [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
-        //        return std::make_shared<ResilientIPC>(
-        //            [&c]() { return c.resolve<IPC>(); },
-        //            [&c]() { return c.resolve<ILogHandler>(); }
-        //        );
-        //    }
-        //    , DependencyContainer::Lifetime::Singleton
-        //);
 
         container_.registerFactory<IPluginManager>(
             [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
                 return std::make_shared<PluginManager>(
                     [&c]() { return c.resolve<ILogHandler>(); }
-                    , [&c]() { return c.resolve<IIPC>(); }
+                    , [&c]() { return c.resolve<IIPCCore>(); }
                     , [&c]() { return c.resolve<ResponseParser>(); }
                 );
             }
@@ -199,7 +197,7 @@ public:
                     , [&c]() { return c.resolve<IPluginManager>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
                     , [&c]() { return c.resolve<ConfigManager>(); }
-                    , [&c]() { return c.resolve<IIPC>(); }
+                    , [&c]() { return c.resolve<IIPCCore>(); }
                     , [&c]() { return c.resolve<EventHandler>(); }
                     , [&c]() { return c.resolve<ILiveInterface>(); }
                 );
@@ -237,12 +235,10 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container_.resolve<IIPC>()->init();
-
         if (ipcCallDelay > 0) sleep(ipcCallDelay);
 
         LogHandler::getInstance().info("writing READY");
-        container_.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
+        container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
             LogHandler::getInstance().info("received READY response: " + response);
         });
 
@@ -259,7 +255,7 @@ public:
     }
 
     void shutdown() override {
-        auto ipc = this->container_.resolve<IIPC>();
+        auto ipc = this->container_.resolve<IIPCCore>();
         ipc->stopIPC();
 
         std::promise<void> closePromise;

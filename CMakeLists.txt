@@ -12,10 +12,32 @@ set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+
+message(STATUS "Note: HarfBuzz is planning to remove CMake support in the future. Consider using Meson for HarfBuzz.")
+
+# Custom target for running clang-tidy
+if(APPLE)
+    set(PLATFORM_FILES "platform/windows")
+elseif(WIN32)
+    set(PLATFORM_FILES "platform/macos")
+endif()
+set(TIDY_IGNORE_GREP "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml\\|src/include/juce\\|${PLATFORM_IGNORE_TIDY}")
+
+add_custom_target(
+    tidy
+    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
+    COMMAND find src -name '*.cpp' -or -name '*.h' |
+    grep -v "${TIDY_IGNORE_GREP}" |
+            xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} '-header-filter=.*\\.(cpp|h)'$ -checks=-*,cppcoreguidelines-*,modernize-* {}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running clang-tidy on source files"
+)
 # Define CMAKE_CXX_CLANG_TIDY target
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
-    set(CMAKE_CXX_CLANG_TIDY
+    # sets globally
+    #    set(CMAKE_CXX_CLANG_TIDY
+    set_target_properties(tidy PROPERTIES
         ${CLANG_TIDY_EXE}
         -p=${CMAKE_BINARY_DIR}
         -header-filter=.*\\.(cpp|h)$
@@ -24,19 +46,7 @@ if(CLANG_TIDY_EXE)
 else()
     message(WARNING "clang-tidy not found. Static analysis will be skipped.")
 endif()
-
-message(STATUS "Note: HarfBuzz is planning to remove CMake support in the future. Consider using Meson for HarfBuzz.")
-
-# Custom target for running clang-tidy
- add_custom_target(
-     tidy
-     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-     COMMAND find src -name '*.cpp' -or -name '*.h' |
-             grep -v "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml" |
-             xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} '-header-filter=.*\\.(cpp|h)'$ -checks=-*,cppcoreguidelines-*,modernize-* {}
-     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-     COMMENT "Running clang-tidy on source files"
-)
+#set(CMAKE_CXX_CLANG_TIDY "")
 
 # Set the C++ standard and Objective-C++ flag
 set(CMAKE_CXX_STANDARD 20)
@@ -82,6 +92,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/include/juce
     ${CMAKE_SOURCE_DIR}/lib/juce/modules
     ${CMAKE_SOURCE_DIR}/src/include
+    ${CMAKE_SOURCE_DIR}/src/include/exception
     ${CMAKE_SOURCE_DIR}/src/interface
 )
 if(APPLE)
@@ -107,6 +118,7 @@ set(SRC_CPP
     src/gui/SearchBox.cpp
     src/ActionHandler.cpp
     src/ResponseParser.cpp
+    src/IPCResilienceDecorator.cpp
 )
 
 if(APPLE)
@@ -119,12 +131,12 @@ if(APPLE)
         src/platform/macos/LiveInterface.mm
     )
     list(APPEND SRC_CPP
-        src/platform/macos/IPC.cpp
+        src/platform/macos/IPCCore.cpp
     )
 
 elseif(WIN32)
     list(APPEND SRC_CPP
-        src/platform/windows/IPC.cpp
+        src/platform/windows/IPCCore.cpp
         src/platform/windows/ContextMenu.cpp
         src/platform/windows/PID.cpp
         src/platform/windows/EventHandler.cpp
