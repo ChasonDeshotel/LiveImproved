@@ -5,16 +5,15 @@
 #include <objc/runtime.h>
 #include <algorithm>
 #include <vector>
-
+#include <regex>
 #include <iostream>
+#include <thread>  // For std::thread and std::this_thread::sleep_for
+#include <chrono>  // For std::chrono::microseconds
 
 #include "EventHandler.h"
 #include "LogHandler.h"
 #include "LiveInterface.h"
 #include "PID.h"
-
-#include <thread>  // For std::thread and std::this_thread::sleep_for
-#include <chrono>  // For std::chrono::microseconds
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef element, CGWindowID* windowID);
 
