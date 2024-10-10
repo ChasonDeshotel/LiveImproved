@@ -6,7 +6,8 @@ XCODE_BUILD_DIR = ./build/xcode
 
 configure: # defaults to cli
 	@mkdir -p $(CLI_BUILD_DIR)
-	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B./build/macos-cli
+	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B $(CLI_BUILD_DIR)
+	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
 build: configure
 	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved -- VERBOSE=1
@@ -23,6 +24,7 @@ run: build
 clean:
 	@$(MAKE) -C ./build/macos-cli clean
 	@$(MAKE) -C ./build/xcode clean
+	@rm -f ./build/compile_commands.json
 
 tidy:
 	@$(MAKE) -C ./build/macos-cli tidy
