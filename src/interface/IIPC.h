@@ -18,6 +18,7 @@ public:
     IIPC& operator=(IIPC&&) = delete;
 
     virtual bool init() = 0;
+    virtual bool isInitialized() const = 0;
 
     virtual void writeRequest(const std::string& message) = 0;
     virtual void writeRequest(const std::string& message, ResponseCallback callback) = 0;

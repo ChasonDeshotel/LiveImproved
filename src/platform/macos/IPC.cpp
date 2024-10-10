@@ -11,9 +11,8 @@
 #include <errno.h>
 #include <cstring>
 
+#include "ILogHandler.h"
 #include "IPC.h"
-
-#include "PluginManager.h"
 
 IPC::IPC(
     std::function<std::shared_ptr<ILogHandler>()> logHandler
@@ -41,104 +40,81 @@ bool IPC::init() {
     log_()->debug("IPC::init() called");
     stopIPC_ = false;
 
-    if (!createPipe(requestPipePath) || !createPipe(responsePipePath)) {
-        log_()->debug("IPC::init() failed");
+    std::thread createReadPipeThread(&IPC::createReadPipe, this);
+    std::thread createWritePipeThread(&IPC::createWritePipe, this);
+
+    {
+        std::unique_lock<std::mutex> lock(createPipesMutex_);
+        createPipesCv_.wait(lock, [this] { return (readPipeCreated_ && writePipeCreated_) || stopIPC_; });
+    }
+
+    createReadPipeThread.join();
+    createWritePipeThread.join();
+
+    if (!readPipeCreated_ || !writePipeCreated_) {
+        log_()->error("IPC::init() failed to create pipes");
         return false;
     }
 
-    dispatch_semaphore_t readSemaphore = dispatch_semaphore_create(0);
-    dispatch_semaphore_t writeSemaphore = dispatch_semaphore_create(0);
+    std::thread readyReadThread(&IPC::readyReadPipe, this);
+    std::thread readyWriteThread(&IPC::readyWritePipe, this);
 
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    {
+        std::unique_lock<std::mutex> lock(initMutex_);
+        initCv_.wait(lock, [this] { return (readPipeReady_ && writePipeReady_) || stopIPC_; });
+    }
 
-    __block bool readSuccess = false;
-    __block bool writeSuccess = false;
-    __block int readAttempts = 0;
-    __block int writeAttempts = 0;
-    __block int maxAttempts = 100;
+    readyReadThread.join();
+    readyWriteThread.join();
 
-	dispatch_async(queue, ^{
-		dispatch_source_t readTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-		dispatch_source_set_timer(readTimer, DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC, 0);
-		dispatch_source_set_event_handler(readTimer, ^{
-            if (stopIPC_) {
-                log_()->info("IPC read initialization cancelled during read pipe setup.");
-                dispatch_source_cancel(readTimer);
-                dispatch_semaphore_signal(readSemaphore);
-                return;
-            }
-			if (openPipeForRead(responsePipePath, true)) {
-				log_()->info("Response pipe successfully opened for reading");
-				readSuccess = true;
-				dispatch_source_cancel(readTimer);
-				dispatch_semaphore_signal(readSemaphore);
-			} else {
-				log_()->error("Attempt to open response pipe for reading failed. Retrying...");
-				if (++readAttempts >= maxAttempts) {
-					log_()->error("Max attempts reached for opening response pipe");
-					dispatch_source_cancel(readTimer);
-					dispatch_semaphore_signal(readSemaphore);
-				}
-			}
-		});
-		dispatch_resume(readTimer);
-	});
-
-    // TODO: if Live is writing when the app is closed, the pipe can't be opened -- I think?
-    // -- should delete/reset the pipe after so many tries
-    //
-	// Write pipe initialization
-	dispatch_async(queue, ^{
-		dispatch_source_t writeTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-		dispatch_source_set_timer(writeTimer, DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC, 0);
-		dispatch_source_set_event_handler(writeTimer, ^{
-            if (stopIPC_) {
-                log_()->info("IPC write initialization cancelled during read pipe setup.");
-                dispatch_source_cancel(writeTimer);
-                dispatch_semaphore_signal(writeSemaphore);
-                return;
-            }
-			if (openPipeForWrite(requestPipePath, true)) {
-				log_()->info("Request pipe successfully opened for writing");
-				writeSuccess = true;
-				dispatch_source_cancel(writeTimer);
-				dispatch_semaphore_signal(writeSemaphore);
-			} else {
-				log_()->error("Attempt to open request pipe for writing failed. Retrying...");
-				if (++writeAttempts >= maxAttempts) {
-					log_()->error("Max attempts reached for opening request pipe");
-					dispatch_source_cancel(writeTimer);
-					dispatch_semaphore_signal(writeSemaphore);
-				}
-			}
-		});
-		dispatch_resume(writeTimer);
-	});
-
-	dispatch_semaphore_wait(readSemaphore, DISPATCH_TIME_FOREVER);
-	dispatch_semaphore_wait(writeSemaphore, DISPATCH_TIME_FOREVER);
-
-    // for async/callback
-    //dispatch_group_notify(group, queue, ^{
-    //    bool success = readSuccess && writeSuccess;
-    //    if (success) {
-    //        log_()->info("IPC::initAsync() finished successfully");
-    //    } else {
-    //        log_()->error("IPC::initAsync() failed");
-    //    }
-    //    // Call the callback on the main queue
-    //    dispatch_async(dispatch_get_main_queue(), ^{
-    //        callback(success);
-    //    });
-    //});
-
-    if (readSuccess && writeSuccess) {
+    if (readPipeReady_ && writePipeReady_) {
+        isInitialized_ = true;
         log_()->info("IPC::init() read/write enabled");
         return true;
     } else {
         log_()->error("IPC::init() failed");
         return false;
     }
+}
+
+void IPC::readyReadPipe() {
+    log_()->debug("Setting up read pipe");
+    for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
+        if (stopIPC_) {
+            log_()->warn("IPC read initialization cancelled.");
+            return;
+        }
+        if (openPipeForRead(responsePipePath, true)) {
+            log_()->info("Response pipe successfully opened for reading");
+            readPipeReady_.store(true, std::memory_order_release);
+            initCv_.notify_one();
+            return;
+        }
+        log_()->warn("Attempt to open response pipe for reading failed. Retrying...");
+        std::this_thread::sleep_for(PIPE_SETUP_RETRY_DELAY);
+    }
+    log_()->error("Max attempts reached for opening response pipe");
+    return;
+}
+
+void IPC::readyWritePipe() {
+    log_()->debug("Setting up write pipe");
+    for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
+        if (stopIPC_) {
+            log_()->warn("IPC write initialization cancelled.");
+            return;
+        }
+        if (openPipeForWrite(requestPipePath, true)) {
+            log_()->info("Request pipe successfully opened for writing");
+            writePipeReady_.store(true, std::memory_order_release);
+            initCv_.notify_one();
+            return;
+        }
+        log_()->warn("Attempt to open request pipe for writing failed. Retrying...");
+        std::this_thread::sleep_for(PIPE_SETUP_RETRY_DELAY);
+    }
+    log_()->error("Max attempts reached for opening request pipe");
+    return;
 }
 
 void IPC::closeAndDeletePipes() {
@@ -172,6 +148,44 @@ void IPC::removePipeIfExists(const std::string& pipe_name) {
             log_()->error("Failed to remove existing pipe: " + pipe_name + " - " + strerror(errno));
         }
     }
+}
+
+void IPC::createReadPipe() {
+    log_()->debug("Creating read pipe");
+    for (int attempt = 0; attempt < MAX_PIPE_CREATION_ATTEMPTS; ++attempt) {
+        if (stopIPC_) {
+            log_()->info("IPC read pipe creation cancelled.");
+            return;
+        }
+        if (createPipe(responsePipePath)) {
+            log_()->info("Response pipe successfully created");
+            readPipeCreated_ = true;
+            createPipesCv_.notify_one();
+            return;
+        }
+        log_()->warn("Attempt to create response pipe failed. Retrying...");
+        std::this_thread::sleep_for(PIPE_CREATION_RETRY_DELAY);
+    }
+    log_()->error("Max attempts reached for creating response pipe");
+}
+
+void IPC::createWritePipe() {
+    log_()->debug("Creating write pipe");
+    for (int attempt = 0; attempt < MAX_PIPE_CREATION_ATTEMPTS; ++attempt) {
+        if (stopIPC_) {
+            log_()->info("IPC write pipe creation cancelled.");
+            return;
+        }
+        if (createPipe(requestPipePath)) {
+            log_()->info("Request pipe successfully created");
+            writePipeCreated_ = true;
+            createPipesCv_.notify_one();
+            return;
+        }
+        log_()->warn("Attempt to create request pipe failed. Retrying...");
+        std::this_thread::sleep_for(PIPE_CREATION_RETRY_DELAY);
+    }
+    log_()->error("Max attempts reached for creating request pipe");
 }
 
 bool IPC::createPipe(const std::string& pipe_name) {
@@ -257,6 +271,14 @@ std::string IPC::formatRequest(const std::string& message, uint64_t id) {
 
 // add request to queue
 void IPC::writeRequest(const std::string& message, ResponseCallback callback = [](const std::string&) {}) {
+    // the pipe check is called when the request is actually written --
+    // this just queues the request. But we shouldn't queue a request
+    // if the pipes aren't initialized
+    if (!isInitialized_) {
+        log_()->error("IPC not initialized. Cannot write request.");
+        return;
+    }
+
     std::unique_lock<std::mutex> lock(queueMutex_);
     requestQueue_.emplace(message, callback);
     lock.unlock();
