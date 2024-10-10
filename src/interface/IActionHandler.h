@@ -2,10 +2,6 @@
 
 #include <string>
 
-class IPC;
-class PluginManager;
-class WindowManager;
-class ConfigManager;
 class EKeyPress;
 
 class IActionHandler {
