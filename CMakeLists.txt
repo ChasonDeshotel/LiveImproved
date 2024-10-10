@@ -111,17 +111,17 @@ target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_
 # Source files for C++ and Objective-C++
 set(SRC_CPP
     src/Main.cpp
-    src/LogHandler.cpp
-    src/WindowManager.cpp
-    src/KeyMapper.cpp
-    src/PluginManager.cpp
-    src/Theme.cpp
     src/config/ConfigManager.cpp
     src/config/ConfigMenu.cpp
+    src/core/LogHandler.cpp
+    src/core/PluginManager.cpp
+    src/events/ActionHandler.cpp
+    src/events/KeyMapper.cpp
     src/gui/SearchBox.cpp
-    src/ActionHandler.cpp
-    src/ResponseParser.cpp
+    src/gui/Theme.cpp
+    src/gui/WindowManager.cpp
     src/ipc/IPCResilienceDecorator.cpp
+    src/ipc/ResponseParser.cpp
 )
 
 if(APPLE)
