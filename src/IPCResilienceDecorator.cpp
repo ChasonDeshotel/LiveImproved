@@ -15,6 +15,9 @@ IPCResilienceDecorator::IPCResilienceDecorator(
 {
     auto log = logHandler_();
     log->debug("IPCResilienceDecorator constructed");
+    if (!checkAndReestablishConnection()) {
+        log->error("Failed to establish initial IPC connection");
+    }
 }
 
 template<typename Func>
@@ -59,26 +62,30 @@ void IPCResilienceDecorator::logMessage(const std::string& message, LogLevel lev
 }
 
 bool IPCResilienceDecorator::checkAndReestablishConnection() {
+    auto log = logHandler_();
     if (!instance_ || !instance_->isInitialized()) {
-        auto log = logHandler_();
-        log->info("IPC connection lost or not initialized. Attempting to reestablish...");
-
+        log->info("IPC connection lost or not initialized. Attempting to establish...");
+        
         // Create a new instance
         auto newInstance = ipcFactory_();
-
-        if (newInstance->init()) {
-            // If initialization of the new instance succeeds, replace the old one
-            if (instance_) {
-                // Perform any necessary cleanup on the old instance
-                instance_->stopIPC();  // Assuming there's a method to stop the IPC cleanly
+        
+        if (newInstance) {
+            if (newInstance->init()) {
+                // If initialization of the new instance succeeds, replace the old one
+                if (instance_) {
+                    // Perform any necessary cleanup on the old instance
+                    instance_->stopIPC();
+                }
+                instance_ = std::move(newInstance);
+                log->info("New IPC connection established successfully.");
+                return true;
+            } else {
+                log->error("Failed to initialize new IPC connection.");
             }
-            instance_ = std::move(newInstance);
-            log->info("New IPC connection established successfully.");
-            return true;
         } else {
-            log->error("Failed to initialize new IPC connection.");
-            return false;
+            log->error("Failed to create new IPC instance.");
         }
+        return false;
     }
     return true;
 }
