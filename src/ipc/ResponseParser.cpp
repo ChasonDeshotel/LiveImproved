@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
-#include <iostream>
 
 #include "ResponseParser.h"
 #include "Types.h"
