@@ -85,11 +85,18 @@ bool IPCResilienceDecorator::checkAndReestablishConnection() {
 
 
 bool IPCResilienceDecorator::init() {
-    return handleError("init", [this]() { return instance_->init(); });
+    return handleError("init", [this]() {
+        if (!instance_) {
+            auto log = logHandler_();
+            log->error("Attempted to initialize null IPC instance");
+            return false;
+        }
+        return instance_->init();
+    });
 }
 
 bool IPCResilienceDecorator::isInitialized() const {
-    return instance_->isInitialized();
+    return instance_ && instance_->isInitialized();
 }
 
 void IPCResilienceDecorator::writeRequest(const std::string& message) {
