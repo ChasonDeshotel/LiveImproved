@@ -97,7 +97,7 @@ public:
                 LogHandler::getInstance().info("launch callback called");
                 // delay to let Live fully start up
                 sleep(10);
-                this->onLiveLaunch(0);
+                this->onLiveLaunch(2);
             });
         } else {
             onLiveLaunch(5);

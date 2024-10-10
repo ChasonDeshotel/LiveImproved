@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include "Types.h"
 
 class IPCException : public std::runtime_error {
@@ -12,4 +13,3 @@ public:
 private:
     LogLevel logLevel;
 };
-

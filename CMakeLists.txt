@@ -92,8 +92,11 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/include/juce
     ${CMAKE_SOURCE_DIR}/lib/juce/modules
     ${CMAKE_SOURCE_DIR}/src/include
+    ${CMAKE_SOURCE_DIR}/src/include/config
     ${CMAKE_SOURCE_DIR}/src/include/exception
-    ${CMAKE_SOURCE_DIR}/src/interface
+    ${CMAKE_SOURCE_DIR}/src/include/gui
+    ${CMAKE_SOURCE_DIR}/src/include/ipc
+    ${CMAKE_SOURCE_DIR}/src/abstract
 )
 if(APPLE)
     message(STATUS "Including macOS-specific directories")
@@ -118,7 +121,7 @@ set(SRC_CPP
     src/gui/SearchBox.cpp
     src/ActionHandler.cpp
     src/ResponseParser.cpp
-    src/IPCResilienceDecorator.cpp
+    src/ipc/IPCResilienceDecorator.cpp
 )
 
 if(APPLE)

@@ -1,5 +1,4 @@
-#ifndef PLATFORM_INITIALIZER_H
-#define PLATFORM_INITIALIZER_H
+#pragma once
 
 class PlatformInitializer {
 public:
@@ -10,5 +9,3 @@ private:
     PlatformInitializer()  = default;
     ~PlatformInitializer() = default;
 };
-
-#endif
