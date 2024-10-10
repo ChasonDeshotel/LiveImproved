@@ -1,26 +1,15 @@
-.PHONY: all clean tidy
+# default target, configure and build CLI
+all: configure build
 
-# clang-tidy -checks='cppcoreguidelines-*,modernize-*' <file.cpp>
-#
-# standard build
-# make -C build VERBOSE=1 LDFLAGS="-v"
-# cmake -Bbuild -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+CLI_BUILD_DIR = ./build/macos-cli
+XCODE_BUILD_DIR = ./build/xcode
 
-# xcode build
-# cmake -G "Xcode" -DBUILD_TESTING=OFF -B./build-xcode .
+configure: # defaults to cli
+	@mkdir -p $(CLI_BUILD_DIR)
+	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B./build/macos-cli
 
-#.PHONY: bear-build
-
-#compile_commands:
-#	@bear -- make clean
-#	@bear -- make all
-
-#cmake-configure:
-#	@mkdir -p build
-#	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B ./build
-
-all:
-	@$(MAKE) -C build
+build: configure
+	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved -- VERBOSE=1
 
 test:
 	@$(MAKE) -C test
@@ -28,11 +17,12 @@ test:
 run-tests:
 	@cd build && ctest --output-on-failure
 
-run:
-	@./build/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
+run: build
+	@./build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
 clean:
-	@$(MAKE) -C build clean
+	@$(MAKE) -C ./build/macos-cli clean
+	@$(MAKE) -C ./build/xcode clean
 
 tidy:
-	@$(MAKE) -C build tidy
+	@$(MAKE) -C ./build/macos-cli tidy
