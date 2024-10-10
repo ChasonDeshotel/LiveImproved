@@ -4,6 +4,7 @@
 #include <fstream>
 #include <mutex>
 
+#include "Types.h"
 #include "ILogHandler.h"
 
 class LogHandler : public ILogHandler {

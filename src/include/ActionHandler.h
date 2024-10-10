@@ -2,7 +2,7 @@
 
 // TODO cross-platform
 #ifndef _WIN32
-	#import <CoreGraphics/CoreGraphics.h>
+#import <CoreGraphics/CoreGraphics.h>
 #endif
 
 #include <string>
@@ -28,24 +28,25 @@ public:
                 std::function<std::shared_ptr<ConfigManager>()> configManager,
                 std::function<std::shared_ptr<IIPC>()> ipc,
                 std::function<std::shared_ptr<EventHandler>()> eventHandler,
-                std::function<std::shared_ptr<ILiveInterface>()> liveInterface);
+                std::function<std::shared_ptr<ILiveInterface>()> liveInterface
+    );
 
-  ~ActionHandler() override;
+    ~ActionHandler() override;
 
-  ActionHandler(const ActionHandler &) = default;
-  ActionHandler(ActionHandler &&) = delete;
-  ActionHandler &operator=(const ActionHandler &) = default;
-  ActionHandler &operator=(ActionHandler &&) = delete;
+    ActionHandler(const ActionHandler &) = default;
+    ActionHandler(ActionHandler &&) = delete;
+    ActionHandler &operator=(const ActionHandler &) = default;
+    ActionHandler &operator=(ActionHandler &&) = delete;
 
-  void handleAction(std::string) override;
+    void handleAction(std::string) override;
 
-  // returns if the event should be blocking
-  bool handleKeyEvent(EKeyPress pressedKey) override;
+    // returns if the event should be blocking
+    bool handleKeyEvent(EKeyPress pressedKey) override;
 
-  void handleDoubleRightClick() override;
+    void handleDoubleRightClick() override;
 
-  bool loadItem(int itemIndex) override;
-  bool loadItemByName(const std::string &itemName) override;
+    bool loadItem(int itemIndex) override;
+    bool loadItemByName(const std::string &itemName) override;
 
 private:
     std::function<std::shared_ptr<IIPC>()> ipc_;

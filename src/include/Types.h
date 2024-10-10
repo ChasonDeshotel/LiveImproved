@@ -3,12 +3,8 @@
 
 #include <functional>
 #include <iostream>
-#include <memory>
 #include <optional>
-#include <regex>
-#include <stdexcept>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <variant>
@@ -16,12 +12,21 @@
 
 // pid_t
 #ifdef _WIN32
-	#include <windows.h>
-	typedef DWORD pid_t;
+#include <windows.h>
+typedef DWORD pid_t;
 #else
-	#include <sys/types.h>
-	#include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
+
+enum class LogLevel {
+    LOG_TRACE,
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_WARN,
+    LOG_ERROR,
+    LOG_FATAL
+};
 
 struct ERect {
     int x;

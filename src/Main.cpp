@@ -7,19 +7,21 @@
 #include "Utils.h"
 
 #include "DependencyContainer.h"
+#include "PlatformInitializer.h"
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
 #include "EventHandler.h"
+#include "IPC.h"
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
-#include "PlatformDependent.h"
+#include "LiveInterface.h"
+#include "PID.h"
 #include "PluginManager.h"
 #include "ResponseParser.h"
 #include "Theme.h"
 #include "WindowManager.h"
-#include "LiveInterface.h"
 
 class JuceApp : public juce::JUCEApplication {
 public:
@@ -168,6 +170,15 @@ public:
             }
             , DependencyContainer::Lifetime::Singleton
         );
+        //container_.registerFactory<IIPC>(
+        //    [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
+        //        return std::make_shared<ResilientIPC>(
+        //            [&c]() { return c.resolve<IPC>(); },
+        //            [&c]() { return c.resolve<ILogHandler>(); }
+        //        );
+        //    }
+        //    , DependencyContainer::Lifetime::Singleton
+        //);
 
         container_.registerFactory<IPluginManager>(
             [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
@@ -181,7 +192,7 @@ public:
         );
 
         container_.registerFactory<IActionHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<ActionHandler> {
+            [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<ActionHandler>(
                     [&c]() { return c.resolve<ILogHandler>(); }
@@ -241,9 +252,9 @@ public:
         container_.resolve<IPluginManager>()->refreshPlugins();
 
         #ifndef _WIN32
-			PlatformInitializer::init();
-			container_.resolve<EventHandler>()->setupQuartzEventTap();
-			PlatformInitializer::run();
+        PlatformInitializer::init();
+        container_.resolve<EventHandler>()->setupQuartzEventTap();
+        PlatformInitializer::run();
         #endif
     }
 

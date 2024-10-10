@@ -1,15 +1,7 @@
 #pragma once
 
 #include <string>
-
-enum class LogLevel {
-    LOG_TRACE,
-    LOG_DEBUG,
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR,
-    LOG_FATAL
-};
+#include "Types.h"
 
 class ILogHandler {
 public:
