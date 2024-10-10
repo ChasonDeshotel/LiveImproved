@@ -524,22 +524,21 @@ CGRect LiveInterface::getWindowBounds(AXUIElementRef window) {
     // If not cached, get the current bounds
     CGPoint position;
     CGSize size;
+    AXValueRef positionRef, sizeRef;
 
     AXUIElementCopyAttributeValue(window, kAXPositionAttribute, (CFTypeRef*)&positionRef);
     AXUIElementCopyAttributeValue(window, kAXSizeAttribute, (CFTypeRef*)&sizeRef);
 
-    AXValueRef positionRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGPointType), &position);
-    AXUIElementSetAttributeValue(window, kAXPositionAttribute, positionRef);
-    CFRelease(positionRef);
-
-    AXValueRef sizeRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGSizeType), &size);
-    AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
-    CFRelease(sizeRef);
+    AXValueGetValue(positionRef, static_cast<AXValueType>(kAXValueCGPointType), &position);
+    AXValueGetValue(sizeRef, static_cast<AXValueType>(kAXValueCGSizeType), &size);
 
     CGRect bounds = CGRectMake(position.x, position.y, size.width, size.height);
 
     // Cache the bounds
     cachedWindowBounds_[window] = bounds;
+
+    if (positionRef) CFRelease(positionRef);
+    if (sizeRef) CFRelease(sizeRef);
 
     return bounds;
 }
