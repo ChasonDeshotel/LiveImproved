@@ -7,7 +7,7 @@
 #include "AXElement.h"
 
 namespace AXFinder {
-    AXUIElementRef appElement();
+    AXElement appElement();
 
     AXUIElementRef getFrontmostWindow();
 
@@ -15,15 +15,15 @@ namespace AXFinder {
 
     AXUIElementRef findAXMain(AXUIElementRef parent);
 
-    AXUIElementRef getTrackView();
+    AXElement getTrackView();
 
-    AXUIElementRef getTrackView();
+    AXElement getTrackView();
 
     std::vector<AXUIElementRef> getTrackViewDevices();
 
     std::vector<AXUIElementRef> findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level);
 
-    AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth = 5);
+    AXElement findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth = 5);
 
     AXUIElementRef findElementByIdentifier(AXUIElementRef parent, CFStringRef identifierToFind, int level);
 

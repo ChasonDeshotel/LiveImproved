@@ -13,7 +13,7 @@
 #include "AXElement.h"
 
 namespace AXFinder {
-    AXUIElementRef appElement() {
+    AXElement appElement() {
         pid_t livePID = PID::getInstance().livePID();
         if (livePID == -1) {
             logger->error("Live is not running");
@@ -31,12 +31,10 @@ namespace AXFinder {
 
     AXUIElementRef getFrontmostWindow() {
         AXUIElementRef frontmostWindow;
-        AXUIElementRef appElement = AXFinder::appElement();
 
-        AXError result = AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
+        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement().getRef(), kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
         
         if (result == kAXErrorSuccess && frontmostWindow) {
-            CFRelease(appElement);
             logger->debug("Successfully obtained the frontmost window.");
         } else {
             logger->debug("Failed to get the frontmost window.");
@@ -47,7 +45,7 @@ namespace AXFinder {
 
     CFArrayRef getAllWindows() {
         CFArrayRef windows;
-        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXWindowsAttribute, (CFTypeRef *)&windows);
+        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement().getRef(), kAXWindowsAttribute, (CFTypeRef *)&windows);
         
         if (result == kAXErrorSuccess && windows) {
             CFIndex windowCount = CFArrayGetCount(windows);
@@ -145,10 +143,9 @@ namespace AXFinder {
     // Attribute: AXSubrole
     // Attribute: AXSize
     // Attribute: AXPosition
-    AXUIElementRef getTrackView() {
-        AXUIElementRef appElement = AXFinder::appElement();
-        AXUIElementRef axMain = AXFinder::findAXMain(appElement);
-        if (!axMain) {
+    AXElement getTrackView() {
+        AXElement axMain = AXFinder::findAXMain(AXFinder::appElement().getRef());
+        if (!axMain.isValid()) {
             return nullptr;
         }
         //printAXTree(axMain, 0);
@@ -156,13 +153,11 @@ namespace AXFinder {
 
         CFStringRef valueToFind = CFSTR("TrackView");
         CFStringRef searchAttribute = kAXIdentifierAttribute;
-        AXUIElementRef foundElement = AXFinder::findElementByAttribute(axMain, valueToFind, searchAttribute, 0, 1);
-        CFRelease(axMain);
+        AXElement foundElement = AXFinder::findElementByAttribute(axMain.getRef(), valueToFind, searchAttribute, 0, 1);
 
-        if (foundElement) {
+        if (foundElement.isValid()) {
             logger->info("found track view");
             //printAllAttributeValues(foundElement);
-            CFRetain(foundElement);
             return foundElement;
         }
         return axMain;
@@ -198,14 +193,13 @@ namespace AXFinder {
     std::vector<AXUIElementRef> getTrackViewDevices() {
         std::vector<AXUIElementRef> trackViewDevices;
 
-        AXUIElementRef trackView = getTrackView();
+        AXElement trackView = getTrackView();
     //    printAXTree(trackView, 0);
 
-        if (trackView) {
+        if (trackView.isValid()) {
 
             CFArrayRef children = nullptr;
-            AXError error = AXUIElementCopyAttributeValue(trackView, kAXChildrenAttribute, (CFTypeRef*)&children);
-            CFRelease(trackView);  // Release trackView after use
+            AXError error = AXUIElementCopyAttributeValue(trackView.getRef(), kAXChildrenAttribute, (CFTypeRef*)&children);
 
             if (error == kAXErrorSuccess && children) {
                 CFIndex count = CFArrayGetCount(children);
@@ -294,7 +288,7 @@ namespace AXFinder {
         return matches;  // Return the collected matches
     }
 
-    AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth) {
+    AXElement findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth) {
         std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
         if (level > maxDepth) {
@@ -321,25 +315,25 @@ namespace AXFinder {
         std::cerr << "Number of children at level " << level << ": " << count << std::endl;
 
         for (CFIndex i = 0; i < count; i++) {
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
-            if (!child) {
+            AXElement child = AXElement((AXUIElementRef)CFArrayGetValueAtIndex(children, i));
+            if (!child.isValid()) {
                 std::cerr << "No valid child found at index " << i << std::endl;
                 continue;
             }
 
             // Get and print the title of each child
             CFStringRef title = nullptr;
-            if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
+            if (AXUIElementCopyAttributeValue(child.getRef(), kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
                 std::cout << std::string(level * 2, ' ') << "Title: ";
                 CFStringUtil::printCFString(title);
                 CFRelease(title);
             }
 
-            std::cerr << "Checking child at index " << i << " - Child element: " << child << std::endl;
+//            std::cerr << "Checking child at index " << i << " - Child element: " << child << std::endl;
 
             // Check the search attribute (e.g., AXIdentifier or AXRole)
             CFTypeRef attributeValue = nullptr;
-            AXError attrError = AXUIElementCopyAttributeValue(child, searchAttribute, &attributeValue);
+            AXError attrError = AXUIElementCopyAttributeValue(child.getRef(), searchAttribute, &attributeValue);
             if (attrError == kAXErrorSuccess && attributeValue) {
                 CFStringRef attrStr = static_cast<CFStringRef>(attributeValue);
                 if (CFStringCompare(attrStr, valueToFind, kCFCompareCaseInsensitive | kCFCompareNonliteral) == kCFCompareEqualTo) {
@@ -348,16 +342,15 @@ namespace AXFinder {
 
                     // Return the child immediately
                     std::cerr << "Retaining and returning child at level " << level << std::endl;
-                    CFRetain(child);  // Retain to prevent accidental release
-                    return child;
+                    return AXElement(child);
                 }
                 CFRelease(attributeValue);  // Release attribute value if not a match
             }
 
             // Recursively search in child elements
             std::cerr << "Recursing into child at index " << i << std::endl;
-            AXUIElementRef found = findElementByAttribute(child, valueToFind, searchAttribute, level + 1);
-            if (found) {
+            AXElement found = findElementByAttribute(child.getRef(), valueToFind, searchAttribute, level + 1);
+            if (found.isValid()) {
                 std::cerr << "Found element during recursion at level " << level << std::endl;
                 return found;
             } else {
@@ -443,13 +436,12 @@ namespace AXFinder {
 
     // Method to get the application's main window by its PID
     AXUIElementRef findApplicationWindow() {
-        AXUIElementRef appElement = AXFinder::appElement();
+        AXElement appElement = AXFinder::appElement();
         
         AXUIElementRef window = nullptr;
-        if (appElement) {
+        if (appElement.isValid()) {
             // Get the main window of the application
-            AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, (CFTypeRef*)&window);
-            CFRelease(appElement);
+            AXUIElementCopyAttributeValue(appElement.getRef(), kAXFocusedWindowAttribute, (CFTypeRef*)&window);
             //std::cerr << "main window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
         } else {
             std::cerr << "no window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;

@@ -41,8 +41,8 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
 
     logger->debug("set up plugin window change observer");
 
-    AXUIElementRef appElement = AXFinder::appElement();
-    if (!appElement) {
+    AXElement appElement = AXFinder::appElement();
+    if (!appElement.isValid()) {
         logger->error("unable to get app element");
         return;
     }
@@ -61,19 +61,18 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
         return;
     }
 
-    error = AXObserverAddNotification(pluginWindowCreateObserver_, appElement, kAXCreatedNotification, this);
+    error = AXObserverAddNotification(pluginWindowCreateObserver_, appElement.getRef(), kAXCreatedNotification, this);
     if (error != kAXErrorSuccess) {
         std::cerr << "Failed to add creation notification. Error: " << error << std::endl;
         return;
     }
 
     // there is no window destroy observer, we'll have to check the type of what was destroyed
-    error = AXObserverAddNotification(pluginWindowDestroyObserver_, appElement, kAXUIElementDestroyedNotification, this);
+    error = AXObserverAddNotification(pluginWindowDestroyObserver_, appElement.getRef(), kAXUIElementDestroyedNotification, this);
     if (error != kAXErrorSuccess) {
         std::cerr << "Failed to add destruction notification. Error: " << error << std::endl;
         return;
     }
-    CFRelease(appElement);
 
     // Start the observers
     CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(pluginWindowCreateObserver_), kCFRunLoopDefaultMode);
