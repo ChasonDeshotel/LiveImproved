@@ -102,7 +102,14 @@ include_directories(
 )
 if(APPLE)
     message(STATUS "Including macOS-specific directories")
-    include_directories(${CMAKE_SOURCE_DIR}/src/include/platform/macos)
+    include_directories(
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos/event
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos/gui
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos/ipc
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos/live
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos/util
+    )
 elseif(WIN32)
     message(STATUS "Including Windows-specific directories")
     include_directories(${CMAKE_SOURCE_DIR}/src/include/platform/windows)

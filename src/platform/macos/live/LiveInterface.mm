@@ -11,6 +11,8 @@
 #include <vector>
 
 #include "LogGlobal.h"
+
+#include "AXElement.h"
 #include "EventHandler.h"
 #include "LiveInterface.h"
 #include "PID.h"
@@ -282,7 +284,7 @@ void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
                 
                 if (focusedError == kAXErrorSuccess && isFocused == kCFBooleanTrue) {
                     std::cout << "Focused text field found" << std::endl;
-                    printElementInfo(child);  // Print info about the focused text field
+                    AXElement(child).print();  // Print info about the focused text field
                     CFRelease(role);
                     CFRelease(children);
                     return;
@@ -343,7 +345,7 @@ void LiveInterface::findAndInteractWithSearchField() {
 
                 if (!isElementFocused(child)) {
                     printf("Search field is not focused. Focusing now...\n");
-                    focusElement(child);
+                    AXElement(child).focus();
                 } else {
                     printf("Search field is already focused.\n");
                 }

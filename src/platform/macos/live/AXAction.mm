@@ -4,27 +4,27 @@
 
 namespace AXAction {
     // Method to set text in the element
-    inline void setTextInElement(AXUIElementRef element, const char* text) {
+    void setTextInElement(AXUIElementRef element, const char* text) {
         CFStringRef cfText = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
         AXUIElementSetAttributeValue(element, kAXValueAttribute, cfText);
         CFRelease(cfText);
     }
 
     // Method to focus the element
-    inline void focusElement(AXUIElementRef element) {
+    void focusElement(AXUIElementRef element) {
         AXUIElementSetAttributeValue(element, kAXFocusedAttribute, kCFBooleanTrue);
         // TODO error checking
     }
 
-    inline void closeSpecificWindow(WindowHandle windowHandle) {
-        AXUIElementRef elem = static_cast<AXUIElementRef>(windowHandle);
-        if (!elem) {
+    void closeSpecificWindow(void* windowHandle) {
+        AXUIElementRef element = static_cast<AXUIElementRef>(windowHandle);
+        if (!element) {
             return;
         }
 
         // Try to get the close button
         AXUIElementRef closeButton = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(elem, kAXCloseButtonAttribute, (CFTypeRef *)&closeButton);
+        AXError error = AXUIElementCopyAttributeValue(element, kAXCloseButtonAttribute, (CFTypeRef *)&closeButton);
         
         if (error != kAXErrorSuccess || !closeButton) {
             return;

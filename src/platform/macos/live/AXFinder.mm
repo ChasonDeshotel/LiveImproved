@@ -5,9 +5,17 @@
 #import <Foundation/Foundation.h>
 
 #include <algorithm> // For std::reverse
+#include <vector>
+
+#include "LogGlobal.h"
+#include "PID.h"
+#include "MacUtils.h"
+
+#include "AXFinder.h"
+#include "AXElement.h"
 
 namespace AXFinder {
-    inline AXUIElementRef LiveInterface::getAppElement() {
+    AXUIElementRef getAppElement() {
         pid_t livePID = PID::getInstance().livePID();
         if (livePID == -1) {
             logger->error("Live is not running");
@@ -23,7 +31,7 @@ namespace AXFinder {
         return appElement;
     }
 
-    inline AXUIElementRef getFrontmostWindow() {
+    AXUIElementRef getFrontmostWindow() {
         AXUIElementRef frontmostWindow;
         AXUIElementRef appElement = getAppElement();
 
@@ -39,7 +47,7 @@ namespace AXFinder {
         return frontmostWindow;
     }
 
-    inline CFArrayRef getAllWindows() {
+    CFArrayRef getAllWindows() {
         CFArrayRef windows;
         AXError result = AXUIElementCopyAttributeValue(getAppElement(), kAXWindowsAttribute, (CFTypeRef *)&windows);
         
@@ -71,7 +79,7 @@ namespace AXFinder {
         return nullptr;
     }
 
-    inline AXUIElementRef findAXMain(AXUIElementRef parent) {
+    AXUIElementRef findAXMain(AXUIElementRef parent) {
         CFArrayRef children = nullptr;
         AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
 
@@ -139,7 +147,7 @@ namespace AXFinder {
     // Attribute: AXSubrole
     // Attribute: AXSize
     // Attribute: AXPosition
-    inline AXUIElementRef getTrackView() {
+    AXUIElementRef getTrackView() {
         AXUIElementRef appElement = getAppElement();
         AXUIElementRef axMain = findAXMain(appElement);
         if (!axMain) {
@@ -150,30 +158,7 @@ namespace AXFinder {
 
         CFStringRef valueToFind = CFSTR("TrackView");
         CFStringRef searchAttribute = kAXIdentifierAttribute;
-        AXUIElementRef foundElement = findElementByAttribute(axMain, valueToFind, searchAttribute, 0, 1);
-        CFRelease(axMain);
-
-        if (foundElement) {
-            logger->info("found track view");
-            //printAllAttributeValues(foundElement);
-            CFRetain(foundElement);
-            return foundElement;
-        }
-        return axMain;
-    }
-
-    inline AXUIElementRef getTrackView() {
-        AXUIElementRef appElement = getAppElement();
-        AXUIElementRef axMain = findAXMain(appElement);
-        if (!axMain) {
-            return nullptr;
-        }
-        //printAXTree(axMain, 0);
-        //printAllAttributes(axMain);
-
-        CFStringRef valueToFind = CFSTR("TrackView");
-        CFStringRef searchAttribute = kAXIdentifierAttribute;
-        AXUIElementRef foundElement = findElementByAttribute(axMain, valueToFind, searchAttribute, 0, 1);
+        AXUIElementRef foundElement = AXFinder::findElementByAttribute(axMain, valueToFind, searchAttribute, 0, 1);
         CFRelease(axMain);
 
         if (foundElement) {
@@ -212,7 +197,7 @@ namespace AXFinder {
     // Attribute: AXSize
     // Attribute: AXPosition
 
-    inline std::vector<AXUIElementRef> getTrackViewDevices() {
+    std::vector<AXUIElementRef> getTrackViewDevices() {
         std::vector<AXUIElementRef> trackViewDevices;
 
         AXUIElementRef trackView = getTrackView();
@@ -234,7 +219,7 @@ namespace AXFinder {
                     CFStringRef identifier = nullptr;
                     if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
                         std::cout << " Identifier: ";
-                        printCFString(identifier);
+                        CFStringUtil::printCFString(identifier);
                         CFRelease(identifier);
                     } else {
                         std::cout << " Identifier: (none)" << std::endl;
@@ -250,7 +235,7 @@ namespace AXFinder {
         return {};
     }
 
-    inline std::vector<AXUIElementRef> findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level) {
+    std::vector<AXUIElementRef> findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level) {
         std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
         std::vector<AXUIElementRef> matches;  // Vector to hold the matches
@@ -311,7 +296,7 @@ namespace AXFinder {
         return matches;  // Return the collected matches
     }
 
-    inline AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth = 5) {
+    AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth) {
         std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
         if (level > maxDepth) {
@@ -348,7 +333,7 @@ namespace AXFinder {
             CFStringRef title = nullptr;
             if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
                 std::cout << std::string(level * 2, ' ') << "Title: ";
-                printCFString(title);
+                CFStringUtil::printCFString(title);
                 CFRelease(title);
             }
 
@@ -386,7 +371,7 @@ namespace AXFinder {
         return nullptr;
     }
 
-    inline AXUIElementRef findElementByIdentifier(AXUIElementRef parent, CFStringRef identifierToFind, int level) {
+    AXUIElementRef findElementByIdentifier(AXUIElementRef parent, CFStringRef identifierToFind, int level) {
         std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
         if (level > 5) {
@@ -459,7 +444,7 @@ namespace AXFinder {
     }
 
     // Method to get the application's main window by its PID
-    inline AXUIElementRef findApplicationWindow() {
+    AXUIElementRef findApplicationWindow() {
         AXUIElementRef appElement = AXUIElementCreateApplication(PID::getInstance().livePID());
         
         AXUIElementRef window = nullptr;
@@ -471,17 +456,16 @@ namespace AXFinder {
         } else {
             std::cerr << "no window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
         }
-        mainWindow_ = window;
         return window;
     }
 
-    inline AXUIElementRef LiveInterface::getFocusedElement() {
+    AXUIElementRef getFocusedElement() {
         AXUIElementRef appElement = getAppElement();
         AXUIElementRef focusedElement = nullptr;
 
         AXError error = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
         if (error == kAXErrorSuccess && focusedElement != nullptr) {
-            printAllAttributeValues(focusedElement);
+            AXElement(focusedElement).printValues();
             CFRelease(focusedElement);
             return(focusedElement);
         }
@@ -502,7 +486,7 @@ namespace AXFinder {
         return nullptr;
     }
 
-    inline AXUIElementRef LiveInterface::getFocusedPluginWindow() {
+    AXUIElementRef getFocusedPluginWindow() {
         std::vector<AXUIElementRef> pluginWindows = pluginWindows_;
         
         std::cout << "Number of plugin windows: " << pluginWindows.size() << std::endl;
@@ -530,7 +514,7 @@ namespace AXFinder {
     }
 
     // Device On is the on/off switch
-    inline std::vector<AXUIElementRef> LiveInterface::getTrackViewDeviceCheckBoxes(AXUIElementRef deviceElement) {
+    std::vector<AXUIElementRef> getTrackViewDeviceCheckBoxes(AXUIElementRef deviceElement) {
         if (!deviceElement) {
             std::cerr << "Error: deviceElement is null." << std::endl;
             return {};
@@ -538,7 +522,7 @@ namespace AXFinder {
         
         std::vector<AXUIElementRef> checkBoxElements;
 
-        printAXTitle(deviceElement);
+        AXElement(deviceElement).printTitle();
 
         CFArrayRef children = nullptr;
         AXError error = AXUIElementCopyAttributeValue(deviceElement, kAXChildrenAttribute, (CFTypeRef*)&children);

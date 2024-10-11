@@ -2,17 +2,21 @@
 #import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/Foundation.h>
 
+#include <string>
+
+#include "AXElement.h"
 #include "AXPrinter.h"
 
 namespace AXPrinter {
-    void printElementInfo(AXUIElementRef element, std::string prefix = "") {
+    void printElementInfo(AXUIElementRef element, std::string prefix) {
         CFStringRef roleStr, subrole, title, identifier;
         char buffer[256];
 
-        if (!isElementValid(element)) return;
+        AXElement elem(element);
+        if (!elem.isValid()) return;
         
         CGWindowID windowID;
-        AXError error = _AXUIElementGetWindow(element, &windowID);
+        AXError error = _AXUIElementGetWindow(elem.getRef(), &windowID);
         if (error == kAXErrorSuccess) {
             prefix += "ID: " + std::to_string(static_cast<int>(windowID));
     //        std::cout << prefix << "ID: " << windowID << std::endl;
@@ -55,7 +59,7 @@ namespace AXPrinter {
         }
     }
 
-    void printAXElementChildrenRecursively(AXUIElementRef element, int depth = 5, int currentDepth = 0) {
+    void printAXElementChildrenRecursively(AXUIElementRef element, int depth = 5, int currentDepth) {
         if (currentDepth >= depth) {
             return; // Stop recursion when reaching the depth limit
         }
@@ -95,7 +99,7 @@ namespace AXPrinter {
                 CFStringRef title = nullptr;
                 if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
                     std::cout << std::string(level * 2, ' ') << "Title: ";
-                    printCFString(title);
+                    CFStringUtil::printCFString(title);
                     CFRelease(title);
                 } else {
                     std::cout << std::string(level * 2, ' ') << "Title: (none)" << std::endl;
@@ -105,7 +109,7 @@ namespace AXPrinter {
                 CFStringRef identifier = nullptr;
                 if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
                     std::cout << std::string(level * 2, ' ') << "Identifier: ";
-                    printCFString(identifier);
+                    CFStringUtil::printCFString(identifier);
                     CFRelease(identifier);
                 } else {
                     std::cout << std::string(level * 2, ' ') << "Identifier: (none)" << std::endl;
@@ -125,7 +129,7 @@ namespace AXPrinter {
         CFStringRef title = nullptr;
         if (AXUIElementCopyAttributeValue(elem, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
             std::cout << " Title: ";
-            printCFString(title);
+            CFStringUtil::printCFString(title);
             CFRelease(title);
         } else {
             std::cout << " Title: (none)" << std::endl;
@@ -136,7 +140,7 @@ namespace AXPrinter {
         CFStringRef identifier = nullptr;
         if (AXUIElementCopyAttributeValue(elem, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
             std::cout << " Identifier: ";
-            printCFString(identifier);
+            CFStringUtil::printCFString(identifier);
             CFRelease(identifier);
         } else {
             std::cout << " Identifier: (none)" << std::endl;
@@ -167,7 +171,7 @@ namespace AXPrinter {
                 CFStringRef identifier = nullptr;
                 if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
                     std::cout << " Child " << i << " Identifier: ";
-                    printCFString(identifier);  // Helper function to print CFStringRef
+                    CFStringUtil::printCFString(identifier);  // Helper function to print CFStringRef
                     CFRelease(identifier);
                 } else {
                     std::cout << " Child " << i << " Identifier: (none)" << std::endl;
@@ -221,7 +225,7 @@ namespace AXPrinter {
         CFRelease(children);  // Release children array if no focused element is found
     }
 
-    void printChildren(AXUIElementRef element, int level = 0) {
+    void printChildren(AXUIElementRef element, int level) {
         if (!element) {
             std::cerr << "Invalid AXUIElementRef." << std::endl;
             return;

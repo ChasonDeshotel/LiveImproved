@@ -2,8 +2,13 @@
 #import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/Foundation.h>
 
+#include "LogGlobal.h"
+
+#include "AXAction.h"
+#include "AXAttribute.h"
+
 namespace AXAttribute {
-    inline bool getAXEnabled(AXUIElementRef elem) {
+    bool isEnabled(AXUIElementRef elem) {
         CFBooleanRef enabled = nullptr;
         if (AXUIElementCopyAttributeValue(elem, kAXEnabledAttribute, (CFTypeRef*)&enabled) == kAXErrorSuccess && enabled) {
             bool isEnabled = CFBooleanGetValue(enabled);  // Convert CFBooleanRef to bool
@@ -15,7 +20,7 @@ namespace AXAttribute {
         }
     }
 
-    inline bool isElementValid(AXUIElementRef element) {
+    bool isValid(AXUIElementRef element) {
         CFTypeRef role = nullptr;
         AXError result = AXUIElementCopyAttributeValue(element, kAXRoleAttribute, &role);
             
@@ -29,9 +34,9 @@ namespace AXAttribute {
     }
 
     // Method to check if the element is focused
-    inline bool isElementFocused(AXUIElementRef windowElement) {
+    bool isFocused(AXUIElementRef element) {
         CFTypeRef isFocused = nullptr;
-        AXError result = AXUIElementCopyAttributeValue(windowElement, kAXFocusedAttribute, &isFocused);
+        AXError result = AXUIElementCopyAttributeValue(element, kAXFocusedAttribute, &isFocused);
 
         if (result == kAXErrorSuccess && isFocused == kCFBooleanTrue) {
             logger->info("element is focused.");
@@ -48,7 +53,7 @@ namespace AXAttribute {
         return false;
     }
 
-    inline CFStringRef getRole(AXUIElementRef elementRef) {
+    CFStringRef getRole(AXUIElementRef elementRef) {
         CFStringRef role = nullptr;
         AXError error = AXUIElementCopyAttributeValue(elementRef, kAXRoleAttribute, (CFTypeRef *)&role);
 
