@@ -87,7 +87,7 @@ target_link_libraries(LiveImproved
         pugixml
 )
 
-# cross-platform nclude directories
+# cross-platform include directories
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/include/juce
     ${CMAKE_SOURCE_DIR}/lib/juce/modules
@@ -95,7 +95,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/include
     ${CMAKE_SOURCE_DIR}/src/include/config
     ${CMAKE_SOURCE_DIR}/src/include/core
-    ${CMAKE_SOURCE_DIR}/src/include/events
+    ${CMAKE_SOURCE_DIR}/src/include/event
     ${CMAKE_SOURCE_DIR}/src/include/exception
     ${CMAKE_SOURCE_DIR}/src/include/gui
     ${CMAKE_SOURCE_DIR}/src/include/ipc
@@ -115,11 +115,11 @@ set(SRC_CPP
     src/Main.cpp
     src/config/ConfigManager.cpp
     src/config/ConfigMenu.cpp
-    src/core/LogHandler.cpp
     src/core/LogGlobal.cpp
+    src/core/LogHandler.cpp
     src/core/PluginManager.cpp
-    src/events/ActionHandler.cpp
-    src/events/KeyMapper.cpp
+    src/event/ActionHandler.cpp
+    src/event/KeyMapper.cpp
     src/gui/SearchBox.cpp
     src/gui/Theme.cpp
     src/gui/WindowManager.cpp
@@ -129,25 +129,25 @@ set(SRC_CPP
 
 if(APPLE)
     set(SRC_OBJCXX
-        src/platform/macos/PlatformInitializer.mm
-        src/platform/macos/ContextMenu.mm
-        src/platform/macos/PID.mm
-        src/platform/macos/EventHandler.mm
-        src/platform/macos/KeySender.mm
-        src/platform/macos/LiveInterface.mm
+        src/platform/macos/event/EventHandler.mm
+        src/platform/macos/event/KeySender.mm
+        src/platform/macos/event/PlatformInitializer.mm
+        src/platform/macos/gui/ContextMenu.mm
+        src/platform/macos/live/LiveInterface.mm
+        src/platform/macos/system/PID.mm
     )
     list(APPEND SRC_CPP
-        src/platform/macos/IPCCore.cpp
+        src/platform/macos/ipc/IPCCore.cpp
     )
 
 elseif(WIN32)
     list(APPEND SRC_CPP
-        src/platform/windows/IPCCore.cpp
-        src/platform/windows/ContextMenu.cpp
-        src/platform/windows/PID.cpp
-        src/platform/windows/EventHandler.cpp
-        src/platform/windows/KeySender.cpp
-        src/platform/windows/LiveInterface.cpp
+        src/platform/windows/event/EventHandler.cpp
+        src/platform/windows/event/KeySender.cpp
+        src/platform/windows/gui/ContextMenu.cpp
+        src/platform/windows/ipc/IPCCore.cpp
+        src/platform/windows/live/LiveInterface.cpp
+        src/platform/windows/system/PID.cpp
     )
 endif()
 
