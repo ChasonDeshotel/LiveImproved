@@ -29,7 +29,7 @@ namespace AXFinder {
         return appElement;
     }
 
-    AXElement getFrontmostWindow() {
+    AXUIElementRef getFrontmostWindow() {
         AXUIElementRef frontmostWindow;
 
         AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement().getRef(), kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
@@ -40,7 +40,7 @@ namespace AXFinder {
             logger->debug("Failed to get the frontmost window.");
         }
 
-        return AXElement(frontmostWindow);
+        return frontmostWindow;
     }
 
     CFArrayRef getAllWindows() {
@@ -474,7 +474,7 @@ namespace AXFinder {
         return nullptr;
     }
 
-    std::vector<AXElement> getPluginWindowsFromLiveAX(int limit) {
+    std::vector<AXUIElementRef> getPluginWindowsFromLiveAX(int limit) {
         logger->debug("getPluginWindowsFromLiveAX called");
 
         CFArrayRef children;
@@ -485,7 +485,7 @@ namespace AXFinder {
             return {};
         }
 
-        std::vector<AXElement> pluginWindowsFromLiveAX;
+        std::vector<AXUIElementRef> pluginWindowsFromLiveAX;
         CFIndex childCount = CFArrayGetCount(children);
         logger->debug("child count: " + std::to_string(static_cast<int>(childCount)));
 
@@ -494,14 +494,15 @@ namespace AXFinder {
                 logger->debug("Limit reached, stopping collection of plugin windows.");
                 break;
             }
-            AXElement child = AXElement((AXUIElementRef)CFArrayGetValueAtIndex(children, i));
-            if (child.isPluginWindow()) {
+            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+            AXElement wrappedChild = AXElement(child);
+            if (wrappedChild.isPluginWindow()) {
                 logger->debug("Plugin Window: getCurrentPluginsWindow - Child " + std::to_string(static_cast<int>(i)));
-                child.print();
+                wrappedChild.print();
                 pluginWindowsFromLiveAX.push_back(child);
             } else {
                 logger->debug("not a plugin window:");
-                child.print();
+                wrappedChild.print();
             }
         }
 
@@ -510,13 +511,13 @@ namespace AXFinder {
         return pluginWindowsFromLiveAX;
     }
 
-    AXElement getFocusedPluginWindow() {
-        std::vector<AXElement> pluginWindows = AXFinder::getPluginWindowsFromLiveAX();
+    AXUIElementRef getFocusedPluginWindow() {
+        std::vector<AXUIElementRef> pluginWindows = AXFinder::getPluginWindowsFromLiveAX();
         
         std::cout << "Number of plugin windows: " << pluginWindows.size() << std::endl;
 
         for (auto& window : pluginWindows) {
-            bool isFocused = window.isFocused();
+            bool isFocused = AXElement(window).isFocused();
             std::cout << "Window focus state: " << (isFocused ? "focused" : "not focused") << std::endl;
 
             if (isFocused) {

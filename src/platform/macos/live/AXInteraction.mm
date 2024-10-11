@@ -44,10 +44,10 @@ namespace AXInteraction {
     }
 
     void closeFocusedPluginWindow() {
-        AXElement frontmostWindow = AXFinder::getFrontmostWindow();
+        AXUIElementRef frontmostWindow = AXFinder::getFrontmostWindow();
 
         CFStringRef frontmostTitle = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(frontmostWindow.getRef(), kAXTitleAttribute, (CFTypeRef *)&frontmostTitle);
+        AXError error = AXUIElementCopyAttributeValue(frontmostWindow, kAXTitleAttribute, (CFTypeRef *)&frontmostTitle);
         
         if (error != kAXErrorSuccess || !frontmostTitle) {
             logger->debug("Failed to get title of frontmost window.");
@@ -71,7 +71,7 @@ namespace AXInteraction {
         for (const auto& pluginWindow : windows) {
             // Get the title of the plugin window
             CFStringRef pluginTitle = nullptr;
-            AXError pluginError = AXUIElementCopyAttributeValue(pluginWindow.getRef(), kAXTitleAttribute, (CFTypeRef *)&pluginTitle);
+            AXError pluginError = AXUIElementCopyAttributeValue(pluginWindow, kAXTitleAttribute, (CFTypeRef *)&pluginTitle);
 
             if (pluginError == kAXErrorSuccess && pluginTitle) {
                 // Convert the plugin window title to a std::string
