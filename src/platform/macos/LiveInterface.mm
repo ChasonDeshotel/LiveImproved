@@ -4,11 +4,11 @@
 
 #include <objc/runtime.h>
 #include <algorithm>
-#include <vector>
-#include <regex>
+#include <chrono>
 #include <iostream>
-#include <thread>  // For std::thread and std::this_thread::sleep_for
-#include <chrono>  // For std::chrono::microseconds
+#include <regex>
+#include <thread>
+#include <vector>
 
 #include "LogGlobal.h"
 #include "EventHandler.h"
@@ -447,11 +447,14 @@ CFArrayRef LiveInterface::getAllWindows() {
     return nullptr;
 }
 
+#include <algorithm> // For std::reverse
+
 void LiveInterface::tilePluginWindows() {
-    std::vector<AXUIElementRef> pluginWindows = getPluginWindowsFromLiveAX();  // Get all plugin windows
+    std::vector<AXUIElementRef> pluginWindows = getPluginWindowsFromLiveAX();
     if (pluginWindows.empty()) return;
 
-    // Get the screen size
+    std::reverse(pluginWindows.begin(), pluginWindows.end());
+
     CGRect screenBounds = [[NSScreen mainScreen] frame];
     int screenWidth = screenBounds.size.width;
     int screenHeight = screenBounds.size.height;
@@ -464,10 +467,11 @@ void LiveInterface::tilePluginWindows() {
     }
 
     // Calculate the scaling factor to fit all windows on the screen
-    double scaleFactor = std::sqrt((screenWidth * screenHeight) / totalArea);
+    //double scaleFactor = std::sqrt((screenWidth * screenHeight) / totalArea);
+    double scaleFactor = 1;
 
     // Calculate the number of rows and columns
-    int numWindows = pluginWindows.size();
+    int numWindows = static_cast<int>(pluginWindows.size());
     int numCols = std::ceil(std::sqrt(numWindows));
     int numRows = std::ceil(static_cast<double>(numWindows) / numCols);
 
@@ -481,15 +485,25 @@ void LiveInterface::tilePluginWindows() {
         int scaledWidth = std::round(originalBounds.size.width * scaleFactor);
         int scaledHeight = std::round(originalBounds.size.height * scaleFactor);
 
+        // If adding this window would go past the right edge of the screen, move to the next row
         if (currentX + scaledWidth > screenWidth) {
-            currentX = 0;
-            currentY += maxRowHeight;
-            maxRowHeight = 0;
+            currentX = 0;  // Reset X to the left
+            currentY += maxRowHeight;  // Move down to the next row
+            maxRowHeight = 0;  // Reset row height for the new row
         }
 
+        // If the next row would go off the screen, break the loop (optional if you want to stop tiling)
+        if (currentY + scaledHeight > screenHeight) {
+            break;
+        }
+
+        // Set the window bounds with the current calculated position
         setWindowBounds(pluginWindows[i], currentX, currentY, scaledWidth, scaledHeight);
 
+        // Move the X position for the next window
         currentX += scaledWidth;
+
+        // Keep track of the tallest window in the row
         maxRowHeight = std::max(maxRowHeight, scaledHeight);
     }
 }
@@ -504,9 +518,6 @@ void LiveInterface::setWindowBounds(AXUIElementRef window, int x, int y, int wid
 
     AXValueRef sizeRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGSizeType), &size);
     AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
-    CFRelease(sizeRef);
-
-    CFRelease(positionRef);
     CFRelease(sizeRef);
 
     // Update the cached bounds
