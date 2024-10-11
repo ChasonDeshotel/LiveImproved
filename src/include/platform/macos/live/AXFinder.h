@@ -9,7 +9,7 @@
 namespace AXFinder {
     AXElement appElement();
 
-    AXUIElementRef getFrontmostWindow();
+    AXElement getFrontmostWindow();
 
     CFArrayRef getAllWindows();
 
@@ -37,5 +37,4 @@ namespace AXFinder {
 
     // Device On is the on/off switch
     std::vector<AXUIElementRef> getTrackViewDeviceCheckBoxes(AXUIElementRef deviceElement);
-
 }

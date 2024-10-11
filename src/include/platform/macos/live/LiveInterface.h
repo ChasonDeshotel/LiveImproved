@@ -31,6 +31,8 @@ public:
     void setupPluginWindowChangeObserver(std::function<void()> callback) override;
     void removePluginWindowChangeObserver() override;
 
+    void closeFocusedPluginWindow() override;
+
 private:
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height);

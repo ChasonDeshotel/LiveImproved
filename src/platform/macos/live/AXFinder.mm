@@ -29,7 +29,7 @@ namespace AXFinder {
         return appElement;
     }
 
-    AXUIElementRef getFrontmostWindow() {
+    AXElement getFrontmostWindow() {
         AXUIElementRef frontmostWindow;
 
         AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement().getRef(), kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
@@ -40,7 +40,7 @@ namespace AXFinder {
             logger->debug("Failed to get the frontmost window.");
         }
 
-        return frontmostWindow;
+        return AXElement(frontmostWindow);
     }
 
     CFArrayRef getAllWindows() {

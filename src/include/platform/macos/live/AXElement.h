@@ -16,7 +16,11 @@ protected:
     AXUIElementRef element;
 
 public:
-    AXElement(AXUIElementRef elem) : element(elem) {}
+    AXElement(AXUIElementRef elem) : element(elem) {
+        if (element) {
+            CFRetain(element);
+        }
+    }
 
     bool areElementsEqual(AXUIElementRef element1, AXUIElementRef element2) const {
         if (element1 == nullptr || element2 == nullptr) {

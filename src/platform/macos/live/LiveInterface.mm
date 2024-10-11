@@ -147,6 +147,10 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
     }
 }
 
+void LiveInterface::closeFocusedPluginWindow() {
+    AXInteraction::closeFocusedPluginWindow();
+}
+
 //bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
 ////    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 //

@@ -17,7 +17,7 @@
 #include "PluginManager.h"
 #include "WindowManager.h"
 #include "EventHandler.h"
-#include "LiveInterface.h"
+#include "ILiveInterface.h"
 
 ActionHandler::ActionHandler(
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
@@ -54,7 +54,7 @@ void ActionHandler::initializeActionMap() {
     // NOTE actions must be added here and in Types.h
     actionMap["closeFocusedPlugin"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        //liveInterface->closeFocusedPluginWindow();
+        liveInterface->closeFocusedPluginWindow();
     };
 
     actionMap["tilePluginWindows"] = [this](const std::optional<std::string>& args) {
