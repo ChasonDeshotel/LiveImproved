@@ -9,8 +9,15 @@ configure: # defaults to cli
 	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B $(CLI_BUILD_DIR)
 	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
+configure-xcode:
+	@mkdir -p $(XCODE_BUILD_DIR)
+	@cmake -G "Xcode" -S . -B $(XCODE_BUILD_DIR)
+
 build: configure
 	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved -- VERBOSE=1
+
+xcode-build: configure-xcode
+	@xcodebuild -project $(XCODE_BUILD_DIR)/LiveImproved.xcodeproj -scheme LiveImproved build -verbose
 
 test:
 	@$(MAKE) -C test
