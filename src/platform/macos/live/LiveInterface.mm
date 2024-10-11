@@ -14,6 +14,7 @@
 
 #include "AXElement.h"
 #include "AXFinder.h"
+#include "AXWindow.h"
 #include "EventHandler.h"
 #include "LiveInterface.h"
 #include "PID.h"
@@ -22,7 +23,6 @@
 LiveInterface::LiveInterface(std::function<std::shared_ptr<EventHandler>()> eventHandler)
     : ILiveInterface()
     , eventHandler_(std::move(eventHandler))
-    , pluginWindows_()
 {
     setupPluginWindowChangeObserver([]() {
 //        std::cout << "Window change detected!" << std::endl;
@@ -102,9 +102,7 @@ void LiveInterface::pluginWindowCreateCallback(AXObserverRef observer, AXUIEleme
     LiveInterface* interface = static_cast<LiveInterface*>(context);
     logger->info("create callback called");
 
-    return;
-    // FIX
-    if (!interface->isPluginWindow(element)) return;
+    if (!AXElement(element).isPluginWindow()) return;
 
     AXError error = AXUIElementPerformAction(element, kAXRaiseAction);
     if (error != kAXErrorSuccess) {
@@ -130,7 +128,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
 //    }
 //    interface->windowCloseInProgress_ = true;
 
-    auto windows = interface->getPluginWindowsFromLiveAX(1);
+    auto windows = AXFinder::getPluginWindowsFromLiveAX(1);
     if (windows.empty()) {
         logger->debug("no windows to focus");
         return;
@@ -150,7 +148,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
     }
 }
 
-bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
+//bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
 ////    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 //
 //    if (level > 10) {
@@ -215,17 +213,17 @@ bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int le
 //    // Release children if nothing is found
 //    CFRelease(children);
 //    return false;  // No focused text field found
-}
+//}
 
-bool LiveInterface::isAnyTextFieldFocused() {
-    AXUIElementRef window = findApplicationWindow();
-    if (!window) {
-        std::cerr << "Window is null or invalid." << std::endl;
-        return false;
-    }
-
-    return isAnyTextFieldFocusedRecursive(window, 0);
-}
+//bool LiveInterface::isAnyTextFieldFocused() {
+//    AXElement window = AXElement(AXFinder::findApplicationWindow());
+//    if (!window.isValid()) {
+//        std::cerr << "Window is null or invalid." << std::endl;
+//        return false;
+//    }
+//
+//    return isAnyTextFieldFocusedRecursive(window.getRef(), 0);
+//}
 
 // search box
 //    if (window) {
@@ -250,7 +248,7 @@ bool LiveInterface::isAnyTextFieldFocused() {
 //        std::cerr << "Search box not found." << std::endl;
 //    }
 
-void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
+//void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
 //    if (!parent) {
 //        std::cerr << "No parent element provided." << std::endl;
 //        return;
@@ -298,7 +296,7 @@ void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
 //    }
 //
 //    CFRelease(children);
-}
+//}
 
 bool isPluginWindowTitle(const std::string& title) {
     // This regex matches titles like "aa/2-Audio"
@@ -307,7 +305,7 @@ bool isPluginWindowTitle(const std::string& title) {
 }
 
 // Method to find and interact with the "Search, text field"
-void LiveInterface::findAndInteractWithSearchField() {
+//void LiveInterface::findAndInteractWithSearchField() {
 //    if (!mainWindow_) {
 //        printf("Failed to get main window for app");
 //        return;
@@ -357,4 +355,4 @@ void LiveInterface::findAndInteractWithSearchField() {
 //    }
 //
 //    printf("Search field not found\n");
-}
+//}

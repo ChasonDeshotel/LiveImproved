@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include "AXElement.h"
+
 namespace AXFinder {
     AXUIElementRef appElement();
 
@@ -30,7 +32,8 @@ namespace AXFinder {
 
     AXUIElementRef getFocusedElement();
 
-    AXUIElementRef getFocusedPluginWindow();
+    std::vector<AXElement> getPluginWindowsFromLiveAX(int limit = -1);
+    AXElement getFocusedPluginWindow();
 
     // Device On is the on/off switch
     std::vector<AXUIElementRef> getTrackViewDeviceCheckBoxes(AXUIElementRef deviceElement);

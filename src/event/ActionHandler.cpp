@@ -54,12 +54,12 @@ void ActionHandler::initializeActionMap() {
     // NOTE actions must be added here and in Types.h
     actionMap["closeFocusedPlugin"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        liveInterface->closeFocusedPluginWindow();
+        //liveInterface->closeFocusedPluginWindow();
     };
 
     actionMap["tilePluginWindows"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        liveInterface->tilePluginWindows();
+        //liveInterface->tilePluginWindows();
     };
 
     actionMap["searchbox"] = [this](const std::optional<std::string>& args) {

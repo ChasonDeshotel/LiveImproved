@@ -4,6 +4,7 @@
 
 #include "LogGlobal.h"
 
-namespace AXAction {
+namespace AXInteraction {
     bool focusElement(AXUIElementRef element);
+    void closeSpecificWindow(void* windowHandle);
 }

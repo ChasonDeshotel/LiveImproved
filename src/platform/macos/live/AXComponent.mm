@@ -1,5 +1,3 @@
-#pragma once
-
 #import <Cocoa/Cocoa.h>
 #import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/Foundation.h>
@@ -7,7 +5,7 @@
 #import "LogGlobal.h"
 
 namespace AXCheckBox {
-    inline bool isChecked(AXUIElementRef elem) {
+    bool isChecked(AXUIElementRef elem) {
         CFBooleanRef value = nullptr;
         if (AXUIElementCopyAttributeValue(elem, kAXValueAttribute, (CFTypeRef*)&value) == kAXErrorSuccess && value) {
             bool isChecked = CFBooleanGetValue(value);
@@ -19,7 +17,7 @@ namespace AXCheckBox {
         }
     }
 
-    inline bool toggle(AXUIElementRef checkbox) {
+    bool toggle(AXUIElementRef checkbox) {
         if (!checkbox) {
             std::cerr << "Error: AXUIElementRef is null." << std::endl;
             return false;
@@ -39,7 +37,7 @@ namespace AXCheckBox {
     // for closing and re-opening opened plugin windows
     // so that the plugin window order is correct in
     // the main window's AXChildren
-    inline bool toggleOffOn(AXUIElementRef checkbox) {
+    bool toggleOffOn(AXUIElementRef checkbox) {
         if (!isChecked(checkbox)) {
             logger->warn("not checked - already on");
             return false;

@@ -6,18 +6,36 @@
 
 #include "MacUtils.h"
 
-#include "AXAction.h"
+#include "AXInteraction.h"
 #include "AXAttribute.h"
 #include "AXPrinter.h"
+#include "AXWindow.h"
 
 class AXElement {
 protected:
     AXUIElementRef element;
 
 public:
-    AXElement(AXUIElementRef el) : element(el) {}
+    AXElement(AXUIElementRef elem) : element(elem) {}
 
-    virtual AXUIElementRef getRef() {
+    bool areElementsEqual(AXUIElementRef element1, AXUIElementRef element2) const {
+        if (element1 == nullptr || element2 == nullptr) {
+            return false;  // Handle null references
+        }
+
+        return CFEqual(element1, element2);  // Compare using CFEqual
+    }
+
+    // Overload the equality operator
+    bool operator==(const AXElement& other) const {
+        return areElementsEqual(getRef(), other.getRef());
+    }
+
+    bool operator!=(const AXElement& other) const {
+        return !areElementsEqual(getRef(), other.getRef());
+    }
+
+    virtual AXUIElementRef getRef() const {
         return element;
     }
 
@@ -45,8 +63,12 @@ public:
         return AXAttribute::isFocused(element);
     }
 
+    virtual bool isPluginWindow() {
+        return AXWindow::isPluginWindow(element);
+    }
+
     virtual void focus() {
-        AXAction::focusElement(element);
+        AXInteraction::focusElement(element);
     }
 
     virtual ~AXElement() {

@@ -4,7 +4,7 @@
 
 namespace AXInteraction {
     // Method to set text in the element
-    void setTextInElement(AXUIElementRef element, const char* text) {
+    void setText(AXUIElementRef element, const char* text) {
         CFStringRef cfText = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
         AXUIElementSetAttributeValue(element, kAXValueAttribute, cfText);
         CFRelease(cfText);

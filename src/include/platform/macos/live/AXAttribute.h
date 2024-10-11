@@ -2,9 +2,6 @@
 
 #import <ApplicationServices/ApplicationServices.h>
 
-#include <iostream>
-#include <ostream>
-
 #include "LogGlobal.h"
 
 namespace AXAttribute {

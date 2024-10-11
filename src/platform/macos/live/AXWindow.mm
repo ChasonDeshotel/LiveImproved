@@ -2,8 +2,10 @@
 #import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/Foundation.h>
 
+#include "LogGlobal.h"
+
 namespace AXWindow {
-    inline bool isPluginWindow(AXUIElementRef element) {
+    bool isPluginWindow(AXUIElementRef element) {
         if (!element) {
             logger->debug("element is null");
             return false;
@@ -36,7 +38,7 @@ namespace AXWindow {
         return false;
     }
 
-    inline void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height) {
+    void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height) {
         CGPoint position = {static_cast<CGFloat>(x), static_cast<CGFloat>(y)};
         CGSize size = {static_cast<CGFloat>(width), static_cast<CGFloat>(height)};
 
@@ -49,17 +51,10 @@ namespace AXWindow {
         CFRelease(sizeRef);
 
         // Update the cached bounds
-        cachedWindowBounds_[window] = CGRectMake(x, y, width, height);
+        //cachedWindowBounds_[window] = CGRectMake(x, y, width, height);
     }
 
-    inline CGRect getWindowBounds(AXUIElementRef window) {
-        // Check if we have cached bounds for this window
-        auto it = cachedWindowBounds_.find(window);
-        if (it != cachedWindowBounds_.end()) {
-            return it->second;
-        }
-
-        // If not cached, get the current bounds
+    CGRect getWindowBounds(AXUIElementRef window) {
         CGPoint position;
         CGSize size;
         AXValueRef positionRef, sizeRef;
@@ -71,9 +66,6 @@ namespace AXWindow {
         AXValueGetValue(sizeRef, static_cast<AXValueType>(kAXValueCGSizeType), &size);
 
         CGRect bounds = CGRectMake(position.x, position.y, size.width, size.height);
-
-        // Cache the bounds
-        cachedWindowBounds_[window] = bounds;
 
         if (positionRef) CFRelease(positionRef);
         if (sizeRef) CFRelease(sizeRef);

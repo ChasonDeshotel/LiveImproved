@@ -59,7 +59,7 @@ namespace AXPrinter {
         }
     }
 
-    void printAXElementChildrenRecursively(AXUIElementRef element, int depth = 5, int currentDepth) {
+    void printAXElementChildrenRecursively(AXUIElementRef element, int depth, int currentDepth) {
         if (currentDepth >= depth) {
             return; // Stop recursion when reaching the depth limit
         }

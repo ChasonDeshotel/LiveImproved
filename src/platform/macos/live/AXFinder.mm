@@ -482,26 +482,53 @@ namespace AXFinder {
         return nullptr;
     }
 
-    AXUIElementRef getFocusedPluginWindow() {
-        std::vector<AXUIElementRef> pluginWindows = pluginWindows_;
+    std::vector<AXElement> getPluginWindowsFromLiveAX(int limit) {
+        logger->debug("getPluginWindowsFromLiveAX called");
+
+        CFArrayRef children;
+        AXElement appElement = AXElement(AXFinder::appElement());
+        AXError error = AXUIElementCopyAttributeValues(appElement.getRef(), kAXChildrenAttribute, 0, 100, &children);
+        if (error != kAXErrorSuccess) {
+            logger->error(&"Failed to get children of app. Error: " [error]);
+            return {};
+        }
+
+        std::vector<AXElement> pluginWindowsFromLiveAX;
+        CFIndex childCount = CFArrayGetCount(children);
+        logger->debug("child count: " + std::to_string(static_cast<int>(childCount)));
+
+        for (CFIndex i = 0; i < childCount; i++) {
+            if (limit != -1 && pluginWindowsFromLiveAX.size() >= static_cast<size_t>(limit)) {
+                logger->debug("Limit reached, stopping collection of plugin windows.");
+                break;
+            }
+            AXElement child = AXElement((AXUIElementRef)CFArrayGetValueAtIndex(children, i));
+            if (child.isPluginWindow()) {
+                logger->debug("Plugin Window: getCurrentPluginsWindow - Child " + std::to_string(static_cast<int>(i)));
+                child.print();
+                pluginWindowsFromLiveAX.push_back(child);
+            } else {
+                logger->debug("not a plugin window:");
+                child.print();
+            }
+        }
+
+        if (children) CFRelease (children);
+        
+        return pluginWindowsFromLiveAX;
+    }
+
+    AXElement getFocusedPluginWindow() {
+        std::vector<AXElement> pluginWindows = AXFinder::getPluginWindowsFromLiveAX();
         
         std::cout << "Number of plugin windows: " << pluginWindows.size() << std::endl;
 
-        for (const auto& window : pluginWindows) {
-            CFBooleanRef focusedValue;
-            AXError error = AXUIElementCopyAttributeValue(window, kAXFocusedAttribute, (CFTypeRef*)&focusedValue);
-            
-            if (error == kAXErrorSuccess) {
-                bool isFocused = CFBooleanGetValue(focusedValue);
-                CFRelease(focusedValue);
-                
-                std::cout << "Window focus state: " << (isFocused ? "focused" : "not focused") << std::endl;
+        for (auto& window : pluginWindows) {
+            bool isFocused = window.isFocused();
+            std::cout << "Window focus state: " << (isFocused ? "focused" : "not focused") << std::endl;
 
-                if (isFocused) {
-                    return window;
-                }
-            } else {
-                std::cerr << "Failed to get focus state. Error: " << error << std::endl;
+            if (isFocused) {
+                return window;
             }
         }
         
