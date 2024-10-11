@@ -36,7 +36,14 @@ public:
     void focusElement(AXUIElementRef element);
     void safelyFocusAfterDestroy(int windowIDToDestroy, int windowIDToFocus);
 
+    bool getAXEnabled(AXUIElementRef elem);
+    bool getAXCheckBoxState(AXUIElementRef elem);
     AXUIElementRef getAppElement();
+    AXUIElementRef getTrackView();
+    std::vector<AXUIElementRef> getTrackViewDevices();
+    AXUIElementRef getTrackViewDeviceAttr(AXUIElementRef deviceElement);
+    void printAXChildrenInNavigationOrder(AXUIElementRef element);
+
     CFStringRef getRole(AXUIElementRef elementRef);
     CFStringRef getSubrole(AXUIElementRef elementRef);
 
@@ -49,8 +56,9 @@ public:
     AXUIElementRef getMainWindow();
     bool isAnyTextFieldFocusedRecursive(AXUIElementRef element, int level);
     AXUIElementRef findElementByIdentifier(AXUIElementRef parent, CFStringRef identifier, int level);
-    AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level);
+    AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth);
     std::vector<AXUIElementRef> findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level);
+    void printAXTitle(AXUIElementRef elem);
     void printAllAttributes(AXUIElementRef element);
     void printAllAttributeValues(AXUIElementRef element);
     void searchFocusedTextField(AXUIElementRef element);

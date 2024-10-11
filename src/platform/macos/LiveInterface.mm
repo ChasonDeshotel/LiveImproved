@@ -449,7 +449,353 @@ CFArrayRef LiveInterface::getAllWindows() {
 
 #include <algorithm> // For std::reverse
 
+// Helper function to print CFString safely
+void printCFString(CFStringRef str) {
+    if (str == nullptr) return;
+
+    const int bufferSize = 256;
+    char buffer[bufferSize];
+    if (CFStringGetCString(str, buffer, bufferSize, kCFStringEncodingUTF8)) {
+        std::cout << buffer << std::endl;
+    } else {
+        std::cerr << "Unable to retrieve CFString value." << std::endl;
+    }
+}
+void printAXTree(AXUIElementRef element, int level) {
+    CFArrayRef children = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(element, kAXChildrenAttribute, (CFTypeRef*)&children);
+
+    if (error == kAXErrorSuccess && children) {
+        CFIndex count = CFArrayGetCount(children);
+        for (CFIndex i = 0; i < count; ++i) {
+            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+
+            // Get and print the title of each child (if available)
+            CFStringRef title = nullptr;
+            if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
+                std::cout << std::string(level * 2, ' ') << "Title: ";
+                printCFString(title);
+                CFRelease(title);
+            } else {
+                std::cout << std::string(level * 2, ' ') << "Title: (none)" << std::endl;
+            }
+
+            // Get and print the identifier of each child (if available)
+            CFStringRef identifier = nullptr;
+            if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
+                std::cout << std::string(level * 2, ' ') << "Identifier: ";
+                printCFString(identifier);
+                CFRelease(identifier);
+            } else {
+                std::cout << std::string(level * 2, ' ') << "Identifier: (none)" << std::endl;
+            }
+
+            // Recursively print the tree
+            printAXTree(child, level + 1);
+        }
+        CFRelease(children);
+    } else {
+        std::cerr << std::string(level * 2, ' ') << "Failed to retrieve children or no children." << std::endl;
+    }
+}
+
+AXUIElementRef findAXMain(AXUIElementRef parent) {
+    CFArrayRef children = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+
+    if (error != kAXErrorSuccess || !children) {
+        std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
+        return nullptr;
+    }
+
+    // Ensure children is released at the end of the function
+    std::unique_ptr<const __CFArray, decltype(&CFRelease)> childrenGuard(children, CFRelease);
+
+    CFIndex count = CFArrayGetCount(children);
+    for (CFIndex i = 0; i < count; ++i) {
+        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+
+        // Check the AXMain attribute
+        CFTypeRef attributeValue = nullptr;
+        AXError attrError = AXUIElementCopyAttributeValue(child, kAXMainAttribute, &attributeValue);
+
+        if (attrError == kAXErrorSuccess && attributeValue == kCFBooleanTrue) {
+            CFRelease(attributeValue);
+            std::cerr << "Match found: AXMain = true" << std::endl;
+            CFRetain(child);
+            return child;
+        }
+
+        if (attributeValue) {
+            CFRelease(attributeValue);
+        }
+
+        // Recursively search in child elements
+        AXUIElementRef found = findAXMain(child);
+        if (found) {
+            CFRetain(found);
+            return found;
+        }
+    }
+
+    return nullptr;
+}
+
+
+bool LiveInterface::getAXCheckBoxState(AXUIElementRef elem) {
+    CFBooleanRef value = nullptr;
+    if (AXUIElementCopyAttributeValue(elem, kAXValueAttribute, (CFTypeRef*)&value) == kAXErrorSuccess && value) {
+        bool isChecked = CFBooleanGetValue(value);  // Convert CFBooleanRef to bool
+        CFRelease(value);  // Release CFBooleanRef after use
+        return isChecked;
+    } else {
+        std::cerr << "AXValue attribute not found or failed to retrieve for checkbox." << std::endl;
+        return false;  // Return false if the value is not found or retrieval failed
+    }
+}
+// .PluginEdit - for toggle
+
+// Device On is the on/off switch
+AXUIElementRef LiveInterface::getTrackViewDeviceAttr(AXUIElementRef deviceElement) {
+    if (!deviceElement) {
+        std::cerr << "Error: deviceElement is null." << std::endl;
+        return nullptr;
+    }
+
+    printAXTitle(deviceElement);
+
+    CFArrayRef children = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(deviceElement, kAXChildrenAttribute, (CFTypeRef*)&children);
+
+    if (error == kAXErrorSuccess && children) {
+        CFIndex count = CFArrayGetCount(children);
+
+        // Iterate over the children of TrackView.Device[i]
+        for (CFIndex i = 0; i < count; i++) {
+            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+
+            // Check if the child has the identifier TrackView.Device[i].TitleBar
+            CFStringRef identifier = nullptr;
+            if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
+                char identifierBuffer[256];
+                if (CFStringGetCString(identifier, identifierBuffer, sizeof(identifierBuffer), kCFStringEncodingUTF8)) {
+                    std::string identifierStr(identifierBuffer);
+
+                    // Look for the TitleBar element
+                    if (identifierStr.find("PluginEdit") != std::string::npos) {
+                        std::cout << "Found PluginEdit: " << identifierStr << std::endl;
+                        bool isChecked = getAXCheckBoxState(child);
+                        logger->info("checkbox state: " + std::string(isChecked ? "true" : "false"));
+                        return child;
+                        CFRelease(identifier);
+                    }
+                }
+                CFRelease(identifier);
+            }
+        }
+        CFRelease(children);
+    }
+
+    std::cerr << "Failed to find the DeviceOn element." << std::endl;
+    return nullptr;
+}
+
+
+AXUIElementRef LiveInterface::getTrackView() {
+    AXUIElementRef appElement = getAppElement();
+    AXUIElementRef axMain = findAXMain(appElement);
+    if (!axMain) {
+        return nullptr;
+    }
+    //printAXTree(axMain, 0);
+    //printAllAttributes(axMain);
+
+    CFStringRef valueToFind = CFSTR("TrackView");
+    CFStringRef searchAttribute = kAXIdentifierAttribute;
+    AXUIElementRef foundElement = findElementByAttribute(axMain, valueToFind, searchAttribute, 0, 1);
+    CFRelease(axMain);
+
+    if (foundElement) {
+        logger->info("found track view");
+        //printAllAttributeValues(foundElement);
+        CFRetain(foundElement);
+        return foundElement;
+    }
+    return axMain;
+}
+
+void LiveInterface::printAXTitle(AXUIElementRef elem) {
+    CFStringRef title = nullptr;
+    if (AXUIElementCopyAttributeValue(elem, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
+        std::cout << " Title: ";
+        printCFString(title);
+        CFRelease(title);
+    } else {
+        std::cout << " Title: (none)" << std::endl;
+    }
+}
+
+bool LiveInterface::getAXEnabled(AXUIElementRef elem) {
+    CFBooleanRef enabled = nullptr;
+    if (AXUIElementCopyAttributeValue(elem, kAXEnabledAttribute, (CFTypeRef*)&enabled) == kAXErrorSuccess && enabled) {
+        bool isEnabled = CFBooleanGetValue(enabled);  // Convert CFBooleanRef to bool
+        CFRelease(enabled);  // Release the CFBooleanRef after use
+        return isEnabled;
+    } else {
+        std::cerr << "AXEnabled attribute not found or failed to retrieve." << std::endl;
+        return false;  // Return false if the element doesn't have the AXEnabled attribute or retrieval failed
+    }
+}
+
+void printAXIdentifier(AXUIElementRef elem) {
+    CFStringRef identifier = nullptr;
+    if (AXUIElementCopyAttributeValue(elem, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
+        std::cout << " Identifier: ";
+        printCFString(identifier);
+        CFRelease(identifier);
+    } else {
+        std::cout << " Identifier: (none)" << std::endl;
+    }
+}
+
+#ifndef kAXChildrenInNavigationOrderAttribute
+#define kAXChildrenInNavigationOrderAttribute CFSTR("AXChildrenInNavigationOrder")
+#endif
+
+void LiveInterface::printAXChildrenInNavigationOrder(AXUIElementRef element) {
+    if (!element) {
+        std::cerr << "Error: AXUIElementRef is null." << std::endl;
+        return;
+    }
+
+    CFArrayRef navigationChildren = nullptr;
+    AXError error = AXUIElementCopyAttributeValue(element, kAXChildrenInNavigationOrderAttribute, (CFTypeRef*)&navigationChildren);
+
+    if (error == kAXErrorSuccess && navigationChildren) {
+        CFIndex count = CFArrayGetCount(navigationChildren);
+        std::cout << "Number of children in navigation order: " << count << std::endl;
+
+        for (CFIndex i = 0; i < count; i++) {
+            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(navigationChildren, i);
+
+            // Retrieve and print the identifier of each child
+            CFStringRef identifier = nullptr;
+            if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
+                std::cout << " Child " << i << " Identifier: ";
+                printCFString(identifier);  // Helper function to print CFStringRef
+                CFRelease(identifier);
+            } else {
+                std::cout << " Child " << i << " Identifier: (none)" << std::endl;
+            }
+
+            // Optionally, you could print other attributes, like title or role
+        }
+
+        CFRelease(navigationChildren);  // Release the array after use
+    } else {
+        std::cerr << "Failed to retrieve AXChildrenInNavigationOrder or no children found." << std::endl;
+    }
+}
+
+
+//  Identifier: TrackView.Device[0].TitleBar.DeviceOn
+//  Identifier: TrackView.Device[0].TitleBar.UnfoldDeviceParameters
+//  Identifier: TrackView.Device[0].TitleBar.PluginEdit
+//  Identifier: TrackView.Device[0].TitleBar.device_title
+//  Identifier: TrackView.Device[0].TitleBar.ConfigureMode
+
+// Found PluginEdit: TrackView.Device[2].TitleBar.PluginEdit
+// Attribute: AXIdentifier
+// Attribute: AXEnabled
+// Attribute: AXFrame
+// Attribute: AXDescription
+// Attribute: AXParent
+// Attribute: AXChildren
+// Attribute: AXFocused
+// Attribute: AXActivationPoint
+// Attribute: AXRole
+// Attribute: AXTopLevelUIElement
+// Attribute: AXHelp
+// Attribute: AXValue
+// Attribute: AXChildrenInNavigationOrder
+// Attribute: AXWindow
+// Attribute: AXRoleDescription
+// Attribute: AXTitle
+// Attribute: AXSubrole
+// Attribute: AXSize
+// Attribute: AXPosition
+
+std::vector<AXUIElementRef> LiveInterface::getTrackViewDevices() {
+    std::vector<AXUIElementRef> trackViewDevices;
+
+    AXUIElementRef trackView = getTrackView();
+//    printAXTree(trackView, 0);
+
+    if (trackView) {
+
+        CFArrayRef children = nullptr;
+        AXError error = AXUIElementCopyAttributeValue(trackView, kAXChildrenAttribute, (CFTypeRef*)&children);
+        CFRelease(trackView);  // Release trackView after use
+
+        if (error == kAXErrorSuccess && children) {
+            CFIndex count = CFArrayGetCount(children);
+            for (CFIndex i = 0; i < count; ++i) {
+                AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+                CFRetain(child);
+                trackViewDevices.push_back(child);
+
+                CFStringRef identifier = nullptr;
+                if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
+                    std::cout << " Identifier: ";
+                    printCFString(identifier);
+                    CFRelease(identifier);
+                } else {
+                    std::cout << " Identifier: (none)" << std::endl;
+                }
+            }
+            CFRelease(children);
+            return trackViewDevices;
+        } else {
+            std::cerr << "Failed to retrieve children or no children." << std::endl;
+        }
+    }
+
+    return {};
+}
+
 void LiveInterface::tilePluginWindows() {
+    AXUIElementRef trackView = getTrackView();
+    std::vector<AXUIElementRef> trackViewDevices = getTrackViewDevices();
+
+    for (const auto& device : trackViewDevices) {
+//        printAXIdentifier(device);
+//        printAXTree(device, 0);
+
+        getTrackViewDeviceAttr(device);
+
+        CFRelease(device);
+    }
+
+    return;
+
+//    if (trackView) {
+//        printAXTree(trackView, 0);
+//        CFRelease(trackView);
+//    }
+//
+//    return;
+
+
+//    printAXTree(getAppElement(), 0);
+//    return;
+//    CFStringRef valueToFind = CFSTR("Trackview");
+//    AXUIElementRef deviceDetailGroup = findElementByIdentifier(getAppElement(), valueToFind, 0);
+//    if (deviceDetailGroup) {
+//        logger->info("found device detail group");
+//        printAXTree(deviceDetailGroup, 0);
+//    }
+//    return;
+
     std::vector<AXUIElementRef> pluginWindows = getPluginWindowsFromLiveAX();
     if (pluginWindows.empty()) return;
 
@@ -883,6 +1229,7 @@ bool LiveInterface::isAnyTextFieldFocused() {
 //        std::cerr << "Search box not found." << std::endl;
 //    }
 
+
 std::vector<AXUIElementRef> LiveInterface::findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level) {
     std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
@@ -944,10 +1291,10 @@ std::vector<AXUIElementRef> LiveInterface::findElementsByType(AXUIElementRef par
     return matches;  // Return the collected matches
 }
 
-AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level) {
+AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth = 5) {
     std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
-    if (level > 3) {
+    if (level > maxDepth) {
         std::cerr << "Max recursion depth reached at level " << level << std::endl;
         return nullptr;
     }
@@ -957,14 +1304,11 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
         return nullptr;
     }
 
-    // Initialize children to nullptr
     CFArrayRef children = nullptr;
-
-    // Retrieve the children of the parent element
     AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
     if (error != kAXErrorSuccess || !children) {
         std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
-        return nullptr;  // If failed, return early to avoid accessing nullptr
+        return nullptr;
     }
 
     // Ensure children is released at the end of the function
@@ -977,7 +1321,15 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
         AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
         if (!child) {
             std::cerr << "No valid child found at index " << i << std::endl;
-            continue;  // Skip to next child if invalid
+            continue;
+        }
+
+        // Get and print the title of each child
+        CFStringRef title = nullptr;
+        if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
+            std::cout << std::string(level * 2, ' ') << "Title: ";
+            printCFString(title);
+            CFRelease(title);
         }
 
         std::cerr << "Checking child at index " << i << " - Child element: " << child << std::endl;
@@ -987,17 +1339,16 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
         AXError attrError = AXUIElementCopyAttributeValue(child, searchAttribute, &attributeValue);
         if (attrError == kAXErrorSuccess && attributeValue) {
             CFStringRef attrStr = static_cast<CFStringRef>(attributeValue);
-            if (CFStringCompare(attrStr, valueToFind, 0) == kCFCompareEqualTo) {
+            if (CFStringCompare(attrStr, valueToFind, kCFCompareCaseInsensitive | kCFCompareNonliteral) == kCFCompareEqualTo) {
                 std::cerr << "Match found at index " << i << " - Level " << level << std::endl;
                 CFRelease(attributeValue);  // Release attribute value
 
                 // Return the child immediately
                 std::cerr << "Retaining and returning child at level " << level << std::endl;
-                CFRetain(child);
-                CFRelease(children);  // Release children array
+                CFRetain(child);  // Retain to prevent accidental release
                 return child;
             }
-            CFRelease(attributeValue);  // Always release attribute value if not a match
+            CFRelease(attributeValue);  // Release attribute value if not a match
         }
 
         // Recursively search in child elements
@@ -1005,15 +1356,12 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
         AXUIElementRef found = findElementByAttribute(child, valueToFind, searchAttribute, level + 1);
         if (found) {
             std::cerr << "Found element during recursion at level " << level << std::endl;
-            CFRelease(children);  // Release children array before returning
             return found;
         } else {
             std::cerr << "No match found during recursion at level " << level << std::endl;
         }
     }
 
-    // Release children if nothing is found
-    std::cerr << "Releasing children array at level " << level << std::endl;
     std::cerr << "No match found at level " << level << std::endl;
     return nullptr;
 }
@@ -1021,7 +1369,7 @@ AXUIElementRef LiveInterface::findElementByAttribute(AXUIElementRef parent, CFSt
 AXUIElementRef LiveInterface::findElementByIdentifier(AXUIElementRef parent, CFStringRef identifierToFind, int level) {
     std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
-    if (level > 3) {
+    if (level > 5) {
         std::cerr << "Max recursion depth reached at level " << level << std::endl;
         return nullptr;
     }
@@ -1139,9 +1487,16 @@ void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
 
     CFRelease(children);
 }
+
 void LiveInterface::printAllAttributeValues(AXUIElementRef element) {
-    CFArrayRef attributeNames;
-    AXUIElementCopyAttributeNames(element, &attributeNames);
+    CFArrayRef attributeNames = nullptr;
+    AXError error = AXUIElementCopyAttributeNames(element, &attributeNames);
+
+    // Handle errors in copying attribute names
+    if (error != kAXErrorSuccess || !attributeNames) {
+        logger->debug("Failed to retrieve attribute names for the element.");
+        return;
+    }
 
     CFIndex count = CFArrayGetCount(attributeNames);
     for (CFIndex i = 0; i < count; i++) {
@@ -1152,25 +1507,21 @@ void LiveInterface::printAllAttributeValues(AXUIElementRef element) {
 
         // Get the attribute value
         CFTypeRef attributeValue = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(element, attributeName, &attributeValue);
-        if (error == kAXErrorSuccess && attributeValue != nullptr) {
+        AXError valueError = AXUIElementCopyAttributeValue(element, attributeName, &attributeValue);
+        if (valueError == kAXErrorSuccess && attributeValue != nullptr) {
             // Handle different types of attribute values
             if (CFGetTypeID(attributeValue) == CFStringGetTypeID()) {
-                // If the value is a string
                 char valueBuffer[256];
                 CFStringGetCString((CFStringRef)attributeValue, valueBuffer, sizeof(valueBuffer), kCFStringEncodingUTF8);
                 logger->debug("  Value (string): " + std::string(valueBuffer));
             } else if (CFGetTypeID(attributeValue) == CFNumberGetTypeID()) {
-                // If the value is a number
                 int intValue;
                 CFNumberGetValue((CFNumberRef)attributeValue, kCFNumberIntType, &intValue);
                 logger->debug("  Value (number): " + std::to_string(intValue));
             } else if (CFGetTypeID(attributeValue) == CFBooleanGetTypeID()) {
-                // If the value is a boolean
                 Boolean boolValue = CFBooleanGetValue((CFBooleanRef)attributeValue);
                 logger->debug("  Value (boolean): " + std::string(boolValue ? "true" : "false"));
             } else if (CFGetTypeID(attributeValue) == CFArrayGetTypeID()) {
-                // If the value is an array
                 CFArrayRef arrayValue = (CFArrayRef)attributeValue;
                 CFIndex arrayCount = CFArrayGetCount(arrayValue);
                 logger->debug("  Value (array), size: " + std::to_string(arrayCount));
@@ -1179,20 +1530,18 @@ void LiveInterface::printAllAttributeValues(AXUIElementRef element) {
                     // You can recursively print array elements based on type here, if needed
                 }
             } else if (CFGetTypeID(attributeValue) == AXValueGetTypeID()) {
-                // If the value is an AXValue (like a CGPoint, CGSize, etc.)
-                // You can handle other AXValue types (CGRect, etc.) as needed.
-                // If the value is an AXValue (like a CGPoint, CGSize, etc.)
-//                AXValueType valueType = AXValueGetType((AXValueRef)attributeValue);
-//                if (valueType == kAXValueCGPointType) {
-//                    CGPoint point;
-//                    AXValueGetValue((AXValueRef)attributeValue, kAXValueCGPointType, &point);
-//                    std::cout << "  Value (CGPoint): (" << point.x << ", " << point.y << ")" << std::endl;
-//                } else if (valueType == kAXValueCGSizeType) {
-//                    CGSize size;
-//                    AXValueGetValue((AXValueRef)attributeValue, kAXValueCGSizeType, &size);
-//                    std::cout << "  Value (CGSize): (" << size.width << ", " << size.height << ")" << std::endl;
-//                }
-                // You can handle other AXValue types (CGRect, etc.) as needed.
+               // AXValueType valueType = AXValueGetType((AXValueRef)attributeValue);
+               // if (valueType == kAXValueCGPointType) {
+               //     CGPoint point;
+               //     AXValueGetValue((AXValueRef)attributeValue, kAXValueCGPointType, &point);
+               //     logger->debug("  Value (CGPoint): (" + std::to_string(point.x) + ", " + std::to_string(point.y) + ")");
+               // } else if (valueType == kAXValueCGSizeType) {
+               //     CGSize size;
+               //     AXValueGetValue((AXValueRef)attributeValue, kAXValueCGSizeType, &size);
+               //     logger->debug("  Value (CGSize): (" + std::to_string(size.width) + ", " + std::to_string(size.height) + ")");
+               // } else {
+               //     logger->debug("  Value (AXValue of unknown type)");
+               // }
             } else {
                 // Handle other types or unknown types
                 logger->debug("  Value (unknown type)");
@@ -1205,9 +1554,8 @@ void LiveInterface::printAllAttributeValues(AXUIElementRef element) {
         }
     }
 
-    if (attributeNames) {
-        CFRelease(attributeNames);
-    }
+    // Release the attribute names array
+    CFRelease(attributeNames);
 }
 
 void LiveInterface::printAllAttributes(const AXUIElementRef element) {
