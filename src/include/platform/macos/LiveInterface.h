@@ -37,11 +37,10 @@ public:
     void safelyFocusAfterDestroy(int windowIDToDestroy, int windowIDToFocus);
 
     bool getAXEnabled(AXUIElementRef elem);
-    bool getAXCheckBoxState(AXUIElementRef elem);
     AXUIElementRef getAppElement();
     AXUIElementRef getTrackView();
     std::vector<AXUIElementRef> getTrackViewDevices();
-    AXUIElementRef getTrackViewDeviceAttr(AXUIElementRef deviceElement);
+    std::vector<AXUIElementRef> getTrackViewDeviceCheckBoxes(AXUIElementRef deviceElement);
     void printAXChildrenInNavigationOrder(AXUIElementRef element);
 
     CFStringRef getRole(AXUIElementRef elementRef);
@@ -59,6 +58,7 @@ public:
     AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth);
     std::vector<AXUIElementRef> findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level);
     void printAXTitle(AXUIElementRef elem);
+    void printAXInstance(AXUIElementRef elem);
     void printAllAttributes(AXUIElementRef element);
     void printAllAttributeValues(AXUIElementRef element);
     void searchFocusedTextField(AXUIElementRef element);
@@ -75,6 +75,10 @@ public:
     void closeFocusedPluginWindow() override;
     void closeSpecificWindow(WindowHandle element) override;
     void tilePluginWindows() override;
+
+    bool isAXCheckBoxChecked(AXUIElementRef elem);
+    bool pressAXCheckBox(AXUIElementRef checkbox);
+    bool toggleOffOnAXCheckBox(AXUIElementRef checkbox);
 
 private:
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;

@@ -542,7 +542,7 @@ AXUIElementRef findAXMain(AXUIElementRef parent) {
 }
 
 
-bool LiveInterface::getAXCheckBoxState(AXUIElementRef elem) {
+bool LiveInterface::isAXCheckBoxChecked(AXUIElementRef elem) {
     CFBooleanRef value = nullptr;
     if (AXUIElementCopyAttributeValue(elem, kAXValueAttribute, (CFTypeRef*)&value) == kAXErrorSuccess && value) {
         bool isChecked = CFBooleanGetValue(value);  // Convert CFBooleanRef to bool
@@ -555,12 +555,48 @@ bool LiveInterface::getAXCheckBoxState(AXUIElementRef elem) {
 }
 // .PluginEdit - for toggle
 
+bool LiveInterface::pressAXCheckBox(AXUIElementRef checkbox) {
+    if (!checkbox) {
+        std::cerr << "Error: AXUIElementRef is null." << std::endl;
+        return false;
+    }
+
+    // Perform the AXPress action on the checkbox
+    AXError error = AXUIElementPerformAction(checkbox, kAXPressAction);
+
+    if (error == kAXErrorSuccess) {
+        logger->info("Successfully pressed the checkbox.");
+        return true;
+    } else {
+        std::cerr << "Failed to press the checkbox. Error: " << error << std::endl;
+        return false;
+    }
+}
+
+bool LiveInterface::toggleOffOnAXCheckBox(AXUIElementRef checkbox) {
+    if (!isAXCheckBoxChecked(checkbox)) {
+        logger->warn("not checked - already on");
+        return false;
+    }
+    if (isAXCheckBoxChecked(checkbox)) {
+        bool offPress = pressAXCheckBox(checkbox);
+        usleep(20000);
+        bool onPress = pressAXCheckBox(checkbox);
+        if (onPress && offPress) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Device On is the on/off switch
-AXUIElementRef LiveInterface::getTrackViewDeviceAttr(AXUIElementRef deviceElement) {
+std::vector<AXUIElementRef> LiveInterface::getTrackViewDeviceCheckBoxes(AXUIElementRef deviceElement) {
     if (!deviceElement) {
         std::cerr << "Error: deviceElement is null." << std::endl;
-        return nullptr;
+        return {};
     }
+    
+    std::vector<AXUIElementRef> checkBoxElements;
 
     printAXTitle(deviceElement);
 
@@ -584,20 +620,23 @@ AXUIElementRef LiveInterface::getTrackViewDeviceAttr(AXUIElementRef deviceElemen
                     // Look for the TitleBar element
                     if (identifierStr.find("PluginEdit") != std::string::npos) {
                         std::cout << "Found PluginEdit: " << identifierStr << std::endl;
-                        bool isChecked = getAXCheckBoxState(child);
-                        logger->info("checkbox state: " + std::string(isChecked ? "true" : "false"));
-                        return child;
+
+//                        bool isChecked = isAXCheckBoxChecked(child);
+//                        logger->info("checkbox state: " + std::string(isChecked ? "true" : "false"));
+                        CFRetain(child);
+                        checkBoxElements.push_back(child);
+
                         CFRelease(identifier);
                     }
                 }
-                CFRelease(identifier);
             }
         }
         CFRelease(children);
+        if (checkBoxElements.size()) return checkBoxElements;
     }
 
     std::cerr << "Failed to find the DeviceOn element." << std::endl;
-    return nullptr;
+    return {};
 }
 
 
@@ -625,6 +664,7 @@ AXUIElementRef LiveInterface::getTrackView() {
 }
 
 void LiveInterface::printAXTitle(AXUIElementRef elem) {
+    return; // TODO
     CFStringRef title = nullptr;
     if (AXUIElementCopyAttributeValue(elem, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
         std::cout << " Title: ";
@@ -770,8 +810,14 @@ void LiveInterface::tilePluginWindows() {
     for (const auto& device : trackViewDevices) {
 //        printAXIdentifier(device);
 //        printAXTree(device, 0);
+        CFRetain(device);
+        std::vector<AXUIElementRef> checkboxes = getTrackViewDeviceCheckBoxes(device);
 
-        getTrackViewDeviceAttr(device);
+        for (const auto& checkbox : checkboxes) {
+            toggleOffOnAXCheckBox(checkbox);
+            if (checkbox) CFRelease(checkbox);
+            usleep(20000);
+        }
 
         CFRelease(device);
     }
