@@ -11,16 +11,13 @@
 #include "IIPCCore.h"
 
 class ApplicationManager;
-class ILogHandler;
 class IPluginManager;
 
 class IPCCore : public IIPCCore {
 public:
     using ResponseCallback = std::function<void(const std::string&)>;
 
-    IPCCore(
-        std::function<std::shared_ptr<ILogHandler>()> logHandler
-       );
+    IPCCore();
     ~IPCCore() override;
 
     bool init() override;
@@ -44,9 +41,6 @@ public:
     }
 
 private:
-    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
-    std::shared_ptr<ILogHandler> log_() { return logHandler_(); };
-
     static constexpr int MAX_PIPE_CREATION_ATTEMPTS = 100;
     static constexpr std::chrono::milliseconds PIPE_CREATION_RETRY_DELAY{500};
     std::atomic<bool> readPipeCreated_{false};

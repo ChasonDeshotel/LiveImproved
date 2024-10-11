@@ -5,18 +5,19 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
-#include "LogHandler.h"
-#include "ConfigMenu.h"
-#include "IWindow.h"
 #include "yaml-cpp/yaml.h"
 
+#include "LogGlobal.h"
+
+#include "ConfigMenu.h"
+#include "IWindow.h"
+
 ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
-    : configFile_(configFile)
-    , log_(&LogHandler::getInstance()) {
+    : configFile_(configFile) {
     std::filesystem::path LESConfigFilePath =
         std::filesystem::path(std::string(getenv("HOME"))) / ".les" / "menuconfig.ini";
     parseLESMenuConfig(LESConfigFilePath);
-    log_->info("LES config menu filepath: " + configFile.string());
+    logger->info("LES config menu filepath: " + configFile.string());
 }
 
 void ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
@@ -57,10 +58,10 @@ std::vector<MenuItem> ConfigMenu::getMenuData() {
 
 void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
     std::vector<MenuItem> menuData;
-    
+
     std::ifstream file(filePath);
     if (!file.is_open()) {
-        log_->error("Unable to open file: " + filePath.string());
+        logger->error("Unable to open file: " + filePath.string());
         return;
     }
 
@@ -159,6 +160,6 @@ void ConfigMenu::loadConfig() {
     try {
         // Implementation
     } catch (const std::exception &e) {
-        log_->error("Error loading config: " + std::string(e.what()));
+        logger->error("Error loading config: " + std::string(e.what()));
     }
 }

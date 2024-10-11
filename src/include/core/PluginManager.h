@@ -9,14 +9,12 @@
 
 class IIPCCore;
 class ResponseParser;
-class ILogHandler;
 class Plugin;
 
 class PluginManager : public IPluginManager {
 public:
     PluginManager(
-                  std::function<std::shared_ptr<ILogHandler>()> logHandler
-                  , std::function<std::shared_ptr<IIPCCore>()> ipc
+                  std::function<std::shared_ptr<IIPCCore>()> ipc
                   , std::function<std::shared_ptr<ResponseParser>()> responseParser
                   );
 
@@ -31,7 +29,6 @@ public:
     void refreshPlugins() override;
 
 private:
-    std::function<std::shared_ptr<ILogHandler>()> log_;
     std::function<std::shared_ptr<IIPCCore>()> ipc_;
     std::function<std::shared_ptr<ResponseParser>()> responseParser_;
     std::vector<Plugin> plugins_;

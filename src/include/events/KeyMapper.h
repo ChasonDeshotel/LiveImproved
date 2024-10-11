@@ -1,14 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include <regex>
-#include <sstream>
-#include <algorithm>
 
 #include "Types.h"
-
-class LogHandler;
 
 class KeyMapper {
 public:
@@ -23,7 +17,6 @@ public:
   const EKeyPress &getKeyPress() const;
 
 private:
-    LogHandler* log_;
     bool valid;
     EKeyPress keypress;
 

@@ -15,8 +15,7 @@
 
 #include "EventHandler.h"
 // TODO
-#include "ILogHandler.h"
-#include "LogHandler.h"
+#include "LogGlobal.h"
 
 #include "IActionHandler.h"
 #include "PID.h"
@@ -88,13 +87,11 @@ std::string keyCodeToString(CGKeyCode keyCode) {
 @class GUISearchBoxWindowController;
 
 EventHandler::EventHandler(
-    std::function<std::shared_ptr<ILogHandler>()> logHandler
-    , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler
     , std::function<std::shared_ptr<WindowManager>()> windowManager
     )
     : windowManager_(std::move(windowManager))
     , actionHandler_(std::move(actionHandler))
-    , log_(std::move(logHandler))
     , eventTap(nullptr)
     , runLoopSource(nullptr)
 {}
@@ -128,11 +125,11 @@ void EventHandler::focusApplication(pid_t pid) {
         // Check if the application is already active
         NSRunningApplication *currentApp = [NSRunningApplication currentApplication];
         if ([currentApp processIdentifier] == pid) {
-            LogHandler::getInstance().debug("Application is already in focus: " + std::to_string(pid));
+            logger->debug("Application is already in focus: " + std::to_string(pid));
             return;
         }
 
-        LogHandler::getInstance().debug("Bringing app into focus: " + std::to_string(pid));
+        logger->debug("Bringing app into focus: " + std::to_string(pid));
         [app activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
     }
 }
@@ -195,7 +192,7 @@ void EventHandler::logWindowInfo(NSDictionary *windowInfo) {
                  "), Size: (" + std::to_string(windowBounds.size.width) + ", " + std::to_string(windowBounds.size.height) + ")\n";
 
     // Use logHandler_()->debug to print the debug information
-    log_()->debug(debugInfo);
+    logger->debug(debugInfo);
 }
 
 NSArray *EventHandler::getAllWindowsForApp() {
@@ -272,7 +269,7 @@ void EventHandler::focusWindow(int windowID) {
     if (windowID == 0) return;
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        LogHandler::getInstance().debug("focusing window with int windowID");
+        logger->debug("focusing window with int windowID");
         void* viewPointer = getViewPointerFromWindowID(windowID);
 
         if (viewPointer == nullptr) return;
@@ -380,7 +377,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
     // or at least only call these where necessary
     // and/or call the log via the singleton interface
     auto windowManager = handler->windowManager_();
-    auto log = handler->log_();
     auto actionHandler = handler->actionHandler_();
 
     // 40 is weird. The normal flag didn't work
@@ -398,10 +394,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                 CGPoint location = CGEventGetLocation(event);
                 CFRelease(event);
 
-                handler->log_()->info("target pid: " + std::to_string(targetPID));
+                logger->info("target pid: " + std::to_string(targetPID));
 
                 NSView *nativeView = reinterpret_cast<NSView *>(windowManager->getWindowHandle("SearchBox"));
-                LogHandler::getInstance().debug("got window handle");
+                logger->debug("got window handle");
 
                 NSWindow *searchBoxWindow = [nativeView window];
 
@@ -410,21 +406,21 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                 CGPoint mouseLocation = [NSEvent mouseLocation];
                 bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
 
-                LogHandler::getInstance().debug("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
-                LogHandler::getInstance().debug("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
+                logger->debug("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
+                logger->debug("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
 
                 if (isOutsideApp) {
                     NSRect liveBounds = getLiveBounds();
                     bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
-                    LogHandler::getInstance().debug("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
+                    logger->debug("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
 
                     if (isInsideLive) {
-                        LogHandler::getInstance().debug("Click is outside app, inside Live, closing window.");
+                        logger->debug("Click is outside app, inside Live, closing window.");
                         windowManager->closeWindow("SearchBox");
     //                    return NULL;
                     }
                 } else {
-                    LogHandler::getInstance().debug("Click is inside the window, keeping window open.");
+                    logger->debug("Click is inside the window, keeping window open.");
                 }
             });
         }
@@ -433,16 +429,16 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
     if (eventPID == PID::getInstance().livePID()) {
         // double-right-click menu
         if (eventType == kCGEventRightMouseDown) {
-            log->debug("Ableton Live right click event detected.");
+            logger->debug("Ableton Live right click event detected.");
             //handler->log_->info("right click event");
             auto now = std::chrono::steady_clock::now();
 
             if (lastRightClickTime.has_value()) {
                 auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
-                log->debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
+                logger->debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
 
                 if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
-                    //handler->log_->info(        log_()->debug("Termination detected for PID: " + std::to_string(terminatedPID));"double right click");
+                    //handler->log_->info(        logger->debug("Termination detected for PID: " + std::to_string(terminatedPID));"double right click");
                     dispatch_async(dispatch_get_main_queue(), ^{
                         actionHandler->handleDoubleRightClick();
                     });
@@ -456,11 +452,11 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             return event;
 
         } else if (eventType == kCGEventKeyDown) {
-            log->debug("Ableton Live keydown event detected.");
+            logger->debug("Ableton Live keydown event detected.");
 
 // TODO fix
 //            if (liveInterface->isAnyTextFieldFocused()) {
-//                log->debug("Ableton Live text field has focus. Passing event.");
+//                logger->debug("Ableton Live text field has focus. Passing event.");
 //                return event;
 //            }
 
@@ -491,11 +487,11 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
 }
 
 void EventHandler::setupQuartzEventTap() {
-    auto log = log_();
-    log->debug("EventHandler::setupQuartEventTap() called");
+    auto log = logger;
+    logger->debug("EventHandler::setupQuartEventTap() called");
 
     if (PID::getInstance().livePID() == -1) {
-        log->error("EventHandler: Ableton Live not found.");
+        logger->error("EventHandler: Ableton Live not found.");
         return;
     }
 
@@ -511,14 +507,14 @@ void EventHandler::setupQuartzEventTap() {
     CFMachPortRef eventTap = CGEventTapCreate(kCGHIDEventTap, kCGHeadInsertEventTap, static_cast<CGEventTapOptions>(0), eventMask, eventTapCallback, this);
 
     if (!eventTap) {
-        log->error("EventHandler: Failed to create event tap.");
+        logger->error("EventHandler: Failed to create event tap.");
         return;
     }
 
     CFRunLoopSourceRef runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
     CGEventTapEnable(eventTap, true);
-    log->debug("EventHandler: Quartz event tap is active!");
+    logger->debug("EventHandler: Quartz event tap is active!");
 }
 
 bool isElementFocused(AXUIElementRef element) {
@@ -548,7 +544,7 @@ void EventHandler::registerAppLaunch(std::function<void()> onLaunchCallback) {
         NSString *bundleID = [launchedApp bundleIdentifier];
 
         if ([bundleID isEqualToString:@"com.ableton.live"]) {
-            LogHandler::getInstance().info("Target app launched with PID: " + std::to_string(launchedPID));
+            logger->info("Target app launched with PID: " + std::to_string(launchedPID));
             if (onLaunchCallback) {
                 onLaunchCallback();
             }
@@ -565,11 +561,11 @@ void EventHandler::registerAppTermination(std::function<void()> onTerminationCal
         NSRunningApplication *terminatedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
         pid_t terminatedPID = [terminatedApp processIdentifier];
 
-        log_()->debug("Termination detected for PID: " + std::to_string(terminatedPID));
+        logger->debug("Termination detected for PID: " + std::to_string(terminatedPID));
 
         if (terminatedPID == PID::getInstance().livePID()) {
-            NSLog(@"Target application with PID %d has been terminated", terminatedPID);
-            log_()->debug("Live terminated -- restarting");
+            logger->info("Target application with PID " + std::to_string(terminatedPID) + " has been terminated");
+            logger->debug("Live terminated -- restarting");
             if (onTerminationCallback) {
                 onTerminationCallback();
             }

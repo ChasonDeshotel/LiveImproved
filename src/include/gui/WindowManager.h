@@ -4,13 +4,11 @@
 #include <string>
 #include <memory>
 #include <functional>
-#include <stdexcept>
 
 #include "IWindow.h"
 
 class ApplicationManager;
 class IWindow;
-class ILogHandler;
 class IPluginManager;
 class EventHandler;
 class IActionHandler;
@@ -21,8 +19,7 @@ class ConfigMenu;
 class WindowManager {
 public:
    WindowManager(
-                 std::function<std::shared_ptr<ILogHandler>()> logHandler
-                 , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+                 std::function<std::shared_ptr<IPluginManager>()> pluginManager
                  , std::function<std::shared_ptr<EventHandler>()> eventHandler
                  , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                  , std::function<std::shared_ptr<WindowManager>()> windowManager
@@ -45,7 +42,6 @@ public:
     [[nodiscard]] bool isWindowOpen(const std::string& windowName) const;
 
 private:
-    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;

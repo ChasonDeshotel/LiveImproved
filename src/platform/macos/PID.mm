@@ -8,8 +8,9 @@
 #include <dispatch/dispatch.h>
 #include <unistd.h>
 
+#include "LogGlobal.h"
+
 #include "PID.h"
-#include "LogHandler.h"
 
 PID::PID()
     : abletonLivePID(-1)
@@ -23,10 +24,10 @@ PID& PID::getInstance() {
 }
 
 pid_t PID::findLivePID() {
-//    LogHandler::getInstance().info("PID::findWithSysctl() called");
+//    logger->info("PID::findWithSysctl() called");
 
     if (abletonLivePID != -1) {
-//      LogHandler::getInstance().info("PID::findByName() - returning cached result");
+//      logger->info("PID::findByName() - returning cached result");
       return abletonLivePID;
     }
 
@@ -35,14 +36,14 @@ pid_t PID::findLivePID() {
 
     // Get the size of the process list
     if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0) {
-        LogHandler::getInstance().error("sysctl failed to get process list size");
+        logger->error("sysctl failed to get process list size");
         return -1;
     }
 
     struct kinfo_proc *procs = (struct kinfo_proc *)malloc(len);
 
     if (sysctl(mib, 4, procs, &len, NULL, 0) < 0) {
-        LogHandler::getInstance().error("sysctl failed to get process list");
+        logger->error("sysctl failed to get process list");
         free(procs);
         return -1;
     }
@@ -51,25 +52,25 @@ pid_t PID::findLivePID() {
     
     for (int i = 0; i < procCount; i++) {
         struct kinfo_proc *proc = &procs[i];
-//        LogHandler::getInstance().info(proc->kp_proc.p_comm);
+//        logger->info(proc->kp_proc.p_comm);
         if (strcmp(proc->kp_proc.p_comm, "Live") == 0) {
             pid_t pid = proc->kp_proc.p_pid;
             free(procs);
-            LogHandler::getInstance().info("Ableton Live found with PID: " + std::to_string(pid));
+            logger->info("Ableton Live found with PID: " + std::to_string(pid));
             abletonLivePID = pid;
             return pid;
         }
     }
 
     free(procs);
-    LogHandler::getInstance().error("Ableton Live not found");
+    logger->error("Ableton Live not found");
     return -1;
 }
 
 pid_t PID::livePID() {
-//    LogHandler::getInstance().info("livePID() called");
+//    logger->info("livePID() called");
     if (abletonLivePID != -1) {
-//      LogHandler::getInstance().info("PID::livePID() - returning cached result");
+//      logger->info("PID::livePID() - returning cached result");
       return abletonLivePID;
     }
 
@@ -81,10 +82,10 @@ pid_t PID::appPID() {
 }
 
 PID* PID::livePIDBlocking() {
-    LogHandler::getInstance().debug("PID::Init() called");
+    logger->debug("PID::Init() called");
 
     while (livePID() == -1) {
-        LogHandler::getInstance().info("Live not found, retrying...");
+        logger->info("Live not found, retrying...");
         livePID();
         sleep(1);
     }

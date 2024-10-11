@@ -1,20 +1,17 @@
 #include <string>
 
-#include "ILogHandler.h"
+#include "LogGlobal.h"
 #include "IPCException.h"
 #include "IPCResilienceDecorator.h"
 #include "Types.h"
 #include "IIPCCore.h"
 
 IPCResilienceDecorator::IPCResilienceDecorator(
-    std::function<std::shared_ptr<IIPCCore>()> ipcFactory,
-    std::function<std::shared_ptr<ILogHandler>()> logHandler
+    std::function<std::shared_ptr<IIPCCore>()> ipcFactory
 ) : ipcFactory_(std::move(ipcFactory)),
-    logHandler_(std::move(logHandler)),
     instance_(nullptr)
 {
-    auto log = logHandler_();
-    log->debug("IPCResilienceDecorator constructed");
+    logger->debug("IPCResilienceDecorator constructed");
     init();
 }
 
@@ -32,7 +29,7 @@ auto IPCResilienceDecorator::handleError(const std::string& operation, Func retr
         // Retry the operation once more
         return retry();
     } catch (const std::exception& e) {
-        logHandler_()->error("Unexpected error in IPC " + operation + ": " + e.what());
+        logger->error("Unexpected error in IPC " + operation + ": " + e.what());
         throw; // Re-throw unexpected exceptions
     }
 }
@@ -40,27 +37,27 @@ auto IPCResilienceDecorator::handleError(const std::string& operation, Func retr
 void IPCResilienceDecorator::logMessage(const std::string& message, LogLevel level) {
     switch (level) {
         case LogLevel::LOG_DEBUG:
-            logHandler_()->debug(message);
+            logger->debug(message);
             break;
         case LogLevel::LOG_INFO:
-            logHandler_()->info(message);
+            logger->info(message);
             break;
         case LogLevel::LOG_WARN:
-            logHandler_()->warn(message);
+            logger->warn(message);
             break;
         case LogLevel::LOG_ERROR:
-            logHandler_()->error(message);
+            logger->error(message);
             break;
         case LogLevel::LOG_TRACE:
         case LogLevel::LOG_FATAL:
-            logHandler_()->error(message);
+            logger->error(message);
             break;
     }
 }
 
 bool IPCResilienceDecorator::checkAndReestablishConnection() {
     if (!isInitialized()) {
-        auto log = logHandler_();
+        auto log = logger;
         log->info("IPC connection lost or not initialized. Attempting to establish...");
         return init();
     }
@@ -72,18 +69,18 @@ bool IPCResilienceDecorator::init() {
         if (!instance_) {
             instance_ = ipcFactory_();
             if (!instance_) {
-                logHandler_()->error("Failed to create IPC instance");
+                logger->error("Failed to create IPC instance");
                 return false;
             }
         }
 
         if (!instance_->init()) {
-            logHandler_()->error("Failed to initialize IPC instance");
+            logger->error("Failed to initialize IPC instance");
             instance_ = nullptr;  // Reset the instance so we can try again later
             return false;
         }
 
-        logHandler_()->info("IPC connection established successfully");
+        logger->info("IPC connection established successfully");
         return true;
     });
 }

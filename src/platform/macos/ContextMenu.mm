@@ -1,12 +1,12 @@
 #import <Cocoa/Cocoa.h>
-#include "ILogHandler.h"
-#include "LogHandler.h"
+
+#include "LogGlobal.h"
 #include "Types.h"
 #include "Utils.h"
 
-#include "IActionHandler.h"
 #include "ConfigMenu.h"
 #include "ContextMenu.h"
+#include "IActionHandler.h"
 #include "WindowManager.h"
 
 @interface ContextMenuGenerator : NSObject <NSMenuDelegate>
@@ -61,35 +61,35 @@
 
 - (void)applicationDidResignActive:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().debug("App became inactive, closing the menu");
+        logger->debug("App became inactive, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().debug("App terminating, closing the menu");
+        logger->debug("App terminating, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().debug("Window minimized, closing the menu");
+        logger->debug("Window minimized, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
     if (self.contextMenu) {
-        LogHandler::getInstance().debug("Window lost focus, closing the menu");
+        logger->debug("Window lost focus, closing the menu");
         [self closeMenu];
     }
 }
 
 - (void)menuDidClose:(NSMenu *)menu {
     if (self.contextMenu) {
-        LogHandler::getInstance().debug("Menu closed");
+        logger->debug("Menu closed");
         [self closeMenu];
     }
 }
@@ -113,7 +113,7 @@
 }
 
 - (void)menuItemAction:(id)sender {
-    LogHandler::getInstance().debug("Menu item action called");
+    logger->debug("Menu item action called");
     NSMenuItem *menuItem = (NSMenuItem *)sender;
     NSString *action = (NSString *)menuItem.representedObject;
     if (action) {
@@ -125,24 +125,24 @@
 
             if (![NSThread isMainThread]) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    LogHandler::getInstance().error("calling handleAction via dispatch: " + actionString);
+                    logger->error("calling handleAction via dispatch: " + actionString);
                     _actionHandler()->handleAction(actionString);
                 });
             } else {
-                LogHandler::getInstance().error("calling handleAction on main thread: " + actionString);
+                logger->error("calling handleAction on main thread: " + actionString);
                 _actionHandler()->handleAction(actionString);
             }
         } else {
-            LogHandler::getInstance().error("Action handler is null");
+            logger->error("Action handler is null");
         }
 
     } else {
-        LogHandler::getInstance().error("Menu item action was nil");
+        logger->error("Menu item action was nil");
     }
 }
 
 - (void)addMenuItems:(NSMenu *)menu fromItems:(const std::vector<MenuItem>&)items {
-//    LogHandler::getInstance().info("addMenuItems size: " + std::to_string(items.size()));
+//    logger->info("addMenuItems size: " + std::to_string(items.size()));
     for (const auto& item : items) {
         if (item.children.empty()) {
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:item.label.c_str()]
@@ -182,13 +182,11 @@
 @end
 
 ContextMenu::ContextMenu(
-        std::function<std::shared_ptr<ILogHandler>()> logHandler
-        , std::function<std::shared_ptr<ConfigMenu>()> configMenu 
+        std::function<std::shared_ptr<ConfigMenu>()> configMenu 
         , std::function<std::shared_ptr<IActionHandler>()> actionHandler
         , std::function<std::shared_ptr<WindowManager>()> windowManager
     )
     : IWindow()
-    , log_(std::move(logHandler))
     , configMenu_(std::move(configMenu))
     , actionHandler_(std::move(actionHandler))
     , windowManager_(std::move(windowManager))
@@ -223,11 +221,11 @@ void ContextMenu::generateMenu() {
             [contextMenu popUpMenuPositioningItem:nil atLocation:mouseLocation inView:nil];
             
         } else {
-            log_()->error("menuGenerator_ is nullptr!");
+            logger->error("menuGenerator_ is nullptr!");
             return;
         }
     } else {
-        log_()->error("windowManager_ or actionHandler_ is nullptr!");
+        logger->error("windowManager_ or actionHandler_ is nullptr!");
         return;
     }
 

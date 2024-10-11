@@ -1,29 +1,29 @@
-#include "LogHandler.h"
-#include "ConfigManager.h"
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
-#include <cstdlib>
 #include <numeric>
 
+#include "LogGlobal.h"
 #include "Types.h"
+
+#include "ConfigManager.h"
 #include "KeyMapper.h"
 
 ConfigManager::ConfigManager(const std::filesystem::path& configFile)
     : configFile_(configFile)
-    , log_(&LogHandler::getInstance())
     , km_(new KeyMapper())
     , initRetries_() {
     loadConfig();
 
-    log_->info("config filepath:" + configFile.generic_string());
+    logger->info("config filepath:" + configFile.generic_string());
 }
 
 void ConfigManager::loadConfig() {
     try {
         applyConfig(YAML::LoadFile(configFile_.generic_string()));
     } catch (const std::exception &e) {
-        log_->error("Error loading config: " + std::string(e.what()));
+        logger->error("Error loading config: " + std::string(e.what()));
     }
 }
 
@@ -35,12 +35,12 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
             initRetries_ = config["init"]["retries"].as<int>();
         }
 
-        log_->info("remap before remap");
+        logger->info("remap before remap");
         if (config["remap"] && config["remap"].IsMap()) {
             for (const auto &item : config["remap"]) {
-                log_->debug("remap found remap");
-                log_->debug("remap fromStr: " + item.first.as<std::string>());
-                log_->debug("remap toStr: "   + item.second.as<std::string>());
+                logger->debug("remap found remap");
+                logger->debug("remap fromStr: " + item.first.as<std::string>());
+                logger->debug("remap toStr: "   + item.second.as<std::string>());
 
                 processRemap(item.first.as<std::string>(), item.second.as<std::string>());
             }
@@ -102,10 +102,10 @@ void ConfigManager::saveConfig() {
 
     YAML::Node remapNode = YAML::Load("{}");
     for (const auto& item : remap_) {
-        log_->debug("save remap");
+        logger->debug("save remap");
 
         std::string fromString = km_->EKeyPressToString(item.first);
-        log_->debug("save remap from: " + fromString);
+        logger->debug("save remap from: " + fromString);
 
         std::vector<std::string> stepStrings;
         const EMacro& macro = item.second;
@@ -174,12 +174,12 @@ void ConfigManager::setInitRetries(int retries) {
 }
 
 std::unordered_map<EKeyPress, EMacro, EMacroHash> ConfigManager::getRemap() const {
-    log_->debug("get remap caled");
+    logger->debug("get remap caled");
     return remap_;
 }
 
 void ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) {
-    log_->debug("setRemap: from: " + fromStr + " to: " + toStr);
+    logger->debug("setRemap: from: " + fromStr + " to: " + toStr);
     processRemap(fromStr, toStr);
     saveConfig();
 }
@@ -234,10 +234,10 @@ void ConfigManager::undo() {
             applyConfig(YAML::Clone(undoStack_.back()));
             saveConfig();
         } else {
-            log_->warn("No more states to undo.");
+            logger->warn("No more states to undo.");
         }
     } else {
-        log_->warn("Undo stack is empty, cannot undo.");
+        logger->warn("Undo stack is empty, cannot undo.");
     }
 }
 
@@ -246,7 +246,7 @@ bool ConfigManager::canUndo() const {
 }
 
 void ConfigManager::processRemap(const std::string &fromStr, const std::string &toStr) {
-    log_->debug("process remap: from: " + fromStr + " to: " + toStr);
+    logger->debug("process remap: from: " + fromStr + " to: " + toStr);
     EKeyPress from = km_->processKeyPress(fromStr);
 
     // stepsString is composed of any combination of
@@ -264,21 +264,21 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
     EMacro macro;
 
     for (const auto& step : steps) {
-        log_->debug("process remap: step: " + step);
+        logger->debug("process remap: step: " + step);
 
         const auto& namedActions = NamedActions::get();
 
         if (step.length() == 1) {
-            log_->debug("process remap: single character, processing as keypress: " + step);
+            logger->debug("process remap: single character, processing as keypress: " + step);
             try {
                 EKeyPress keyPress = km_->processKeyPress(step);
                 macro.addKeyPress(keyPress);
             } catch (const std::runtime_error& e) {
-                log_->error(e.what());
+                logger->error(e.what());
             }
 
         } else if (namedActions.find(step) != namedActions.end()) {
-            log_->debug("process remap: add action no arg: " + step);
+            logger->debug("process remap: add action no arg: " + step);
             Action action(step);
             // TODO add validation
             macro.addAction(action);
@@ -291,25 +291,25 @@ void ConfigManager::processRemap(const std::string &fromStr, const std::string &
 
             if (namedActions.find(actionName) != namedActions.end()) {
                 if (argument) {
-                    log_->debug("process remap: add action with arg: " + actionName + "." + *argument);
+                    logger->debug("process remap: add action with arg: " + actionName + "." + *argument);
                     Action action(actionName, *argument);
                     // TODO add validation
                     macro.addAction(action);
                 }
             } else {
                 // step contains a period but no valid action
-                log_->warn("step contains . but no valid action. action given: " + actionName);
+                logger->warn("step contains . but no valid action. action given: " + actionName);
                 continue;
             }
 
         } else {
             // TODO consider turning these into a keypress macro
-            log_->debug("process remap: not in named actions. str: " + step);
+            logger->debug("process remap: not in named actions. str: " + step);
             try {
                 EKeyPress keyPress = km_->processKeyPress(step);
                 macro.addKeyPress(keyPress);
             } catch (const std::runtime_error& e) {
-                log_->error(e.what());
+                logger->error(e.what());
             }
         }
     }

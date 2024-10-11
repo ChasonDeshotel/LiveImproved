@@ -13,15 +13,13 @@
 
 #include "ILiveInterface.h"
 
-class ILogHandler;
 class EventHandler;
 
 class LiveInterface : public ILiveInterface {
 public:
     // Constructor
     LiveInterface(
-        std::function<std::shared_ptr<ILogHandler>()> logHandler
-        , std::function<std::shared_ptr<EventHandler>()> eventHandler
+        std::function<std::shared_ptr<EventHandler>()> eventHandler
     );
 
     // Destructor
@@ -68,10 +66,9 @@ public:
     AXUIElementRef getFrontmostWindow();
     void closeFocusedPluginWindow() override;
     void closeSpecificWindow(WindowHandle element) override;
-    void tilePluginWindows();
+    void tilePluginWindows() override;
 
 private:
-    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height);
     std::map<AXUIElementRef, CGRect> cachedWindowBounds_;
@@ -101,96 +98,4 @@ private:
     static void pluginWindowDestroyCallback(AXObserverRef observer, AXUIElementRef element,
                                      CFStringRef notification, void* context);
 
-    void tilePluginWindows() {
-        std::vector<AXUIElementRef> pluginWindows = getPluginWindowsFromLiveAX(0);  // Get all plugin windows
-        if (pluginWindows.empty()) return;
-
-        // Get the screen size
-        CGRect screenBounds = [[NSScreen mainScreen] frame];
-        int screenWidth = screenBounds.size.width;
-        int screenHeight = screenBounds.size.height;
-
-        // Calculate the total area of all plugin windows
-        double totalArea = 0;
-        for (const auto& window : pluginWindows) {
-            CGRect bounds = getWindowBounds(window);
-            totalArea += bounds.size.width * bounds.size.height;
-        }
-
-        // Calculate the scaling factor to fit all windows on the screen
-        double scaleFactor = std::sqrt((screenWidth * screenHeight) / totalArea);
-
-        // Calculate the number of rows and columns
-        int numWindows = pluginWindows.size();
-        int numCols = std::ceil(std::sqrt(numWindows));
-        int numRows = std::ceil(static_cast<double>(numWindows) / numCols);
-
-        // Arrange windows
-        int currentX = 0;
-        int currentY = 0;
-        int maxRowHeight = 0;
-
-        for (int i = 0; i < numWindows; ++i) {
-            CGRect originalBounds = getWindowBounds(pluginWindows[i]);
-            int scaledWidth = std::round(originalBounds.size.width * scaleFactor);
-            int scaledHeight = std::round(originalBounds.size.height * scaleFactor);
-
-            if (currentX + scaledWidth > screenWidth) {
-                currentX = 0;
-                currentY += maxRowHeight;
-                maxRowHeight = 0;
-            }
-
-            setWindowBounds(pluginWindows[i], currentX, currentY, scaledWidth, scaledHeight);
-
-            currentX += scaledWidth;
-            maxRowHeight = std::max(maxRowHeight, scaledHeight);
-        }
-    }
-
-    void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height) {
-        CGPoint position = CGPointMake(x, y);
-        CGSize size = CGSizeMake(width, height);
-
-        AXValueRef positionRef = AXValueCreate(kAXValueCGPointType, &position);
-        AXValueRef sizeRef = AXValueCreate(kAXValueCGSizeType, &size);
-
-        AXUIElementSetAttributeValue(window, kAXPositionAttribute, positionRef);
-        AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
-
-        CFRelease(positionRef);
-        CFRelease(sizeRef);
-
-        // Update the cached bounds
-        cachedWindowBounds_[window] = CGRectMake(x, y, width, height);
-    }
-
-    CGRect getWindowBounds(AXUIElementRef window) {
-        // Check if we have cached bounds for this window
-        auto it = cachedWindowBounds_.find(window);
-        if (it != cachedWindowBounds_.end()) {
-            return it->second;
-        }
-
-        // If not cached, get the current bounds
-        CGPoint position;
-        CGSize size;
-        AXValueRef positionRef, sizeRef;
-
-        AXUIElementCopyAttributeValue(window, kAXPositionAttribute, (CFTypeRef*)&positionRef);
-        AXUIElementCopyAttributeValue(window, kAXSizeAttribute, (CFTypeRef*)&sizeRef);
-
-        AXValueGetValue(positionRef, kAXValueCGPointType, &position);
-        AXValueGetValue(sizeRef, kAXValueCGSizeType, &size);
-
-        CFRelease(positionRef);
-        CFRelease(sizeRef);
-
-        CGRect bounds = CGRectMake(position.x, position.y, size.width, size.height);
-
-        // Cache the bounds
-        cachedWindowBounds_[window] = bounds;
-
-        return bounds;
-    }
 };

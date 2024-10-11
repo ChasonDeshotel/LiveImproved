@@ -1,19 +1,15 @@
 #pragma once
 
-#include <string>
-
-#include "IIPCCore.h"
-#include "ILogHandler.h"
-#include "Types.h"
 #include <functional>
 #include <memory>
+#include <string>
+
+#include "Types.h"
+
+#include "IIPCCore.h"
 
 class IPCResilienceDecorator : public IIPCCore {
 public:
-    IPCResilienceDecorator(
-        std::function<std::shared_ptr<IIPCCore>()> baseIPC
-        , std::function<std::shared_ptr<ILogHandler>()> logHandler
-    );
     IPCResilienceDecorator(std::function<std::shared_ptr<IIPCCore>()> factory);
     ~IPCResilienceDecorator() override = default;
 
@@ -34,7 +30,6 @@ public:
 private:
     std::shared_ptr<IIPCCore> instance_;
     std::function<std::shared_ptr<IIPCCore>()> ipcFactory_;
-    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
 
     template<typename Func>
     auto handleError(const std::string& operation, Func retry) -> decltype(retry());

@@ -5,8 +5,7 @@
 #include <string>
 #include <optional>
 
-#include "LogHandler.h"
-
+#include "LogGlobal.h"
 #include "Types.h"
 
 #include "KeySender.h"
@@ -116,11 +115,9 @@ std::optional<CGKeyCode> getKeyCode(const std::string& key) {
     return std::nullopt;
 }
 
-KeySender::KeySender()
-    : log_(&LogHandler::getInstance())
-{}
+KeySender::KeySender() = default;
 
-KeySender::~KeySender() {}
+KeySender::~KeySender() = default;
 
 CGEventFlags getEventFlags(const EKeyPress& kp) {
     CGEventFlags flags = 0;
@@ -148,22 +145,22 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
         CGEventFlags flags = getEventFlags(kp);
         std::optional<CGKeyCode> keyCodeOpt = getKeyCode(toLower(kp.key));
 
-        log_->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
-        log_->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
-        log_->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
-        log_->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
-        log_->debug("KeySender:: Keypress key: "   + kp.key                   );
+        logger->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
+        logger->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
+        logger->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
+        logger->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
+        logger->debug("KeySender:: Keypress key: "   + kp.key                   );
 
         if (keyCodeOpt) {
             CGKeyCode keyCode = *keyCodeOpt;
-            log_->debug("KeySender:: keycode: " + std::to_string(keyCode));
+            logger->debug("KeySender:: keycode: " + std::to_string(keyCode));
 
             CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, keyCode, true);
             CGEventSetFlags(keyDown, flags);
             CGEventPost(kCGAnnotatedSessionEventTap, keyDown);
             CFRelease(keyDown);
 
-            //log_->info("sending keyUp: " + std::to_string(keyCode));
+            //logger->info("sending keyUp: " + std::to_string(keyCode));
             CGEventRef keyUp = CGEventCreateKeyboardEvent(NULL, keyCode, false);
             CGEventSetFlags(keyUp, flags);
             CGEventPost(kCGAnnotatedSessionEventTap, keyUp);

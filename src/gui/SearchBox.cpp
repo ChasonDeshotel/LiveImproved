@@ -3,17 +3,16 @@
 #include <algorithm>
 #include <functional>
 
-#include "LogHandler.h"
+#include "LogGlobal.h"
 #include "Types.h"
 
 #include "EventHandler.h"
 #include "IActionHandler.h"
-#include "PID.h"
+#include "LimLookAndFeel.h"
 #include "PluginManager.h"
 #include "SearchBox.h"
-#include "WindowManager.h"
-#include "LimLookAndFeel.h"
 #include "Theme.h"
+#include "WindowManager.h"
 
 class PluginListModel : public juce::ListBoxModel {
 public:
@@ -96,8 +95,7 @@ private:
 };
 
 SearchBox::SearchBox(
-                     std::function<std::shared_ptr<ILogHandler>()> logHandler
-                     , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+                     std::function<std::shared_ptr<IPluginManager>()> pluginManager
                      , std::function<std::shared_ptr<EventHandler>()> eventHandler
                      , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                      , std::function<std::shared_ptr<WindowManager>()> windowManager
@@ -105,7 +103,6 @@ SearchBox::SearchBox(
                      , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
     )
     : TopLevelWindow("SearchBox", true)
-    , logHandler_(std::move(logHandler))
     , pluginManager_(std::move(pluginManager))
     , eventHandler_(std::move(eventHandler))
     , actionHandler_(std::move(actionHandler))
@@ -114,7 +111,7 @@ SearchBox::SearchBox(
     , limLookAndFeel_(std::move(limLookAndFeel))
     {
 
-    LogHandler::getInstance().debug("Creating SearchBoxWindowController");
+    logger->debug("Creating SearchBoxWindowController");
 
     setOpaque(false);
     setDropShadowEnabled(false);
@@ -148,7 +145,7 @@ SearchBox::~SearchBox() {}
 
 void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
     if (&editor == &searchField_) {
-        LogHandler::getInstance().debug("Search text changed: " + editor.getText().toStdString());
+        logger->debug("Search text changed: " + editor.getText().toStdString());
         juce::String searchText = searchField_.getText();
 
         pluginListModel_->filterPlugins(searchText);
@@ -161,7 +158,7 @@ void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
 }
 
 bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
-    LogHandler::getInstance().info("search box key pressed: " + std::to_string(key.getKeyCode()));
+    logger->info("search box key pressed: " + std::to_string(key.getKeyCode()));
 
     if (key == juce::KeyPress::escapeKey) {
         if (searchField_.getText().isNotEmpty()) {
@@ -174,7 +171,7 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
     }
 
     if (key == juce::KeyPress::returnKey) {
-        LogHandler::getInstance().info("enter key pressed");
+        logger->info("enter key pressed");
         int selectedRow = listBox_.getSelectedRow();
         const Plugin* plugin = pluginListModel_->getPluginAtRow(selectedRow);
         if (plugin) {
@@ -341,7 +338,7 @@ void* SearchBox::getWindowHandle() const {
 
         juce::MessageManager::callAsync([this, &handle, &event]() {
             handle = (void*)Component::getWindowHandle();
-            LogHandler::getInstance().debug("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle)));
+            logger->debug("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle)));
             event.signal();
         });
 

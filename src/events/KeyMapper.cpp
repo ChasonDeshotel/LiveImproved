@@ -1,19 +1,23 @@
-#include "KeyMapper.h"
-#include "LogHandler.h"
+#include <regex>
+#include <sstream>
+
+#include "LogGlobal.h"
 #include "Types.h"
 
+#include "KeyMapper.h"
+
 KeyMapper::KeyMapper()
-    : log_(&LogHandler::getInstance())
-    , valid(false) {}
+    : valid(false)
+{}
 
 auto KeyMapper::processKeyPress(const std::string& keypress) -> EKeyPress {
-    log_->debug("process key: " + keypress);
+    logger->debug("process key: " + keypress);
     if (validateHotkey(keypress)) {
         this->keypress = parseKeyPress(keypress);
         this->valid = true;
         return this->keypress;
     } else {
-        log_->warn("not a valid keypress format: " + keypress);
+        logger->warn("not a valid keypress format: " + keypress);
         this->valid = false;
         throw std::runtime_error("not a valid keypress format: " + keypress);
     }
@@ -34,14 +38,14 @@ bool KeyMapper::validateHotkey(const std::string& keypress) const {
 }
 
 EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
-    log_->debug("parsing: " + keypress);
+    logger->debug("parsing: " + keypress);
     const auto& namedKeys = NamedKeys::get();
 
     EKeyPress kp;
 
     if (keypress.length() == 1) {
         kp.key = keypress;
-        log_->debug("Key set to: " + kp.key);
+        logger->debug("Key set to: " + kp.key);
         return kp;
     }
 
@@ -58,11 +62,11 @@ EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
             kp.key = temp;
         }
     }
-    log_->debug("key: "   + kp.key);
-    log_->debug("shift: " + std::to_string(kp.shift));
-    log_->debug("ctrl: "  + std::to_string(kp.ctrl));
-    log_->debug("cmd: "   + std::to_string(kp.cmd));
-    log_->debug("alt: "   + std::to_string(kp.alt));
+    logger->debug("key: "   + kp.key);
+    logger->debug("shift: " + std::to_string(kp.shift));
+    logger->debug("ctrl: "  + std::to_string(kp.ctrl));
+    logger->debug("cmd: "   + std::to_string(kp.cmd));
+    logger->debug("alt: "   + std::to_string(kp.alt));
 
     return kp;
 }

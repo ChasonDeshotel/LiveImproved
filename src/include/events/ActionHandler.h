@@ -10,7 +10,6 @@
 #include "IActionHandler.h"
 #include "Types.h"
 
-class ILogHandler;
 class KeyMapper;
 class IPluginManager;
 class ResponseParser;
@@ -22,13 +21,12 @@ class ILiveInterface;
 
 class ActionHandler : public IActionHandler {
 public:
-  ActionHandler(std::function<std::shared_ptr<ILogHandler>()> logHandler,
-                std::function<std::shared_ptr<IPluginManager>()> pluginManager,
-                std::function<std::shared_ptr<WindowManager>()> windowManager,
-                std::function<std::shared_ptr<ConfigManager>()> configManager,
-                std::function<std::shared_ptr<IIPCCore>()> ipc,
-                std::function<std::shared_ptr<EventHandler>()> eventHandler,
-                std::function<std::shared_ptr<ILiveInterface>()> liveInterface
+  ActionHandler(std::function<std::shared_ptr<IPluginManager>()>   pluginManager
+                , std::function<std::shared_ptr<WindowManager>()>  windowManager
+                , std::function<std::shared_ptr<ConfigManager>()>  configManager
+                , std::function<std::shared_ptr<IIPCCore>()>       ipc
+                , std::function<std::shared_ptr<EventHandler>()>   eventHandler
+                , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     );
 
     ~ActionHandler() override;
@@ -50,18 +48,12 @@ public:
 
 private:
     std::function<std::shared_ptr<IIPCCore>()> ipc_;
-    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
 
-//    std::shared_ptr<ILogHandler> log() { return logHandler_(); }
-//    std::shared_ptr<WindowManager> windowManager() { return windowManager_(); }
-//    std::shared_ptr<ConfigManager> configManager() { return configManager_(); }
-//    std::shared_ptr<IIPCCore> ipc() { return ipc_(); }
-//    std::shared_ptr<IPluginManager> pluginManager() { return pluginManager_(); }
     void getMostRecentFloatingWindowDelayed(std::function<void(int)> callback);
 
 
@@ -69,6 +61,4 @@ private:
     void executeMacro(const EMacro& macro);
 
     bool closeWindows();
-
-    //bool onEscapePress();
 };

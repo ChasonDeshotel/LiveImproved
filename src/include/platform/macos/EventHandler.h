@@ -22,15 +22,13 @@ struct NSDictionary;
 struct NSArray;
 #endif
 
-class ILogHandler;
 class IActionHandler;
 class WindowManager;
 
 class EventHandler {
 public:
     EventHandler(
-        std::function<std::shared_ptr<ILogHandler>()> logHandler
-        , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+        std::function<std::shared_ptr<IActionHandler>()> actionHandler
         , std::function<std::shared_ptr<WindowManager>()> windowManager
     );
     ~EventHandler();
@@ -58,7 +56,6 @@ public:
     void registerAppTermination(std::function<void()> onTerminationCallback);
 
 private:
-    std::function<std::shared_ptr<ILogHandler>()> log_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
 

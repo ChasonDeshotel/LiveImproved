@@ -1,17 +1,15 @@
 #include "WindowManager.h"
 
-#include "EventHandler.h"
-#include "IWindow.h"
-#include "ILogHandler.h"
-#include "LogHandler.h"
-#include "Theme.h"
+#include "LogGlobal.h"
 
 #include "ContextMenu.h"
+#include "EventHandler.h"
+#include "IWindow.h"
 #include "SearchBox.h"
+#include "Theme.h"
 
 WindowManager::WindowManager(
-                             std::function<std::shared_ptr<ILogHandler>()> logHandler
-                             , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+                             std::function<std::shared_ptr<IPluginManager>()> pluginManager
                              , std::function<std::shared_ptr<EventHandler>()> eventHandler
                              , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                              , std::function<std::shared_ptr<WindowManager>()> windowManager
@@ -19,8 +17,7 @@ WindowManager::WindowManager(
                              , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
                              , std::function<std::shared_ptr<ConfigMenu>()> configMenu
                              )
-    : logHandler_(std::move(logHandler))
-    , pluginManager_(std::move(pluginManager))
+    : pluginManager_(std::move(pluginManager))
     , eventHandler_(std::move(eventHandler))
     , actionHandler_(std::move(actionHandler))
     , windowManager_(std::move(windowManager))
@@ -33,9 +30,9 @@ WindowManager::WindowManager(
 std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& windowName) {
     if (windowName == "ContextMenu") {
         // TODO
-        return std::make_unique<ContextMenu>(logHandler_, configMenu_, actionHandler_, windowManager_);
+        return std::make_unique<ContextMenu>(configMenu_, actionHandler_, windowManager_);
     } else if (windowName == "SearchBox") {
-        return std::make_unique<SearchBox>(logHandler_, pluginManager_, eventHandler_, actionHandler_, windowManager_, theme_, limLookAndFeel_);
+        return std::make_unique<SearchBox>(pluginManager_, eventHandler_, actionHandler_, windowManager_, theme_, limLookAndFeel_);
     }
     return nullptr;
 }
@@ -63,53 +60,53 @@ void* WindowManager::getWindowHandle(const std::string& windowName) const {
 }
 
 void WindowManager::openWindow(const std::string& windowName) {
-    LogHandler::getInstance().debug("WM open called");
+    logger->debug("WM open called");
 
     auto it = windows_.find(windowName);
 
     // register the window if it doesn't yet exist
     if (it == windows_.end()) {
-        LogHandler::getInstance().debug("window not registered, registering...");
+        logger->debug("window not registered, registering...");
         registerWindow(windowName, []() {});
         it = windows_.find(windowName); // Re-fetch the iterator
     }
 
     if (it->second.callback) {
-        LogHandler::getInstance().debug("WM calling callback");
+        logger->debug("WM calling callback");
         it->second.callback();
     }
 
-    LogHandler::getInstance().debug("Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    logger->debug("Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
     if (!windowStates_[windowName]) {
         // TODO: making some assumptions by setting this to true before
         // calling `open()`, but the context menu is blocking so...
         windowStates_[windowName] = true;
-        LogHandler::getInstance().debug("WM calling open");
+        logger->debug("WM calling open");
         it->second.window->open();
     }
 }
 
 void WindowManager::closeWindow(const std::string& windowName) {
-    LogHandler::getInstance().debug("WM close called");
+    logger->debug("WM close called");
 
     auto it = windows_.find(windowName);
     if (it != windows_.end() && windowStates_[windowName]) {
         it->second.window->close();
     }
     windowStates_[windowName] = false;
-    LogHandler::getInstance().debug("updated window state to close");
-    LogHandler::getInstance().debug("close - Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    logger->debug("updated window state to close");
+    logger->debug("close - Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
     eventHandler_()->focusLive();
 }
 
 void WindowManager::toggleWindow(const std::string& windowName) {
-    LogHandler::getInstance().debug("WM close called");
+    logger->debug("WM close called");
 
     auto it = windows_.find(windowName);
 
     // window isn't registered -- we'll create it (with open)
     if (it == windows_.end()) {
-        LogHandler::getInstance().error("Window not found: " + windowName);
+        logger->error("Window not found: " + windowName);
         openWindow(windowName);
         return;
     }
@@ -124,7 +121,7 @@ void WindowManager::toggleWindow(const std::string& windowName) {
         windowStates_[windowName] = !isOpen;
     }
 
-    LogHandler::getInstance().debug("toggle - current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    logger->debug("toggle - current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
 }
 
 bool WindowManager::isWindowOpen(const std::string& windowName) const {

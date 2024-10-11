@@ -116,6 +116,7 @@ set(SRC_CPP
     src/config/ConfigManager.cpp
     src/config/ConfigMenu.cpp
     src/core/LogHandler.cpp
+    src/core/LogGlobal.cpp
     src/core/PluginManager.cpp
     src/events/ActionHandler.cpp
     src/events/KeyMapper.cpp

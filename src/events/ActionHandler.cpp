@@ -1,12 +1,11 @@
 // TODO cross-platform
 #ifndef _WIN32
-	#import <ApplicationServices/ApplicationServices.h>
+#import <ApplicationServices/ApplicationServices.h>
 #endif
 #include <unordered_map>
-#include <iostream>
 #include <string>
 
-#include "ILogHandler.h"
+#include "LogGlobal.h"
 #include "Types.h"
 #include "Utils.h"
 
@@ -21,16 +20,14 @@
 #include "LiveInterface.h"
 
 ActionHandler::ActionHandler(
-              std::function<std::shared_ptr<ILogHandler>()> logHandler
-              , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+              std::function<std::shared_ptr<IPluginManager>()> pluginManager
               , std::function<std::shared_ptr<WindowManager>()> windowManager
               , std::function<std::shared_ptr<ConfigManager>()> configManager
               , std::function<std::shared_ptr<IIPCCore>()> ipc
               , std::function<std::shared_ptr<EventHandler>()> eventHandler
               , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
               )
-    : logHandler_(std::move(logHandler))
-    , ipc_(std::move(ipc))
+    : ipc_(std::move(ipc))
     , windowManager_(std::move(windowManager))
     , pluginManager_(std::move(pluginManager))
     , configManager_(std::move(configManager))
@@ -60,6 +57,11 @@ void ActionHandler::initializeActionMap() {
         liveInterface->closeFocusedPluginWindow();
     };
 
+    actionMap["tilePluginWindows"] = [this](const std::optional<std::string>& args) {
+        auto liveInterface = liveInterface_();
+        liveInterface->tilePluginWindows();
+    };
+
     actionMap["searchbox"] = [this](const std::optional<std::string>& args) {
         auto wm = windowManager_();
         wm->openWindow("SearchBox");
@@ -84,7 +86,6 @@ void ActionHandler::initializeActionMap() {
 }
 
 void ActionHandler::executeMacro(const EMacro& macro) {
-    auto log = logHandler_();
 //    for (const auto& key : macro.keypresses) {
 //        log_.info("ActionHandler:: execMacro cmd: "   + std::to_string(key.cmd));
 //        log_.info("ActionHandler:: execMacro ctrl: "  + std::to_string(key.ctrl));
@@ -98,17 +99,17 @@ void ActionHandler::executeMacro(const EMacro& macro) {
         std::visit([&](auto&& item) {
             using T = std::decay_t<decltype(item)>;
             if constexpr (std::is_same_v<T, EKeyPress>) {
-                log->debug("macro sending keypress");
+                logger->debug("macro sending keypress");
                 KeySender::getInstance().sendKeyPress(item);
             } else if constexpr (std::is_same_v<T, Action>) {
-                log->debug("macro sending action");
+                logger->debug("macro sending action");
                 // If it's an Action, execute the action via the action map
                 auto it = actionMap.find(item.actionName);
                 if (it != actionMap.end()) {
                     std::optional<std::string> optionalArgument = item.arguments;
                     it->second(optionalArgument);
                 } else {
-                    log->warn("Unknown action: " + item.actionName);
+                    logger->warn("Unknown action: " + item.actionName);
                 }
             }
         }, step);
@@ -143,14 +144,13 @@ bool ActionHandler::loadItemByName(const std::string& itemName) {
 }
 
 void ActionHandler::handleAction(std::string action) {
-    auto log = logHandler_();
-    log->debug("handleAction called");
+    logger->debug("handleAction called");
 
     // Split by ',' to get individual actions
     std::vector<std::string> actions = Utils::splitString(action, ",");
 
     if (actions.empty()) {
-        log->warn("No actions provided");
+        logger->warn("No actions provided");
         return;
     }
 
@@ -162,13 +162,13 @@ void ActionHandler::handleAction(std::string action) {
         std::vector<std::string> actionParts = Utils::splitString(act, ".", 1);
 
         if (actionParts.empty()) {
-            log->warn("Malformed action: " + act);
+            logger->warn("Malformed action: " + act);
             continue;
         }
 
         // Get the action type (first part before '.')
         std::string actionType = Utils::trim(actionParts[0]);
-        log->debug("Processing actionType: " + actionType);
+        logger->debug("Processing actionType: " + actionType);
 
         // Try to find the action handler in the map
         auto actionHandler = actionMap.find(actionType);
@@ -176,18 +176,18 @@ void ActionHandler::handleAction(std::string action) {
             // Check if there is an argument (second part after '.')
             if (actionParts.size() > 1) {
                 std::string args = Utils::trim(actionParts[1]);
-                log->debug("Action has argument: " + args);
+                logger->debug("Action has argument: " + args);
 
                 // Call the handler with the argument
                 actionHandler->second(args);
             } else {
                 // No argument, pass std::nullopt
-                log->debug("No argument provided for action: " + actionType);
+                logger->debug("No argument provided for action: " + actionType);
                 actionHandler->second(std::nullopt);
             }
         } else {
             // No handler found for this action type
-            log->warn("No handler found for action type: " + actionType);
+            logger->warn("No handler found for action type: " + actionType);
         }
     }
 }
@@ -199,20 +199,19 @@ void ActionHandler::handleAction(std::string action) {
 // TODO cross-platform - send flags as another KeyPress object since CGEventFlags
 // doesn't exist on Windows
 bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
-    auto log = logHandler_();
     auto config = configManager_();
     auto wm = windowManager_();
-//    app_.getLogHandler()->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+//    logger->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
 
     // static cast probably not necessary
 
     std::unordered_map<EKeyPress, EMacro, EMacroHash> remap = config->getRemap();
 
-    log->debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
-    log->debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
-    log->debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
-    log->debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
-    log->debug("searching map for pressed sent: "  + pressedKey.key);
+    logger->debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
+    logger->debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
+    logger->debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
+    logger->debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
+    logger->debug("searching map for pressed sent: "  + pressedKey.key);
 
     // key remaps
     auto it = remap.find(pressedKey);
@@ -220,13 +219,13 @@ bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
         executeMacro(it->second);
         return false;
     } else {
-        log->warn("Key not found in remap: " + pressedKey.key);
+        logger->warn("Key not found in remap: " + pressedKey.key);
     }
 
     // when the menu is open, do not send keypresses to Live
     // or it activates your hotkeys
     if (wm->isWindowOpen("SearchBox")) {
-        log->debug("is open, do not pass keys to Live");
+        logger->debug("is open, do not pass keys to Live");
         return false;
     }
 

@@ -3,8 +3,6 @@
 #include <string>
 #include <functional>
 
-class ILogHandler;
-
 class IIPCCore {
 public:
     using ResponseCallback = std::function<void(const std::string&)>;

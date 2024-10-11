@@ -1,5 +1,4 @@
-#ifndef EVENT_HANDLER_H
-#define EVENT_HANDLER_H
+#pragma once
 
 #include <windows.h>
 #include <string>
@@ -7,17 +6,9 @@
 
 #include "Types.h"
 
-class LogHandler;
 class ActionHandler;
 class WindowManager;
 class PID;
-
-struct ERect {
-    int x;
-    int y;
-    int width;
-    int height;
-};
 
 class EventHandler {
 public:
@@ -37,7 +28,6 @@ public:
 private:
     WindowManager& windowManager_;
     ActionHandler& actionHandler_;
-    LogHandler& log_;
 
     void focusApplication(pid_t pid);
 
@@ -50,5 +40,3 @@ private:
 
     static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 };
-
-#endif  // EVENT_HANDLER_H

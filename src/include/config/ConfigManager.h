@@ -10,7 +10,6 @@
 
 #include "Types.h"
 
-class LogHandler;
 class KeyMapper;
 
 class ConfigManager {
@@ -42,7 +41,6 @@ public:
     bool canUndo() const;
 
 private:
-    LogHandler* log_;
     KeyMapper* km_;
 
     void applyConfig(const YAML::Node& config);

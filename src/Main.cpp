@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <future>
 
+#include "LogGlobal.h"
 #include "LogHandler.h"
 #include "Utils.h"
 
@@ -18,12 +19,14 @@
 #include "IPCResilienceDecorator.h"
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
+#include "ILiveInterface.h"
 #include "LiveInterface.h"
 #include "PID.h"
 #include "PluginManager.h"
 #include "ResponseParser.h"
 #include "Theme.h"
 #include "WindowManager.h"
+
 
 class JuceApp : public juce::JUCEApplication {
 public:
@@ -56,7 +59,12 @@ public:
 
     void initialise(const juce::String& commandLineArgs = "") override {
         std::locale::global(std::locale("en_US.UTF-8"));
-        LogHandler::getInstance().info("Ignition sequence started...");
+
+        if (!logger) {
+            container_.registerType<ILogHandler, LogHandler>(DependencyContainer::Lifetime::Singleton);
+            logger = container_.resolve<ILogHandler>();
+            logger->info("Ignition sequence started...");
+        }
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
@@ -64,8 +72,7 @@ public:
             [](DependencyContainer& c) -> std::shared_ptr<EventHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<EventHandler>(
-                    [&c]() { return c.resolve<ILogHandler>(); }
-                    , [&c]() { return c.resolve<IActionHandler>(); }
+                    [&c]() { return c.resolve<IActionHandler>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
                 );
             }
@@ -73,7 +80,7 @@ public:
         );
 
         container_.resolve<EventHandler>()->registerAppTermination([this]() {
-            LogHandler::getInstance().info("termination callback called");
+            logger->info("termination callback called");
 
             auto ipc = this->container_.resolve<IIPCCore>();
             ipc->stopIPC();
@@ -87,14 +94,14 @@ public:
             }).detach();
             closeFuture.wait();
 
-            LogHandler::getInstance().info("restarting");
+            logger->info("restarting");
             restartApplication();
         });
 
         // TODO needs a isRunning for multiple instances?
         if (PID::getInstance().livePID() == -1) {
             container_.resolve<EventHandler>()->registerAppLaunch([this]() {
-                LogHandler::getInstance().info("launch callback called");
+                logger->info("launch callback called");
                 // delay to let Live fully start up
                 sleep(10);
                 this->onLiveLaunch(2);
@@ -122,14 +129,6 @@ public:
             std::filesystem::path("/") / "Applications" / "Ableton Live 12 Suite.app"
             / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask"
         ;
-
-        container_.registerType<ILogHandler, LogHandler>(DependencyContainer::Lifetime::Singleton);
-        container_.registerFactory<ILogHandler>(
-            // TODO maybe
-            //[](DependencyContainer&) { return std::make_shared<LogHandler>("app.log"); },
-            [](DependencyContainer&) { return std::make_shared<LogHandler>(); }
-            , DependencyContainer::Lifetime::Singleton
-        );
 
         container_.registerFactory<Theme>(
             [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(themeFilePath); }
@@ -167,12 +166,9 @@ public:
         container_.registerFactory<IIPCCore>(
             [](DependencyContainer& c) -> std::shared_ptr<IIPCCore> {
                 return std::make_shared<IPCResilienceDecorator>(
-                    [&c]() {
-                        return std::make_shared<IPCCore>(
-                            [&c]() { return c.resolve<ILogHandler>(); }
-                        );
-                    },
-                    [&c]() { return c.resolve<ILogHandler>(); }
+                    []() {
+                        return std::make_shared<IPCCore>();
+                    }
                 );
             }
             , DependencyContainer::Lifetime::Singleton
@@ -181,8 +177,7 @@ public:
         container_.registerFactory<IPluginManager>(
             [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
                 return std::make_shared<PluginManager>(
-                    [&c]() { return c.resolve<ILogHandler>(); }
-                    , [&c]() { return c.resolve<IIPCCore>(); }
+                    [&c]() { return c.resolve<IIPCCore>(); }
                     , [&c]() { return c.resolve<ResponseParser>(); }
                 );
             }
@@ -193,8 +188,7 @@ public:
             [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<ActionHandler>(
-                    [&c]() { return c.resolve<ILogHandler>(); }
-                    , [&c]() { return c.resolve<IPluginManager>(); }
+                    [&c]() { return c.resolve<IPluginManager>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
                     , [&c]() { return c.resolve<ConfigManager>(); }
                     , [&c]() { return c.resolve<IIPCCore>(); }
@@ -209,8 +203,7 @@ public:
             [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
                 // We can delay these resolutions if needed
                 return std::make_shared<LiveInterface>(
-                    [&c]() { return c.resolve<ILogHandler>(); }
-                    , [&c]() { return c.resolve<EventHandler>(); }
+                    [&c]() { return c.resolve<EventHandler>(); }
                 );
             }
             , DependencyContainer::Lifetime::Singleton
@@ -222,8 +215,7 @@ public:
             [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
                 // We can delay these resolutions if needed
                 return std::make_shared<WindowManager>(
-                    [&c]() { return c.resolve<ILogHandler>(); }
-                    , [&c]() { return c.resolve<IPluginManager>(); }
+                    [&c]() { return c.resolve<IPluginManager>(); }
                     , [&c]() { return c.resolve<EventHandler>(); }
                     , [&c]() { return c.resolve<IActionHandler>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
@@ -237,14 +229,14 @@ public:
 
         if (ipcCallDelay > 0) sleep(ipcCallDelay);
 
-        LogHandler::getInstance().info("writing READY");
+        logger->info("writing READY");
         container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
-            LogHandler::getInstance().info("received READY response: " + response);
+            logger->info("received READY response: " + response);
         });
 
         // TODO: IPC queue should be able to handle more writes without sleep
         sleep(2);
-        LogHandler::getInstance().info("refreshing plugin cache");
+        logger->info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 
         #ifndef _WIN32
@@ -267,7 +259,7 @@ public:
         }).detach();
         closeFuture.wait();
 
-        LogHandler::getInstance().info("bye");
+        logger->info("bye");
     }
 
 private:

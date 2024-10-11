@@ -1,10 +1,7 @@
-#ifndef PROCESS_H
-#define PROCESS_H
+#pragma once
 
 #include <string>
 #include "Types.h"
-
-class LogHandler;
 
 class PID {
 public:
@@ -25,5 +22,3 @@ private:
 
     pid_t abletonLivePID = -1;
 };
-
-#endif

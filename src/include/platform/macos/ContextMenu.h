@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <string>
 #include <functional>
 
 #include "IWindow.h"
@@ -14,7 +13,6 @@ class ContextMenuGenerator;
 class NSMenu;
 #endif
 
-class ILogHandler;
 class ConfigMenu;
 class IActionHandler;
 class WindowManager;
@@ -22,8 +20,7 @@ class WindowManager;
 class ContextMenu : public IWindow {
 public:
     ContextMenu(
-        std::function<std::shared_ptr<ILogHandler>()> log
-        , std::function<std::shared_ptr<ConfigMenu>()> configMenu
+        std::function<std::shared_ptr<ConfigMenu>()> configMenu
         , std::function<std::shared_ptr<IActionHandler>()> actionHandler
         , std::function<std::shared_ptr<WindowManager>()> windowManager
     );
@@ -39,7 +36,6 @@ public:
     void closeMenu();
 
 private:
-    std::function<std::shared_ptr<ILogHandler>()> log_;
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;

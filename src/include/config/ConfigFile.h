@@ -1,7 +1,5 @@
-#ifndef CONFIG_FILE_H
-#define CONFIG_FILE_H
+#pragma once
 
-#include <iostream>
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
@@ -35,5 +33,3 @@ public:
 private:
     std::string filename_;
 };
-
-#endif

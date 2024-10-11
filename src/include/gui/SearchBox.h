@@ -7,7 +7,6 @@
 
 #include "IWindow.h"
 
-class ILogHandler;
 class IPluginManager;
 
 #include <JuceHeader.h>
@@ -100,8 +99,7 @@ class SearchBox : public juce::TopLevelWindow, public IWindow,
                   public juce::ListBoxModel {
 public:
     SearchBox(
-              std::function<std::shared_ptr<ILogHandler>()> logHandler
-              , std::function<std::shared_ptr<IPluginManager>()> pluginManager
+              std::function<std::shared_ptr<IPluginManager>()> pluginManager
               , std::function<std::shared_ptr<EventHandler>()> eventHandler
               , std::function<std::shared_ptr<IActionHandler>()> actionHandler
               , std::function<std::shared_ptr<WindowManager>()> windowManager
@@ -129,7 +127,6 @@ protected:
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
 
 private:
-    std::function<std::shared_ptr<ILogHandler>()> logHandler_;
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
