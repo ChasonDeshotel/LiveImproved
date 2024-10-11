@@ -13,11 +13,10 @@
 #include "LogGlobal.h"
 
 #include "AXElement.h"
+#include "AXFinder.h"
 #include "EventHandler.h"
 #include "LiveInterface.h"
 #include "PID.h"
-
-extern "C" AXError _AXUIElementGetWindow(AXUIElementRef element, CGWindowID* windowID);
 
 // Constructor
 LiveInterface::LiveInterface(std::function<std::shared_ptr<EventHandler>()> eventHandler)
@@ -42,7 +41,7 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
 
     logger->debug("set up plugin window change observer");
 
-    AXUIElementRef appElement = getAppElement();
+    AXUIElementRef appElement = AXFinder::appElement();
     if (!appElement) {
         logger->error("unable to get app element");
         return;
@@ -103,6 +102,8 @@ void LiveInterface::pluginWindowCreateCallback(AXObserverRef observer, AXUIEleme
     LiveInterface* interface = static_cast<LiveInterface*>(context);
     logger->info("create callback called");
 
+    return;
+    // FIX
     if (!interface->isPluginWindow(element)) return;
 
     AXError error = AXUIElementPerformAction(element, kAXRaiseAction);
@@ -134,16 +135,14 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
         logger->debug("no windows to focus");
         return;
     }
-    AXUIElementRef windowToFocus = windows[0];
-    AXError error = AXUIElementPerformAction(windowToFocus, kAXRaiseAction);
+    AXElement windowToFocus = AXElement(windows[0]);
+    AXError error = AXUIElementPerformAction(windowToFocus.getRef(), kAXRaiseAction);
     if (error != kAXErrorSuccess) {
         logger->error("Failed to raise the next window. AXError: " + std::to_string(error));
     } else {
         logger->info("Successfully raised the next window.");
 //        interface->printAllAttributeValues(interface->getAppElement());
     }
-    CFRelease(windowToFocus);
-
 //    interface->windowCloseInProgress_ = false;
 
     if (interface && interface->destroyCallback_) {
@@ -152,70 +151,70 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
 }
 
 bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
-//    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
-
-    if (level > 10) {
-//        std::cerr << "Max recursion depth reached at level " << level << std::endl;
-        return false;
-    }
-
-    if (!parent) {
-        std::cerr << "Invalid parent element at level " << level << std::endl;
-        return false;
-    }
-
-    // Initialize children to nullptr
-    CFArrayRef children = nullptr;
-
-    // Retrieve the children of the parent element
-    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
-    if (error != kAXErrorSuccess || !children) {
-//        std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
-        return false;  // Return false if no children found
-    }
-
-    CFIndex count = CFArrayGetCount(children);
-//    std::cerr << "Number of children at level " << level << ": " << count << std::endl;
-
-    for (CFIndex i = 0; i < count; i++) {
-        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
-        if (!child) {
-//            std::cerr << "No valid child found at index " << i << std::endl;
-            continue;  // Skip to next child if invalid
-        }
-
-        // Check if the element is a text field
-        CFTypeRef role = nullptr;
-        AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
-        if (roleError == kAXErrorSuccess && role) {
-            CFStringRef roleStr = static_cast<CFStringRef>(role);
-            if (CFStringCompare(roleStr, CFSTR("AXTextField"), 0) == kCFCompareEqualTo) {
-                CFRelease(role);
-
-                // Check if the text field is focused
-                CFTypeRef focusedValue;
-                AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &focusedValue);
-                if (focusedError == kAXErrorSuccess && focusedValue == kCFBooleanTrue) {
-                    std::cerr << "Focused text field found at level " << level << std::endl;
-                    CFRelease(children);
-                    return true;  // Exit early if a focused text field is found
-                }
-                CFRelease(focusedValue);
-            } else {
-                CFRelease(role);
-            }
-        }
-
-        // Recursively search in child elements
-        if (isAnyTextFieldFocusedRecursive(child, level + 1)) {
-            CFRelease(children);  // Release children array before returning
-            return true;  // Exit early if a focused text field is found during recursion
-        }
-    }
-
-    // Release children if nothing is found
-    CFRelease(children);
-    return false;  // No focused text field found
+////    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
+//
+//    if (level > 10) {
+////        std::cerr << "Max recursion depth reached at level " << level << std::endl;
+//        return false;
+//    }
+//
+//    if (!parent) {
+//        std::cerr << "Invalid parent element at level " << level << std::endl;
+//        return false;
+//    }
+//
+//    // Initialize children to nullptr
+//    CFArrayRef children = nullptr;
+//
+//    // Retrieve the children of the parent element
+//    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+//    if (error != kAXErrorSuccess || !children) {
+////        std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
+//        return false;  // Return false if no children found
+//    }
+//
+//    CFIndex count = CFArrayGetCount(children);
+////    std::cerr << "Number of children at level " << level << ": " << count << std::endl;
+//
+//    for (CFIndex i = 0; i < count; i++) {
+//        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+//        if (!child) {
+////            std::cerr << "No valid child found at index " << i << std::endl;
+//            continue;  // Skip to next child if invalid
+//        }
+//
+//        // Check if the element is a text field
+//        CFTypeRef role = nullptr;
+//        AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
+//        if (roleError == kAXErrorSuccess && role) {
+//            CFStringRef roleStr = static_cast<CFStringRef>(role);
+//            if (CFStringCompare(roleStr, CFSTR("AXTextField"), 0) == kCFCompareEqualTo) {
+//                CFRelease(role);
+//
+//                // Check if the text field is focused
+//                CFTypeRef focusedValue;
+//                AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &focusedValue);
+//                if (focusedError == kAXErrorSuccess && focusedValue == kCFBooleanTrue) {
+//                    std::cerr << "Focused text field found at level " << level << std::endl;
+//                    CFRelease(children);
+//                    return true;  // Exit early if a focused text field is found
+//                }
+//                CFRelease(focusedValue);
+//            } else {
+//                CFRelease(role);
+//            }
+//        }
+//
+//        // Recursively search in child elements
+//        if (isAnyTextFieldFocusedRecursive(child, level + 1)) {
+//            CFRelease(children);  // Release children array before returning
+//            return true;  // Exit early if a focused text field is found during recursion
+//        }
+//    }
+//
+//    // Release children if nothing is found
+//    CFRelease(children);
+//    return false;  // No focused text field found
 }
 
 bool LiveInterface::isAnyTextFieldFocused() {
@@ -252,53 +251,53 @@ bool LiveInterface::isAnyTextFieldFocused() {
 //    }
 
 void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
-    if (!parent) {
-        std::cerr << "No parent element provided." << std::endl;
-        return;
-    }
-
-    // Retrieve the children of the parent element
-    CFArrayRef children = nullptr;
-    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
-
-    if (error != kAXErrorSuccess || !children) {
-        std::cerr << "Unable to retrieve children for the element or no children found." << std::endl;
-        return;
-    }
-
-    CFIndex count = CFArrayGetCount(children);
-    for (CFIndex i = 0; i < count; i++) {
-        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
-        
-        // Check if the child has the AXRoleAttribute
-        CFTypeRef role;
-        AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
-        if (roleError == kAXErrorSuccess && role) {
-            CFStringRef roleStr = static_cast<CFStringRef>(role);
-
-            // Check if the child is a text field (AXTextFieldRole or TAxEditFieldElement)
-            if (CFStringCompare(roleStr, kAXTextFieldRole, 0) == kCFCompareEqualTo) {
-                // Check if this text field is focused
-                CFTypeRef isFocused = nullptr;
-                AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &isFocused);
-                
-                if (focusedError == kAXErrorSuccess && isFocused == kCFBooleanTrue) {
-                    std::cout << "Focused text field found" << std::endl;
-                    AXElement(child).print();  // Print info about the focused text field
-                    CFRelease(role);
-                    CFRelease(children);
-                    return;
-                }
-                CFRelease(isFocused);
-            }
-            CFRelease(role);
-        }
-
-        // Recursively search in child elements
-        searchFocusedTextField(child);
-    }
-
-    CFRelease(children);
+//    if (!parent) {
+//        std::cerr << "No parent element provided." << std::endl;
+//        return;
+//    }
+//
+//    // Retrieve the children of the parent element
+//    CFArrayRef children = nullptr;
+//    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+//
+//    if (error != kAXErrorSuccess || !children) {
+//        std::cerr << "Unable to retrieve children for the element or no children found." << std::endl;
+//        return;
+//    }
+//
+//    CFIndex count = CFArrayGetCount(children);
+//    for (CFIndex i = 0; i < count; i++) {
+//        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+//        
+//        // Check if the child has the AXRoleAttribute
+//        CFTypeRef role;
+//        AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
+//        if (roleError == kAXErrorSuccess && role) {
+//            CFStringRef roleStr = static_cast<CFStringRef>(role);
+//
+//            // Check if the child is a text field (AXTextFieldRole or TAxEditFieldElement)
+//            if (CFStringCompare(roleStr, kAXTextFieldRole, 0) == kCFCompareEqualTo) {
+//                // Check if this text field is focused
+//                CFTypeRef isFocused = nullptr;
+//                AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &isFocused);
+//                
+//                if (focusedError == kAXErrorSuccess && isFocused == kCFBooleanTrue) {
+//                    std::cout << "Focused text field found" << std::endl;
+//                    AXElement(child).print();  // Print info about the focused text field
+//                    CFRelease(role);
+//                    CFRelease(children);
+//                    return;
+//                }
+//                CFRelease(isFocused);
+//            }
+//            CFRelease(role);
+//        }
+//
+//        // Recursively search in child elements
+//        searchFocusedTextField(child);
+//    }
+//
+//    CFRelease(children);
 }
 
 bool isPluginWindowTitle(const std::string& title) {
@@ -309,54 +308,53 @@ bool isPluginWindowTitle(const std::string& title) {
 
 // Method to find and interact with the "Search, text field"
 void LiveInterface::findAndInteractWithSearchField() {
-    if (!mainWindow_) {
-        printf("Failed to get main window for app");
-        return;
-    }
-
-    CFArrayRef children = nullptr;
-    AXError error = AXUIElementCopyAttributeValue(mainWindow_, kAXChildrenAttribute, (CFTypeRef*)&children);
-    if (error != kAXErrorSuccess || !children) {
-        printf("Failed to get children of main window. Error: %d\n", error);
-        return;
-    }
-
-    std::unique_ptr<const __CFArray, decltype(&CFRelease)> childrenGuard(children, CFRelease);
-    
-    for (CFIndex i = 0; i < CFArrayGetCount(children); i++) {
-        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
-        if (!child) continue;
-
-        CFStringRef role = nullptr;
-        error = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, (CFTypeRef*)&role);
-        if (error != kAXErrorSuccess || !role) continue;
-
-        std::unique_ptr<const __CFString, decltype(&CFRelease)> roleGuard(role, CFRelease);
-        
-        if (CFStringCompare(role, kAXTextFieldRole, 0) == kCFCompareEqualTo) {
-            CFStringRef description = nullptr;
-            error = AXUIElementCopyAttributeValue(child, kAXDescriptionAttribute, (CFTypeRef*)&description);
-            if (error != kAXErrorSuccess || !description) continue;
-
-            std::unique_ptr<const __CFString, decltype(&CFRelease)> descriptionGuard(description, CFRelease);
-            
-            if (CFStringCompare(description, CFSTR("Search"), 0) == kCFCompareEqualTo) {
-                printf("Found the Search, text field in app\n");
-
-                if (!isElementFocused(child)) {
-                    printf("Search field is not focused. Focusing now...\n");
-                    AXElement(child).focus();
-                } else {
-                    printf("Search field is already focused.\n");
-                }
-
-                setTextInElement(child, "Hello, world!");
-                printf("Text sent to search field.\n");
-                return;
-            }
-        }
-    }
-
-    printf("Search field not found\n");
+//    if (!mainWindow_) {
+//        printf("Failed to get main window for app");
+//        return;
+//    }
+//
+//    CFArrayRef children = nullptr;
+//    AXError error = AXUIElementCopyAttributeValue(mainWindow_, kAXChildrenAttribute, (CFTypeRef*)&children);
+//    if (error != kAXErrorSuccess || !children) {
+//        printf("Failed to get children of main window. Error: %d\n", error);
+//        return;
+//    }
+//
+//    std::unique_ptr<const __CFArray, decltype(&CFRelease)> childrenGuard(children, CFRelease);
+//    
+//    for (CFIndex i = 0; i < CFArrayGetCount(children); i++) {
+//        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+//        if (!child) continue;
+//
+//        CFStringRef role = nullptr;
+//        error = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, (CFTypeRef*)&role);
+//        if (error != kAXErrorSuccess || !role) continue;
+//
+//        std::unique_ptr<const __CFString, decltype(&CFRelease)> roleGuard(role, CFRelease);
+//        
+//        if (CFStringCompare(role, kAXTextFieldRole, 0) == kCFCompareEqualTo) {
+//            CFStringRef description = nullptr;
+//            error = AXUIElementCopyAttributeValue(child, kAXDescriptionAttribute, (CFTypeRef*)&description);
+//            if (error != kAXErrorSuccess || !description) continue;
+//
+//            std::unique_ptr<const __CFString, decltype(&CFRelease)> descriptionGuard(description, CFRelease);
+//            
+//            if (CFStringCompare(description, CFSTR("Search"), 0) == kCFCompareEqualTo) {
+//                printf("Found the Search, text field in app\n");
+//
+//                if (!isElementFocused(child)) {
+//                    printf("Search field is not focused. Focusing now...\n");
+//                    AXElement(child).focus();
+//                } else {
+//                    printf("Search field is already focused.\n");
+//                }
+//
+//                setTextInElement(child, "Hello, world!");
+//                printf("Text sent to search field.\n");
+//                return;
+//            }
+//        }
+//    }
+//
+//    printf("Search field not found\n");
 }
-

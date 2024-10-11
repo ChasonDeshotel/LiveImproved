@@ -1,5 +1,3 @@
-#pragma once
-
 #import <Cocoa/Cocoa.h>
 #import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/Foundation.h>
@@ -15,7 +13,7 @@
 #include "AXElement.h"
 
 namespace AXFinder {
-    AXUIElementRef getAppElement() {
+    AXUIElementRef appElement() {
         pid_t livePID = PID::getInstance().livePID();
         if (livePID == -1) {
             logger->error("Live is not running");
@@ -33,7 +31,7 @@ namespace AXFinder {
 
     AXUIElementRef getFrontmostWindow() {
         AXUIElementRef frontmostWindow;
-        AXUIElementRef appElement = getAppElement();
+        AXUIElementRef appElement = AXFinder::appElement();
 
         AXError result = AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
         
@@ -49,7 +47,7 @@ namespace AXFinder {
 
     CFArrayRef getAllWindows() {
         CFArrayRef windows;
-        AXError result = AXUIElementCopyAttributeValue(getAppElement(), kAXWindowsAttribute, (CFTypeRef *)&windows);
+        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXWindowsAttribute, (CFTypeRef *)&windows);
         
         if (result == kAXErrorSuccess && windows) {
             CFIndex windowCount = CFArrayGetCount(windows);
@@ -148,8 +146,8 @@ namespace AXFinder {
     // Attribute: AXSize
     // Attribute: AXPosition
     AXUIElementRef getTrackView() {
-        AXUIElementRef appElement = getAppElement();
-        AXUIElementRef axMain = findAXMain(appElement);
+        AXUIElementRef appElement = AXFinder::appElement();
+        AXUIElementRef axMain = AXFinder::findAXMain(appElement);
         if (!axMain) {
             return nullptr;
         }
@@ -445,7 +443,7 @@ namespace AXFinder {
 
     // Method to get the application's main window by its PID
     AXUIElementRef findApplicationWindow() {
-        AXUIElementRef appElement = AXUIElementCreateApplication(PID::getInstance().livePID());
+        AXUIElementRef appElement = AXFinder::appElement();
         
         AXUIElementRef window = nullptr;
         if (appElement) {
@@ -460,13 +458,12 @@ namespace AXFinder {
     }
 
     AXUIElementRef getFocusedElement() {
-        AXUIElementRef appElement = getAppElement();
+        AXElement appElement = AXElement(AXFinder::appElement());
         AXUIElementRef focusedElement = nullptr;
 
-        AXError error = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
+        AXError error = AXUIElementCopyAttributeValue(appElement.getRef(), kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
         if (error == kAXErrorSuccess && focusedElement != nullptr) {
             AXElement(focusedElement).printValues();
-            CFRelease(focusedElement);
             return(focusedElement);
         }
 
@@ -482,7 +479,6 @@ namespace AXFinder {
     //        logger->warn("No focused element found.");
     //    }
 
-        CFRelease(appElement);
         return nullptr;
     }
 

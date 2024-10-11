@@ -141,6 +141,12 @@ if(APPLE)
         src/platform/macos/event/PlatformInitializer.mm
         src/platform/macos/gui/ContextMenu.mm
         src/platform/macos/live/LiveInterface.mm
+        src/platform/macos/live/AXAttribute.mm
+        src/platform/macos/live/AXComponent.mm
+        src/platform/macos/live/AXFinder.mm
+        src/platform/macos/live/AXInteraction.mm
+        src/platform/macos/live/AXPrinter.mm
+        src/platform/macos/live/AXWindow.mm
         src/platform/macos/system/PID.mm
     )
     list(APPEND SRC_CPP

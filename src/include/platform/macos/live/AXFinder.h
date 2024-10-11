@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace AXFinder {
-    AXUIElementRef getAppElement();
+    AXUIElementRef appElement();
 
     AXUIElementRef getFrontmostWindow();
 

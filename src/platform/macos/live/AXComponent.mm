@@ -4,6 +4,8 @@
 #import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/Foundation.h>
 
+#import "LogGlobal.h"
+
 namespace AXCheckBox {
     inline bool isChecked(AXUIElementRef elem) {
         CFBooleanRef value = nullptr;
