@@ -302,9 +302,9 @@ void LiveInterface::tilePluginWindows() {
             break;
         }
 
-        windowPositions.emplace_back(window, currentX, currentY, windowWidth, windowHeight);
+        windowPositions.emplace_back(window, leftX, currentY, windowWidth, windowHeight);
 
-        currentX += windowWidth;
+        currentX = leftX + windowWidth;
         unoccupiedMaxRowHeight = std::max(unoccupiedMaxRowHeight, windowHeight);
     }
 
