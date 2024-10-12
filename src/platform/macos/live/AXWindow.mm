@@ -42,28 +42,32 @@ namespace AXWindow {
         return false;
     }
 
-    void setBounds(AXUIElementRef window, int x, int y, int width, int height) {
+    AXError setBounds(AXUIElementRef window, int x, int y, int width, int height) {
         if (!AXAttribute::isValid(window)) {
             logger->error("window is not valid");
-            return;
+            return kAXErrorFailure;
         }
         CFRetain(window);
 
         CGPoint position = {static_cast<CGFloat>(x), static_cast<CGFloat>(y)};
-        CGSize size = {static_cast<CGFloat>(width), static_cast<CGFloat>(height)};
+//        CGSize size = {static_cast<CGFloat>(width), static_cast<CGFloat>(height)};
 
         AXValueRef positionRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGPointType), &position);
-        AXUIElementSetAttributeValue(window, kAXPositionAttribute, positionRef);
+        AXError posError = AXUIElementSetAttributeValue(window, kAXPositionAttribute, positionRef);
         CFRelease(positionRef);
 
-        AXValueRef sizeRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGSizeType), &size);
-        AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
-        CFRelease(sizeRef);
-
-        logger->debug("set bounds: (" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(width)
+//        AXValueRef sizeRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGSizeType), &size);
+//        AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
+//        CFRelease(sizeRef);
+//
+        logger->debug("set bounds to: (" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(width)
                         + "," + std::to_string(height));
 
+        if (posError != kAXErrorSuccess) {
+            return posError;
+        }
         CFRelease(window);
+        return posError;
         // Update the cached bounds
         //cachedWindowBounds_[window] = CGRectMake(x, y, width, height);
     }

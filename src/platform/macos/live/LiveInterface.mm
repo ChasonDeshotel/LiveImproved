@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iostream>
 #include <regex>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -16,6 +17,7 @@
 #include "AXComponents.h"
 #include "AXFinder.h"
 #include "AXInteraction.h"
+#include "AXPrinter.h"
 #include "AXWindow.h"
 #include "EventHandler.h"
 #include "LiveInterface.h"
@@ -206,6 +208,7 @@ void LiveInterface::tilePluginWindows() {
 
     CGRect screenBounds = [[NSScreen mainScreen] frame];
     int screenWidth = screenBounds.size.width;
+    logger->info("screen width: " + std::to_string(screenWidth));
     int screenHeight = screenBounds.size.height;
 
     int currentX = 0;
@@ -250,13 +253,23 @@ void LiveInterface::tilePluginWindows() {
 
     // Calculate offsets to center the formation
     int xOffset = (screenWidth - maxWidth) / 2;
-    int yOffset = (screenHeight - totalHeight) / 2;
+
+    // Find the minimum y-coordinate among all windows
+    int minY = std::numeric_limits<int>::max();
+    for (const auto& [window, x, y, width, height] : windowPositions) {
+        CGRect bounds = AXWindow::getBounds(window);
+        minY = std::min(minY, static_cast<int>(bounds.origin.y));
+    }
+
+    // Calculate yOffset to maintain the original top position
+    int yOffset = minY;
 
     // Second pass: actually position the windows
     for (auto& [window, x, y, width, height] : windowPositions) {
         x += xOffset;
         y += yOffset;
 
+        AXPrinter::printAXIdentifier(window);
         logger->info("Setting bounds for window: x=" + std::to_string(x) + 
                      ", y=" + std::to_string(y) + 
                      ", width=" + std::to_string(width) + 

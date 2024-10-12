@@ -27,7 +27,7 @@ namespace AXFinder {
             std::cerr << "Failed to create application element for Live" << std::endl;
             return nullptr;
         }
-        std::cout << "Successfully created application element" << std::endl;
+        //std::cout << "Successfully created application element" << std::endl;
         CFRetain(appElement);
         return appElement;
     }
