@@ -13,6 +13,7 @@
 #include "LogGlobal.h"
 
 #include "AXAttribute.h"
+#include "AXComponents.h"
 #include "AXFinder.h"
 #include "AXInteraction.h"
 #include "AXWindow.h"
@@ -151,6 +152,100 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
 
 void LiveInterface::closeFocusedPluginWindow() {
     AXInteraction::closeFocusedPluginWindow();
+}
+
+void LiveInterface::tilePluginWindows() {
+    AXUIElementRef trackView = AXFinder::getTrackView();
+    std::vector<AXUIElementRef> trackViewDevices = AXFinder::getTrackViewDevices();
+
+    for (const auto& device : trackViewDevices) {
+//        printAXIdentifier(device);
+//        printAXTree(device, 0);
+        CFRetain(device);
+        std::vector<AXUIElementRef> checkboxes = AXFinder::getTrackViewDeviceCheckBoxes(device);
+        if (checkboxes.empty()) {
+            logger->warn("couldn't find device on/off checkboxes");
+            return;
+        }
+
+        for (const auto& checkbox : checkboxes) {
+            AXCheckBox::toggleOffOn(checkbox);
+            CFRelease(checkbox);
+            usleep(20000);
+        }
+
+        CFRelease(device);
+    }
+
+//    printAXTree(getAppElement(), 0);
+//    return;
+//    CFStringRef valueToFind = CFSTR("Trackview");
+//    AXUIElementRef deviceDetailGroup = findElementByIdentifier(getAppElement(), valueToFind, 0);
+//    if (deviceDetailGroup) {
+//        logger->info("found device detail group");
+//        printAXTree(deviceDetailGroup, 0);
+//    }
+//    return;
+
+    std::vector<AXUIElementRef> pluginWindows = AXFinder::getPluginWindowsFromLiveAX();
+    if (pluginWindows.empty()) {
+        logger->warn("no plugin windows found");
+        return;
+    }
+
+    std::reverse(pluginWindows.begin(), pluginWindows.end());
+
+    CGRect screenBounds = [[NSScreen mainScreen] frame];
+    int screenWidth = screenBounds.size.width;
+    int screenHeight = screenBounds.size.height;
+
+    // Calculate the total area of all plugin windows
+    double totalArea = 0;
+    for (const auto& window : pluginWindows) {
+        CGRect bounds = AXWindow::getBounds(window);
+        totalArea += bounds.size.width * bounds.size.height;
+    }
+
+    // Calculate the scaling factor to fit all windows on the screen
+    //double scaleFactor = std::sqrt((screenWidth * screenHeight) / totalArea);
+    double scaleFactor = 1;
+
+    // Calculate the number of rows and columns
+    int numWindows = static_cast<int>(pluginWindows.size());
+    int numCols = std::ceil(std::sqrt(numWindows));
+    int numRows = std::ceil(static_cast<double>(numWindows) / numCols);
+
+    // Arrange windows
+    int currentX = 0;
+    int currentY = 0;
+    int maxRowHeight = 0;
+
+    for (int i = 0; i < numWindows; ++i) {
+        CGRect originalBounds = AXWindow::getBounds(pluginWindows[i]);
+        int scaledWidth = std::round(originalBounds.size.width * scaleFactor);
+        int scaledHeight = std::round(originalBounds.size.height * scaleFactor);
+
+        // If adding this window would go past the right edge of the screen, move to the next row
+        if (currentX + scaledWidth > screenWidth) {
+            currentX = 0;  // Reset X to the left
+            currentY += maxRowHeight;  // Move down to the next row
+            maxRowHeight = 0;  // Reset row height for the new row
+        }
+
+        // If the next row would go off the screen, break the loop (optional if you want to stop tiling)
+        if (currentY + scaledHeight > screenHeight) {
+            break;
+        }
+
+        // Set the window bounds with the current calculated position
+        AXWindow::setBounds(pluginWindows[i], currentX, currentY, scaledWidth, scaledHeight);
+
+        // Move the X position for the next window
+        currentX += scaledWidth;
+
+        // Keep track of the tallest window in the row
+        maxRowHeight = std::max(maxRowHeight, scaledHeight);
+    }
 }
 
 //bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {

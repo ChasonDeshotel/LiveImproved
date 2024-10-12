@@ -1,20 +1,20 @@
-#import <Cocoa/Cocoa.h>
 #import <ApplicationServices/ApplicationServices.h>
-#import <Foundation/Foundation.h>
 
 #include "LogGlobal.h"
 
+#include "AXAttribute.h"
+
 namespace AXWindow {
     bool isPluginWindow(AXUIElementRef element) {
-        if (!element) {
+        if (!AXAttribute::isValid(element)) {
             logger->debug("element is null");
             return false;
         }
         
         CFStringRef role;
-        AXUIElementCopyAttributeValue(element, kAXRoleAttribute, (CFTypeRef*)&role);
-        if (!role) {
-            logger->debug("error getting role");
+        AXError error = AXUIElementCopyAttributeValue(element, kAXRoleAttribute, (CFTypeRef*)&role);
+        if (error != kAXErrorSuccess || !role) {
+            logger->warn("error getting role");
             return false;
         }
         
@@ -27,7 +27,11 @@ namespace AXWindow {
 
         // not a floating window
         CFStringRef subrole;
-        AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*)&subrole);
+        error = AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*)&subrole);
+        if (error != kAXErrorSuccess || !subrole) {
+            logger->warn("error getting subrole");
+            return false;
+        }
         if (CFStringCompare(subrole, kAXFloatingWindowSubrole, 0) == kCFCompareEqualTo) {
             if (role) CFRelease(role);
             if (subrole) CFRelease(subrole);
@@ -38,7 +42,7 @@ namespace AXWindow {
         return false;
     }
 
-    void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height) {
+    void setBounds(AXUIElementRef window, int x, int y, int width, int height) {
         CGPoint position = {static_cast<CGFloat>(x), static_cast<CGFloat>(y)};
         CGSize size = {static_cast<CGFloat>(width), static_cast<CGFloat>(height)};
 
@@ -54,7 +58,7 @@ namespace AXWindow {
         //cachedWindowBounds_[window] = CGRectMake(x, y, width, height);
     }
 
-    CGRect getWindowBounds(AXUIElementRef window) {
+    CGRect getBounds(AXUIElementRef window) {
         CGPoint position;
         CGSize size;
         AXValueRef positionRef, sizeRef;

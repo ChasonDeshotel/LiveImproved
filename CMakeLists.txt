@@ -108,6 +108,7 @@ if(APPLE)
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/gui
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/ipc
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/live
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos/live/component
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/util
     )
 elseif(WIN32)
@@ -140,13 +141,13 @@ if(APPLE)
         src/platform/macos/event/KeySender.mm
         src/platform/macos/event/PlatformInitializer.mm
         src/platform/macos/gui/ContextMenu.mm
-        src/platform/macos/live/LiveInterface.mm
         src/platform/macos/live/AXAttribute.mm
-        src/platform/macos/live/AXComponent.mm
         src/platform/macos/live/AXFinder.mm
         src/platform/macos/live/AXInteraction.mm
         src/platform/macos/live/AXPrinter.mm
         src/platform/macos/live/AXWindow.mm
+        src/platform/macos/live/LiveInterface.mm
+        src/platform/macos/live/component/AXCheckBox.mm
         src/platform/macos/system/PID.mm
     )
     list(APPEND SRC_CPP

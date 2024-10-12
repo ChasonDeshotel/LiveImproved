@@ -59,7 +59,7 @@ void ActionHandler::initializeActionMap() {
 
     actionMap["tilePluginWindows"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        //liveInterface->tilePluginWindows();
+        liveInterface->tilePluginWindows();
     };
 
     actionMap["searchbox"] = [this](const std::optional<std::string>& args) {

@@ -4,10 +4,17 @@
 
 #import "LogGlobal.h"
 
+#import "AXAttribute.h"
+#import "AXCheckBox.h"
+
 namespace AXCheckBox {
-    bool isChecked(AXUIElementRef elem) {
+    bool isChecked(AXUIElementRef checkbox) {
+        if (!AXAttribute::isValid(checkbox)) {
+            logger->warn("checkbox is invalid");
+            return false;
+        }
         CFBooleanRef value = nullptr;
-        if (AXUIElementCopyAttributeValue(elem, kAXValueAttribute, (CFTypeRef*)&value) == kAXErrorSuccess && value) {
+        if (AXUIElementCopyAttributeValue(checkbox, kAXValueAttribute, (CFTypeRef*)&value) == kAXErrorSuccess && value) {
             bool isChecked = CFBooleanGetValue(value);
             CFRelease(value);
             return isChecked;
@@ -18,6 +25,10 @@ namespace AXCheckBox {
     }
 
     bool toggle(AXUIElementRef checkbox) {
+        if (!AXAttribute::isValid(checkbox)) {
+            logger->warn("checkbox is invalid");
+            return false;
+        }
         if (!checkbox) {
             std::cerr << "Error: AXUIElementRef is null." << std::endl;
             return false;
@@ -38,6 +49,10 @@ namespace AXCheckBox {
     // so that the plugin window order is correct in
     // the main window's AXChildren
     bool toggleOffOn(AXUIElementRef checkbox) {
+        if (!AXAttribute::isValid(checkbox)) {
+            logger->warn("checkbox is invalid");
+            return false;
+        }
         if (!isChecked(checkbox)) {
             logger->warn("not checked - already on");
             return false;

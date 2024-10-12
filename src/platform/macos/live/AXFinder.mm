@@ -557,7 +557,7 @@ namespace AXFinder {
             std::cerr << "Error: deviceElement is null." << std::endl;
             return {};
         }
-        
+
         std::vector<AXUIElementRef> checkBoxElements;
 
         AXPrinter::printAXTitle(deviceElement);
@@ -579,28 +579,23 @@ namespace AXFinder {
                     if (CFStringGetCString(identifier, identifierBuffer, sizeof(identifierBuffer), kCFStringEncodingUTF8)) {
                         std::string identifierStr(identifierBuffer);
 
-                        // Look for the TitleBar element
                         if (identifierStr.find("PluginEdit") != std::string::npos) {
                             std::cout << "Found PluginEdit: " << identifierStr << std::endl;
 
-    //                        bool isChecked = isAXCheckBoxChecked(child);
-    //                        logger->info("checkbox state: " + std::string(isChecked ? "true" : "false"));
                             CFRetain(child);
                             checkBoxElements.push_back(child);
-
-                            CFRelease(identifier);
-                        } else {
-                            CFRelease(child);
                         }
                     }
+                    CFRelease(identifier);
                 }
             }
+
             CFRelease(children);
-            if (checkBoxElements.size()) return checkBoxElements;
+
+            if (!checkBoxElements.empty()) return checkBoxElements;
         }
 
         std::cerr << "Failed to find the DeviceOn element." << std::endl;
         return {};
     }
-
 }

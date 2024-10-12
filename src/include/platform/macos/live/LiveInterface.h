@@ -17,12 +17,10 @@ class EventHandler;
 
 class LiveInterface : public ILiveInterface {
 public:
-    // Constructor
     LiveInterface(
         std::function<std::shared_ptr<EventHandler>()> eventHandler
     );
 
-    // Destructor
     ~LiveInterface() override;
 
     // TODO
@@ -32,6 +30,7 @@ public:
     void removePluginWindowChangeObserver() override;
 
     void closeFocusedPluginWindow() override;
+    void tilePluginWindows() override;
 
 private:
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;

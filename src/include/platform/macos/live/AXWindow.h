@@ -6,5 +6,7 @@
 
 namespace AXWindow {
     bool isPluginWindow(AXUIElementRef elem);
-}
 
+    CGRect getBounds(AXUIElementRef window);
+    void setBounds(AXUIElementRef window, int x, int y, int width, int height);
+}
