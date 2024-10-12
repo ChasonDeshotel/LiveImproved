@@ -17,7 +17,7 @@
 #include "PluginManager.h"
 #include "WindowManager.h"
 #include "EventHandler.h"
-#include "LiveInterface.h"
+#include "ILiveInterface.h"
 
 ActionHandler::ActionHandler(
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
