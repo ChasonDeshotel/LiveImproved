@@ -12,8 +12,9 @@
 
 #include "LogGlobal.h"
 
-#include "AXElement.h"
+#include "AXAttribute.h"
 #include "AXFinder.h"
+#include "AXInteraction.h"
 #include "AXWindow.h"
 #include "EventHandler.h"
 #include "LiveInterface.h"
@@ -41,8 +42,8 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
 
     logger->debug("set up plugin window change observer");
 
-    AXElement appElement = AXFinder::appElement();
-    if (!appElement.isValid()) {
+    AXUIElementRef appElement = AXFinder::appElement();
+    if (!AXAttribute::isValid(appElement)) {
         logger->error("unable to get app element");
         return;
     }
@@ -61,14 +62,14 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
         return;
     }
 
-    error = AXObserverAddNotification(pluginWindowCreateObserver_, appElement.getRef(), kAXCreatedNotification, this);
+    error = AXObserverAddNotification(pluginWindowCreateObserver_, appElement, kAXCreatedNotification, this);
     if (error != kAXErrorSuccess) {
         std::cerr << "Failed to add creation notification. Error: " << error << std::endl;
         return;
     }
 
     // there is no window destroy observer, we'll have to check the type of what was destroyed
-    error = AXObserverAddNotification(pluginWindowDestroyObserver_, appElement.getRef(), kAXUIElementDestroyedNotification, this);
+    error = AXObserverAddNotification(pluginWindowDestroyObserver_, appElement, kAXUIElementDestroyedNotification, this);
     if (error != kAXErrorSuccess) {
         std::cerr << "Failed to add destruction notification. Error: " << error << std::endl;
         return;
@@ -101,7 +102,7 @@ void LiveInterface::pluginWindowCreateCallback(AXObserverRef observer, AXUIEleme
     LiveInterface* interface = static_cast<LiveInterface*>(context);
     logger->info("create callback called");
 
-    if (!AXElement(element).isPluginWindow()) return;
+    if (!AXWindow::isPluginWindow(element)) return;
 
     AXError error = AXUIElementPerformAction(element, kAXRaiseAction);
     if (error != kAXErrorSuccess) {
@@ -132,11 +133,12 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
         logger->debug("no windows to focus");
         return;
     }
-    AXElement windowToFocus = AXElement(windows[0]);
-    AXError error = AXUIElementPerformAction(windowToFocus.getRef(), kAXRaiseAction);
+    AXUIElementRef windowToFocus = windows[0];
+    AXError error = AXUIElementPerformAction(windowToFocus, kAXRaiseAction);
     if (error != kAXErrorSuccess) {
         logger->error("Failed to raise the next window. AXError: " + std::to_string(error));
     } else {
+        CFRelease(windowToFocus);
         logger->info("Successfully raised the next window.");
 //        interface->printAllAttributeValues(interface->getAppElement());
     }

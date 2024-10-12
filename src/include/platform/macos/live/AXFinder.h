@@ -4,10 +4,8 @@
 
 #include <vector>
 
-#include "AXElement.h"
-
 namespace AXFinder {
-    AXElement appElement();
+    AXUIElementRef appElement();
 
     AXUIElementRef getFrontmostWindow();
 
@@ -15,15 +13,15 @@ namespace AXFinder {
 
     AXUIElementRef findAXMain(AXUIElementRef parent);
 
-    AXElement getTrackView();
+    AXUIElementRef getTrackView();
 
-    AXElement getTrackView();
+    AXUIElementRef getTrackView();
 
     std::vector<AXUIElementRef> getTrackViewDevices();
 
     std::vector<AXUIElementRef> findElementsByType(AXUIElementRef parent, CFStringRef roleToFind, int level);
 
-    AXElement findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth = 5);
+    AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth = 5);
 
     AXUIElementRef findElementByIdentifier(AXUIElementRef parent, CFStringRef identifierToFind, int level);
 

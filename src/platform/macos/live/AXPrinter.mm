@@ -4,7 +4,8 @@
 
 #include <string>
 
-#include "AXElement.h"
+#include "MacUtils.h"
+#include "AXAttribute.h"
 #include "AXPrinter.h"
 
 namespace AXPrinter {
@@ -12,15 +13,18 @@ namespace AXPrinter {
         CFStringRef roleStr, subrole, title, identifier;
         char buffer[256];
 
-        AXElement elem(element);
-        if (!elem.isValid()) return;
+        if (!AXAttribute::isValid(element)) return;
         
         CGWindowID windowID;
-        AXError error = _AXUIElementGetWindow(elem.getRef(), &windowID);
-        if (error == kAXErrorSuccess) {
+        AXError error = _AXUIElementGetWindow(element, &windowID);
+        if (error == kAXErrorSuccess && windowID > 0) {
             prefix += "ID: " + std::to_string(static_cast<int>(windowID));
-    //        std::cout << prefix << "ID: " << windowID << std::endl;
+        } else {
+            logger->warn("unable to get window");
+            return;
         }
+
+    //        std::cout << prefix << "ID: " << windowID << std::endl;
     //    if (AXUIElementCopyAttributeValue(element, kAXRoleAttribute, (CFTypeRef*)&role) == kAXErrorSuccess) {
     //        CFStringGetCString(role, buffer, sizeof(buffer), kCFStringEncodingUTF8);
     //        std::cout << prefix << "Role: " << buffer << std::endl;
@@ -57,6 +61,7 @@ namespace AXPrinter {
                 std::cout << prefix << "AXFocused: " << (boolValue ? "true" : "false") << std::endl;
             }
         }
+        CFRelease(element);
     }
 
     void printAXElementChildrenRecursively(AXUIElementRef element, int depth, int currentDepth) {

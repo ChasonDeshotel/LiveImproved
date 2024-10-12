@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 
 #include "MacUtils.h"
-#include "AXElement.h"
+#include "AXAttribute.h"
 #include "AXFinder.h"
 
 namespace AXInteraction {
@@ -20,15 +20,15 @@ namespace AXInteraction {
         // TODO error checking
     }
 
-    void closeSpecificWindow(AXElement element) {
+    void closeSpecificWindow(AXUIElementRef element) {
         //AXUIElementRef element = static_cast<AXUIElementRef>(windowHandle);
-        if (!element.isValid()) {
+        if (!AXAttribute::isValid(element)) {
             return;
         }
 
         // Try to get the close button
         AXUIElementRef closeButton = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(element.getRef(), kAXCloseButtonAttribute, (CFTypeRef *)&closeButton);
+        AXError error = AXUIElementCopyAttributeValue(element, kAXCloseButtonAttribute, (CFTypeRef *)&closeButton);
         
         if (error != kAXErrorSuccess || !closeButton) {
             return;
@@ -97,10 +97,10 @@ namespace AXInteraction {
 
     //    //printAllAttributeValues(getAppElement());
 
-        AXElement highestPlugin = windows[0];
+        AXUIElementRef highestPlugin = windows[0];
 
         CGWindowID windowID;
-        error = _AXUIElementGetWindow(highestPlugin.getRef(), &windowID);
+        error = _AXUIElementGetWindow(highestPlugin, &windowID);
         if (error == kAXErrorSuccess) {
             logger->debug("ID: " + std::to_string(static_cast<int>(windowID)));
     //        if (eventHandler_()->isWindowFocused(static_cast<int>(windowID))) {

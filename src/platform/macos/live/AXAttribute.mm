@@ -7,7 +7,7 @@
 #include "AXAttribute.h"
 
 namespace AXAttribute {
-    bool isEnabled(AXUIElementRef elem) {
+    bool isEnabled(const AXUIElementRef elem) {
         CFBooleanRef enabled = nullptr;
         if (AXUIElementCopyAttributeValue(elem, kAXEnabledAttribute, (CFTypeRef*)&enabled) == kAXErrorSuccess && enabled) {
             bool isEnabled = CFBooleanGetValue(enabled);  // Convert CFBooleanRef to bool
@@ -19,7 +19,7 @@ namespace AXAttribute {
         }
     }
 
-    bool isValid(AXUIElementRef element) {
+    bool isValid(const AXUIElementRef element) {
         CFTypeRef role = nullptr;
         AXError result = AXUIElementCopyAttributeValue(element, kAXRoleAttribute, &role);
             
@@ -33,7 +33,7 @@ namespace AXAttribute {
     }
 
     // Method to check if the element is focused
-    bool isFocused(AXUIElementRef element) {
+    bool isFocused(const AXUIElementRef element) {
         CFTypeRef isFocused = nullptr;
         AXError result = AXUIElementCopyAttributeValue(element, kAXFocusedAttribute, &isFocused);
 
@@ -52,7 +52,7 @@ namespace AXAttribute {
         return false;
     }
 
-    CFStringRef getRole(AXUIElementRef elementRef) {
+    CFStringRef getRole(const AXUIElementRef elementRef) {
         CFStringRef role = nullptr;
         AXError error = AXUIElementCopyAttributeValue(elementRef, kAXRoleAttribute, (CFTypeRef *)&role);
 

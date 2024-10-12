@@ -2,6 +2,8 @@
 
 #import <ApplicationServices/ApplicationServices.h>
 
+#include <string>
+
 namespace AXPrinter {
     void printAllAttributes(AXUIElementRef element);
     void printAllAttributeValues(AXUIElementRef element);

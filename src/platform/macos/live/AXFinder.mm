@@ -9,11 +9,13 @@
 #include "PID.h"
 #include "MacUtils.h"
 
+#include "AXAttribute.h"
 #include "AXFinder.h"
-#include "AXElement.h"
+#include "AXPrinter.h"
+#include "AXWindow.h"
 
 namespace AXFinder {
-    AXElement appElement() {
+    AXUIElementRef appElement() {
         pid_t livePID = PID::getInstance().livePID();
         if (livePID == -1) {
             logger->error("Live is not running");
@@ -26,13 +28,14 @@ namespace AXFinder {
             return nullptr;
         }
         std::cout << "Successfully created application element" << std::endl;
+        CFRetain(appElement);
         return appElement;
     }
 
     AXUIElementRef getFrontmostWindow() {
         AXUIElementRef frontmostWindow;
 
-        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement().getRef(), kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
+        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
         
         if (result == kAXErrorSuccess && frontmostWindow) {
             logger->debug("Successfully obtained the frontmost window.");
@@ -45,7 +48,7 @@ namespace AXFinder {
 
     CFArrayRef getAllWindows() {
         CFArrayRef windows;
-        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement().getRef(), kAXWindowsAttribute, (CFTypeRef *)&windows);
+        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXWindowsAttribute, (CFTypeRef *)&windows);
         
         if (result == kAXErrorSuccess && windows) {
             CFIndex windowCount = CFArrayGetCount(windows);
@@ -143,9 +146,9 @@ namespace AXFinder {
     // Attribute: AXSubrole
     // Attribute: AXSize
     // Attribute: AXPosition
-    AXElement getTrackView() {
-        AXElement axMain = AXFinder::findAXMain(AXFinder::appElement().getRef());
-        if (!axMain.isValid()) {
+    AXUIElementRef getTrackView() {
+        AXUIElementRef axMain = AXFinder::findAXMain(AXFinder::appElement());
+        if (!AXAttribute::isValid(axMain)) {
             return nullptr;
         }
         //printAXTree(axMain, 0);
@@ -153,14 +156,18 @@ namespace AXFinder {
 
         CFStringRef valueToFind = CFSTR("TrackView");
         CFStringRef searchAttribute = kAXIdentifierAttribute;
-        AXElement foundElement = AXFinder::findElementByAttribute(axMain.getRef(), valueToFind, searchAttribute, 0, 1);
+        AXUIElementRef foundElement = AXFinder::findElementByAttribute(axMain, valueToFind, searchAttribute, 0, 1);
+        CFRelease(axMain);
+        CFRelease(searchAttribute);
+        CFRelease(valueToFind);
 
-        if (foundElement.isValid()) {
+        if (AXAttribute::isValid(foundElement)) {
             logger->info("found track view");
             //printAllAttributeValues(foundElement);
+            CFRetain(foundElement);
             return foundElement;
         }
-        return axMain;
+        return nullptr;
     }
 
     //  Identifier: TrackView.Device[0].TitleBar.DeviceOn
@@ -193,13 +200,14 @@ namespace AXFinder {
     std::vector<AXUIElementRef> getTrackViewDevices() {
         std::vector<AXUIElementRef> trackViewDevices;
 
-        AXElement trackView = getTrackView();
+        AXUIElementRef trackView = getTrackView();
     //    printAXTree(trackView, 0);
 
-        if (trackView.isValid()) {
+        if (AXAttribute::isValid(trackView)) {
 
             CFArrayRef children = nullptr;
-            AXError error = AXUIElementCopyAttributeValue(trackView.getRef(), kAXChildrenAttribute, (CFTypeRef*)&children);
+            AXError error = AXUIElementCopyAttributeValue(trackView, kAXChildrenAttribute, (CFTypeRef*)&children);
+            CFRelease(trackView);
 
             if (error == kAXErrorSuccess && children) {
                 CFIndex count = CFArrayGetCount(children);
@@ -288,7 +296,7 @@ namespace AXFinder {
         return matches;  // Return the collected matches
     }
 
-    AXElement findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth) {
+    AXUIElementRef findElementByAttribute(AXUIElementRef parent, CFStringRef valueToFind, CFStringRef searchAttribute, int level, int maxDepth) {
         std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
 
         if (level > maxDepth) {
@@ -315,15 +323,15 @@ namespace AXFinder {
         std::cerr << "Number of children at level " << level << ": " << count << std::endl;
 
         for (CFIndex i = 0; i < count; i++) {
-            AXElement child = AXElement((AXUIElementRef)CFArrayGetValueAtIndex(children, i));
-            if (!child.isValid()) {
+            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+            if (!AXAttribute::isValid(child)) {
                 std::cerr << "No valid child found at index " << i << std::endl;
                 continue;
             }
 
             // Get and print the title of each child
             CFStringRef title = nullptr;
-            if (AXUIElementCopyAttributeValue(child.getRef(), kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
+            if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
                 std::cout << std::string(level * 2, ' ') << "Title: ";
                 CFStringUtil::printCFString(title);
                 CFRelease(title);
@@ -333,7 +341,7 @@ namespace AXFinder {
 
             // Check the search attribute (e.g., AXIdentifier or AXRole)
             CFTypeRef attributeValue = nullptr;
-            AXError attrError = AXUIElementCopyAttributeValue(child.getRef(), searchAttribute, &attributeValue);
+            AXError attrError = AXUIElementCopyAttributeValue(child, searchAttribute, &attributeValue);
             if (attrError == kAXErrorSuccess && attributeValue) {
                 CFStringRef attrStr = static_cast<CFStringRef>(attributeValue);
                 if (CFStringCompare(attrStr, valueToFind, kCFCompareCaseInsensitive | kCFCompareNonliteral) == kCFCompareEqualTo) {
@@ -342,15 +350,16 @@ namespace AXFinder {
 
                     // Return the child immediately
                     std::cerr << "Retaining and returning child at level " << level << std::endl;
-                    return AXElement(child);
+                    CFRetain(child);
+                    return child;
                 }
                 CFRelease(attributeValue);  // Release attribute value if not a match
             }
 
             // Recursively search in child elements
             std::cerr << "Recursing into child at index " << i << std::endl;
-            AXElement found = findElementByAttribute(child.getRef(), valueToFind, searchAttribute, level + 1);
-            if (found.isValid()) {
+            AXUIElementRef found = findElementByAttribute(child, valueToFind, searchAttribute, level + 1);
+            if (AXAttribute::isValid(found)) {
                 std::cerr << "Found element during recursion at level " << level << std::endl;
                 return found;
             } else {
@@ -436,12 +445,12 @@ namespace AXFinder {
 
     // Method to get the application's main window by its PID
     AXUIElementRef findApplicationWindow() {
-        AXElement appElement = AXFinder::appElement();
-        
         AXUIElementRef window = nullptr;
-        if (appElement.isValid()) {
+        AXUIElementRef appElement = AXFinder::appElement();
+        if (AXAttribute::isValid(appElement)) {
             // Get the main window of the application
-            AXUIElementCopyAttributeValue(appElement.getRef(), kAXFocusedWindowAttribute, (CFTypeRef*)&window);
+            AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, (CFTypeRef*)&window);
+            CFRelease(appElement);
             //std::cerr << "main window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
         } else {
             std::cerr << "no window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
@@ -450,12 +459,13 @@ namespace AXFinder {
     }
 
     AXUIElementRef getFocusedElement() {
-        AXElement appElement = AXElement(AXFinder::appElement());
+        AXUIElementRef appElement = AXFinder::appElement();
         AXUIElementRef focusedElement = nullptr;
 
-        AXError error = AXUIElementCopyAttributeValue(appElement.getRef(), kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
+        AXError error = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
         if (error == kAXErrorSuccess && focusedElement != nullptr) {
-            AXElement(focusedElement).printValues();
+            AXPrinter::printAllAttributeValues(focusedElement);
+            CFRetain(focusedElement);
             return(focusedElement);
         }
 
@@ -477,16 +487,19 @@ namespace AXFinder {
     std::vector<AXUIElementRef> getPluginWindowsFromLiveAX(int limit) {
         logger->debug("getPluginWindowsFromLiveAX called");
 
-        CFArrayRef children;
-        AXElement appElement = AXElement(AXFinder::appElement());
-        AXError error = AXUIElementCopyAttributeValues(appElement.getRef(), kAXChildrenAttribute, 0, 100, &children);
-        if (error != kAXErrorSuccess) {
-            logger->error(&"Failed to get children of app. Error: " [error]);
+        CFArrayRef appElementChildren = nullptr;  // Initialize to nullptr
+        AXUIElementRef appElement = AXFinder::appElement();
+        AXError error = AXUIElementCopyAttributeValues(appElement, kAXChildrenAttribute, 0, 100, &appElementChildren);
+
+        if (error != kAXErrorSuccess || appElementChildren == nullptr) {
+            logger->error("Failed to get appElementChildren of app. Error: " + std::to_string(error));
+            if (appElement) CFRelease(appElement);  // Make sure to release appElement
             return {};
         }
+        CFRelease(appElement);  // Safely release appElement after it's been used
 
         std::vector<AXUIElementRef> pluginWindowsFromLiveAX;
-        CFIndex childCount = CFArrayGetCount(children);
+        CFIndex childCount = CFArrayGetCount(appElementChildren);
         logger->debug("child count: " + std::to_string(static_cast<int>(childCount)));
 
         for (CFIndex i = 0; i < childCount; i++) {
@@ -494,22 +507,31 @@ namespace AXFinder {
                 logger->debug("Limit reached, stopping collection of plugin windows.");
                 break;
             }
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
-            AXElement wrappedChild = AXElement(child);
-            if (wrappedChild.isPluginWindow()) {
+
+            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(appElementChildren, i);
+            if (AXWindow::isPluginWindow(child)) {
                 logger->debug("Plugin Window: getCurrentPluginsWindow - Child " + std::to_string(static_cast<int>(i)));
-                wrappedChild.print();
+                AXPrinter::printAllAttributes(child);
+                CFRetain(child);  // Retain the child before adding to the vector
                 pluginWindowsFromLiveAX.push_back(child);
             } else {
-                logger->debug("not a plugin window:");
-                wrappedChild.print();
+                logger->debug("Not a plugin window:");
+                // CFArrayGetValueAtIndex does not increment the retain count of the object it returns.
+                // The returned AXUIElementRef is still owned by the CFArray. Thus, if you call CFRelease
+                // on it without first calling CFRetain, you're essentially releasing an object that is 
+                // still owned by the array, which can cause a crash or undefined behavior.
+                // tl;dr: don't CFRelease(child) here
+                AXPrinter::printAllAttributes(child);
             }
         }
 
-        if (children) CFRelease (children);
+        if (appElementChildren) {
+            CFRelease(appElementChildren);
+        }
         
         return pluginWindowsFromLiveAX;
     }
+
 
     AXUIElementRef getFocusedPluginWindow() {
         std::vector<AXUIElementRef> pluginWindows = AXFinder::getPluginWindowsFromLiveAX();
@@ -517,7 +539,7 @@ namespace AXFinder {
         std::cout << "Number of plugin windows: " << pluginWindows.size() << std::endl;
 
         for (auto& window : pluginWindows) {
-            bool isFocused = AXElement(window).isFocused();
+            bool isFocused = AXAttribute::isFocused(window);
             std::cout << "Window focus state: " << (isFocused ? "focused" : "not focused") << std::endl;
 
             if (isFocused) {
@@ -538,7 +560,7 @@ namespace AXFinder {
         
         std::vector<AXUIElementRef> checkBoxElements;
 
-        AXElement(deviceElement).printTitle();
+        AXPrinter::printAXTitle(deviceElement);
 
         CFArrayRef children = nullptr;
         AXError error = AXUIElementCopyAttributeValue(deviceElement, kAXChildrenAttribute, (CFTypeRef*)&children);
@@ -567,6 +589,8 @@ namespace AXFinder {
                             checkBoxElements.push_back(child);
 
                             CFRelease(identifier);
+                        } else {
+                            CFRelease(child);
                         }
                     }
                 }
