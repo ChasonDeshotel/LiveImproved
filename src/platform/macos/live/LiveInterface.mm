@@ -158,9 +158,9 @@ void LiveInterface::tilePluginWindows() {
     AXUIElementRef trackView = AXFinder::getTrackView();
     std::vector<AXUIElementRef> trackViewDevices = AXFinder::getTrackViewDevices();
 
+    // find the devices in TrackView and toggle the ones that are enabled
+    // to correctly order the plugins reported by Live AX
     for (const auto& device : trackViewDevices) {
-//        printAXIdentifier(device);
-//        printAXTree(device, 0);
         CFRetain(device);
         std::vector<AXUIElementRef> checkboxes = AXFinder::getTrackViewDeviceCheckBoxes(device);
         if (checkboxes.empty()) {
@@ -176,16 +176,6 @@ void LiveInterface::tilePluginWindows() {
 
         CFRelease(device);
     }
-
-//    printAXTree(getAppElement(), 0);
-//    return;
-//    CFStringRef valueToFind = CFSTR("Trackview");
-//    AXUIElementRef deviceDetailGroup = findElementByIdentifier(getAppElement(), valueToFind, 0);
-//    if (deviceDetailGroup) {
-//        logger->info("found device detail group");
-//        printAXTree(deviceDetailGroup, 0);
-//    }
-//    return;
 
     std::vector<AXUIElementRef> pluginWindows = AXFinder::getPluginWindowsFromLiveAX();
     if (pluginWindows.empty()) {
