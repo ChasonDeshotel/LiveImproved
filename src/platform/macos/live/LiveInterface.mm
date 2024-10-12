@@ -163,12 +163,8 @@ void LiveInterface::openAllPlugins() {
 // TODO -- if the plugins don't take up the full width or full height, center them
 // TODO -- if the plugins take up MORE than the screen, cycle
 // TODO -- compact tiling (fill in the blank space where possible while keeping order)
-void LiveInterface::tilePluginWindows() {
-    AXUIElementRef trackView = AXFinder::getTrackView();
-    if (!AXAttribute::isValid(trackView)) {
-        logger->warn("unable to find valid TrackView");
-    }
 
+std::vector<AXUIElementRef> orderPluginWindows() {
     // find the devices in TrackView and toggle the ones that are enabled
     // to correctly order the plugins reported by Live AX
     std::vector<AXUIElementRef> trackViewDevices = AXFinder::getTrackViewDevices();
@@ -177,7 +173,7 @@ void LiveInterface::tilePluginWindows() {
         std::vector<AXUIElementRef> checkboxes = AXFinder::getTrackViewDeviceCheckBoxes(device);
         if (checkboxes.empty()) {
             logger->warn("couldn't find device on/off checkboxes");
-            return;
+            return {};
         }
 
         for (const auto& checkbox : checkboxes) {
@@ -192,10 +188,21 @@ void LiveInterface::tilePluginWindows() {
     std::vector<AXUIElementRef> pluginWindows = AXFinder::getPluginWindowsFromLiveAX();
     if (pluginWindows.empty()) {
         logger->warn("no plugin windows found");
-        return;
+        return {};
     }
 
     std::reverse(pluginWindows.begin(), pluginWindows.end());
+    
+    return pluginWindows;
+}
+
+void LiveInterface::tilePluginWindows() {
+    AXUIElementRef trackView = AXFinder::getTrackView();
+    if (!AXAttribute::isValid(trackView)) {
+        logger->warn("unable to find valid TrackView");
+    }
+
+    std::vector<AXUIElementRef> pluginWindows = orderPluginWindows();
 
     CGRect screenBounds = [[NSScreen mainScreen] frame];
     int screenWidth = screenBounds.size.width;
