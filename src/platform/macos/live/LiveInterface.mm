@@ -287,29 +287,32 @@ void LiveInterface::tilePluginWindows() {
                  ", height=" + std::to_string(unoccupiedHeight));
 
     int unoccupiedMaxRowHeight = 0;
+    int unoccupiedMaxRowWidth = 0;
     for (const auto& window : remainingWindows) {
         CGRect bounds = AXWindow::getBounds(window);
         int windowWidth = bounds.size.width;
         int windowHeight = bounds.size.height;
 
-        if (currentX + windowWidth > screenWidth) {
+        if (currentX + windowWidth > rightX) {
             currentX = leftX;
             currentY += unoccupiedMaxRowHeight;
             unoccupiedMaxRowHeight = 0;
+            unoccupiedMaxRowWidth = 0;
         }
 
-        if (currentY + windowHeight > screenHeight) {
+        if (currentY + windowHeight > bottomY) {
             break;
         }
 
-        windowPositions.emplace_back(window, leftX, currentY, windowWidth, windowHeight);
+        windowPositions.emplace_back(window, currentX, currentY, windowWidth, windowHeight);
 
-        currentX = leftX + windowWidth;
+        currentX += windowWidth;
         unoccupiedMaxRowHeight = std::max(unoccupiedMaxRowHeight, windowHeight);
+        unoccupiedMaxRowWidth = std::max(unoccupiedMaxRowWidth, currentX - leftX);
     }
 
     // Update maxWidth to include the unoccupied space
-    maxWidth = screenWidth;
+    maxWidth = std::max(maxWidth, unoccupiedMaxRowWidth);
 
     // Calculate offsets to center the formation
     int xOffset = (screenWidth - maxWidth) / 2;
