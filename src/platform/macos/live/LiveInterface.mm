@@ -260,9 +260,31 @@ void LiveInterface::tilePluginWindows() {
     int leftoverWidth = screenWidth - maxWidth;
     int leftoverHeight = screenHeight - totalHeight;
 
-    currentX = maxWidth;
-    currentY = 0;
-    maxRowHeight = 0;
+    // Calculate the largest contiguous rectangle that remains unoccupied
+    int leftX = maxWidth;
+    int topY = 0;
+    int rightX = screenWidth;
+    int bottomY = screenHeight;
+
+    // Find the top-left corner of the unoccupied space
+    for (const auto& [window, x, y, width, height] : windowPositions) {
+        if (x + width == maxWidth) {
+            topY = std::max(topY, y + height);
+        }
+    }
+
+    // Update currentX and currentY to be the top-left corner of the unoccupied space
+    currentX = leftX;
+    currentY = topY;
+
+    // Calculate the dimensions of the unoccupied rectangle
+    int unoccupiedWidth = rightX - leftX;
+    int unoccupiedHeight = bottomY - topY;
+
+    logger->info("Unoccupied space: x=" + std::to_string(currentX) + 
+                 ", y=" + std::to_string(currentY) + 
+                 ", width=" + std::to_string(unoccupiedWidth) + 
+                 ", height=" + std::to_string(unoccupiedHeight));
 
     for (const auto& window : remainingWindows) {
         CGRect bounds = AXWindow::getBounds(window);
