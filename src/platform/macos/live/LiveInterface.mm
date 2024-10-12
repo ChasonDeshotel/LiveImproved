@@ -220,6 +220,9 @@ void LiveInterface::tilePluginWindows() {
     std::vector<std::tuple<AXUIElementRef, int, int, int, int>> windowPositions;
     std::vector<AXUIElementRef> remainingWindows;
 
+    int tallestWindow = 0;
+    int rowStartX = 0;
+
     // First pass: calculate total width and height and store window positions
     for (const auto& window : pluginWindows) {
         CGRect bounds = AXWindow::getBounds(window);
@@ -232,15 +235,13 @@ void LiveInterface::tilePluginWindows() {
         int windowHeight = bounds.size.height;
 
         if (currentX + windowWidth > screenWidth) {
-            currentX = 0;
+            currentX = rowStartX;
             currentY += maxRowHeight;
             maxRowHeight = 0;
+            tallestWindow = 0;
         }
 
         if (currentY + windowHeight > screenHeight) {
-            remainingWindows.push_back(window);
-            continue;
-        } else if (currentX + windowWidth > screenWidth) {
             remainingWindows.push_back(window);
             continue;
         }
@@ -250,6 +251,11 @@ void LiveInterface::tilePluginWindows() {
         currentX += windowWidth;
         maxWidth = std::max(maxWidth, currentX);
         maxRowHeight = std::max(maxRowHeight, windowHeight);
+
+        if (windowHeight > tallestWindow) {
+            tallestWindow = windowHeight;
+            rowStartX = windowWidth;
+        }
 
         if (currentX == windowWidth) {  // First window in the row
             totalHeight += maxRowHeight;
@@ -288,16 +294,19 @@ void LiveInterface::tilePluginWindows() {
 
     int unoccupiedMaxRowHeight = 0;
     int unoccupiedMaxRowWidth = 0;
+    tallestWindow = 0;
+    rowStartX = currentX;
+
     for (const auto& window : remainingWindows) {
         CGRect bounds = AXWindow::getBounds(window);
         int windowWidth = bounds.size.width;
         int windowHeight = bounds.size.height;
 
         if (currentX + windowWidth > rightX) {
-            currentX = leftX;
+            currentX = rowStartX;
             currentY += unoccupiedMaxRowHeight;
             unoccupiedMaxRowHeight = 0;
-            unoccupiedMaxRowWidth = 0;
+            tallestWindow = 0;
         }
 
         if (currentY + windowHeight > bottomY) {
@@ -309,10 +318,15 @@ void LiveInterface::tilePluginWindows() {
         currentX += windowWidth;
         unoccupiedMaxRowHeight = std::max(unoccupiedMaxRowHeight, windowHeight);
         unoccupiedMaxRowWidth = std::max(unoccupiedMaxRowWidth, currentX - leftX);
+
+        if (windowHeight > tallestWindow) {
+            tallestWindow = windowHeight;
+            rowStartX = leftX + windowWidth;
+        }
     }
 
     // Update maxWidth to include the unoccupied space
-    maxWidth = std::max(maxWidth, unoccupiedMaxRowWidth);
+    maxWidth = std::max(maxWidth, leftX + unoccupiedMaxRowWidth);
 
     // Calculate offsets to center the formation
     int xOffset = (screenWidth - maxWidth) / 2;
@@ -320,8 +334,7 @@ void LiveInterface::tilePluginWindows() {
     // Find the minimum y-coordinate among all windows
     int minY = std::numeric_limits<int>::max();
     for (const auto& [window, x, y, width, height] : windowPositions) {
-        CGRect bounds = AXWindow::getBounds(window);
-        minY = std::min(minY, static_cast<int>(bounds.origin.y));
+        minY = std::min(minY, y);
     }
 
     // Calculate yOffset to maintain the original top position
