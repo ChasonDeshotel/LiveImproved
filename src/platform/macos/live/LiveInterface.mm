@@ -179,6 +179,8 @@ std::vector<AXUIElementRef> orderPluginWindows() {
         }
 
         for (const auto& checkbox : checkboxes) {
+            // TODO get the enable/disable checkbox and skip the ones that
+            // aren't enabled
             AXCheckBox::toggleOffOn(checkbox);
             CFRelease(checkbox);
             usleep(20000);
