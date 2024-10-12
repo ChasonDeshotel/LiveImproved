@@ -151,8 +151,6 @@ namespace AXFinder {
         if (!AXAttribute::isValid(axMain)) {
             return nullptr;
         }
-        //printAXTree(axMain, 0);
-        //printAllAttributes(axMain);
 
         CFStringRef valueToFind = CFSTR("TrackView");
         CFStringRef searchAttribute = kAXIdentifierAttribute;
@@ -163,7 +161,6 @@ namespace AXFinder {
 
         if (AXAttribute::isValid(foundElement)) {
             logger->info("found track view");
-            //printAllAttributeValues(foundElement);
             CFRetain(foundElement);
             return foundElement;
         }
@@ -201,8 +198,6 @@ namespace AXFinder {
         std::vector<AXUIElementRef> trackViewDevices;
 
         AXUIElementRef trackView = getTrackView();
-    //    printAXTree(trackView, 0);
-
         if (AXAttribute::isValid(trackView)) {
 
             CFArrayRef children = nullptr;
@@ -464,22 +459,9 @@ namespace AXFinder {
 
         AXError error = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
         if (error == kAXErrorSuccess && focusedElement != nullptr) {
-            AXPrinter::printAllAttributeValues(focusedElement);
             CFRetain(focusedElement);
             return(focusedElement);
         }
-
-    //    if (error == kAXErrorSuccess && focusedElement != nullptr) {
-    //        for (AXUIElementRef pluginWindow : pluginWindows) {
-    //            if (CFEqual(focusedElement, pluginWindow)) {
-    //                logger->info("One of the plugin windows is currently focused.");
-    //                // You can take actions based on the focus state
-    //            }
-    //        }
-    //        CFRelease(focusedElement);
-    //    } else {
-    //        logger->warn("No focused element found.");
-    //    }
 
         return nullptr;
     }
@@ -511,7 +493,6 @@ namespace AXFinder {
             AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(appElementChildren, i);
             if (AXWindow::isPluginWindow(child)) {
                 logger->debug("Plugin Window: getCurrentPluginsWindow - Child " + std::to_string(static_cast<int>(i)));
-                AXPrinter::printAllAttributes(child);
                 CFRetain(child);  // Retain the child before adding to the vector
                 pluginWindowsFromLiveAX.push_back(child);
             } else {
@@ -521,7 +502,6 @@ namespace AXFinder {
                 // on it without first calling CFRetain, you're essentially releasing an object that is 
                 // still owned by the array, which can cause a crash or undefined behavior.
                 // tl;dr: don't CFRelease(child) here
-                AXPrinter::printAllAttributes(child);
             }
         }
 

@@ -10,6 +10,7 @@ namespace AXWindow {
             logger->debug("element is null");
             return false;
         }
+        CFRetain(element);
         
         CFStringRef role;
         AXError error = AXUIElementCopyAttributeValue(element, kAXRoleAttribute, (CFTypeRef*)&role);
@@ -18,14 +19,12 @@ namespace AXWindow {
             return false;
         }
         
-        // not a window
         if (! (CFStringCompare(role, kAXWindowRole, 0) == kCFCompareEqualTo)) {
             if (role) CFRelease(role);
             logger->debug("not an AXWindow");
             return false;
         }
 
-        // not a floating window
         CFStringRef subrole;
         error = AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*)&subrole);
         if (error != kAXErrorSuccess || !subrole) {
@@ -39,10 +38,17 @@ namespace AXWindow {
         }
         logger->debug("not an AXFloatingWindow");
 
+        CFRelease(element);
         return false;
     }
 
     void setBounds(AXUIElementRef window, int x, int y, int width, int height) {
+        if (!AXAttribute::isValid(window)) {
+            logger->error("window is not valid");
+            return;
+        }
+        CFRetain(window);
+
         CGPoint position = {static_cast<CGFloat>(x), static_cast<CGFloat>(y)};
         CGSize size = {static_cast<CGFloat>(width), static_cast<CGFloat>(height)};
 
@@ -54,9 +60,10 @@ namespace AXWindow {
         AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
         CFRelease(sizeRef);
 
-        logger->info("set bounds: (" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(width)
+        logger->debug("set bounds: (" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(width)
                         + "," + std::to_string(height));
 
+        CFRelease(window);
         // Update the cached bounds
         //cachedWindowBounds_[window] = CGRectMake(x, y, width, height);
     }
@@ -69,6 +76,13 @@ namespace AXWindow {
     }
 
     CGRect getBounds(AXUIElementRef window) {
+        CGRect rect;
+        if (!AXAttribute::isValid(window)) {
+            logger->error("window is not valid");
+            rect = CGRectNull;
+        }
+        CFRetain(window);
+
         CGPoint position;
         CGSize size;
         AXValueRef positionRef, sizeRef;
@@ -84,7 +98,8 @@ namespace AXWindow {
 
         if (positionRef) CFRelease(positionRef);
         if (sizeRef) CFRelease(sizeRef);
-
+        
+        CFRelease(window);
         return bounds;
     }
 }

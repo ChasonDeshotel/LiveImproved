@@ -21,7 +21,6 @@
 #include "LiveInterface.h"
 #include "PID.h"
 
-// Constructor
 LiveInterface::LiveInterface(std::function<std::shared_ptr<EventHandler>()> eventHandler)
     : ILiveInterface()
     , eventHandler_(std::move(eventHandler))
@@ -31,7 +30,6 @@ LiveInterface::LiveInterface(std::function<std::shared_ptr<EventHandler>()> even
     });
 }
 
-// Destructor
 LiveInterface::~LiveInterface() {}
 
 void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callback) {
@@ -122,7 +120,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
     //interface->printElementInfo(element, "element from destroy: ");
 
     LiveInterface* interface = static_cast<LiveInterface*>(context);
-    logger->info("Destroy callback called");
+    logger->debug("Destroy callback called");
 //    if (interface->windowCloseInProgress_) {
 //        logger->info("Window close already in progress, skipping this event.");
 //        return;
@@ -141,8 +139,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
         logger->error("Failed to raise the next window. AXError: " + std::to_string(error));
     } else {
         CFRelease(windowToFocus);
-        logger->info("Successfully raised the next window.");
-//        interface->printAllAttributeValues(interface->getAppElement());
+        logger->debug("Successfully raised the next window.");
     }
 //    interface->windowCloseInProgress_ = false;
 
@@ -158,7 +155,6 @@ void LiveInterface::closeFocusedPluginWindow() {
 void LiveInterface::closeAllPlugins() {
     AXInteraction::closeAllPlugins();
 }
-
 
 // TODO -- if the plugins don't take up the full width or full height, center them
 // TODO -- if the plugins take up MORE than the screen, cycle
@@ -202,6 +198,11 @@ void LiveInterface::tilePluginWindows() {
     double totalArea = 0;
     for (const auto& window : pluginWindows) {
         CGRect bounds = AXWindow::getBounds(window);
+        if (CGRectIsNull(bounds)) {
+            logger->error("invalid window bounds");
+            return;
+        }
+
         totalArea += bounds.size.width * bounds.size.height;
     }
 
@@ -221,6 +222,10 @@ void LiveInterface::tilePluginWindows() {
 
     for (int i = 0; i < numWindows; ++i) {
         CGRect originalBounds = AXWindow::getBounds(pluginWindows[i]);
+        if (CGRectIsNull(originalBounds)) {
+            logger->error("invalid bounds");
+            return;
+        }
         int scaledWidth = std::round(originalBounds.size.width * scaleFactor);
         int scaledHeight = std::round(originalBounds.size.height * scaleFactor);
 
