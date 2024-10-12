@@ -218,6 +218,7 @@ void LiveInterface::tilePluginWindows() {
     int totalHeight = 0;
 
     std::vector<std::tuple<AXUIElementRef, int, int, int, int>> windowPositions;
+    std::vector<AXUIElementRef> remainingWindows;
 
     // First pass: calculate total width and height and store window positions
     for (const auto& window : pluginWindows) {
@@ -237,7 +238,8 @@ void LiveInterface::tilePluginWindows() {
         }
 
         if (currentY + windowHeight > screenHeight) {
-            break;
+            remainingWindows.push_back(window);
+            continue;
         }
 
         windowPositions.emplace_back(window, currentX, currentY, windowWidth, windowHeight);
@@ -249,6 +251,36 @@ void LiveInterface::tilePluginWindows() {
         if (currentX == windowWidth) {  // First window in the row
             totalHeight += maxRowHeight;
         }
+    }
+
+    // Second pass: attempt to fit remaining windows in leftover space
+    int leftoverWidth = screenWidth - maxWidth;
+    int leftoverHeight = screenHeight - totalHeight;
+
+    currentX = maxWidth;
+    currentY = 0;
+    maxRowHeight = 0;
+
+    for (const auto& window : remainingWindows) {
+        CGRect bounds = AXWindow::getBounds(window);
+        int windowWidth = bounds.size.width;
+        int windowHeight = bounds.size.height;
+
+        if (currentX + windowWidth > screenWidth) {
+            currentX = maxWidth;
+            currentY += maxRowHeight;
+            maxRowHeight = 0;
+        }
+
+        if (currentY + windowHeight > leftoverHeight) {
+            break;
+        }
+
+        windowPositions.emplace_back(window, currentX, currentY, windowWidth, windowHeight);
+
+        currentX += windowWidth;
+        maxWidth = std::max(maxWidth, currentX);
+        maxRowHeight = std::max(maxRowHeight, windowHeight);
     }
 
     // Calculate offsets to center the formation
@@ -264,7 +296,7 @@ void LiveInterface::tilePluginWindows() {
     // Calculate yOffset to maintain the original top position
     int yOffset = minY;
 
-    // Second pass: actually position the windows
+    // Third pass: actually position the windows
     for (auto& [window, x, y, width, height] : windowPositions) {
         x += xOffset;
         y += yOffset;
@@ -281,6 +313,9 @@ void LiveInterface::tilePluginWindows() {
 
     // Release all window references
     for (const auto& [window, x, y, width, height] : windowPositions) {
+        CFRelease(window);
+    }
+    for (const auto& window : remainingWindows) {
         CFRelease(window);
     }
 }
