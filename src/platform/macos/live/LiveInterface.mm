@@ -208,8 +208,11 @@ void LiveInterface::tilePluginWindows() {
     int screenWidth = screenBounds.size.width;
     int screenHeight = screenBounds.size.height;
 
+    // Estimate the height of the title bar (you may need to adjust this value)
+    const int titleBarHeight = 22;
+
     int currentX = 0;
-    int currentY = 0;
+    int currentY = titleBarHeight;  // Start below the title bar
     int maxRowHeight = 0;
 
     for (const auto& window : pluginWindows) {
