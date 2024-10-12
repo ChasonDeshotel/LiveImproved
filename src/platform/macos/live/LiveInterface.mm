@@ -129,6 +129,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
 //    }
 //    interface->windowCloseInProgress_ = true;
 
+    // focus the next plugin in the stack
     auto windows = AXFinder::getPluginWindowsFromLiveAX(1);
     if (windows.empty()) {
         logger->debug("no windows to focus");
@@ -154,6 +155,9 @@ void LiveInterface::closeFocusedPluginWindow() {
     AXInteraction::closeFocusedPluginWindow();
 }
 
+// TODO -- if the plugins don't take up the full width or full height, center them
+// TODO -- if the plugins take up MORE than the screen, cycle
+// TODO -- compact tiling (fill in the blank space where possible while keeping order)
 void LiveInterface::tilePluginWindows() {
     AXUIElementRef trackView = AXFinder::getTrackView();
     std::vector<AXUIElementRef> trackViewDevices = AXFinder::getTrackViewDevices();
