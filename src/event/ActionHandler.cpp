@@ -57,6 +57,11 @@ void ActionHandler::initializeActionMap() {
         liveInterface->closeFocusedPluginWindow();
     };
 
+    actionMap["closeAllPlugins"] = [this](const std::optional<std::string>& args) {
+        auto liveInterface = liveInterface_();
+        liveInterface->closeAllPlugins();
+    };
+
     actionMap["tilePluginWindows"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
         liveInterface->tilePluginWindows();

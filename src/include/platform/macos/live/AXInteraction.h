@@ -8,4 +8,5 @@ namespace AXInteraction {
     void focusElement(AXUIElementRef element);
     void closeSpecificWindow(void* windowHandle);
     void closeFocusedPluginWindow();
+    void closeAllPlugins();
 }

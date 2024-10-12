@@ -43,6 +43,7 @@ struct NamedActions {
             , "plugin"
             , "searchbox"
             , "closeFocusedPlugin"
+            , "closeAllPlugins"
             , "tilePluginWindows"
         };
         return namedActions;

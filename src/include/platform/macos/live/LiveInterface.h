@@ -30,6 +30,7 @@ public:
     void removePluginWindowChangeObserver() override;
 
     void closeFocusedPluginWindow() override;
+    void closeAllPlugins() override;
     void tilePluginWindows() override;
 
 private:

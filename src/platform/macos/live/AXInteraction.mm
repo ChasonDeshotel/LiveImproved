@@ -110,4 +110,65 @@ namespace AXInteraction {
         }
     }
 
+    void closeAllPlugins() {
+        // TODO - DRY - this is the check to make sure any plugin window is focused
+        // we do this by making sure the title matches one of our plugin window's titles
+        AXUIElementRef frontmostWindow = AXFinder::getFrontmostWindow();
+
+        CFStringRef frontmostTitle = nullptr;
+        AXError error = AXUIElementCopyAttributeValue(frontmostWindow, kAXTitleAttribute, (CFTypeRef *)&frontmostTitle);
+
+        if (error != kAXErrorSuccess || !frontmostTitle) {
+            logger->debug("Failed to get title of frontmost window.");
+            return;
+        }
+
+        // Convert the frontmost window title to a std::string
+        NSString *frontmostTitleNS = (__bridge NSString *)frontmostTitle;
+        std::string frontmostTitleStr([frontmostTitleNS UTF8String]);
+
+        // Get plugin windows from Live
+        auto windows = AXFinder::getPluginWindowsFromLiveAX();
+        if (windows.empty()) {
+            logger->debug("No plugin windows found.");
+            CFRelease(frontmostTitle);
+            return;
+        }
+
+        // if the frontmost window != a plugin window title, we bail
+        bool found = false;
+        for (const auto& pluginWindow : windows) {
+            CFStringRef pluginTitle = nullptr;
+            AXError pluginError = AXUIElementCopyAttributeValue(pluginWindow, kAXTitleAttribute, (CFTypeRef *)&pluginTitle);
+
+            if (pluginError == kAXErrorSuccess && pluginTitle) {
+                // Convert the plugin window title to a std::string
+                NSString *pluginTitleNS = (__bridge NSString *)pluginTitle;
+                std::string pluginTitleStr([pluginTitleNS UTF8String]);
+
+                if (frontmostTitleStr == pluginTitleStr) {
+                    logger->debug("Frontmost window matches plugin window by title.");
+                    found = true;
+                    CFRelease(pluginTitle);
+                    break;
+                }
+                CFRelease(pluginTitle);
+            }
+        }
+        if (!found) {
+            logger->debug("not found - returning");
+            return;
+        }
+
+        // now we get to close all of the windows
+        for (const auto& plugin : windows) {
+            CGWindowID windowID;
+            error = _AXUIElementGetWindow(plugin, &windowID);
+            if (error == kAXErrorSuccess) {
+                logger->debug("ID: " + std::to_string(static_cast<int>(windowID)));
+                closeSpecificWindow(plugin);
+                CFRelease(plugin);
+            }
+        }
+    }
 }

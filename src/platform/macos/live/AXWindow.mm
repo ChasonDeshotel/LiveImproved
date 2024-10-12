@@ -62,9 +62,9 @@ namespace AXWindow {
     }
 
     std::string rectToString(const CGRect& rect) {
-        return "CGRect {x: " + std::to_string(rect.origin.x) + 
-               ", y: " + std::to_string(rect.origin.y) + 
-               ", width: " + std::to_string(rect.size.width) + 
+        return "CGRect {x: " + std::to_string(rect.origin.x) +
+               ", y: " + std::to_string(rect.origin.y) +
+               ", width: " + std::to_string(rect.size.width) +
                ", height: " + std::to_string(rect.size.height) + "}";
     }
 

@@ -17,6 +17,7 @@ public:
     virtual void removePluginWindowChangeObserver() = 0;
 
     virtual void closeFocusedPluginWindow() = 0;
+    virtual void closeAllPlugins() = 0;
     virtual void tilePluginWindows() = 0;
 
 protected:
