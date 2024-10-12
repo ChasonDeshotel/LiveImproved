@@ -213,7 +213,6 @@ void LiveInterface::tilePluginWindows() {
     int maxRowHeight = 0;
     int maxWidth = 0;
     int totalHeight = 0;
-    int titleBarHeight = 22;
 
     std::vector<std::tuple<AXUIElementRef, int, int, int, int>> windowPositions;
 
@@ -256,7 +255,7 @@ void LiveInterface::tilePluginWindows() {
     // Second pass: actually position the windows
     for (auto& [window, x, y, width, height] : windowPositions) {
         x += xOffset;
-        y += yOffset + titleBarHeight;
+        y += yOffset;
 
         logger->info("Setting bounds for window: x=" + std::to_string(x) + 
                      ", y=" + std::to_string(y) + 
