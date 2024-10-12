@@ -208,12 +208,52 @@ void LiveInterface::tilePluginWindows() {
     int screenWidth = screenBounds.size.width;
     int screenHeight = screenBounds.size.height;
 
-    // Estimate the height of the title bar (you may need to adjust this value)
-    const int titleBarHeight = 22;
+    const int titleBarHeight = getTitleBarHeight();
 
     int currentX = 0;
-    int currentY = titleBarHeight;  // Start below the title bar
+    int currentY = 0;
     int maxRowHeight = 0;
+    int maxWidth = 0;
+    int totalHeight = 0;
+
+    // First pass: calculate total width and height
+    for (const auto& window : pluginWindows) {
+        CGRect bounds = AXWindow::getBounds(window);
+        if (CGRectIsNull(bounds)) {
+            logger->error("invalid window bounds");
+            return;
+        }
+
+        int windowWidth = bounds.size.width;
+        int windowHeight = bounds.size.height;
+
+        if (currentX + windowWidth > screenWidth) {
+            currentX = 0;
+            currentY += maxRowHeight;
+            maxRowHeight = 0;
+        }
+
+        if (currentY + windowHeight > screenHeight) {
+            break;
+        }
+
+        currentX += windowWidth;
+        maxWidth = std::max(maxWidth, currentX);
+        maxRowHeight = std::max(maxRowHeight, windowHeight);
+
+        if (currentX == windowWidth) {  // First window in the row
+            totalHeight += maxRowHeight;
+        }
+    }
+
+    // Calculate offsets to center the formation
+    int xOffset = (screenWidth - maxWidth) / 2;
+    int yOffset = (screenHeight - totalHeight) / 2;
+
+    // Second pass: actually position the windows
+    currentX = xOffset;
+    currentY = yOffset + titleBarHeight;
+    maxRowHeight = 0;
 
     for (const auto& window : pluginWindows) {
         CGRect bounds = AXWindow::getBounds(window);
@@ -225,26 +265,20 @@ void LiveInterface::tilePluginWindows() {
         int windowWidth = bounds.size.width;
         int windowHeight = bounds.size.height;
 
-        // If adding this window would go past the right edge of the screen, move to the next row
-        if (currentX + windowWidth > screenWidth) {
-            currentX = 0;  // Reset X to the left
-            currentY += maxRowHeight;  // Move down to the next row
-            maxRowHeight = 0;  // Reset row height for the new row
+        if (currentX + windowWidth > screenWidth - xOffset) {
+            currentX = xOffset;
+            currentY += maxRowHeight;
+            maxRowHeight = 0;
         }
 
-        // If the next window doesn't fit vertically, stop arranging
-        if (currentY + windowHeight > screenHeight) {
+        if (currentY + windowHeight > screenHeight - yOffset) {
             logger->error("no more space");
             break;
         }
 
-        // Set the window bounds with the current calculated position
         AXWindow::setBounds(window, currentX, currentY, windowWidth, windowHeight);
 
-        // Move the X position for the next window
         currentX += windowWidth;
-
-        // Keep track of the tallest window in the row
         maxRowHeight = std::max(maxRowHeight, windowHeight);
     }
 }
