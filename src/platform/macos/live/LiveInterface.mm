@@ -240,6 +240,9 @@ void LiveInterface::tilePluginWindows() {
         if (currentY + windowHeight > screenHeight) {
             remainingWindows.push_back(window);
             continue;
+        } else if (currentX + windowWidth > screenWidth) {
+            remainingWindows.push_back(window);
+            continue;
         }
 
         windowPositions.emplace_back(window, currentX, currentY, windowWidth, windowHeight);
