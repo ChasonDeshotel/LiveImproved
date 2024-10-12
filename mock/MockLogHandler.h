@@ -1,22 +1,36 @@
-#ifndef MOCK_LOG_HANDLER_H
-#define MOCK_LOG_HANDLER_H
+#pragma once
 
+#include "ILogHandler.h"
 #include <string>
+#include <vector>
 
-class LogHandler {
+class MockLogHandler : public ILogHandler {
 public:
-    static LogHandler& getInstance();
+    void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO) override {
+        messages.push_back({logLevelToString(level), message});
+    }
+    void debug(const std::string& message) override { log(message, LogLevel::LOG_DEBUG); }
+    void info(const std::string& message) override { log(message, LogLevel::LOG_INFO); }
+    void warn(const std::string& message) override { log(message, LogLevel::LOG_WARN); }
+    void error(const std::string& message) override { log(message, LogLevel::LOG_ERROR); }
 
-    void debug(const std::string& message);
-    void info(const std::string& message);
-    void warn(const std::string& message);
-    void error(const std::string& message);
+    void setLogLevel(LogLevel level) override { currentLogLevel = level; }
+
+    const std::vector<std::pair<std::string, std::string>>& getMessages() const { return messages; }
+    void clear() { messages.clear(); }
+
+protected:
+    std::string logLevelToString(LogLevel level) override {
+        switch (level) {
+            case LogLevel::LOG_DEBUG: return "DEBUG";
+            case LogLevel::LOG_INFO: return "INFO";
+            case LogLevel::LOG_WARN: return "WARN";
+            case LogLevel::LOG_ERROR: return "ERROR";
+            default: return "UNKNOWN";
+        }
+    }
 
 private:
-    LogHandler() = default;
-    ~LogHandler() = default;
-    LogHandler(const LogHandler&) = delete;
-    LogHandler& operator=(const LogHandler&) = delete;
+    std::vector<std::pair<std::string, std::string>> messages;
+    LogLevel currentLogLevel = LogLevel::LOG_INFO;
 };
-
-#endif

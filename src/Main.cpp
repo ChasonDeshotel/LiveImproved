@@ -1,4 +1,6 @@
+#ifndef TEST_BUILD
 #include <JuceHeader.h>
+#endif
 #include <dispatch/dispatch.h>
 #include <unistd.h>
 #include <future>
@@ -63,6 +65,7 @@ public:
         if (!logger) {
             container_.registerType<ILogHandler, LogHandler>(DependencyContainer::Lifetime::Singleton);
             logger = container_.resolve<ILogHandler>();
+            logger->setLogLevel(LogLevel::LOG_DEBUG);  // Set log level to DEBUG for development
             logger->info("Ignition sequence started...");
         }
 

@@ -4,6 +4,9 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
 
+# Set BUILD_TESTS option with a default value of OFF
+option(BUILD_TESTS "Build the tests" OFF)
+
 # Set project name and version
 project(LiveImproved VERSION 1.0 LANGUAGES CXX)
 
@@ -11,9 +14,6 @@ add_definitions(-DDEBUG)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-
-message(STATUS "Note: HarfBuzz is planning to remove CMake support in the future. Consider using Meson for HarfBuzz.")
 
 # Custom target for running clang-tidy
 if(APPLE)
@@ -28,7 +28,7 @@ add_custom_target(
     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
     COMMAND find src -name '*.cpp' -or -name '*.h' |
     grep -v "${TIDY_IGNORE_GREP}" |
-            xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} '-header-filter=.*\\.(cpp|h)'$ -checks=-*,cppcoreguidelines-*,modernize-* {}
+        xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} '-header-filter=.*\\.(cpp|h)'$ -checks=-*,cppcoreguidelines-*,modernize-* {}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy on source files"
 )
@@ -60,37 +60,76 @@ endif()
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Add subdirectories after the tidy target
-add_subdirectory(lib/JUCE)
+# Add non-JUCE subdirectories
 add_subdirectory(lib/yaml-cpp)
 add_subdirectory(lib/harfbuzz)
 add_subdirectory(lib/pugixml)
 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/lib/yaml-cpp)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/lib/harfbuzz)
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/lib/yaml-cpp")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/lib/harfbuzz")
 
-# Set up your project with JUCE modules
-juce_add_gui_app(LiveImproved
-    PRODUCT_NAME "LiveImproved"
-)
-
-# Add the necessary JUCE modules
-target_link_libraries(LiveImproved
-    PRIVATE
-        juce::juce_core
-        juce::juce_gui_basics
-        juce::juce_graphics
-        juce::juce_events
-        juce::juce_data_structures
+# Always create the common_libs target
+add_library(common_libs INTERFACE)
+target_link_libraries(common_libs
+    INTERFACE
         yaml-cpp
         harfbuzz
         pugixml
 )
 
-# cross-platform include directories
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src/include/juce
-    ${CMAKE_SOURCE_DIR}/lib/juce/modules
+# Conditionally include JUCE and set up the main application
+if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+    add_subdirectory(lib/JUCE)
+
+    # Set up your project with JUCE modules
+    juce_add_gui_app(LiveImproved
+        PRODUCT_NAME "LiveImproved"
+    )
+
+    # Add the necessary JUCE modules
+    target_link_libraries(LiveImproved
+        PRIVATE
+            juce::juce_core
+            juce::juce_gui_basics
+            juce::juce_graphics
+            juce::juce_events
+            juce::juce_data_structures
+            common_libs
+    )
+
+    # JUCE-specific include directories (only for LiveImproved target)
+    target_include_directories(LiveImproved PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/include/juce
+        ${CMAKE_SOURCE_DIR}/lib/juce/modules
+    )
+
+    # JUCE-specific compile definitions
+    target_compile_definitions(LiveImproved PRIVATE
+        JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
+    )
+
+    # Install rules for macOS application bundle
+    install(TARGETS LiveImproved
+        BUNDLE DESTINATION /Applications
+        RUNTIME DESTINATION bin
+    )
+
+    # Copy additional files (like LICENSE) to the bundle
+    if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+        add_custom_command(TARGET LiveImproved POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/LICENSE
+            ${TARGET_BUNDLE_DIR}/Contents/>LICENSE
+        )
+    endif()
+else()
+    # For tests, create a dummy executable target instead of an interface library
+    add_executable(LiveImproved src/Main.cpp)
+    target_link_libraries(LiveImproved PRIVATE common_libs)
+endif()
+
+# Common include directories
+set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src/abstract
     ${CMAKE_SOURCE_DIR}/src/include
     ${CMAKE_SOURCE_DIR}/src/include/config
@@ -100,9 +139,23 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/include/gui
     ${CMAKE_SOURCE_DIR}/src/include/ipc
 )
+
+target_include_directories(common_libs INTERFACE ${COMMON_INCLUDE_DIRS})
+
+if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+    # JUCE-specific include directories (only for LiveImproved target when not building tests)
+    target_include_directories(LiveImproved PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/include/juce
+        ${CMAKE_SOURCE_DIR}/lib/juce/modules
+        ${COMMON_INCLUDE_DIRS}
+    )
+
+    target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h")
+endif()
+
 if(APPLE)
     message(STATUS "Including macOS-specific directories")
-    include_directories(
+    target_include_directories(common_libs INTERFACE
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/event
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/gui
@@ -113,16 +166,16 @@ if(APPLE)
     )
 elseif(WIN32)
     message(STATUS "Including Windows-specific directories")
-    include_directories(${CMAKE_SOURCE_DIR}/src/include/platform/windows)
+    target_include_directories(common_libs INTERFACE
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows
+    )
 endif()
-
-target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h")
 
 # Source files for C++ and Objective-C++
 set(SRC_CPP
     src/Main.cpp
-    src/config/ConfigManager.cpp
-    src/config/ConfigMenu.cpp
+    src/core/ConfigManager.cpp
+    src/core/ConfigMenu.cpp
     src/core/LogGlobal.cpp
     src/core/LogHandler.cpp
     src/core/PluginManager.cpp
@@ -208,11 +261,13 @@ if(APPLE)
 	)
 
 	# Copy additional files (like LICENSE) to the bundle
-	add_custom_command(TARGET LiveImproved POST_BUILD
-	    COMMAND ${CMAKE_COMMAND} -E copy
-	    ${CMAKE_SOURCE_DIR}/LICENSE
-	    $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
-	)
+    if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+        add_custom_command(TARGET LiveImproved POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/LICENSE
+            $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
+        )
+    endif()
 elseif(WIN32)
     target_link_libraries(LiveImproved
         PRIVATE
@@ -234,30 +289,56 @@ elseif(WIN32)
     )
 endif()
 
+# add test target
+enable_testing()
+add_subdirectory(lib/doctest)
 
-# Testing
-# suppress deprecated warning
-#if (POLICY CMP0167)
-#    cmake_policy(SET CMP0167 OLD)
-#endif()
-#find_package(Boost 1.86.0 REQUIRED COMPONENTS unit_test_framework)
-#
-#add_executable(test_KeyMapper ${CMAKE_SOURCE_DIR}/test/test_KeyMapper.cpp)
-#target_link_libraries(test_KeyMapper Boost::unit_test_framework)
-#
-#add_executable(
-#    test_config_ConfigManager
-#    ${CMAKE_SOURCE_DIR}/mock/MockLogHandler.cpp
-#    ${CMAKE_SOURCE_DIR}/src/KeyMapper.cpp
-#    ${CMAKE_SOURCE_DIR}/src/config/ConfigManager.cpp
-#    ${CMAKE_SOURCE_DIR}/test/test_config_ConfigManager.cpp
-#)
-#target_link_libraries(test_config_ConfigManager
-#    Boost::unit_test_framework
-#    /usr/local/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib
-#)
-#
-#enable_testing()
-#
-#add_test(NAME test_KeyMapper COMMAND ${CMAKE_BINARY_DIR}/bin/test_KeyMapper)
-#add_test(NAME test_config_ConfigManager COMMAND ${CMAKE_BINARY_DIR}/bin/test_config_ConfigManager)
+set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
+
+if(BUILD_TESTS)
+    add_definitions(-DTEST_BUILD)
+    add_compile_definitions(RUNNING_TESTS)
+endif()
+
+# Function to add a test
+function(add_doctest_test TEST_PATH)
+    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
+    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
+    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
+
+    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
+    target_link_libraries(${TARGET_NAME}
+        PRIVATE
+            doctest::doctest
+            common_libs
+    )
+    target_include_directories(${TARGET_NAME}
+        PRIVATE
+            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
+            ${COMMON_INCLUDE_DIRS}
+            ${CMAKE_SOURCE_DIR}/abstract
+            ${CMAKE_SOURCE_DIR}/src/include
+            ${CMAKE_SOURCE_DIR}/src/include/event
+            ${CMAKE_SOURCE_DIR}/src/include/core
+            ${CMAKE_SOURCE_DIR}/mock
+    )
+    target_compile_definitions(${TARGET_NAME}
+        PRIVATE
+            JUCE_APP_CONFIG_HEADER=""
+            TEST_BUILD
+    )
+    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
+endfunction()
+
+# Add your tests
+add_doctest_test(test/core/test_ConfigManager.cpp)
+#add_doctest_test(test/test_ActionHandler.cpp)
+# Add other tests as needed
+
+# Add a custom target for building all tests
+add_custom_target(build_tests
+    DEPENDS
+        test_core_test_ConfigManager
+        #        test_test_ActionHandler
+    COMMENT "Building all tests"
+)

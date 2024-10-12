@@ -9,6 +9,11 @@ configure: # defaults to cli
 	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B $(CLI_BUILD_DIR)
 	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
+configure-tests:
+	@mkdir -p $(CLI_BUILD_DIR)
+	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTS=ON -S . -B $(CLI_BUILD_DIR)
+	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
+
 configure-xcode:
 	@mkdir -p $(XCODE_BUILD_DIR)
 	@cmake -G "Xcode" -S . -B $(XCODE_BUILD_DIR)
@@ -22,15 +27,23 @@ xcode-build: configure-xcode
 test:
 	@$(MAKE) -C test
 
-run-tests:
-	@cd build && ctest --output-on-failure
+run_tests: configure-tests
+	@if [ -z "$(TEST)" ]; then \
+		echo "Building and running all tests..."; \
+		cmake --build $(CLI_BUILD_DIR) --target build_tests && \
+		cd $(CLI_BUILD_DIR) && ctest --output-on-failure -V; \
+	else \
+		echo "Building and running test: $(TEST)"; \
+		cmake --build $(CLI_BUILD_DIR) --target $(TEST) && \
+		cd $(CLI_BUILD_DIR) && ctest -R $(TEST) --output-on-failure -v; \
+	fi
 
-run: build
+run: build_tests
 	@./build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
 clean:
-	@$(MAKE) -C ./build/macos-cli clean
-	@$(MAKE) -C ./build/xcode clean
+	@rm -rf $(CLI_BUILD_DIR)
+	@rm -rf $(XCODE_BUILD_DIR)
 	@rm -f ./build/compile_commands.json
 
 tidy:

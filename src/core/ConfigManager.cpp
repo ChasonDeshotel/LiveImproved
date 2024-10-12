@@ -15,15 +15,25 @@ ConfigManager::ConfigManager(const std::filesystem::path& configFile)
     , km_(new KeyMapper())
     , initRetries_() {
     loadConfig();
-
-    logger->info("config filepath:" + configFile.generic_string());
 }
 
 void ConfigManager::loadConfig() {
     try {
-        applyConfig(YAML::LoadFile(configFile_.generic_string()));
+        if (!std::filesystem::exists(configFile_)) {
+            throw std::runtime_error("Config file does not exist: " + configFile_.string());
+        }
+
+        if (!std::filesystem::is_regular_file(configFile_)) {
+            throw std::runtime_error("Config file is not a regular file: " + configFile_.string());
+        }
+
+        YAML::Node config = YAML::LoadFile(configFile_);
+        logger->info("Config file loaded successfully");
+
+        applyConfig(config);
+
     } catch (const std::exception &e) {
-        logger->error("Error loading config: " + std::string(e.what()));
+        logger->error("Error parsing config: " + std::string(e.what()));
     }
 }
 

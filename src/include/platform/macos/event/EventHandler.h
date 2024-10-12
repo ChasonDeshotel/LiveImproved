@@ -2,7 +2,6 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
-#include <JuceHeader.h>
 #include <memory>
 #include <functional>
 

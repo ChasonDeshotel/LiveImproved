@@ -1,10 +1,13 @@
-#include "LogHandler.h"
 #include <iostream>
 #include <ctime>
 #include <iomanip>
 #include <filesystem>  // C++17
 
+#ifndef TEST_BUILD
 #include <JuceHeader.h>
+#endif
+
+#include "LogHandler.h"
 
 namespace fs = std::filesystem;
 
