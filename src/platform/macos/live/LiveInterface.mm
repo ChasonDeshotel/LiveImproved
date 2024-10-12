@@ -215,7 +215,9 @@ void LiveInterface::tilePluginWindows() {
     int totalHeight = 0;
     int titleBarHeight = 22;
 
-    // First pass: calculate total width and height
+    std::vector<std::tuple<AXUIElementRef, int, int, int, int>> windowPositions;
+
+    // First pass: calculate total width and height and store window positions
     for (const auto& window : pluginWindows) {
         CGRect bounds = AXWindow::getBounds(window);
         if (CGRectIsNull(bounds)) {
@@ -236,6 +238,8 @@ void LiveInterface::tilePluginWindows() {
             break;
         }
 
+        windowPositions.emplace_back(window, currentX, currentY, windowWidth, windowHeight);
+
         currentX += windowWidth;
         maxWidth = std::max(maxWidth, currentX);
         maxRowHeight = std::max(maxRowHeight, windowHeight);
@@ -250,35 +254,22 @@ void LiveInterface::tilePluginWindows() {
     int yOffset = (screenHeight - totalHeight) / 2;
 
     // Second pass: actually position the windows
-    currentX = xOffset;
-    currentY = yOffset + titleBarHeight;
-    maxRowHeight = 0;
+    for (auto& [window, x, y, width, height] : windowPositions) {
+        x += xOffset;
+        y += yOffset + titleBarHeight;
 
-    for (const auto& window : pluginWindows) {
-        CGRect bounds = AXWindow::getBounds(window);
-        if (CGRectIsNull(bounds)) {
-            logger->error("invalid window bounds");
-            return;
-        }
+        logger->info("Setting bounds for window: x=" + std::to_string(x) + 
+                     ", y=" + std::to_string(y) + 
+                     ", width=" + std::to_string(width) + 
+                     ", height=" + std::to_string(height));
 
-        int windowWidth = bounds.size.width;
-        int windowHeight = bounds.size.height;
+        AXWindow::setBounds(window, x, y, width, height);
+        usleep(20000);
+    }
 
-        if (currentX + windowWidth > screenWidth - xOffset) {
-            currentX = xOffset;
-            currentY += maxRowHeight;
-            maxRowHeight = 0;
-        }
-
-        if (currentY + windowHeight > screenHeight - yOffset) {
-            logger->error("no more space");
-            break;
-        }
-
-        AXWindow::setBounds(window, currentX, currentY, windowWidth, windowHeight);
-
-        currentX += windowWidth;
-        maxRowHeight = std::max(maxRowHeight, windowHeight);
+    // Release all window references
+    for (const auto& [window, x, y, width, height] : windowPositions) {
+        CFRelease(window);
     }
 }
 
