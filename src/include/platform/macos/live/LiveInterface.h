@@ -29,8 +29,9 @@ public:
     void setupPluginWindowChangeObserver(std::function<void()> callback) override;
     void removePluginWindowChangeObserver() override;
 
-    void closeFocusedPluginWindow() override;
+    void closeFocusedPlugin() override;
     void closeAllPlugins() override;
+    void openAllPlugins() override;
     void tilePluginWindows() override;
 
 private:

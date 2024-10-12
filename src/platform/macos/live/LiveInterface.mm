@@ -148,12 +148,16 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
     }
 }
 
-void LiveInterface::closeFocusedPluginWindow() {
-    AXInteraction::closeFocusedPluginWindow();
+void LiveInterface::closeFocusedPlugin() {
+    AXInteraction::closeFocusedPlugin();
 }
 
 void LiveInterface::closeAllPlugins() {
     AXInteraction::closeAllPlugins();
+}
+
+void LiveInterface::openAllPlugins() {
+    AXInteraction::openAllPlugins();
 }
 
 // TODO -- if the plugins don't take up the full width or full height, center them
@@ -161,10 +165,13 @@ void LiveInterface::closeAllPlugins() {
 // TODO -- compact tiling (fill in the blank space where possible while keeping order)
 void LiveInterface::tilePluginWindows() {
     AXUIElementRef trackView = AXFinder::getTrackView();
-    std::vector<AXUIElementRef> trackViewDevices = AXFinder::getTrackViewDevices();
+    if (!AXAttribute::isValid(trackView)) {
+        logger->warn("unable to find valid TrackView");
+    }
 
     // find the devices in TrackView and toggle the ones that are enabled
     // to correctly order the plugins reported by Live AX
+    std::vector<AXUIElementRef> trackViewDevices = AXFinder::getTrackViewDevices();
     for (const auto& device : trackViewDevices) {
         CFRetain(device);
         std::vector<AXUIElementRef> checkboxes = AXFinder::getTrackViewDeviceCheckBoxes(device);

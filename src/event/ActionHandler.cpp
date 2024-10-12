@@ -54,12 +54,17 @@ void ActionHandler::initializeActionMap() {
     // NOTE actions must be added here and in Types.h
     actionMap["closeFocusedPlugin"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        liveInterface->closeFocusedPluginWindow();
+        liveInterface->closeFocusedPlugin();
     };
 
     actionMap["closeAllPlugins"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
         liveInterface->closeAllPlugins();
+    };
+
+    actionMap["openAllPlugins"] = [this](const std::optional<std::string>& args) {
+        auto liveInterface = liveInterface_();
+        liveInterface->openAllPlugins();
     };
 
     actionMap["tilePluginWindows"] = [this](const std::optional<std::string>& args) {
@@ -212,11 +217,11 @@ bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
 
     std::unordered_map<EKeyPress, EMacro, EMacroHash> remap = config->getRemap();
 
-    logger->debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
-    logger->debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
-    logger->debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
-    logger->debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
-    logger->debug("searching map for pressed sent: "  + pressedKey.key);
+    //logger->debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
+    //logger->debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
+    //logger->debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
+    //logger->debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
+    //logger->debug("searching map for pressed sent: "  + pressedKey.key);
 
     // key remaps
     auto it = remap.find(pressedKey);

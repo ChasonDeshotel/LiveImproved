@@ -8,6 +8,7 @@ namespace AXCheckBox {
     bool isChecked(AXUIElementRef elem);
 
     bool toggle(AXUIElementRef checkbox);
+    bool toggleOn(AXUIElementRef checkbox);
 
     // for closing and re-opening opened plugin windows
     // so that the plugin window order is correct in

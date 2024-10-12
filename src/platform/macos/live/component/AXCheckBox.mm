@@ -3,6 +3,7 @@
 #import <Foundation/Foundation.h>
 
 #import "LogGlobal.h"
+#import "MacUtils.h"
 
 #import "AXAttribute.h"
 #import "AXCheckBox.h"
@@ -35,7 +36,6 @@ namespace AXCheckBox {
         }
 
         AXError error = AXUIElementPerformAction(checkbox, kAXPressAction);
-
         if (error == kAXErrorSuccess) {
             logger->info("Successfully pressed the checkbox.");
             return true;
@@ -43,6 +43,28 @@ namespace AXCheckBox {
             std::cerr << "Failed to press the checkbox. Error: " << error << std::endl;
             return false;
         }
+    }
+
+    // returns whether it changed or not
+    // -- not the state of isChecked
+    bool toggleOn(AXUIElementRef checkbox) {
+        if (!AXAttribute::isValid(checkbox)) {
+            logger->warn("checkbox is invalid");
+            return false;
+        }
+        if (isChecked(checkbox)) {
+            logger->warn("already on");
+            return false;
+        }
+        AXError error = AXUIElementPerformAction(checkbox, kAXPressAction);
+        if (error == kAXErrorSuccess) {
+            logger->info("Successfully pressed the checkbox.");
+            return true;
+        } else {
+            logger->error("Failed to press the checkbox. Error: " + axError::toString(error));
+            return false;
+        }
+        return false;
     }
 
     // for closing and re-opening opened plugin windows
@@ -53,13 +75,9 @@ namespace AXCheckBox {
             logger->warn("checkbox is invalid");
             return false;
         }
-        if (!isChecked(checkbox)) {
-            logger->warn("not checked - already on");
-            return false;
-        }
         if (isChecked(checkbox)) {
             bool offPress = toggle(checkbox);
-            usleep(20000);
+            usleep(10000);
             bool onPress = toggle(checkbox);
             if (onPress && offPress) {
                 return true;

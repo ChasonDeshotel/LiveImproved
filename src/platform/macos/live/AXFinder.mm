@@ -538,7 +538,7 @@ namespace AXFinder {
             return {};
         }
 
-        std::vector<AXUIElementRef> checkBoxElements;
+        std::vector<AXUIElementRef> foundCheckBoxes;
 
         AXPrinter::printAXTitle(deviceElement);
 
@@ -563,7 +563,7 @@ namespace AXFinder {
                             std::cout << "Found PluginEdit: " << identifierStr << std::endl;
 
                             CFRetain(child);
-                            checkBoxElements.push_back(child);
+                            foundCheckBoxes.push_back(child);
                         }
                     }
                     CFRelease(identifier);
@@ -572,7 +572,7 @@ namespace AXFinder {
 
             CFRelease(children);
 
-            if (!checkBoxElements.empty()) return checkBoxElements;
+            if (!foundCheckBoxes.empty()) return foundCheckBoxes;
         }
 
         std::cerr << "Failed to find the DeviceOn element." << std::endl;

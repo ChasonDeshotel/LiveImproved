@@ -16,8 +16,9 @@ public:
     virtual void setupPluginWindowChangeObserver(std::function<void()> callback) = 0;
     virtual void removePluginWindowChangeObserver() = 0;
 
-    virtual void closeFocusedPluginWindow() = 0;
+    virtual void closeFocusedPlugin() = 0;
     virtual void closeAllPlugins() = 0;
+    virtual void openAllPlugins() = 0;
     virtual void tilePluginWindows() = 0;
 
 protected:

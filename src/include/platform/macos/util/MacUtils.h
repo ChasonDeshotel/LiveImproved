@@ -37,3 +37,44 @@ namespace CFStringUtil {
         }
     }
 }
+
+namespace axError {
+    inline std::string toString(AXError error) {
+        switch (error) {
+            case kAXErrorSuccess:
+                return "kAXErrorSuccess";
+            case kAXErrorFailure:
+                return "kAXErrorFailure";
+            case kAXErrorIllegalArgument:
+                return "kAXErrorIllegalArgument";
+            case kAXErrorInvalidUIElement:
+                return "kAXErrorInvalidUIElement";
+            case kAXErrorInvalidUIElementObserver:
+                return "kAXErrorInvalidUIElementObserver";
+            case kAXErrorCannotComplete:
+                return "kAXErrorCannotComplete";
+            case kAXErrorAttributeUnsupported:
+                return "kAXErrorAttributeUnsupported";
+            case kAXErrorActionUnsupported:
+                return "kAXErrorActionUnsupported";
+            case kAXErrorNotificationUnsupported:
+                return "kAXErrorNotificationUnsupported";
+            case kAXErrorNotImplemented:
+                return "kAXErrorNotImplemented";
+            case kAXErrorNotificationAlreadyRegistered:
+                return "kAXErrorNotificationAlreadyRegistered";
+            case kAXErrorNotificationNotRegistered:
+                return "kAXErrorNotificationNotRegistered";
+            case kAXErrorAPIDisabled:
+                return "kAXErrorAPIDisabled";
+            case kAXErrorNoValue:
+                return "kAXErrorNoValue";
+            case kAXErrorParameterizedAttributeUnsupported:
+                return "kAXErrorParameterizedAttributeUnsupported";
+            case kAXErrorNotEnoughPrecision:
+                return "kAXErrorNotEnoughPrecision";
+            default:
+                return "Unknown AXError";
+        }
+    }
+}
