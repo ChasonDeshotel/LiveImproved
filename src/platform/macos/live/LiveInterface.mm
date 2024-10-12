@@ -208,8 +208,10 @@ void LiveInterface::tilePluginWindows() {
     int screenWidth = screenBounds.size.width;
     int screenHeight = screenBounds.size.height;
 
-    // Calculate the total area of all plugin windows
-    double totalArea = 0;
+    int currentX = 0;
+    int currentY = 0;
+    int maxRowHeight = 0;
+
     for (const auto& window : pluginWindows) {
         CGRect bounds = AXWindow::getBounds(window);
         if (CGRectIsNull(bounds)) {
@@ -217,52 +219,30 @@ void LiveInterface::tilePluginWindows() {
             return;
         }
 
-        totalArea += bounds.size.width * bounds.size.height;
-    }
-
-    // Calculate the scaling factor to fit all windows on the screen
-    //double scaleFactor = std::sqrt((screenWidth * screenHeight) / totalArea);
-    double scaleFactor = 1;
-
-    // Calculate the number of rows and columns
-    int numWindows = static_cast<int>(pluginWindows.size());
-    int numCols = std::ceil(std::sqrt(numWindows));
-    int numRows = std::ceil(static_cast<double>(numWindows) / numCols);
-
-    // Arrange windows
-    int currentX = 0;
-    int currentY = 0;
-    int maxRowHeight = 0;
-
-    for (int i = 0; i < numWindows; ++i) {
-        CGRect originalBounds = AXWindow::getBounds(pluginWindows[i]);
-        if (CGRectIsNull(originalBounds)) {
-            logger->error("invalid bounds");
-            return;
-        }
-        int scaledWidth = std::round(originalBounds.size.width * scaleFactor);
-        int scaledHeight = std::round(originalBounds.size.height * scaleFactor);
+        int windowWidth = bounds.size.width;
+        int windowHeight = bounds.size.height;
 
         // If adding this window would go past the right edge of the screen, move to the next row
-        if (currentX + scaledWidth > screenWidth) {
+        if (currentX + windowWidth > screenWidth) {
             currentX = 0;  // Reset X to the left
             currentY += maxRowHeight;  // Move down to the next row
             maxRowHeight = 0;  // Reset row height for the new row
         }
 
-        // If the next row would go off the screen, break the loop (optional if you want to stop tiling)
-        if (currentY + scaledHeight > screenHeight) {
+        // If the next window doesn't fit vertically, stop arranging
+        if (currentY + windowHeight > screenHeight) {
+            logger->error("no more space");
             break;
         }
 
         // Set the window bounds with the current calculated position
-        AXWindow::setBounds(pluginWindows[i], currentX, currentY, scaledWidth, scaledHeight);
+        AXWindow::setBounds(window, currentX, currentY, windowWidth, windowHeight);
 
         // Move the X position for the next window
-        currentX += scaledWidth;
+        currentX += windowWidth;
 
         // Keep track of the tallest window in the row
-        maxRowHeight = std::max(maxRowHeight, scaledHeight);
+        maxRowHeight = std::max(maxRowHeight, windowHeight);
     }
 }
 
