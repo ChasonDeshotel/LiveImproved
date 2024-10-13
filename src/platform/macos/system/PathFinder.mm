@@ -34,8 +34,18 @@ namespace PathFinder {
         ;
 
         if (!std::filesystem::exists(logFilePath)) {
-            logger->warn("Log file does not exist: " + logFilePath.string());
-            return std::nullopt;
+            logger->warn("Log file does not exist: " + logFilePath.string() + ". Attempting to create it.");
+            try {
+                std::filesystem::create_directories(logFilePath.parent_path());
+                std::ofstream logFile(logFilePath);
+                if (!logFile) {
+                    throw std::runtime_error("Failed to create log file");
+                }
+                logFile.close();
+            } catch (const std::exception& e) {
+                logger->error("Failed to create log file: " + std::string(e.what()));
+                return std::nullopt;
+            }
         }
 
         if (!std::filesystem::is_regular_file(logFilePath)) {
