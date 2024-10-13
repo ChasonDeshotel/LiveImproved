@@ -6,6 +6,46 @@
 #include "PID.h"
 
 namespace PathFinder {
+    std::optional<std::filesystem::path> home() {
+        std::filesystem::path homeDir(getenv("HOME"));
+
+        if (!std::filesystem::exists(homeDir)) {
+            logger->error("Home dir does not exist: " + homeDir.string());
+            return std::nullopt;
+        }
+
+        if (!std::filesystem::is_directory(homeDir)) {
+            logger->error("Home dir is not a directory: " + homeDir.string());
+            return std::nullopt;
+        }
+
+        return std::filesystem::path(homeDir);
+    }
+
+    std::optional<std::filesystem::path> log() {
+        auto homeDir = home();
+        if (!homeDir) {
+            logger->error("Unable to get home directory");
+            return std::nullopt;
+        }
+
+        std::filesystem::path logFilePath = *homeDir
+            / "Scripts" / "Ableton" / "LiveImproved" / "log" / "debug.txt"
+        ;
+
+        if (!std::filesystem::exists(logFilePath)) {
+            logger->warn("Log file does not exist: " + logFilePath.string());
+            return std::nullopt;
+        }
+
+        if (!std::filesystem::is_regular_file(logFilePath)) {
+            logger->error("Log file is not a regular file: " + logFilePath.string());
+            return std::nullopt;
+        }
+
+        return logFilePath;
+    }
+
     std::optional<std::filesystem::path> liveBundle() {
         pid_t pid = PID::getInstance().livePID();
         NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
@@ -46,30 +86,10 @@ namespace PathFinder {
             return std::nullopt;
         }
 
-        if (!std::filesystem::is_directory(binaryPath)) {
-            logger->error("Binary path is not a directory: " + binaryPath.string());
-            return std::nullopt;
-        }
-
         return binaryPath;
     }
 
-    std::optional<std::filesystem::path> home() {
-        std::filesystem::path homeDir(getenv("HOME"));
-
-        if (!std::filesystem::exists(homeDir)) {
-            logger->error("Home dir does not exist: " + homeDir.string());
-            return std::nullopt;
-        }
-
-        if (!std::filesystem::is_directory(homeDir)) {
-            logger->error("Home dir is not a directory: " + homeDir.string());
-            return std::nullopt;
-        }
-
-        return std::filesystem::path(homeDir);
-    }
-
+    // TODO if no home, attempt to create pipes somewhere else
     std::filesystem::path requestPipe() {
         auto homeDir = home();
         if (!homeDir) {
@@ -98,6 +118,7 @@ namespace PathFinder {
         return responsePipePath;
     }
 
+    // TODO default config and make a config file if !configFile
     std::optional<std::filesystem::path> config() {
         auto homeDir = home();
         if (!homeDir) {
@@ -111,6 +132,11 @@ namespace PathFinder {
 
         if (!std::filesystem::exists(configFilePath)) {
             logger->error("Config file path does not exist: " + configFilePath.string());
+            return std::nullopt;
+        }
+
+        if (!std::filesystem::is_regular_file(configFilePath)) {
+            logger->error("Config file is not a regular file: " + configFilePath.string());
             return std::nullopt;
         }
 
@@ -129,14 +155,20 @@ namespace PathFinder {
             / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
 
         if (!std::filesystem::exists(configMenuPath)) {
-            logger->error("Config menu path does not exist: " + configMenuPath.string());
+            logger->error("Menu config file path does not exist: " + configMenuPath.string());
+            return std::nullopt;
+        }
+
+        if (!std::filesystem::is_regular_file(configMenuPath)) {
+            logger->error("Menu config file is not a regular file: " + configMenuPath.string());
             return std::nullopt;
         }
 
         return configMenuPath;
     }
 
-    std::optional<std::filesystem::path> themeFile() {
+    // TODO default theme if !liveTheme
+    std::optional<std::filesystem::path> liveTheme() {
         auto bundlePath = liveBundle();
         if (!bundlePath) {
             logger->error("Unable to get live bundle path");
@@ -148,6 +180,11 @@ namespace PathFinder {
 
         if (!std::filesystem::exists(themeFilePath)) {
             logger->error("Theme file path does not exist: " + themeFilePath.string());
+            return std::nullopt;
+        }
+
+        if (!std::filesystem::is_regular_file(themeFilePath)) {
+            logger->error("Theme file is not a regular file: " + themeFilePath.string());
             return std::nullopt;
         }
 
