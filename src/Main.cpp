@@ -7,7 +7,7 @@
 
 #include "LogGlobal.h"
 #include "LogHandler.h"
-#include "Utils.h"
+#include "PathFinder.h"
 
 #include "DependencyContainer.h"
 #include "PlatformInitializer.h"
@@ -117,13 +117,13 @@ public:
     void onLiveLaunch(int ipcCallDelay) {
         // TODO cheap file exists checks
         std::filesystem::path configFilePath =
-            std::filesystem::path(Utils::getHomeDirectory())
+            std::filesystem::path(PathFinder::home())
             / "Documents" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "config.txt"
         ;
 
         std::filesystem::path configMenuPath =
-            std::filesystem::path(Utils::getHomeDirectory())
+            std::filesystem::path(Path::getHomeDirectory())
             / "Documents" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
         ;
