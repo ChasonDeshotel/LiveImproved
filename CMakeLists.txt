@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.30)
 set(BUILD_TESTING OFF)
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
@@ -18,20 +18,22 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Custom target for running clang-tidy
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # IGNORE windows
-    set(PLATFORM_FILES "windows")
+    set(PLATFORM_IGNORE_TIDY "windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # IGNORE macos
-    set(PLATFORM_FILES "macos")
+    set(PLATFORM_IGNORE_TIDY "macos")
 endif()
-set(TIDY_IGNORE_GREP "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml\\|src/include/juce\\|${PLATFORM_IGNORE_TIDY}")
 
 add_custom_target(
     tidy
     COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-    COMMAND find src -name '*.cpp' -or -name '*.h' |
-    grep -v "${TIDY_IGNORE_GREP}" |
-        xargs -I {} ${CLANG_TIDY_EXE} -p=${CMAKE_BINARY_DIR} '-header-filter=.*\\.(cpp|h)'$ -checks=-*,cppcoreguidelines-*,modernize-* {}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND ${CMAKE_COMMAND}
+        -DCLANG_TIDY_EXE=${CLANG_TIDY_EXE}
+        -DBUILD_DIR=${CMAKE_BINARY_DIR}
+        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -DHOME=$ENV{HOME}
+        -P ${CMAKE_SOURCE_DIR}/run-clang-tidy.cmake
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running clang-tidy on source files"
 )
 # Define CMAKE_CXX_CLANG_TIDY target
@@ -39,12 +41,13 @@ find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
     # sets globally
     #    set(CMAKE_CXX_CLANG_TIDY
-    set_target_properties(tidy PROPERTIES
+    set(CLANG_TIDY_COMMAND
         ${CLANG_TIDY_EXE}
-        -p=${CMAKE_BINARY_DIR}
-        -header-filter=.*\\.(cpp|h)$
-        -checks=-*,cppcoreguidelines-*,modernize-*
+        "-p=${CMAKE_BINARY_DIR}"
+        "--header-filter=.*\\.(cpp|h)$"
+        "--checks=-*,cppcoreguidelines-*,modernize-*"
     )
+    set_target_properties(tidy PROPERTIES COMMAND "${CLANG_TIDY_COMMAND}")
 else()
     message(WARNING "clang-tidy not found. Static analysis will be skipped.")
 endif()
