@@ -1,6 +1,9 @@
 #pragma once
 
 #include <ApplicationServices/ApplicationServices.h>
+#ifdef __OBJC__
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 
 #include <memory>
 #include <functional>
@@ -8,7 +11,6 @@
 #include "Types.h"
 
 #ifdef __OBJC__
-#include <CoreFoundation/CoreFoundation.h>
 @class NSView;
 @class NSWindow;
 @class NSDictionary;

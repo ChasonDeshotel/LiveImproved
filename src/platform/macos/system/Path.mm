@@ -1,19 +1,24 @@
-#import <ApplicationServices/ApplicationServices.h>
+#import <AppKit/AppKit.h>
+#include <filesystem>
 
-std::filesystem::path liveBinaryPath() {
-    pid_t pid = PID::getInstance().livePID();
-    NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-    NSURL *bundleURL = app.bundleURL;
+#include "LogGlobal.h"
+#include "PID.h"
 
-    if (bundleURL) {
-        NSString *nsStringPath = [[bundleURL path] stringByAppendingPathComponent:@"Contents/MacOS"];
-        const char* utf8Path = [nsStringPath UTF8String];
-        std::filesystem::path binaryPath(utf8Path);
+namespace Path {
+    std::filesystem::path liveBinaryPath() {
+        pid_t pid = PID::getInstance().livePID();
+        NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+        NSURL *bundleURL = app.bundleURL;
 
-        return binaryPath;
-    } else {
-        logger->error("unable to get binary path");
+        if (bundleURL) {
+            NSString *nsStringPath = [[bundleURL path] stringByAppendingPathComponent:@"Contents/MacOS"];
+            const char* utf8Path = [nsStringPath UTF8String];
+            std::filesystem::path binaryPath(utf8Path);
+
+            return binaryPath;
+        } else {
+            logger->error("unable to get binary path");
+        }
+        return "";
     }
-    return "";
 }
-
