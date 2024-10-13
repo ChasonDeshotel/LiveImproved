@@ -123,13 +123,14 @@ public:
             return;
         }
 
-        std::filesystem::path themeFilePath =
-            std::filesystem::path("/") / "Applications" / "Ableton Live 12 Suite.app"
-            / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask"
-        ;
+        auto themeFilePath = PathFinder::themeFile();
+        if (!themeFilePath) {
+            logger->error("Failed to get theme file path");
+            return;
+        }
 
         container_.registerFactory<Theme>(
-            [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(themeFilePath); }
+            [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(*themeFilePath); }
             , DependencyContainer::Lifetime::Singleton
         );
 

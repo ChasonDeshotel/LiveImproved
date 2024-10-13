@@ -135,4 +135,22 @@ namespace PathFinder {
 
         return configMenuPath;
     }
+
+    std::optional<std::filesystem::path> themeFile() {
+        auto bundlePath = liveBundle();
+        if (!bundlePath) {
+            logger->error("Unable to get live bundle path");
+            return std::nullopt;
+        }
+
+        std::filesystem::path themeFilePath = *bundlePath
+            / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask";
+
+        if (!std::filesystem::exists(themeFilePath)) {
+            logger->error("Theme file path does not exist: " + themeFilePath.string());
+            return std::nullopt;
+        }
+
+        return themeFilePath;
+    }
 }
