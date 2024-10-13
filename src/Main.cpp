@@ -123,7 +123,7 @@ public:
             return;
         }
 
-        auto themeFilePath = PathFinder::themeFile();
+        auto themeFilePath = PathFinder::liveTheme();
         if (!themeFilePath) {
             logger->error("Failed to get theme file path");
             return;

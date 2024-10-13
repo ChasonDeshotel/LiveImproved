@@ -1,5 +1,7 @@
 #import <AppKit/AppKit.h>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 #include <optional>
 
 #include "LogGlobal.h"
@@ -111,6 +113,7 @@ namespace PathFinder {
             / "Documents" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "lim_request";
 
+        logger->info("\n\npath: " + requestPipePath.generic_string());
         return requestPipePath;
     }
 
@@ -125,6 +128,7 @@ namespace PathFinder {
             / "Documents" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "lim_response";
 
+        logger->info("\n\npath: " + responsePipePath.generic_string());
         return responsePipePath;
     }
 

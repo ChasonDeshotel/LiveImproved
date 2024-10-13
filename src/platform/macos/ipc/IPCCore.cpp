@@ -1,23 +1,27 @@
-#include "IPCCore.h"
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include <cstring>
 #include <cstring>
 #include <dispatch/dispatch.h>
-#include <queue>
-#include <map>
-#include <thread>
-#include <sstream>
 #include <errno.h>
-#include <cstring>
+#include <fcntl.h>
+#include <map>
+#include <queue>
+#include <sstream>
+#include <sys/stat.h>
+#include <thread>
+#include <unistd.h>
 
 #include "LogGlobal.h"
+#include "PathFinder.h"
+
 #include "IPCCore.h"
 
 IPCCore::IPCCore()
     : IIPCCore()
     , isProcessingRequest_(false)
-{}
+{
+    requestPipePath_  = PathFinder::requestPipe().generic_string();
+    responsePipePath_ = PathFinder::responsePipe().generic_string();
+}
 
 IPCCore::~IPCCore() {
     for (auto& pipe : pipes_) {
@@ -26,8 +30,9 @@ IPCCore::~IPCCore() {
         }
         unlink(pipe.first.c_str());
     }
-    std::filesystem::remove(requestPipePath);
-    std::filesystem::remove(responsePipePath);
+
+    std::filesystem::remove(requestPipePath_);
+    std::filesystem::remove(responsePipePath_);
 }
 
 bool IPCCore::init() {
@@ -72,13 +77,13 @@ bool IPCCore::init() {
 }
 
 void IPCCore::readyReadPipe() {
-    logger->debug("Setting up read pipe");
+    logger->debug("Setting up read pipe. Path: " + responsePipePath_);
     for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
             logger->warn("IPC read initialization cancelled.");
             return;
         }
-        if (openPipeForRead(responsePipePath, true)) {
+        if (openPipeForRead(responsePipePath_, true)) {
             logger->info("Response pipe successfully opened for reading");
             readPipeReady_.store(true, std::memory_order_release);
             initCv_.notify_one();
@@ -92,13 +97,13 @@ void IPCCore::readyReadPipe() {
 }
 
 void IPCCore::readyWritePipe() {
-    logger->debug("Setting up write pipe");
+    logger->debug("Setting up write pipe. Path: " + requestPipePath_);
     for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
             logger->warn("IPC write initialization cancelled.");
             return;
         }
-        if (openPipeForWrite(requestPipePath, true)) {
+        if (openPipeForWrite(requestPipePath_, true)) {
             logger->info("Request pipe successfully opened for writing");
             writePipeReady_.store(true, std::memory_order_release);
             initCv_.notify_one();
@@ -118,28 +123,28 @@ void IPCCore::closeAndDeletePipes() {
             pipeFD = -1;  // Reset the file descriptor after closing
         }
     }
-    std::filesystem::remove(requestPipePath);
-    std::filesystem::remove(responsePipePath);
+    std::filesystem::remove(requestPipePath_);
+    std::filesystem::remove(responsePipePath_);
 }
 
 void IPCCore::resetResponsePipe() {
     logger->debug("Resetting response pipe");
-    close(pipes_[responsePipePath]);
-    pipes_[responsePipePath] = -1;
-    if (!openPipeForRead(responsePipePath, true)) {
+    close(pipes_[responsePipePath_]);
+    pipes_[responsePipePath_] = -1;
+    if (!openPipeForRead(responsePipePath_, true)) {
         logger->error("Failed to reopen response pipe");
     } else {
         logger->info("Response pipe reopened successfully");
     }
 }
 
-void IPCCore::removePipeIfExists(const std::string& pipe_name) {
-    if (access(pipe_name.c_str(), F_OK) != -1) {
+void IPCCore::removePipeIfExists(const std::string& pipeName) {
+    if (access(pipeName.c_str(), F_OK) != -1) {
         // File exists, so remove it
-        if (unlink(pipe_name.c_str()) == 0) {
-            logger->debug("Removed existing pipe: " + pipe_name);
+        if (unlink(pipeName.c_str()) == 0) {
+            logger->debug("Removed existing pipe: " + pipeName);
         } else {
-            logger->error("Failed to remove existing pipe: " + pipe_name + " - " + strerror(errno));
+            logger->error("Failed to remove existing pipe: " + pipeName + " - " + strerror(errno));
         }
     }
 }
@@ -151,7 +156,7 @@ void IPCCore::createReadPipe() {
             logger->info("IPC read pipe creation cancelled.");
             return;
         }
-        if (createPipe(responsePipePath)) {
+        if (createPipe(responsePipePath_)) {
             logger->info("Response pipe successfully created");
             readPipeCreated_ = true;
             createPipesCv_.notify_one();
@@ -170,7 +175,7 @@ void IPCCore::createWritePipe() {
             logger->info("IPC write pipe creation cancelled.");
             return;
         }
-        if (createPipe(requestPipePath)) {
+        if (createPipe(requestPipePath_)) {
             logger->info("Request pipe successfully created");
             writePipeCreated_ = true;
             createPipesCv_.notify_one();
@@ -182,9 +187,10 @@ void IPCCore::createWritePipe() {
     logger->error("Max attempts reached for creating request pipe");
 }
 
-bool IPCCore::createPipe(const std::string& pipe_name) {
-    // Extract the directory path from the pipe_name
-    std::string directory = pipe_name.substr(0, pipe_name.find_last_of('/'));
+bool IPCCore::createPipe(const std::string& pipeName) {
+    // Extract the directory path from the pipeName
+    logger->debug("pipe name: " + pipeName);
+    std::string directory = pipeName.substr(0, pipeName.find_last_of('/'));
 
     // Check if the directory exists, and create it if it doesn't
     struct stat st;
@@ -196,53 +202,53 @@ bool IPCCore::createPipe(const std::string& pipe_name) {
     }
 
     // Now create the pipe
-    if (mkfifo(pipe_name.c_str(), 0666) == -1) {
+    if (mkfifo(pipeName.c_str(), 0666) == -1) {
         if (errno == EEXIST) {
-            logger->warn("Pipe already exists: " + pipe_name);
+            logger->warn("Pipe already exists: " + pipeName);
         } else {
-            logger->error("Failed to create named pipe: " + pipe_name + " - " + strerror(errno));
+            logger->error("Failed to create named pipe: " + pipeName + " - " + strerror(errno));
             return false;
         }
     } else {
-        logger->debug("Pipe created: " + pipe_name);
+        logger->debug("Pipe created: " + pipeName);
     }
 
     // Init file descriptor -- indicates pipe has not yet been opened
-    pipes_[pipe_name] = -1;
+    pipes_[pipeName] = -1;
     return true;
 }
 
-bool IPCCore::openPipeForWrite(const std::string& pipe_name, bool non_blocking) {
+bool IPCCore::openPipeForWrite(const std::string& pipeName, bool nonBlocking) {
     int flags = O_WRONLY;
-    if (non_blocking) {
+    if (nonBlocking) {
         flags |= O_NONBLOCK;
     }
 
-    int fd = open(pipe_name.c_str(), flags);
+    int fd = open(pipeName.c_str(), flags);
     if (fd == -1) {
-        logger->error("Failed to open pipe for writing: " + pipe_name + " - " + strerror(errno));
+        logger->error("Failed to open pipe for writing: " + pipeName + " - " + strerror(errno));
         return false;
     }
 
-    pipes_[pipe_name] = fd;
-    logger->debug("Pipe opened for writing: " + pipe_name);
+    pipes_[pipeName] = fd;
+    logger->debug("Pipe opened for writing: " + pipeName);
     return true;
 }
 
-bool IPCCore::openPipeForRead(const std::string& pipe_name, bool non_blocking) {
+bool IPCCore::openPipeForRead(const std::string& pipeName, bool nonBlocking) {
     int flags = O_RDONLY;
-    if (non_blocking) {
+    if (nonBlocking) {
         flags |= O_NONBLOCK;
     }
 
-    int fd = open(pipe_name.c_str(), flags);
+    int fd = open(pipeName.c_str(), flags);
     if (fd == -1) {
-        logger->error("Failed to open pipe for reading: " + pipe_name + " - " + strerror(errno));
+        logger->error("Failed to open pipe for reading: " + pipeName + " - " + strerror(errno));
         return false;
     }
 
-    pipes_[pipe_name] = fd;
-    logger->info("Pipe opened for reading: " + pipe_name);
+    pipes_[pipeName] = fd;
+    logger->info("Pipe opened for reading: " + pipeName);
     return true;
 }
 
@@ -320,17 +326,17 @@ void IPCCore::processNextRequest() {
 
 bool IPCCore::writeRequestInternal(const std::string& message, ResponseCallback callback) {
 	// Check if the pipe is already open for writing
-	if (pipes_[requestPipePath] == -1) {
-		if (!openPipeForWrite(requestPipePath, true)) {  // Open in non-blocking mode
+	if (pipes_[requestPipePath_] == -1) {
+		if (!openPipeForWrite(requestPipePath_, true)) {  // Open in non-blocking mode
 			return false;
 		}
 	}
-	int fd = pipes_[requestPipePath];
+	int fd = pipes_[requestPipePath_];
 	if (fd == -1) {
-		logger->error("Request pipe not opened for writing: " + requestPipePath);
+		logger->error("Request pipe not opened for writing: " + requestPipePath_);
 		return false;
 	}
-	drainPipe(pipes_[responsePipePath]);
+	drainPipe(pipes_[responsePipePath_]);
 
     uint64_t id = nextRequestId_++;
 
@@ -347,12 +353,12 @@ bool IPCCore::writeRequestInternal(const std::string& message, ResponseCallback 
 
 	ssize_t result = write(fd, formattedRequest.c_str(), formattedRequest.length());
 
-    ssize_t bytesWritten = write(pipes_[requestPipePath], formattedRequest.c_str(), formattedRequest.length());
+    ssize_t bytesWritten = write(pipes_[requestPipePath_], formattedRequest.c_str(), formattedRequest.length());
 	if (bytesWritten == -1) {
 		if (errno == EAGAIN) {
 			logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
 		} else {
-			logger->error("Failed to write to request pipe: " + requestPipePath + " - " + strerror(errno));
+			logger->error("Failed to write to request pipe: " + requestPipePath_ + " - " + strerror(errno));
 		}
 		return false;
 	}
@@ -386,14 +392,14 @@ void IPCCore::drainPipe(int fd) {
 std::string IPCCore::readResponse(ResponseCallback callback) {
     logger->debug("IPCCore::readResponse() called");
 
-    int fd = pipes_[responsePipePath];
+    int fd = pipes_[responsePipePath_];
 
     if (fd == -1) {
         logger->error("Response pipe is not open for reading.");
-        if (!openPipeForRead(responsePipePath, true)) {  // Open in non-blocking mode
+        if (!openPipeForRead(responsePipePath_, true)) {  // Open in non-blocking mode
             return "";
         }
-        fd = pipes_[responsePipePath];  // Reassign fd after reopening the pipe
+        fd = pipes_[responsePipePath_];  // Reassign fd after reopening the pipe
     }
 
     const std::string startMarker = "START_";
@@ -500,7 +506,7 @@ std::string IPCCore::readResponse(ResponseCallback callback) {
 
     logger->debug("Total bytes read: " + std::to_string(totalBytesRead - endMarker.size()));
 
-    logger->debug("Message read from response pipe: " + responsePipePath);
+    logger->debug("Message read from response pipe: " + responsePipePath_);
     if (message.length() > 100) {
         logger->debug("Message truncated to 100 characters");
         logger->debug("Message: " + message.substr(0, 100));

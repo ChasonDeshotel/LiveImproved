@@ -9,7 +9,6 @@ namespace PathFinder {
     std::optional<std::filesystem::path> liveBinary();
     std::optional<std::filesystem::path> liveThemes();
     std::optional<std::filesystem::path> liveTheme();
-    std::optional<std::filesystem::path> themeFile();
     std::optional<std::filesystem::path> config();
     std::optional<std::filesystem::path> configMenu();
 

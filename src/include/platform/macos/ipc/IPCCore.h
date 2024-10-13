@@ -2,16 +2,11 @@
 
 #include <atomic>
 #include <map>
-#include <string>
-#include <filesystem>
-#include <string>
+#include <mutex>
 #include <queue>
+#include <string>
 
-#include "Utils.h"
 #include "IIPCCore.h"
-
-class ApplicationManager;
-class IPluginManager;
 
 class IPCCore : public IIPCCore {
 public:
@@ -73,26 +68,14 @@ private:
 
     void resetResponsePipe();
 
-    std::filesystem::path requestPipeFilePath =
-        std::filesystem::path(Utils::getHomeDirectory())
-        / "Documents" / "Ableton" / "User Library"
-        / "Remote Scripts" / "LiveImproved" / "lim_request"
-    ;
-    std::filesystem::path responsePipeFilePath =
-        std::filesystem::path(Utils::getHomeDirectory())
-        / "Documents" / "Ableton" / "User Library"
-        / "Remote Scripts" / "LiveImproved" / "lim_response"
-    ;
-
-    std::string requestPipePath = requestPipeFilePath.generic_string();
-    std::string responsePipePath = responsePipeFilePath.generic_string();
+    std::string requestPipePath_;
+    std::string responsePipePath_;
 
     std::map<std::string, int> pipes_;
 
-    void removePipeIfExists(const std::string& pipe_name);
+    void removePipeIfExists(const std::string& pipeName);
 
-    bool createPipe(const std::string& pipe_name);
-    bool openPipeForWrite(const std::string& pipe_name, bool non_blocking = false);
-    bool openPipeForRead(const std::string& pipe_name, bool non_blocking = false);
-
+    bool createPipe(const std::string& pipeName);
+    bool openPipeForWrite(const std::string& pipeName, bool nonBlocking = false);
+    bool openPipeForRead(const std::string& pipeName, bool nonBlocking = false);
 };

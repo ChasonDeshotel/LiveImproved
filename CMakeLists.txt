@@ -203,7 +203,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         src/platform/macos/live/AXWindow.mm
         src/platform/macos/live/LiveInterface.mm
         src/platform/macos/live/component/AXCheckBox.mm
-        src/platform/macos/system/Path.mm
+        src/platform/macos/system/PathFinder.mm
         src/platform/macos/system/PID.mm
     )
     list(APPEND SRC_CPP

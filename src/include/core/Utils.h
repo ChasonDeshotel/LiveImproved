@@ -1,26 +1,10 @@
 #pragma once
 
 #include <sstream>
-#include <filesystem>
 #include <algorithm>
 #include <cctype>
-#include <locale>
 
 namespace Utils {
-    static std::filesystem::path getHomeDirectory() {
-        #ifdef _WIN32
-            const char* homeDir = getenv("USERPROFILE");
-        #else
-            const char* homeDir = getenv("HOME");
-        #endif
-
-        if (!homeDir) {
-            throw std::runtime_error("Could not find the home directory.");
-        }
-
-        return std::filesystem::path(homeDir);
-    }
-
     inline std::vector<std::string> split(const std::string& str, char delimiter) {
         std::vector<std::string> tokens;
         std::stringstream ss(str);
