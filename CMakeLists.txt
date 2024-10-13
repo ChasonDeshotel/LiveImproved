@@ -17,9 +17,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Custom target for running clang-tidy
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(PLATFORM_FILES "platform/windows")
+    # IGNORE windows
+    set(PLATFORM_FILES "windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(PLATFORM_FILES "platform/macos")
+    # IGNORE macos
+    set(PLATFORM_FILES "macos")
 endif()
 set(TIDY_IGNORE_GREP "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml\\|src/include/juce\\|${PLATFORM_IGNORE_TIDY}")
 
