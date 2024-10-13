@@ -138,6 +138,7 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src/include/exception
     ${CMAKE_SOURCE_DIR}/src/include/gui
     ${CMAKE_SOURCE_DIR}/src/include/ipc
+    ${CMAKE_SOURCE_DIR}/src/include/system
 )
 
 target_include_directories(common_libs INTERFACE ${COMMON_INCLUDE_DIRS})
@@ -162,6 +163,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/ipc
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/live
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/live/component
+        ${CMAKE_SOURCE_DIR}/src/include/platform/macos/system
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/util
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -201,6 +203,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         src/platform/macos/live/AXWindow.mm
         src/platform/macos/live/LiveInterface.mm
         src/platform/macos/live/component/AXCheckBox.mm
+        src/platform/macos/system/Path.mm
         src/platform/macos/system/PID.mm
     )
     list(APPEND SRC_CPP

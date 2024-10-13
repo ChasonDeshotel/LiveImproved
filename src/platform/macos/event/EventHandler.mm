@@ -117,23 +117,6 @@ void EventHandler::focusLive() {
     EventHandler::focusApplication(PID::getInstance().livePID());
 }
 
-std::filesystem::path liveBinaryPath() {
-    pid_t pid = PID::getInstance().livePID();
-    NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-    NSURL *bundleURL = app.bundleURL;
-
-    if (bundleURL) {
-        NSString *nsStringPath = [[bundleURL path] stringByAppendingPathComponent:@"Contents/MacOS"];
-        const char* utf8Path = [nsStringPath UTF8String];
-        std::filesystem::path binaryPath(utf8Path);
-
-        return binaryPath;
-    } else {
-        logger->error("unable to get binary path");
-    }
-    return "";
-}
-
 void EventHandler::focusApplication(pid_t pid) {
     NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     
