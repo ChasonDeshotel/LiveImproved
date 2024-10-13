@@ -97,4 +97,42 @@ namespace PathFinder {
 
         return responsePipePath;
     }
+
+    std::optional<std::filesystem::path> configFilePath() {
+        auto homeDir = home();
+        if (!homeDir) {
+            logger->error("Unable to get home directory");
+            return std::nullopt;
+        }
+
+        std::filesystem::path configPath = *homeDir
+            / "Documents" / "Ableton" / "User Library"
+            / "Remote Scripts" / "LiveImproved" / "config.txt";
+
+        if (!std::filesystem::exists(configPath)) {
+            logger->error("Config file path does not exist: " + configPath.string());
+            return std::nullopt;
+        }
+
+        return configPath;
+    }
+
+    std::optional<std::filesystem::path> configMenuPath() {
+        auto homeDir = home();
+        if (!homeDir) {
+            logger->error("Unable to get home directory");
+            return std::nullopt;
+        }
+
+        std::filesystem::path configMenuPath = *homeDir
+            / "Documents" / "Ableton" / "User Library"
+            / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
+
+        if (!std::filesystem::exists(configMenuPath)) {
+            logger->error("Config menu path does not exist: " + configMenuPath.string());
+            return std::nullopt;
+        }
+
+        return configMenuPath;
+    }
 }

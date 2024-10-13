@@ -115,18 +115,13 @@ public:
     }
 
     void onLiveLaunch(int ipcCallDelay) {
-        // TODO cheap file exists checks
-        std::filesystem::path configFilePath =
-            std::filesystem::path(PathFinder::home())
-            / "Documents" / "Ableton" / "User Library"
-            / "Remote Scripts" / "LiveImproved" / "config.txt"
-        ;
+        auto configFilePath = PathFinder::configFilePath();
+        auto configMenuPath = PathFinder::configMenuPath();
 
-        std::filesystem::path configMenuPath =
-            std::filesystem::path(Path::getHomeDirectory())
-            / "Documents" / "Ableton" / "User Library"
-            / "Remote Scripts" / "LiveImproved" / "config-menu.txt"
-        ;
+        if (!configFilePath || !configMenuPath) {
+            logger->error("Failed to get config file paths");
+            return;
+        }
 
         std::filesystem::path themeFilePath =
             std::filesystem::path("/") / "Applications" / "Ableton Live 12 Suite.app"
@@ -148,12 +143,12 @@ public:
         );
 
         container_.registerFactory<ConfigManager>(
-            [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(configFilePath); }
+            [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(*configFilePath); }
             , DependencyContainer::Lifetime::Singleton
         );
 
         container_.registerFactory<ConfigMenu>(
-            [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(configMenuPath); }
+            [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(*configMenuPath); }
             , DependencyContainer::Lifetime::Singleton
         );
 
