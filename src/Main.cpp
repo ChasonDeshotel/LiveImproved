@@ -115,8 +115,8 @@ public:
     }
 
     void onLiveLaunch(int ipcCallDelay) {
-        auto configFilePath = PathFinder::configFilePath();
-        auto configMenuPath = PathFinder::configMenuPath();
+        auto configFilePath = PathFinder::config();
+        auto configMenuPath = PathFinder::configMenu();
 
         if (!configFilePath || !configMenuPath) {
             logger->error("Failed to get config file paths");
