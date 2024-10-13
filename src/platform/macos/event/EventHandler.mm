@@ -2,26 +2,25 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
-#include <functional>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <objc/runtime.h>
 #include <chrono>
-#include <optional>
-#include <memory>
+#include <fstream>
 #include <functional>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <objc/runtime.h>
+#include <optional>
+#include <string>
 #include <unistd.h>
 
-#include "EventHandler.h"
-// TODO
 #include "LogGlobal.h"
+#include "MacUtils.h"
 
+#include "EventHandler.h"
 #include "IActionHandler.h"
+#include "LiveInterface.h"
 #include "PID.h"
 #include "WindowManager.h"
-
-#include "LiveInterface.h"
 
 // TODO: unsuckify this
 // TODO: build out the rest of the map and put it in... somewhere else
@@ -116,6 +115,23 @@ void EventHandler::focusLim() {
 
 void EventHandler::focusLive() {
     EventHandler::focusApplication(PID::getInstance().livePID());
+}
+
+std::filesystem::path liveBinaryPath() {
+    pid_t pid = PID::getInstance().livePID();
+    NSRunningApplication *app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+    NSURL *bundleURL = app.bundleURL;
+
+    if (bundleURL) {
+        NSString *nsStringPath = [[bundleURL path] stringByAppendingPathComponent:@"Contents/MacOS"];
+        const char* utf8Path = [nsStringPath UTF8String];
+        std::filesystem::path binaryPath(utf8Path);
+
+        return binaryPath;
+    } else {
+        logger->error("unable to get binary path");
+    }
+    return "";
 }
 
 void EventHandler::focusApplication(pid_t pid) {
