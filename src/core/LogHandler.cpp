@@ -18,7 +18,7 @@ LogHandler::LogHandler()
         logPath = "C:\\Users\\Billy Maizere\\source\\repos\\LiveImproved\\log.txt";
 		//logPath = "NUL";
     #else
-        logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/logs/log.txt";
+        logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/log/debug.txt";
 		//logPath = "/dev/null";
     #endif
 }
