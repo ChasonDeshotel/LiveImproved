@@ -29,7 +29,7 @@ void PluginManager::refreshPlugins() {
                 plugins_ = responseParser->parsePlugins(response);
                 logger->info("Plugin cache refreshed");
             } else {
-                logger->error("Failed to receive a valid response");
+                logger->error("Failed to receive a valid response. Do you have any VST3, AU, or VST plug-ins installed?");
             }
         } catch (const std::exception &e) {
             throw std::runtime_error("Error fetching plugins: " + std::string(e.what()));

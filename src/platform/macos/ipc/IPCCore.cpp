@@ -448,7 +448,7 @@ std::string IPCCore::readResponse(ResponseCallback callback) {
     header[HEADER_SIZE] = '\0';  // Null-terminate the header string
     logger->debug("Full header received: " + std::string(header));
 
-    // Convert the header to an integer representing the message size
+    // size_t instead of int because comparisons
     size_t messageSize;
     try {
         // Extract the response size (last 8 characters of the header)
@@ -464,7 +464,8 @@ std::string IPCCore::readResponse(ResponseCallback callback) {
 
     logger->debug("Message size to read: " + std::to_string(messageSize));
 
-    std::string message;
+    // init to empty string for callbacks expecting a string arg
+    std::string message = "";
     size_t totalBytesRead = 0;
     const size_t bufferSize = 8192;
     char buffer[bufferSize];
@@ -487,7 +488,7 @@ std::string IPCCore::readResponse(ResponseCallback callback) {
         totalBytesRead += bytesRead;
         logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
-        // Check if the end marker is present in the accumulated message
+        // check for end marker in the accumulated message
         if (message.size() >= endMarker.size()) {
             if (message.compare(message.size() - endMarker.size(), endMarker.size(), endMarker) == 0) {
                 logger->debug("End of message marker found.");
