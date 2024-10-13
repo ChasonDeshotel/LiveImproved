@@ -16,9 +16,9 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Custom target for running clang-tidy
-if(APPLE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(PLATFORM_FILES "platform/windows")
-elseif(WIN32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(PLATFORM_FILES "platform/macos")
 endif()
 set(TIDY_IGNORE_GREP "lib/JUCE\\|lib/yaml-cpp\\|lib/harfbuzz\\|lib/pugixml\\|src/include/juce\\|${PLATFORM_IGNORE_TIDY}")
@@ -53,7 +53,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(APPLE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	set(CMAKE_OBJCXX_FLAGS "${CMAKE_OBJCXX_FLAGS} -ObjC++")
 endif()
 
@@ -119,7 +119,7 @@ if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
         add_custom_command(TARGET LiveImproved POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/LICENSE
-            ${TARGET_BUNDLE_DIR}/Contents/>LICENSE
+            $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
         )
     endif()
 else()
@@ -153,7 +153,7 @@ if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h")
 endif()
 
-if(APPLE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Including macOS-specific directories")
     target_include_directories(common_libs INTERFACE
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos
@@ -164,7 +164,7 @@ if(APPLE)
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/live/component
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/util
     )
-elseif(WIN32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Including Windows-specific directories")
     target_include_directories(common_libs INTERFACE
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows
@@ -188,7 +188,7 @@ set(SRC_CPP
     src/ipc/ResponseParser.cpp
 )
 
-if(APPLE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(SRC_OBJCXX
         src/platform/macos/event/EventHandler.mm
         src/platform/macos/event/KeySender.mm
@@ -207,7 +207,7 @@ if(APPLE)
         src/platform/macos/ipc/IPCCore.cpp
     )
 
-elseif(WIN32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     list(APPEND SRC_CPP
         src/platform/windows/event/EventHandler.cpp
         src/platform/windows/event/KeySender.cpp
@@ -218,38 +218,49 @@ elseif(WIN32)
     )
 endif()
 
-if(APPLE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	# Add the C++ and Objective-C++ files to the target
 	target_sources(LiveImproved
 	    PRIVATE
 		${SRC_CPP}
 		${SRC_OBJCXX}
 	)
-elseif(WIN32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(LiveImproved
 	    PRIVATE
 		${SRC_CPP}
 	)
 endif()
 
-if(APPLE)
-	link_directories(/usr/local/Cellar/yaml-cpp/0.8.0/lib)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # Set the library paths based on the architecture
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+        link_directories(/usr/local/Cellar/yaml-cpp/0.8.0/lib)
+        link_directories(/usr/local/Cellar/harfbuzz/9.0.0/lib)
+        set(HARFBUZZ_LIB /usr/local/Cellar/harfbuzz/9.0.0/lib/libharfbuzz.a)
+        set(YAML_CPP_LIB /usr/local/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
+    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        link_directories(/opt/homebrew/Cellar/yaml-cpp/0.8.0/lib)
+        link_directories(/opt/homebrew/Cellar/harfbuzz/9.0.0/lib)
+        set(HARFBUZZ_LIB /opt/homebrew/Cellar/harfbuzz/9.0.0/lib/libharfbuzz.a)
+        set(YAML_CPP_LIB /opt/homebrew/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
+    endif()
 
-	# Link frameworks (macOS specific)
-	target_link_libraries(LiveImproved
-	    PRIVATE
-		/usr/local/Cellar/harfbuzz/9.0.0/lib/libharfbuzz.a
-		/usr/local/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib
-		"-framework Cocoa"
-		"-framework CoreFoundation"
-		"-framework CoreGraphics"
-		"-framework ApplicationServices"
-		"-framework CoreVideo"
-		"-framework IOKit"
-		"-framework CoreImage"
-		"-framework Security"
-		"-framework QuartzCore"
-	)
+    # Link frameworks and libraries
+    target_link_libraries(LiveImproved
+        PRIVATE
+        ${HARFBUZZ_LIB}
+        ${YAML_CPP_LIB}
+        "-framework Cocoa"
+        "-framework CoreFoundation"
+        "-framework CoreGraphics"
+        "-framework ApplicationServices"
+        "-framework CoreVideo"
+        "-framework IOKit"
+        "-framework CoreImage"
+        "-framework Security"
+        "-framework QuartzCore"
+    )
 
 	set_target_properties(LiveImproved PROPERTIES
 	    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
@@ -268,7 +279,7 @@ if(APPLE)
             $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
         )
     endif()
-elseif(WIN32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(LiveImproved
         PRIVATE
             user32.lib
