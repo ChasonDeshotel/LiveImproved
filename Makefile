@@ -38,7 +38,7 @@ run_tests: configure-tests
 		cd $(CLI_BUILD_DIR) && ctest -R $(TEST) --output-on-failure -v; \
 	fi
 
-run: build_tests
+run: configure build
 	@./build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
 clean:
