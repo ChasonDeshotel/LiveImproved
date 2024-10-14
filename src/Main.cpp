@@ -270,4 +270,6 @@ private:
     std::unique_ptr<LimLookAndFeel> limLookAndFeel_;
 };
 
+// NOLINTBEGIN
 START_JUCE_APPLICATION(JuceApp)
+// NOLINTEND
