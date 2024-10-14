@@ -1,0 +1,4 @@
+Checks: '-*,cppcoreguidelines-*,modernize-*,-modernize-use-trailing-return-type'
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*\.(cpp|h)$'
+FormatStyle: file
