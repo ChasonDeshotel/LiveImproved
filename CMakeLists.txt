@@ -26,6 +26,7 @@ if(CLANG_TIDY_EXE)
             -DBUILD_DIR=${CMAKE_BINARY_DIR}
             -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
             -DHOME=$ENV{HOME}
+            -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
             -P ${CMAKE_SOURCE_DIR}/run-clang-tidy.cmake
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Running clang-tidy on source files"

@@ -8,7 +8,6 @@ message(STATUS "HOME: ${HOME}")
 file(GLOB_RECURSE ALL_SOURCE_FILES
     ${SOURCE_DIR}/src/*.cpp
     ${SOURCE_DIR}/src/*.h
-    ${SOURCE_DIR}/src/*.mm
 )
 
 list(FILTER ALL_SOURCE_FILES EXCLUDE REGEX ".*/lib/.*")
