@@ -5,6 +5,7 @@
 
 namespace PathFinder {
     std::optional<std::filesystem::path> home();
+    std::optional<std::filesystem::path> log();
     std::optional<std::filesystem::path> liveBundle();
     std::optional<std::filesystem::path> liveBinary();
     std::optional<std::filesystem::path> liveThemes();

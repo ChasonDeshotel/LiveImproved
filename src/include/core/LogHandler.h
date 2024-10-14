@@ -1,8 +1,9 @@
 #pragma once
 
-#include <string>
 #include <fstream>
 #include <mutex>
+#include <optional>
+#include <string>
 
 #include "Types.h"
 #include "ILogHandler.h"
@@ -26,7 +27,7 @@ public:
 private:
 
     std::ofstream logfile;
-    std::string logPath;
+    std::optional<std::filesystem::path> logPath;
     LogLevel currentLogLevel;
     std::mutex logMutex;
 

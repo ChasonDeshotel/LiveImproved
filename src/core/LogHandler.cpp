@@ -2,25 +2,25 @@
 #include <ctime>
 #include <iomanip>
 #include <filesystem>  // C++17
+#include <optional>
 
 #ifndef TEST_BUILD
 #include <JuceHeader.h>
 #endif
 
 #include "LogHandler.h"
+#include "PathFinder.h"
 
 namespace fs = std::filesystem;
 
 LogHandler::LogHandler()
     : ILogHandler()
-    , currentLogLevel(LogLevel::LOG_DEBUG) {
-    #ifdef _WIN32
-        logPath = "C:\\Users\\Billy Maizere\\source\\repos\\LiveImproved\\log.txt";
-		//logPath = "NUL";
-    #else
-        logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/log/debug.txt";
-		//logPath = "/dev/null";
-    #endif
+    , currentLogLevel(LogLevel::LOG_DEBUG)
+    , logPath(std::nullopt) {
+    auto path = PathFinder::log();
+    if (!path) {
+        logPath = path;
+    }
 }
 
 LogHandler::~LogHandler() {
@@ -38,16 +38,19 @@ auto LogHandler::setLogPath(const std::string& path) -> void {
     std::lock_guard<std::mutex> lock(logMutex);
 
     try {
-        logPath = fs::path(path).string();
+        logPath = fs::path(path);
         if (logfile.is_open()) {
             logfile.close();
         }
-        logfile.open(logPath, std::ios_base::app);
-        if (!logfile.is_open()) {
-            std::cerr << "Failed to open log file at: " << logPath << std::endl;
+        if (logPath) {
+            logfile.open(logPath->string(), std::ios_base::app);
+            if (!logfile.is_open()) {
+                std::cerr << "Failed to open log file at: " << logPath->string() << std::endl;
+            }
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Filesystem error: " << e.what() << std::endl;
+        logPath = std::nullopt;
     }
 }
 
@@ -63,8 +66,13 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
         return;
     }
 
+    if (!logPath.has_value()) {
+        std::cerr << logLevelToString(level) << ": " << message << std::endl;
+        return;
+    }
+
     if (!logfile.is_open()) {
-        logfile.open(logPath, std::ios_base::app);
+        logfile.open(logPath->string(), std::ios_base::app);
     }
 
     if (logfile.is_open()) {
@@ -74,7 +82,7 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
         logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
                 << logLevelToString(level) << ": " << message << std::endl;
     } else {
-        std::cerr << "Unable to open log file: " << logPath << std::endl;
+        std::cerr << "Unable to open log file: " << logPath->string() << std::endl;
     }
 }
 
