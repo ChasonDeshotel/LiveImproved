@@ -29,11 +29,10 @@ public:
     DependencyContainer() = default;
     ~DependencyContainer() = default;
 
-    // Delete copy and move constructors and assign operators
-    DependencyContainer(DependencyContainer const&) = delete;
+    DependencyContainer(const DependencyContainer&) = delete;
+    DependencyContainer& operator=(const DependencyContainer&) = delete;
     DependencyContainer(DependencyContainer&&) = delete;
-    auto operator=(DependencyContainer const&) -> DependencyContainer& = delete;
-    auto operator=(DependencyContainer &&) -> DependencyContainer& = delete;
+    DependencyContainer& operator=(DependencyContainer&&) = delete;
 
     enum class Lifetime {
         Transient,
@@ -124,14 +123,14 @@ private:
     auto resolveImpl(std::vector<std::type_index> resolutionStack) -> std::shared_ptr<T> {
         auto typeIndex = std::type_index(typeid(T));
         if (std::find(resolutionStack.begin(), resolutionStack.end(), typeIndex) != resolutionStack.end()) {
-            throw std::runtime_error("Circular dependency detected: " + std::string(typeid(T).name()));
+            throw std::runtime_error(std::string("Circular dependency detected: ") + typeid(T).name());
         }
 
         resolutionStack.push_back(typeIndex);
 
         auto it = factories_.find(typeIndex);
         if (it == factories_.end()) {
-            throw std::runtime_error("Type not registered: " + std::string(typeid(T).name()));
+            throw std::runtime_error(std::string("Type not registered: ") + typeid(T).name());
         }
 
         // get the resolved instance
