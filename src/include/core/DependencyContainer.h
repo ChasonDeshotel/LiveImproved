@@ -26,6 +26,15 @@ private:
 
 class DependencyContainer {
 public:
+    DependencyContainer() = default;
+    ~DependencyContainer() = default;
+
+    // Delete copy and move constructors and assign operators
+    DependencyContainer(DependencyContainer const&) = delete;
+    DependencyContainer(DependencyContainer&&) = delete;
+    auto operator=(DependencyContainer const&) -> DependencyContainer& = delete;
+    auto operator=(DependencyContainer &&) -> DependencyContainer& = delete;
+
     enum class Lifetime {
         Transient,
         Scoped,
@@ -36,12 +45,6 @@ public:
         static DependencyContainer instance;
         return instance;
     }
-
-    // Delete copy and move constructors and assign operators
-    DependencyContainer(DependencyContainer const&) = delete;
-    DependencyContainer(DependencyContainer&&) = delete;
-    auto operator=(DependencyContainer const&) -> DependencyContainer& = delete;
-    auto operator=(DependencyContainer &&) -> DependencyContainer& = delete;
 
     template<typename Interface, typename Impl, typename... Args>
     void registerType(Lifetime lifetime = Lifetime::Transient) {
@@ -136,8 +139,6 @@ private:
 
         resolutionStack.pop_back();
     }
-
-    DependencyContainer() = default;
 
     template<typename T>
     auto resolveArg() -> std::shared_ptr<T> {
