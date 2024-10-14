@@ -30,12 +30,12 @@ public:
     void drainPipe(int fd) override;
     void closeAndDeletePipes() override;
 
-    std::atomic<bool> stopIPC_{false};
     void stopIPC() override {
         stopIPC_ = true;
     }
 
 private:
+    std::atomic<bool> stopIPC_{false};
     static constexpr int MAX_PIPE_CREATION_ATTEMPTS = 100;
     static constexpr std::chrono::milliseconds PIPE_CREATION_RETRY_DELAY{500};
     std::atomic<bool> readPipeCreated_{false};

@@ -7,6 +7,10 @@
 class KeyMapper {
 public:
   KeyMapper();
+  KeyMapper(const KeyMapper &) = default;
+  KeyMapper(KeyMapper &&) = delete;
+  KeyMapper &operator=(const KeyMapper &) = default;
+  KeyMapper &operator=(KeyMapper &&) = delete;
   ~KeyMapper();
 
   // Method to process a keypress string and return a KeyPress object

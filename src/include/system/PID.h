@@ -5,16 +5,16 @@
 
 class PID {
 public:
-    static PID& getInstance();
+    static auto getInstance() -> PID&;
 
     PID(const PID&) = delete;
-    PID& operator=(const PID&) = delete;
+    auto operator=(const PID&) -> PID& = delete;
 
-    pid_t findLivePID();
-    pid_t livePID();
-    pid_t appPID();
+    auto findLivePID() -> pid_t;
+    auto livePID() -> pid_t;
+    auto appPID() -> pid_t;
 
-    PID* livePIDBlocking();
+    auto livePIDBlocking() -> PID*;
 
 private:
     PID();

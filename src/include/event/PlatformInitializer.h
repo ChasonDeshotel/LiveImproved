@@ -2,8 +2,12 @@
 
 class PlatformInitializer {
 public:
-    static void init();
-    static void run();
+  PlatformInitializer(const PlatformInitializer &) = default;
+  PlatformInitializer(PlatformInitializer &&) = delete;
+  PlatformInitializer &operator=(const PlatformInitializer &) = default;
+  PlatformInitializer &operator=(PlatformInitializer &&) = delete;
+  static void init();
+  static void run();
 
 private:
     PlatformInitializer()  = default;

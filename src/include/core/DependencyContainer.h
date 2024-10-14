@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <typeindex>
 #include <stdexcept>
-#include <sstream>
 
 class Scope {
 public:

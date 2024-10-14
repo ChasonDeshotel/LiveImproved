@@ -34,7 +34,7 @@ auto IPCResilienceDecorator::handleError(const std::string& operation, Func retr
     }
 }
 
-void IPCResilienceDecorator::logMessage(const std::string& message, LogLevel level) {
+auto IPCResilienceDecorator::logMessage(const std::string& message, LogLevel level) -> void {
     switch (level) {
         case LogLevel::LOG_DEBUG:
             logger->debug(message);
@@ -55,7 +55,7 @@ void IPCResilienceDecorator::logMessage(const std::string& message, LogLevel lev
     }
 }
 
-bool IPCResilienceDecorator::checkAndReestablishConnection() {
+auto IPCResilienceDecorator::checkAndReestablishConnection() -> bool {
     if (!isInitialized()) {
         auto log = logger;
         log->info("IPC connection lost or not initialized. Attempting to establish...");
@@ -64,7 +64,7 @@ bool IPCResilienceDecorator::checkAndReestablishConnection() {
     return true;
 }
 
-bool IPCResilienceDecorator::init() {
+auto IPCResilienceDecorator::init() -> bool {
     return handleError("init", [this]() {
         if (!instance_) {
             instance_ = ipcFactory_();
@@ -85,30 +85,30 @@ bool IPCResilienceDecorator::init() {
     });
 }
 
-bool IPCResilienceDecorator::isInitialized() const {
+auto IPCResilienceDecorator::isInitialized() const -> bool {
     return instance_ && instance_->isInitialized();
 }
 
-void IPCResilienceDecorator::writeRequest(const std::string& message) {
+auto IPCResilienceDecorator::writeRequest(const std::string& message) -> void {
     handleError("writeRequest", [this, &message]() { instance_->writeRequest(message); });
 }
 
-void IPCResilienceDecorator::writeRequest(const std::string& message, ResponseCallback callback) {
+auto IPCResilienceDecorator::writeRequest(const std::string& message, ResponseCallback callback) -> void {
     handleError("writeRequest", [this, &message, &callback]() { instance_->writeRequest(message, callback); });
 }
 
-std::string IPCResilienceDecorator::readResponse(ResponseCallback callback) {
+auto IPCResilienceDecorator::readResponse(ResponseCallback callback) -> std::string {
     return handleError("readResponse", [this, &callback]() { return instance_->readResponse(callback); });
 }
 
-void IPCResilienceDecorator::drainPipe(int fd) {
+auto IPCResilienceDecorator::drainPipe(int fd) -> void {
     handleError("drainPipe", [this, fd]() { instance_->drainPipe(fd); });
 }
 
-void IPCResilienceDecorator::closeAndDeletePipes() {
+auto IPCResilienceDecorator::closeAndDeletePipes() -> void {
     handleError("closeAndDeletePipes", [this]() { instance_->closeAndDeletePipes(); });
 }
 
-void IPCResilienceDecorator::stopIPC() {
+auto IPCResilienceDecorator::stopIPC() -> void {
     handleError("stopIPC", [this]() { instance_->stopIPC(); });
 }

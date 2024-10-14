@@ -126,7 +126,7 @@ void ActionHandler::executeMacro(const EMacro& macro) {
     }
 }
 
-bool ActionHandler::closeWindows() {
+auto ActionHandler::closeWindows() -> bool {
     auto wm = windowManager_();
     wm->closeWindow("ContextMenu");
     wm->closeWindow("SearchBox");
@@ -134,14 +134,14 @@ bool ActionHandler::closeWindows() {
     return false;
 }
 
-bool ActionHandler::loadItem(int itemIndex) {
+auto ActionHandler::loadItem(int itemIndex) -> bool {
     auto ipc = ipc_();
     ipc->writeRequest("load_item," + std::to_string(itemIndex));
 
     return false;
 }
 
-bool ActionHandler::loadItemByName(const std::string& itemName) {
+auto ActionHandler::loadItemByName(const std::string& itemName) -> bool {
     auto ipc = ipc_();
     auto pluginManager = pluginManager_();
     for (const auto& plugin : pluginManager->getPlugins()) {
@@ -153,7 +153,7 @@ bool ActionHandler::loadItemByName(const std::string& itemName) {
     return false;
 }
 
-void ActionHandler::handleAction(std::string action) {
+auto ActionHandler::handleAction(std::string action) -> void {
     logger->debug("handleAction called");
 
     // Split by ',' to get individual actions
@@ -208,7 +208,7 @@ void ActionHandler::handleAction(std::string action) {
 
 // TODO cross-platform - send flags as another KeyPress object since CGEventFlags
 // doesn't exist on Windows
-bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
+auto ActionHandler::handleKeyEvent(EKeyPress pressedKey) -> bool {
     auto config = configManager_();
     auto wm = windowManager_();
 //    logger->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
@@ -245,7 +245,7 @@ bool ActionHandler::handleKeyEvent(EKeyPress pressedKey) {
     return true;
 }
 
-void ActionHandler::handleDoubleRightClick() {
+auto ActionHandler::handleDoubleRightClick() -> void {
     auto wm = windowManager_();
     // TODO cross-platform
     #ifndef _WIN32

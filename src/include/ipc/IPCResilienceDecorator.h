@@ -10,22 +10,28 @@
 
 class IPCResilienceDecorator : public IIPCCore {
 public:
-    IPCResilienceDecorator(std::function<std::shared_ptr<IIPCCore>()> factory);
-    ~IPCResilienceDecorator() override = default;
+  IPCResilienceDecorator(std::function<std::shared_ptr<IIPCCore>()> factory);
+  ~IPCResilienceDecorator() override = default;
 
-    auto init() -> bool override;
-    [[nodiscard]] auto isInitialized() const -> bool override;
+  IPCResilienceDecorator(const IPCResilienceDecorator &) = delete;
+  IPCResilienceDecorator(IPCResilienceDecorator &&) = delete;
+  IPCResilienceDecorator &operator=(const IPCResilienceDecorator &) = delete;
+  IPCResilienceDecorator &operator=(IPCResilienceDecorator &&) = delete;
 
-    void writeRequest(const std::string& message) override;
-    void writeRequest(const std::string& message, ResponseCallback callback) override;
+  auto init() -> bool override;
+  [[nodiscard]] auto isInitialized() const -> bool override;
 
-    auto readResponse(ResponseCallback callback) -> std::string override;
-    void drainPipe(int fd) override;
-    void closeAndDeletePipes() override;
+  void writeRequest(const std::string &message) override;
+  void writeRequest(const std::string &message,
+                    ResponseCallback callback) override;
 
-    void stopIPC() override;
+  auto readResponse(ResponseCallback callback) -> std::string override;
+  void drainPipe(int fd) override;
+  void closeAndDeletePipes() override;
 
-    auto checkAndReestablishConnection() -> bool;
+  void stopIPC() override;
+
+  auto checkAndReestablishConnection() -> bool;
 
 private:
     std::shared_ptr<IIPCCore> instance_;

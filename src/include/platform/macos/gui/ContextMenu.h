@@ -19,21 +19,24 @@ class WindowManager;
 
 class ContextMenu : public IWindow {
 public:
-    ContextMenu(
-        std::function<std::shared_ptr<ConfigMenu>()> configMenu
-        , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-        , std::function<std::shared_ptr<WindowManager>()> windowManager
-    );
-    ~ContextMenu(); // Define a destructor to clean up the Objective-C object
+  ContextMenu(std::function<std::shared_ptr<ConfigMenu>()> configMenu,
+              std::function<std::shared_ptr<IActionHandler>()> actionHandler,
+              std::function<std::shared_ptr<WindowManager>()> windowManager);
+  ~ContextMenu() override; // Define a destructor to clean up the Objective-C object
 
-    auto getWindowHandle() const -> void* override;
-    void open() override;
-    void close() override;
+  ContextMenu(const ContextMenu &) = delete;
+  ContextMenu(ContextMenu &&) = delete;
+  ContextMenu &operator=(const ContextMenu &) = delete;
+  ContextMenu &operator=(ContextMenu &&) = delete;
 
-    bool isOpen() const;
-    void setIsOpen(bool isOpen);
+  [[nodiscard]] auto getWindowHandle() const -> void * override;
+  void open() override;
+  void close() override;
 
-    void closeMenu();
+  [[nodiscard]] bool isOpen() const;
+  void setIsOpen(bool isOpen);
+
+  void closeMenu();
 
 private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;

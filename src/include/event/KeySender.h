@@ -5,6 +5,8 @@
 class KeySender {
 public:
     KeySender();
+    KeySender(KeySender &&) = delete;
+    KeySender &operator=(KeySender &&) = delete;
     ~KeySender();
 
     static auto getInstance() -> KeySender& {

@@ -11,18 +11,22 @@
 class LogHandler : public ILogHandler {
 public:
     LogHandler();
-    ~LogHandler();
+    LogHandler(const LogHandler &) = delete;
+    LogHandler(LogHandler &&) = delete;
+    LogHandler &operator=(const LogHandler &) = delete;
+    LogHandler &operator=(LogHandler &&) = delete;
+    ~LogHandler() override;
 
     static LogHandler& getInstance();
 
-    void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO);
-    void debug(const std::string& message);
-    void info(const std::string& message);
-    void warn(const std::string& message);
-    void error(const std::string& message);
+    void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO) override;
+    void debug(const std::string& message) override;
+    void info(const std::string& message) override;
+    void warn(const std::string& message) override;
+    void error(const std::string& message) override;
 
     void setLogPath(const std::string& path);
-    void setLogLevel(LogLevel level);
+    void setLogLevel(LogLevel level) override;
 
 private:
 
@@ -31,6 +35,6 @@ private:
     LogLevel currentLogLevel;
     std::mutex logMutex;
 
-    std::string logLevelToString(LogLevel level);
+    std::string logLevelToString(LogLevel level) override;
 };
 

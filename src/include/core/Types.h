@@ -58,10 +58,10 @@ struct Action {
     Action(std::string actionName, const std::optional<std::string>& args = std::nullopt)
         : actionName(std::move(actionName)), arguments(args) {}
 
-    bool operator==(const Action& other) const {
-    return actionName == other.actionName &&
-           arguments == other.arguments;
-    };
+    auto operator==(const Action& other) const -> bool {
+        return actionName == other.actionName &&
+               arguments == other.arguments;
+    }
     // TODO Placeholder validation function (optional)
 //    void validate() const {
 //        // Add validation logic here if needed later
@@ -73,7 +73,7 @@ struct Action {
 //            }
 //        }
 //    }
-    friend std::ostream& operator<<(std::ostream& os, const Action& action) {
+    friend auto operator<<(std::ostream& os, const Action& action) -> std::ostream& {
         os << "Action(namedAction=" << action.actionName
            << ", arguments=" << action.arguments.value_or("") << ")";
         return os;
@@ -124,15 +124,15 @@ struct EKeyPress {
 
     // determine if two EKeyPress objects are identical
     // (all fields must match)
-    bool operator==(const EKeyPress& other) const {
-    return (ctrl  == other.ctrl  &&
-            alt   == other.alt   &&
-            shift == other.shift &&
-            cmd   == other.cmd   &&
-            key   == other.key   );
+    auto operator==(const EKeyPress& other) const -> bool {
+        return (ctrl  == other.ctrl  &&
+                alt   == other.alt   &&
+                shift == other.shift &&
+                cmd   == other.cmd   &&
+                key   == other.key   );
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const EKeyPress& kp) {
+    friend auto operator<<(std::ostream& os, const EKeyPress& kp) -> std::ostream& {
         os << "EKeyPress(ctrl=" << kp.ctrl
            << ", alt=" << kp.alt
            << ", shift=" << kp.shift
@@ -144,7 +144,8 @@ struct EKeyPress {
 
 struct EMacroHash {
     // boost hashing voodoo
-    std::size_t operator()(const EKeyPress& k) const {
+    // NOLINTBEGIN
+    auto operator()(const EKeyPress& k) const -> std::size_t {
         std::size_t res = 17;
         res = res * 31 + std::hash<bool>()(k.ctrl);
         res = res * 31 + std::hash<bool>()(k.alt);
@@ -153,6 +154,7 @@ struct EMacroHash {
         res = res * 31 + std::hash<std::string>()(k.key);
         return res;
     }
+    // NOLINTEND
 };
 
 struct EMacro {
@@ -166,11 +168,11 @@ struct EMacro {
         steps.emplace_back(action);
     }
 
-    bool operator==(const EMacro& other) const {
+    auto operator==(const EMacro& other) const -> bool {
         return steps == other.steps;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const EMacro& macro) {
+    friend auto operator<<(std::ostream& os, const EMacro& macro) -> std::ostream& {
         os << "EMacro(steps=[";
         for (const auto& step : macro.steps) {
             std::visit([&os](auto&& arg) { os << arg << ", "; }, step);

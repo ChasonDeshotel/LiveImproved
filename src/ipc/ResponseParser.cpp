@@ -10,7 +10,7 @@ ResponseParser::ResponseParser() = default;
 
 ResponseParser::~ResponseParser() = default;
 
-std::vector<Plugin> ResponseParser::parsePlugins(const std::string& input) {
+auto ResponseParser::parsePlugins(const std::string& input) -> std::vector<Plugin> {
     std::vector<Plugin> plugins;
     std::vector<std::string> entries = Utils::split(input, '|');
 
@@ -44,7 +44,7 @@ std::vector<Plugin> ResponseParser::parsePlugins(const std::string& input) {
     return plugins;
 }
 
-std::vector<Plugin> ResponseParser::getUniquePlugins(const std::vector<Plugin>& plugins) {
+auto ResponseParser::getUniquePlugins(const std::vector<Plugin>& plugins) -> std::vector<Plugin> {
     std::unordered_map<std::string, Plugin> uniquePlugins;
     std::unordered_map<std::string, int> typePriority = { {"VST3", 1}, {"AUv2", 2}, {"VST2", 3} };
 
