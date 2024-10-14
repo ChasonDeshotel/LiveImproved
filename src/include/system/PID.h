@@ -8,7 +8,9 @@ public:
     static auto getInstance() -> PID&;
 
     PID(const PID&) = delete;
+    PID(PID&&) noexcept = delete;
     auto operator=(const PID&) -> PID& = delete;
+    auto operator=(PID&&) noexcept -> PID& = delete;
 
     auto findLivePID() -> pid_t;
     auto livePID() -> pid_t;

@@ -33,15 +33,15 @@ Theme::Theme(const std::string& filePath) {
         }
     }
 
-juce::Colour Theme::getControlTextBack() {
+auto Theme::getControlTextBack() -> juce::Colour {
     return getColorValue("ControlTextBack");
 }
 
-juce::Colour Theme::getControlForeground() {
+auto Theme::getControlForeground() -> juce::Colour {
     return getColorValue("ControlForeground");
 }
 
-juce::Colour Theme::getColorValue(const std::string& tagName) {
+auto Theme::getColorValue(const std::string& tagName) -> juce::Colour {
     pugi::xml_node node = doc.child("Ableton").child("Theme").child(tagName.c_str());
     if (node) {
         std::string colorValue = node.attribute("Value").as_string();

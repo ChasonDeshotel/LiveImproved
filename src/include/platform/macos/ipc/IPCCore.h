@@ -15,6 +15,11 @@ public:
     IPCCore();
     ~IPCCore() override;
 
+    IPCCore(const IPCCore &) = delete;
+    IPCCore(IPCCore &&) = delete;
+    IPCCore &operator=(const IPCCore &) = delete;
+    IPCCore &operator=(IPCCore &&) = delete;
+
     bool init() override;
 
     bool isInitialized() const override {

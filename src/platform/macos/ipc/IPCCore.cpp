@@ -35,7 +35,7 @@ IPCCore::~IPCCore() {
     std::filesystem::remove(responsePipePath_);
 }
 
-bool IPCCore::init() {
+auto IPCCore::init() -> bool {
     logger->debug("IPCCore::init() called");
     stopIPC_ = false;
 
@@ -76,7 +76,7 @@ bool IPCCore::init() {
     }
 }
 
-void IPCCore::readyReadPipe() {
+auto IPCCore::readyReadPipe() -> void {
     logger->debug("Setting up read pipe. Path: " + responsePipePath_);
     for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
@@ -96,7 +96,7 @@ void IPCCore::readyReadPipe() {
     return;
 }
 
-void IPCCore::readyWritePipe() {
+auto IPCCore::readyWritePipe() -> void {
     logger->debug("Setting up write pipe. Path: " + requestPipePath_);
     for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
@@ -116,7 +116,7 @@ void IPCCore::readyWritePipe() {
     return;
 }
 
-void IPCCore::closeAndDeletePipes() {
+auto IPCCore::closeAndDeletePipes() -> void {
     for (auto& [pipeName, pipeFD] : pipes_) {
         if (pipeFD != -1) {
             close(pipeFD);
@@ -127,7 +127,7 @@ void IPCCore::closeAndDeletePipes() {
     std::filesystem::remove(responsePipePath_);
 }
 
-void IPCCore::resetResponsePipe() {
+auto IPCCore::resetResponsePipe() -> void {
     logger->debug("Resetting response pipe");
     close(pipes_[responsePipePath_]);
     pipes_[responsePipePath_] = -1;
@@ -138,7 +138,7 @@ void IPCCore::resetResponsePipe() {
     }
 }
 
-void IPCCore::removePipeIfExists(const std::string& pipeName) {
+auto IPCCore::removePipeIfExists(const std::string& pipeName) -> void {
     if (access(pipeName.c_str(), F_OK) != -1) {
         // File exists, so remove it
         if (unlink(pipeName.c_str()) == 0) {
@@ -149,7 +149,7 @@ void IPCCore::removePipeIfExists(const std::string& pipeName) {
     }
 }
 
-void IPCCore::createReadPipe() {
+auto IPCCore::createReadPipe() -> void {
     logger->debug("Creating read pipe");
     for (int attempt = 0; attempt < MAX_PIPE_CREATION_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
@@ -168,7 +168,7 @@ void IPCCore::createReadPipe() {
     logger->error("Max attempts reached for creating response pipe");
 }
 
-void IPCCore::createWritePipe() {
+auto IPCCore::createWritePipe() -> void {
     logger->debug("Creating write pipe");
     for (int attempt = 0; attempt < MAX_PIPE_CREATION_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
@@ -187,7 +187,7 @@ void IPCCore::createWritePipe() {
     logger->error("Max attempts reached for creating request pipe");
 }
 
-bool IPCCore::createPipe(const std::string& pipeName) {
+auto IPCCore::createPipe(const std::string& pipeName) -> bool {
     // Extract the directory path from the pipeName
     logger->debug("pipe name: " + pipeName);
     std::string directory = pipeName.substr(0, pipeName.find_last_of('/'));
@@ -218,7 +218,7 @@ bool IPCCore::createPipe(const std::string& pipeName) {
     return true;
 }
 
-bool IPCCore::openPipeForWrite(const std::string& pipeName, bool nonBlocking) {
+auto IPCCore::openPipeForWrite(const std::string& pipeName, bool nonBlocking) -> bool {
     int flags = O_WRONLY;
     if (nonBlocking) {
         flags |= O_NONBLOCK;
@@ -235,7 +235,7 @@ bool IPCCore::openPipeForWrite(const std::string& pipeName, bool nonBlocking) {
     return true;
 }
 
-bool IPCCore::openPipeForRead(const std::string& pipeName, bool nonBlocking) {
+auto IPCCore::openPipeForRead(const std::string& pipeName, bool nonBlocking) -> bool {
     int flags = O_RDONLY;
     if (nonBlocking) {
         flags |= O_NONBLOCK;
@@ -252,7 +252,7 @@ bool IPCCore::openPipeForRead(const std::string& pipeName, bool nonBlocking) {
     return true;
 }
 
-std::string IPCCore::formatRequest(const std::string& message, uint64_t id) {
+auto IPCCore::formatRequest(const std::string& message, uint64_t id) -> std::string {
     size_t messageLength = message.length();
 
     std::ostringstream idStream;
@@ -270,7 +270,7 @@ std::string IPCCore::formatRequest(const std::string& message, uint64_t id) {
 }
 
 // add request to queue
-void IPCCore::writeRequest(const std::string& message, ResponseCallback callback = [](const std::string&) {}) {
+auto IPCCore::writeRequest(const std::string& message, ResponseCallback callback = [](const std::string&) {}) -> void {
     // the pipe check is called when the request is actually written --
     // this just queues the request. But we shouldn't queue a request
     // if the pipes aren't initialized
@@ -290,7 +290,7 @@ void IPCCore::writeRequest(const std::string& message, ResponseCallback callback
     }
 }
 
-void IPCCore::processNextRequest() {
+auto IPCCore::processNextRequest() -> void {
     std::unique_lock<std::mutex> lock(queueMutex_);
 
     if (stopIPC_) {
@@ -324,7 +324,7 @@ void IPCCore::processNextRequest() {
     }).detach();
 }
 
-bool IPCCore::writeRequestInternal(const std::string& message, ResponseCallback callback) {
+auto IPCCore::writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool {
 	// Check if the pipe is already open for writing
 	if (pipes_[requestPipePath_] == -1) {
 		if (!openPipeForWrite(requestPipePath_, true)) {  // Open in non-blocking mode
@@ -378,7 +378,7 @@ bool IPCCore::writeRequestInternal(const std::string& message, ResponseCallback 
     return true;
 }
 
-void IPCCore::drainPipe(int fd) {
+auto IPCCore::drainPipe(int fd) -> void {
     const size_t bufferSize = 4096;
     char buffer[bufferSize];
 
@@ -389,7 +389,7 @@ void IPCCore::drainPipe(int fd) {
     } while (bytesRead > 0);
 }
 
-std::string IPCCore::readResponse(ResponseCallback callback) {
+auto IPCCore::readResponse(ResponseCallback callback) -> std::string {
     logger->debug("IPCCore::readResponse() called");
 
     int fd = pipes_[responsePipePath_];

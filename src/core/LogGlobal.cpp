@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "LogGlobal.h"
 
 // NOLINTBEGIN
