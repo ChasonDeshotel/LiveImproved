@@ -1,10 +1,11 @@
 #pragma once
 
-#include <memory>
 #include <functional>
-#include <unordered_map>
-#include <typeindex>
+#include <memory>
 #include <stdexcept>
+#include <string>
+#include <typeindex>
+#include <unordered_map>
 
 class Scope {
 public:
