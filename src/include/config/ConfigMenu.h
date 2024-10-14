@@ -13,11 +13,11 @@ public:
     void saveConfig();
 
     void undo();
-    bool canUndo() const;
+    auto canUndo() const -> bool;
 
     void parseLESMenuConfig(const std::filesystem::path& filePath);
 
-    std::vector<MenuItem> getMenuData();
+    auto getMenuData() -> std::vector<MenuItem>;
 
 private:
     std::vector<MenuItem> menuData_;

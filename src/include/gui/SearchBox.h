@@ -116,7 +116,7 @@ public:
 
     void textEditorTextChanged(juce::TextEditor& editor) override;
 
-    void* getWindowHandle() const override;
+    auto getWindowHandle() const -> void* override;
 
 protected:
     // JUCE overrides for layout and input handling

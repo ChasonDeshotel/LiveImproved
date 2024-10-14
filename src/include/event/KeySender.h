@@ -7,7 +7,7 @@ public:
     KeySender();
     ~KeySender();
 
-    static KeySender& getInstance() {
+    static auto getInstance() -> KeySender& {
         static KeySender instance;
         return instance;
     }

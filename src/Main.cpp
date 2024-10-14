@@ -36,11 +36,15 @@ public:
         : container_(DependencyContainer::getInstance())
     {}
 
-    const juce::String getApplicationName() override {
+    static constexpr int RESTART_DELAY_MS = 5000;
+    static constexpr int LIVE_LAUNCH_DELAY = 10;
+    static constexpr int DEFAULT_IPC_DELAY = 5;
+
+    auto getApplicationName() -> const juce::String override {
         return "Live Improved";
     }
 
-    const juce::String getApplicationVersion() override {
+    auto getApplicationVersion() -> const juce::String override {
         return "0.69.420";
     }
 
@@ -53,7 +57,7 @@ public:
             juce::Logger::writeToLog("Restarting application...");
 
             // delay so the new process can spawn. 1000 was not enough
-            juce::Thread::sleep(5000);
+            juce::Thread::sleep(RESTART_DELAY_MS);
         } else {
             juce::Logger::writeToLog("Failed to start new process");
         }
@@ -106,11 +110,11 @@ public:
             container_.resolve<EventHandler>()->registerAppLaunch([this]() {
                 logger->info("launch callback called");
                 // delay to let Live fully start up
-                sleep(10);
+                sleep(LIVE_LAUNCH_DELAY);
                 this->onLiveLaunch(2);
             });
         } else {
-            onLiveLaunch(5);
+            onLiveLaunch(DEFAULT_IPC_DELAY);
         }
     }
 

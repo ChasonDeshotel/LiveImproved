@@ -27,7 +27,7 @@ WindowManager::WindowManager(
 {}
 
 // Factory function to create window instances dynamically based on the name
-std::unique_ptr<IWindow> WindowManager::createWindowInstance(const std::string& windowName) {
+auto WindowManager::createWindowInstance(const std::string& windowName) -> std::unique_ptr<IWindow> {
     if (windowName == "ContextMenu") {
         // TODO
         return std::make_unique<ContextMenu>(configMenu_, actionHandler_, windowManager_);
@@ -49,7 +49,7 @@ void WindowManager::registerWindow(const std::string& windowName, std::function<
 	}
 }
 
-void* WindowManager::getWindowHandle(const std::string& windowName) const {
+auto WindowManager::getWindowHandle(const std::string& windowName) const -> void* {
     auto it = windows_.find(windowName);
 
     if (it != windows_.end()) {
@@ -124,7 +124,7 @@ void WindowManager::toggleWindow(const std::string& windowName) {
     logger->debug("toggle - current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
 }
 
-bool WindowManager::isWindowOpen(const std::string& windowName) const {
+auto WindowManager::isWindowOpen(const std::string& windowName) const -> bool {
     auto it = windowStates_.find(windowName);
     return (it != windowStates_.end() && it->second);
 }

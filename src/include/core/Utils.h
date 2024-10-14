@@ -5,7 +5,7 @@
 #include <cctype>
 
 namespace Utils {
-    inline std::vector<std::string> split(const std::string& str, char delimiter) {
+    inline auto split(const std::string& str, char delimiter) -> std::vector<std::string> {
         std::vector<std::string> tokens;
         std::stringstream ss(str);
         std::string token;
@@ -17,7 +17,7 @@ namespace Utils {
         return tokens;
     }
 
-    inline std::vector<std::string> splitString(const std::string& str, const std::string& delimiter = ",", size_t maxSplits = std::string::npos) {
+    inline auto splitString(const std::string& str, const std::string& delimiter = ",", size_t maxSplits = std::string::npos) -> std::vector<std::string> {
         std::vector<std::string> tokens;
         size_t start = 0;
         size_t end = 0;
@@ -32,7 +32,7 @@ namespace Utils {
         return tokens;
     }
 
-    inline std::vector<std::string> splitStringInPlace(std::string& str, char delimiter) {
+    inline auto splitStringInPlace(std::string& str, char delimiter) -> std::vector<std::string> {
         std::vector<std::string> tokens;
         char* start = &str[0];  // Pointer to the beginning of the string
         char* end = start;
@@ -61,21 +61,21 @@ namespace Utils {
         }
     }
 
-    inline std::string& ltrim(std::string& str) {
+    inline auto ltrim(std::string& str) -> std::string& {
         str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](unsigned char ch) {
             return !std::isspace(ch);
         }));
         return str;
     }
 
-    inline std::string& rtrim(std::string& str) {
+    inline auto rtrim(std::string& str) -> std::string& {
         str.erase(std::find_if(str.rbegin(), str.rend(), [](unsigned char ch) {
             return !std::isspace(ch);
         }).base(), str.end());
         return str;
     }
 
-    inline std::string& trim(std::string& str) {
+    inline auto trim(std::string& str) -> std::string& {
         return ltrim(rtrim(str));
     }
 

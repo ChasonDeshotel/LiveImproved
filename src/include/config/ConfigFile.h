@@ -5,10 +5,10 @@
 
 class Config {
 public:
-    explicit Config(const std::string &filename) : filename_(filename) {}
+    explicit Config(std::string filename) : filename_(std::move(filename)) {}
 
     template<typename T>
-    T read(const std::string &key) const {
+    auto read(const std::string &key) const -> T {
         YAML::Node config = YAML::LoadFile(filename_);
         if (config[key]) {
             return config[key].as<T>();

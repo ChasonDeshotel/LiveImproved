@@ -13,19 +13,19 @@ public:
     IPCResilienceDecorator(std::function<std::shared_ptr<IIPCCore>()> factory);
     ~IPCResilienceDecorator() override = default;
 
-    bool init() override;
-    bool isInitialized() const override;
+    auto init() -> bool override;
+    [[nodiscard]] auto isInitialized() const -> bool override;
 
     void writeRequest(const std::string& message) override;
     void writeRequest(const std::string& message, ResponseCallback callback) override;
 
-    std::string readResponse(ResponseCallback callback) override;
+    auto readResponse(ResponseCallback callback) -> std::string override;
     void drainPipe(int fd) override;
     void closeAndDeletePipes() override;
 
     void stopIPC() override;
 
-    bool checkAndReestablishConnection();
+    auto checkAndReestablishConnection() -> bool;
 
 private:
     std::shared_ptr<IIPCCore> instance_;

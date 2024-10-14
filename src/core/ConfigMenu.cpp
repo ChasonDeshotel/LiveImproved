@@ -52,7 +52,7 @@ void ConfigMenu::saveToYAML(const std::vector<MenuItem>& menuData, const std::fi
     fout.close();
 }
 
-std::vector<MenuItem> ConfigMenu::getMenuData() {
+auto ConfigMenu::getMenuData() -> std::vector<MenuItem> {
     return menuData_;
 }
 

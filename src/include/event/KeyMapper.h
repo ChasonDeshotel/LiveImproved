@@ -10,18 +10,18 @@ public:
   ~KeyMapper();
 
   // Method to process a keypress string and return a KeyPress object
-  EKeyPress processKeyPress(const std::string &keypress);
-  std::string EKeyPressToString(const EKeyPress &keypress);
+  auto processKeyPress(const std::string &keypress) -> EKeyPress;
+  auto EKeyPressToString(const EKeyPress &keypress) -> std::string;
 
-  bool isValid() const;
-  const EKeyPress &getKeyPress() const;
+  [[nodiscard]] auto isValid() const -> bool;
+  [[nodiscard]] auto getKeyPress() const -> const EKeyPress&;
 
 private:
     bool valid;
     EKeyPress keypress;
 
-    bool validateHotkey(const std::string& keypress) const;
-    EKeyPress parseKeyPress(const std::string& keypress) const;
-    std::string buildRegexPattern() const;
-    std::string toLowerCase(const std::string& input) const;
+    [[nodiscard]] auto validateHotkey(const std::string& keypress) const -> bool;
+    [[nodiscard]] auto parseKeyPress(const std::string& keypress) const -> EKeyPress;
+    [[nodiscard]] auto buildRegexPattern() const -> std::string;
+    [[nodiscard]] auto toLowerCase(const std::string& input) const -> std::string;
 };

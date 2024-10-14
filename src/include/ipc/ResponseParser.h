@@ -10,7 +10,7 @@ public:
     ResponseParser();
     ~ResponseParser();
 
-    std::vector<Plugin> parsePlugins(const std::string& input);
-    void sortByName(std::vector<Plugin>& plugins);
-    std::vector<Plugin> getUniquePlugins(const std::vector<Plugin>& plugins);
+    auto parsePlugins(const std::string& input) -> std::vector<Plugin>;
+    auto sortByName(std::vector<Plugin>& plugins) -> void;
+    auto getUniquePlugins(const std::vector<Plugin>& plugins) -> std::vector<Plugin>;
 };

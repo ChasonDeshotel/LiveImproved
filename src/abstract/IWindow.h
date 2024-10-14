@@ -10,13 +10,13 @@ public:
     virtual ~IWindow() = default;
 
     IWindow(const IWindow&) = delete;
-    IWindow& operator=(const IWindow&) = delete;
+    auto operator=(const IWindow&) -> IWindow& = delete;
     IWindow(IWindow&&) = delete;
-    IWindow& operator=(IWindow&&) = delete;
+    auto operator=(IWindow&&) -> IWindow& = delete;
 
     virtual void open() = 0;
     virtual void close() = 0;
-    [[nodiscard]] virtual auto getWindowHandle() const -> void * = 0;
+    [[nodiscard]] virtual auto getWindowHandle() const -> void* = 0;
 
 protected:
     IWindow() = default;

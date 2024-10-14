@@ -8,11 +8,11 @@ class Theme {
 public:
     Theme(const std::string& filePath);
 
-    juce::Colour getControlTextBack();
+    auto getControlTextBack() -> juce::Colour;
 
-    juce::Colour getControlForeground();
+    auto getControlForeground() -> juce::Colour;
 
-    juce::Colour getColorValue(const std::string& tagName);
+    auto getColorValue(const std::string& tagName) -> juce::Colour;
 
 private:
     pugi::xml_document doc;

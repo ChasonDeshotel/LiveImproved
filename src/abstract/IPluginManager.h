@@ -9,12 +9,12 @@ public:
     virtual ~IPluginManager() = default;
 
     IPluginManager(const IPluginManager&) = delete;
-    IPluginManager& operator=(const IPluginManager&) = delete;
+    auto operator=(const IPluginManager&) -> IPluginManager& = delete;
     IPluginManager(IPluginManager&&) = delete;
-    IPluginManager& operator=(IPluginManager&&) = delete;
+    auto operator=(IPluginManager&&) -> IPluginManager& = delete;
 
-    virtual const std::vector<Plugin>& getPlugins() const = 0;
-    virtual void refreshPlugins() = 0;
+    [[nodiscard]] virtual auto getPlugins() const -> const std::vector<Plugin>& = 0;
+    virtual auto refreshPlugins() -> void = 0;
 
 protected:
     IPluginManager() = default;

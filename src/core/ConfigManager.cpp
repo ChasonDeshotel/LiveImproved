@@ -10,14 +10,14 @@
 #include "ConfigManager.h"
 #include "KeyMapper.h"
 
-ConfigManager::ConfigManager(const std::filesystem::path& configFile)
-    : configFile_(configFile)
+ConfigManager::ConfigManager(std::filesystem::path configFile)
+    : configFile_(std::move(configFile))
     , km_(new KeyMapper())
     , initRetries_() {
     loadConfig();
 }
 
-void ConfigManager::loadConfig() {
+auto ConfigManager::loadConfig() -> void {
     try {
         if (!std::filesystem::exists(configFile_)) {
             throw std::runtime_error("Config file does not exist: " + configFile_.string());
@@ -37,7 +37,7 @@ void ConfigManager::loadConfig() {
     }
 }
 
-void ConfigManager::applyConfig(const YAML::Node& config) {
+auto ConfigManager::applyConfig(const YAML::Node& config) -> void {
     try {
         undoStack_.push_back(YAML::Clone(config));
 
@@ -105,7 +105,7 @@ void ConfigManager::applyConfig(const YAML::Node& config) {
     }
 }
 
-void ConfigManager::saveConfig() {
+auto ConfigManager::saveConfig() -> void {
     undoStack_.push_back(YAML::Clone(config_));
 
     config_["init"]["retries"] = initRetries_;
@@ -174,58 +174,58 @@ void ConfigManager::saveConfig() {
     fout << config_;
 }
 
-int ConfigManager::getInitRetries() const {
+auto ConfigManager::getInitRetries() const -> int {
     return initRetries_;
 }
 
-void ConfigManager::setInitRetries(int retries) {
+auto ConfigManager::setInitRetries(int retries) -> void {
     initRetries_ = retries;
     saveConfig();
 }
 
-std::unordered_map<EKeyPress, EMacro, EMacroHash> ConfigManager::getRemap() const {
+auto ConfigManager::getRemap() const -> std::unordered_map<EKeyPress, EMacro, EMacroHash> {
     logger->debug("get remap caled");
     return remap_;
 }
 
-void ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) {
+auto ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) -> void {
     logger->debug("setRemap: from: " + fromStr + " to: " + toStr);
     processRemap(fromStr, toStr);
     saveConfig();
 }
 
-std::unordered_map<std::string, std::string> ConfigManager::getRenamePlugins() const {
+auto ConfigManager::getRenamePlugins() const -> std::unordered_map<std::string, std::string> {
     return renamePlugins_;
 }
 
-void ConfigManager::setRenamePlugin(const std::string &originalName, const std::string &newName) {
+auto ConfigManager::setRenamePlugin(const std::string &originalName, const std::string &newName) -> void {
     renamePlugins_[originalName] = newName;
     saveConfig();
 }
 
-std::vector<std::string> ConfigManager::getRemovePlugins() const {
+auto ConfigManager::getRemovePlugins() const -> std::vector<std::string> {
     return removePlugins_;
 }
 
-void ConfigManager::setRemovePlugin(const std::string &pluginName) {
+auto ConfigManager::setRemovePlugin(const std::string &pluginName) -> void {
     removePlugins_.push_back(pluginName);
     saveConfig();
 }
 
-std::unordered_map<std::string, std::string> ConfigManager::getWindowSettings() const {
+auto ConfigManager::getWindowSettings() const -> std::unordered_map<std::string, std::string> {
     return windowSettings_;
 }
 
-void ConfigManager::setWindowSetting(const std::string &windowName, const std::string &setting) {
+auto ConfigManager::setWindowSetting(const std::string &windowName, const std::string &setting) -> void {
     windowSettings_[windowName] = setting;
     saveConfig();
 }
 
-std::vector<std::unordered_map<std::string, std::string>> ConfigManager::getShortcuts() const {
+auto ConfigManager::getShortcuts() const -> std::vector<std::unordered_map<std::string, std::string>> {
     return shortcuts_;
 }
 
-void ConfigManager::setShortcut(size_t index, const std::unordered_map<std::string, std::string>& shortcut) {
+auto ConfigManager::setShortcut(size_t index, const std::unordered_map<std::string, std::string>& shortcut) -> void {
     if (index < shortcuts_.size()) {
         shortcuts_[index] = shortcut;
     } else {
@@ -235,7 +235,7 @@ void ConfigManager::setShortcut(size_t index, const std::unordered_map<std::stri
     saveConfig();
 }
 
-void ConfigManager::undo() {
+auto ConfigManager::undo() -> void {
     if (canUndo()) {
         // Remove the current state
         undoStack_.pop_back();
@@ -251,11 +251,11 @@ void ConfigManager::undo() {
     }
 }
 
-bool ConfigManager::canUndo() const {
+auto ConfigManager::canUndo() const -> bool {
     return !undoStack_.empty();
 }
 
-void ConfigManager::processRemap(const std::string &fromStr, const std::string &toStr) {
+auto ConfigManager::processRemap(const std::string &fromStr, const std::string &toStr) -> void {
     logger->debug("process remap: from: " + fromStr + " to: " + toStr);
     EKeyPress from = km_->processKeyPress(fromStr);
 

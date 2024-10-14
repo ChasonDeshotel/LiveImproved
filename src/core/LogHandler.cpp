@@ -29,17 +29,16 @@ LogHandler::~LogHandler() {
     }
 }
 
-LogHandler& LogHandler::getInstance() {
+auto LogHandler::getInstance() -> LogHandler& {
     static LogHandler instance;
     return instance;
-
 }
 
-void LogHandler::setLogPath(const std::string& path) {
+auto LogHandler::setLogPath(const std::string& path) -> void {
     std::lock_guard<std::mutex> lock(logMutex);
 
     try {
-        logPath = fs::path(path).string();  // Ensure the path is handled correctly
+        logPath = fs::path(path).string();
         if (logfile.is_open()) {
             logfile.close();
         }
@@ -52,12 +51,12 @@ void LogHandler::setLogPath(const std::string& path) {
     }
 }
 
-void LogHandler::setLogLevel(LogLevel level) {
+auto LogHandler::setLogLevel(LogLevel level) -> void {
     std::lock_guard<std::mutex> lock(logMutex);
     currentLogLevel = level;
 }
 
-void LogHandler::log(const std::string& message, LogLevel level) {
+auto LogHandler::log(const std::string& message, LogLevel level) -> void {
     std::lock_guard<std::mutex> lock(logMutex);
 
     if (level < currentLogLevel) {
@@ -79,24 +78,24 @@ void LogHandler::log(const std::string& message, LogLevel level) {
     }
 }
 
-void LogHandler::debug(const std::string& message) {
+auto LogHandler::debug(const std::string& message) -> void {
     log(message, LogLevel::LOG_DEBUG);
 }
 
-void LogHandler::info(const std::string& message) {
+auto LogHandler::info(const std::string& message) -> void {
     log(message, LogLevel::LOG_INFO);
     juce::Logger::writeToLog(message);
 }
 
-void LogHandler::warn(const std::string& message) {
+auto LogHandler::warn(const std::string& message) -> void {
     log(message, LogLevel::LOG_WARN);
 }
 
-void LogHandler::error(const std::string& message) {
+auto LogHandler::error(const std::string& message) -> void {
     log(message, LogLevel::LOG_ERROR);
 }
 
-std::string LogHandler::logLevelToString(LogLevel level) {
+auto LogHandler::logLevelToString(LogLevel level) -> std::string {
     switch (level) {
         case LogLevel::LOG_DEBUG: return "DEBUG";
         case LogLevel::LOG_INFO: return "INFO";

@@ -10,13 +10,13 @@ public:
 
     IActionHandler(const IActionHandler &) = default;
     IActionHandler(IActionHandler &&) = delete;
-    IActionHandler &operator=(const IActionHandler &) = default;
-    IActionHandler &operator=(IActionHandler &&) = delete;
+    auto operator=(const IActionHandler &) -> IActionHandler & = default;
+    auto operator=(IActionHandler &&) -> IActionHandler & = delete;
 
-    virtual void handleAction(std::string action) = 0;
-    virtual bool handleKeyEvent(EKeyPress pressedKey) = 0;
-    virtual void handleDoubleRightClick() = 0;
-    virtual bool loadItem(int itemIndex) = 0;
+    virtual auto handleAction(std::string action) -> void = 0;
+    virtual auto handleKeyEvent(EKeyPress pressedKey) -> bool = 0;
+    virtual auto handleDoubleRightClick() -> void = 0;
+    virtual auto loadItem(int itemIndex) -> bool = 0;
     virtual auto loadItemByName(const std::string &itemName) -> bool = 0;
 
 protected:

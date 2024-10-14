@@ -30,7 +30,7 @@ public:
 
     // TODO remove unused "override callback" param
     void registerWindow(const std::string& windowName, std::function<void()> callback = nullptr);
-    [[nodiscard]] void* getWindowHandle(const std::string& windowName) const;
+    [[nodiscard]] auto getWindowHandle(const std::string& windowName) const -> void*;
 
     void openWindow(const std::string& windowName);
 
@@ -39,7 +39,7 @@ public:
     void toggleWindow(const std::string& windowName);
 
     // Check if a window is open
-    [[nodiscard]] bool isWindowOpen(const std::string& windowName) const;
+    [[nodiscard]] auto isWindowOpen(const std::string& windowName) const -> bool;
 
 private:
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
@@ -51,7 +51,7 @@ private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
 
     // Factory function to create window instances based on window name
-    std::unique_ptr<IWindow> createWindowInstance(const std::string& windowName);
+    auto createWindowInstance(const std::string& windowName) -> std::unique_ptr<IWindow>;
 
     std::unordered_map<std::string, WindowData> windows_;
     std::unordered_map<std::string, bool> windowStates_;

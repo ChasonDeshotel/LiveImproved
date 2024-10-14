@@ -9,17 +9,17 @@ public:
 
     ILogHandler(const ILogHandler &) = default;
     ILogHandler(ILogHandler &&) = delete;
-    ILogHandler &operator=(const ILogHandler &) = default;
-    ILogHandler &operator=(ILogHandler &&) = delete;
+    auto operator=(const ILogHandler &) -> ILogHandler & = default;
+    auto operator=(ILogHandler &&) -> ILogHandler & = delete;
 
-    virtual void log(const std::string &message,
-                   LogLevel level = LogLevel::LOG_INFO) = 0;
-    virtual void debug(const std::string &message) = 0;
-    virtual void info(const std::string &message) = 0;
-    virtual void warn(const std::string &message) = 0;
-    virtual void error(const std::string &message) = 0;
+    virtual auto log(const std::string &message,
+                   LogLevel level = LogLevel::LOG_INFO) -> void = 0;
+    virtual auto debug(const std::string &message) -> void = 0;
+    virtual auto info(const std::string &message) -> void = 0;
+    virtual auto warn(const std::string &message) -> void = 0;
+    virtual auto error(const std::string &message) -> void = 0;
 
-    virtual void setLogLevel(LogLevel level) = 0;
+    virtual auto setLogLevel(LogLevel level) -> void = 0;
 
 protected:
     ILogHandler() = default;  // Protected default constructor

@@ -32,7 +32,7 @@ public:
         Singleton
     };
 
-    static DependencyContainer& getInstance() {
+    static auto getInstance() -> DependencyContainer& {
         static DependencyContainer instance;
         return instance;
     }
@@ -40,8 +40,8 @@ public:
     // Delete copy and move constructors and assign operators
     DependencyContainer(DependencyContainer const&) = delete;
     DependencyContainer(DependencyContainer&&) = delete;
-    DependencyContainer& operator=(DependencyContainer const&) = delete;
-    DependencyContainer& operator=(DependencyContainer &&) = delete;
+    auto operator=(DependencyContainer const&) -> DependencyContainer& = delete;
+    auto operator=(DependencyContainer &&) -> DependencyContainer& = delete;
 
     template<typename Interface, typename Impl, typename... Args>
     void registerType(Lifetime lifetime = Lifetime::Transient) {
@@ -100,12 +100,12 @@ public:
     }
 
     template<typename T>
-    std::shared_ptr<T> resolve() {
+    auto resolve() -> std::shared_ptr<T> {
         return resolveImpl<T>(std::vector<std::type_index>());
     }
 
-    Scope createScope() {
-        return Scope();
+    auto createScope() -> Scope {
+        return {};
     }
 
     void beginScope(Scope& scope) {
@@ -118,7 +118,7 @@ public:
 
 private:
     template<typename T>
-    std::shared_ptr<T> resolveImpl(std::vector<std::type_index> resolutionStack) {
+    auto resolveImpl(std::vector<std::type_index> resolutionStack) -> std::shared_ptr<T> {
         auto typeIndex = std::type_index(typeid(T));
         if (std::find(resolutionStack.begin(), resolutionStack.end(), typeIndex) != resolutionStack.end()) {
             throw std::runtime_error("Circular dependency detected: " + std::string(typeid(T).name()));
@@ -140,7 +140,7 @@ private:
     DependencyContainer() = default;
 
     template<typename T>
-    std::shared_ptr<T> resolveArg() {
+    auto resolveArg() -> std::shared_ptr<T> {
         return resolveImpl<T>(std::vector<std::type_index>());
     }
 

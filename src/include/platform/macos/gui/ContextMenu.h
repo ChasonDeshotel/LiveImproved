@@ -26,7 +26,7 @@ public:
     );
     ~ContextMenu(); // Define a destructor to clean up the Objective-C object
 
-    void* getWindowHandle() const override;
+    auto getWindowHandle() const -> void* override;
     void open() override;
     void close() override;
 

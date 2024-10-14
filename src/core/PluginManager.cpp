@@ -16,7 +16,7 @@ PluginManager::PluginManager(
 
 PluginManager::~PluginManager() = default;
 
-const std::vector<Plugin>& PluginManager::getPlugins() const {
+auto PluginManager::getPlugins() const -> const std::vector<Plugin>& {
     return plugins_;
 }
 

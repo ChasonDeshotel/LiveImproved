@@ -33,18 +33,18 @@ public:
 
     ActionHandler(const ActionHandler &) = default;
     ActionHandler(ActionHandler &&) = delete;
-    ActionHandler &operator=(const ActionHandler &) = default;
-    ActionHandler &operator=(ActionHandler &&) = delete;
+    auto operator=(const ActionHandler &) -> ActionHandler & = default;
+    auto operator=(ActionHandler &&) -> ActionHandler & = delete;
 
     void handleAction(std::string) override;
 
     // returns if the event should be blocking
-    bool handleKeyEvent(EKeyPress pressedKey) override;
+    auto handleKeyEvent(EKeyPress pressedKey) -> bool override;
 
     void handleDoubleRightClick() override;
 
-    bool loadItem(int itemIndex) override;
-    bool loadItemByName(const std::string &itemName) override;
+    auto loadItem(int itemIndex) -> bool override;
+    auto loadItemByName(const std::string &itemName) -> bool override;
 
 private:
     std::function<std::shared_ptr<IIPCCore>()> ipc_;
@@ -60,5 +60,5 @@ private:
     void initializeActionMap();
     void executeMacro(const EMacro& macro);
 
-    bool closeWindows();
+    auto closeWindows() -> bool;
 };

@@ -16,42 +16,23 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Custom target for running clang-tidy
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    # IGNORE windows
-    set(PLATFORM_IGNORE_TIDY "windows")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # IGNORE macos
-    set(PLATFORM_IGNORE_TIDY "macos")
-endif()
-
-add_custom_target(
-    tidy
-    COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-    COMMAND ${CMAKE_COMMAND}
-        -DCLANG_TIDY_EXE=${CLANG_TIDY_EXE}
-        -DBUILD_DIR=${CMAKE_BINARY_DIR}
-        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-        -DHOME=$ENV{HOME}
-        -P ${CMAKE_SOURCE_DIR}/run-clang-tidy.cmake
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Running clang-tidy on source files"
-)
-# Define CMAKE_CXX_CLANG_TIDY target
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
-    # sets globally
-    #    set(CMAKE_CXX_CLANG_TIDY
-    set(CLANG_TIDY_COMMAND
-        ${CLANG_TIDY_EXE}
-        "-p=${CMAKE_BINARY_DIR}"
-        "--header-filter=.*\\.(cpp|h)$"
-        "--checks=-*,cppcoreguidelines-*,modernize-*"
+    add_custom_target(
+        tidy
+        COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
+        COMMAND ${CMAKE_COMMAND}
+            -DCLANG_TIDY_EXE=${CLANG_TIDY_EXE}
+            -DBUILD_DIR=${CMAKE_BINARY_DIR}
+            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+            -DHOME=$ENV{HOME}
+            -P ${CMAKE_SOURCE_DIR}/run-clang-tidy.cmake
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Running clang-tidy on source files"
     )
-    set_target_properties(tidy PROPERTIES COMMAND "${CLANG_TIDY_COMMAND}")
 else()
     message(WARNING "clang-tidy not found. Static analysis will be skipped.")
 endif()
-#set(CMAKE_CXX_CLANG_TIDY "")
 
 # Set the C++ standard and Objective-C++ flag
 set(CMAKE_CXX_STANDARD 20)

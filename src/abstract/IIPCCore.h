@@ -16,12 +16,12 @@ public:
     IIPCCore& operator=(IIPCCore&&) = delete;
 
     virtual bool init() = 0;
-    virtual bool isInitialized() const = 0;
+    [[nodiscard]] virtual bool isInitialized() const = 0;
 
     virtual void writeRequest(const std::string& message) = 0;
     virtual void writeRequest(const std::string& message, ResponseCallback callback) = 0;
 
-    virtual auto readResponse(ResponseCallback callback) -> std::string = 0;
+    virtual std::string readResponse(ResponseCallback callback) = 0;
     virtual void drainPipe(int fd) = 0;
     virtual void closeAndDeletePipes() = 0;
 

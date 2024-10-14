@@ -23,21 +23,21 @@ auto KeyMapper::processKeyPress(const std::string& keypress) -> EKeyPress {
     }
 }
 
-bool KeyMapper::isValid() const {
+auto KeyMapper::isValid() const -> bool {
     return valid;
 }
 
-const EKeyPress& KeyMapper::getKeyPress() const {
+auto KeyMapper::getKeyPress() const -> const EKeyPress& {
     return keypress;
 }
 
-bool KeyMapper::validateHotkey(const std::string& keypress) const {
+auto KeyMapper::validateHotkey(const std::string& keypress) const -> bool {
     std::string regexPattern = buildRegexPattern();
     std::regex regex(regexPattern);
     return std::regex_match(keypress, regex);
 }
 
-EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
+auto KeyMapper::parseKeyPress(const std::string& keypress) const -> EKeyPress {
     logger->debug("parsing: " + keypress);
     const auto& namedKeys = NamedKeys::get();
 
@@ -71,7 +71,7 @@ EKeyPress KeyMapper::parseKeyPress(const std::string& keypress) const {
     return kp;
 }
 
-std::string KeyMapper::buildRegexPattern() const {
+auto KeyMapper::buildRegexPattern() const -> std::string {
     std::vector<std::string> modifiers = {
         toLowerCase("Cmd"),
         toLowerCase("Shift"),
@@ -95,13 +95,13 @@ std::string KeyMapper::buildRegexPattern() const {
     return pattern;
 }
 
-std::string KeyMapper::toLowerCase(const std::string& input) const {
+auto KeyMapper::toLowerCase(const std::string& input) const -> std::string {
     std::string output = input;
     std::transform(output.begin(), output.end(), output.begin(), ::tolower);
     return output;
 }
 
-std::string KeyMapper::EKeyPressToString(const EKeyPress& keyPress) {
+auto KeyMapper::EKeyPressToString(const EKeyPress& keyPress) -> std::string {
     std::string result;
 
     if (keyPress.cmd)   result += "cmd+"   ;
