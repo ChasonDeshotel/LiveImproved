@@ -51,12 +51,16 @@ public:
         g.fillPath(fakeRoundedCorners);
     }
 
-    bool hitTest(int x, int y) override
+    auto hitTest(int x, int y) -> bool override
     {
         // Let mouse events pass through
         return false;
     }
 };
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 class CenteredTextEditor : public juce::TextEditor {
 public:
@@ -106,12 +110,12 @@ public:
               , std::function<std::shared_ptr<Theme>()> theme
               , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
         );
-    ~SearchBox();
+    ~SearchBox() override;
 
     void open() override;
     void close() override;
 
-    bool keyPressed(const juce::KeyPress& key, juce::Component* originatingComponent) override;
+    auto keyPressed(const juce::KeyPress& key, juce::Component* originatingComponent) -> bool override;
     void mouseDown(const juce::MouseEvent& event) override;
 
     void textEditorTextChanged(juce::TextEditor& editor) override;
@@ -123,7 +127,7 @@ protected:
     void resized() override;
     void paint(juce::Graphics& g) override;
 
-    int getNumRows() override;
+    auto getNumRows() -> int override;
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
 
 private:
@@ -148,6 +152,9 @@ private:
     void focus();
     void setWindowGeometry();
     void resetFilters();
+
+    SearchBox(SearchBox&&) noexcept = default;
+    SearchBox& operator=(SearchBox&&) noexcept = default;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SearchBox)
 };
