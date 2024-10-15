@@ -26,14 +26,14 @@ public:
 
   ContextMenu(const ContextMenu &) = delete;
   ContextMenu(ContextMenu &&) = delete;
-  ContextMenu &operator=(const ContextMenu &) = delete;
-  ContextMenu &operator=(ContextMenu &&) = delete;
+  auto operator=(const ContextMenu &) -> ContextMenu & = delete;
+  auto operator=(ContextMenu &&) -> ContextMenu & = delete;
 
   [[nodiscard]] auto getWindowHandle() const -> void * override;
   void open() override;
   void close() override;
 
-  [[nodiscard]] bool isOpen() const;
+  [[nodiscard]] auto isOpen() const -> bool;
   void setIsOpen(bool isOpen);
 
   void closeMenu();

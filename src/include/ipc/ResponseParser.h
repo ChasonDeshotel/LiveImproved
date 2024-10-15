@@ -12,8 +12,8 @@ public:
 
     ResponseParser(const ResponseParser &) = default;
     ResponseParser(ResponseParser &&) = delete;
-    ResponseParser &operator=(const ResponseParser &) = default;
-    ResponseParser &operator=(ResponseParser &&) = delete;
+    auto operator=(const ResponseParser &) -> ResponseParser & = default;
+    auto operator=(ResponseParser &&) -> ResponseParser & = delete;
 
     auto parsePlugins(const std::string& input) -> std::vector<Plugin>;
     auto sortByName(std::vector<Plugin>& plugins) -> void;

@@ -54,8 +54,10 @@ private:
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
 
-    void getMostRecentFloatingWindowDelayed(std::function<void(int)> callback);
+    using ActionHandlerFunction = std::function<void(const std::optional<std::string>& args)>;
+    std::unordered_map<std::string, ActionHandlerFunction> actionMap;
 
+    void getMostRecentFloatingWindowDelayed(std::function<void(int)> callback);
 
     void initializeActionMap();
     void executeMacro(const EMacro& macro);

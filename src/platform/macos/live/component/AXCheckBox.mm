@@ -15,7 +15,7 @@ namespace AXCheckBox {
             return false;
         }
         CFBooleanRef value = nullptr;
-        if (AXUIElementCopyAttributeValue(checkbox, kAXValueAttribute, (CFTypeRef*)&value) == kAXErrorSuccess && value) {
+        if (AXUIElementCopyAttributeValue(checkbox, kAXValueAttribute, castutil::toCFTypeRef(&value)) == kAXErrorSuccess && value) {
             bool isChecked = CFBooleanGetValue(value);
             CFRelease(value);
             return isChecked;
@@ -61,7 +61,7 @@ namespace AXCheckBox {
             logger->info("Successfully pressed the checkbox.");
             return true;
         } else {
-            logger->error("Failed to press the checkbox. Error: " + axError::toString(error));
+            logger->error("Failed to press the checkbox. Error: " + axerror::toString(error));
             return false;
         }
         return false;

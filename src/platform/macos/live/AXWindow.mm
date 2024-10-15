@@ -1,6 +1,7 @@
 #import <ApplicationServices/ApplicationServices.h>
 
 #include "LogGlobal.h"
+#include "MacUtils.h"
 
 #include "AXAttribute.h"
 
@@ -12,8 +13,8 @@ namespace AXWindow {
         }
         CFRetain(element);
         
-        CFStringRef role;
-        AXError error = AXUIElementCopyAttributeValue(element, kAXRoleAttribute, (CFTypeRef*)&role);
+        CFStringRef role = nullptr;
+        AXError error = AXUIElementCopyAttributeValue(element, kAXRoleAttribute, castutil::toCFTypeRef(&role));
         if (error != kAXErrorSuccess || !role) {
             logger->warn("error getting role");
             return false;
@@ -25,8 +26,8 @@ namespace AXWindow {
             return false;
         }
 
-        CFStringRef subrole;
-        error = AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, (CFTypeRef*)&subrole);
+        CFStringRef subrole = nullptr;
+        error = AXUIElementCopyAttributeValue(element, kAXSubroleAttribute, castutil::toCFTypeRef(&subrole));
         if (error != kAXErrorSuccess || !subrole) {
             logger->warn("error getting subrole");
             return false;
@@ -89,10 +90,10 @@ namespace AXWindow {
 
         CGPoint position;
         CGSize size;
-        AXValueRef positionRef, sizeRef;
+        AXValueRef positionRef = nullptr, sizeRef = nullptr;
 
-        AXUIElementCopyAttributeValue(window, kAXPositionAttribute, (CFTypeRef*)&positionRef);
-        AXUIElementCopyAttributeValue(window, kAXSizeAttribute, (CFTypeRef*)&sizeRef);
+        AXUIElementCopyAttributeValue(window, kAXPositionAttribute, castutil::toCFTypeRef(&positionRef));
+        AXUIElementCopyAttributeValue(window, kAXSizeAttribute, castutil::toCFTypeRef(&sizeRef));
 
         AXValueGetValue(positionRef, static_cast<AXValueType>(kAXValueCGPointType), &position);
         AXValueGetValue(sizeRef, static_cast<AXValueType>(kAXValueCGSizeType), &size);

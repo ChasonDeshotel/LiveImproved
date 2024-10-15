@@ -10,12 +10,12 @@
 
 namespace AXPrinter {
     void printElementInfo(AXUIElementRef element, std::string prefix) {
-        CFStringRef roleStr, subrole, title, identifier;
+        CFStringRef roleStr = nullptr, subrole = nullptr, title = nullptr, identifier = nullptr;
         char buffer[256];
 
         if (!AXAttribute::isValid(element)) return;
         
-        CGWindowID windowID;
+        CGWindowID windowID = 0;
         AXError error = _AXUIElementGetWindow(element, &windowID);
         if (error == kAXErrorSuccess && windowID > 0) {
             prefix += "ID: " + std::to_string(static_cast<int>(windowID));
@@ -104,7 +104,7 @@ namespace AXPrinter {
                 CFStringRef title = nullptr;
                 if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
                     std::cout << std::string(level * 2, ' ') << "Title: ";
-                    CFStringUtil::printCFString(title);
+                    cfstringutil::printCFString(title);
                     CFRelease(title);
                 } else {
                     std::cout << std::string(level * 2, ' ') << "Title: (none)" << std::endl;
@@ -114,7 +114,7 @@ namespace AXPrinter {
                 CFStringRef identifier = nullptr;
                 if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
                     std::cout << std::string(level * 2, ' ') << "Identifier: ";
-                    CFStringUtil::printCFString(identifier);
+                    cfstringutil::printCFString(identifier);
                     CFRelease(identifier);
                 } else {
                     std::cout << std::string(level * 2, ' ') << "Identifier: (none)" << std::endl;
@@ -134,7 +134,7 @@ namespace AXPrinter {
         CFStringRef title = nullptr;
         if (AXUIElementCopyAttributeValue(elem, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
             std::cout << " Title: ";
-            CFStringUtil::printCFString(title);
+            cfstringutil::printCFString(title);
             CFRelease(title);
         } else {
             std::cout << " Title: (none)" << std::endl;
@@ -145,7 +145,7 @@ namespace AXPrinter {
         CFStringRef identifier = nullptr;
         if (AXUIElementCopyAttributeValue(elem, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
             std::cout << " Identifier: ";
-            CFStringUtil::printCFString(identifier);
+            cfstringutil::printCFString(identifier);
             CFRelease(identifier);
         } else {
             std::cout << " Identifier: (none)" << std::endl;
@@ -176,7 +176,7 @@ namespace AXPrinter {
                 CFStringRef identifier = nullptr;
                 if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
                     std::cout << " Child " << i << " Identifier: ";
-                    CFStringUtil::printCFString(identifier);  // Helper function to print CFStringRef
+                    cfstringutil::printCFString(identifier);  // Helper function to print CFStringRef
                     CFRelease(identifier);
                 } else {
                     std::cout << " Child " << i << " Identifier: (none)" << std::endl;

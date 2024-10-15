@@ -39,12 +39,6 @@ ActionHandler::ActionHandler(
 
 ActionHandler::~ActionHandler() = default;
 
-// Define a function type for action handlers
-using ActionHandlerFunction = std::function<void(const std::optional<std::string>& args)>;
-
-// Define a map to link action strings to methods
-std::unordered_map<std::string, ActionHandlerFunction> actionMap;
-
 // Initialize the action map
 void ActionHandler::initializeActionMap() {
     auto wm = windowManager_();

@@ -10,7 +10,7 @@
 
 extern "C" AXError _AXUIElementGetWindow(AXUIElementRef element, CGWindowID* windowID);
 
-namespace CFStringUtil {
+namespace cfstringutil {
     inline std::string getStringFromCFString(CFStringRef cfString) {
         if (!cfString) return "";
 
@@ -38,8 +38,8 @@ namespace CFStringUtil {
     }
 }
 
-namespace axError {
-    inline std::string toString(AXError error) {
+namespace axerror {
+    inline auto toString(AXError error) -> std::string {
         switch (error) {
             case kAXErrorSuccess:
                 return "kAXErrorSuccess";
@@ -76,5 +76,17 @@ namespace axError {
             default:
                 return "Unknown AXError";
         }
+    }
+}
+
+namespace castutil {
+    inline auto toCFTypeRef(void* value) -> CFTypeRef* {
+        // NOLINTNEXTLINE - must cast between obj-c and c++ types
+        return static_cast<CFTypeRef*>(value);
+    }
+
+    inline auto toAXUIElementRef(const void* value) -> AXUIElementRef {
+        // NOLINTNEXTLINE - must cast between obj-c and c++ types
+        return static_cast<AXUIElementRef>(value);
     }
 }

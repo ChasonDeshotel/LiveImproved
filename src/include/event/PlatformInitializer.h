@@ -4,8 +4,8 @@ class PlatformInitializer {
 public:
   PlatformInitializer(const PlatformInitializer &) = default;
   PlatformInitializer(PlatformInitializer &&) = delete;
-  PlatformInitializer &operator=(const PlatformInitializer &) = default;
-  PlatformInitializer &operator=(PlatformInitializer &&) = delete;
+  auto operator=(const PlatformInitializer &) -> PlatformInitializer & = default;
+  auto operator=(PlatformInitializer &&) -> PlatformInitializer & = delete;
   static void init();
   static void run();
 

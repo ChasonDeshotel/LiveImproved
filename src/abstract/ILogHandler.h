@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include "Types.h"
+
+#include "LogLevel.h"
 
 class ILogHandler {
 public:

@@ -6,7 +6,6 @@
 #include <future>
 
 #include "LogGlobal.h"
-#include "LogHandler.h"
 #include "PathFinder.h"
 
 #include "DependencyContainer.h"
@@ -35,7 +34,9 @@ class JuceApp : public juce::JUCEApplication {
 public:
     JuceApp()
         : container_(DependencyContainer::getInstance())
-    {}
+    {
+        ::initializeLogger();
+    }
 
     static constexpr int RESTART_DELAY_MS = 5000;
     static constexpr int LIVE_LAUNCH_DELAY = 10;
@@ -55,24 +56,19 @@ public:
         // Spawn a new process to re-launch the application
         juce::ChildProcess process;
         if (process.start(executablePath)) {
-            juce::Logger::writeToLog("Restarting application...");
+            logger->info("Restarting application...");
 
             // delay so the new process can spawn. 1000 was not enough
             juce::Thread::sleep(RESTART_DELAY_MS);
         } else {
-            juce::Logger::writeToLog("Failed to start new process");
+            logger->error("Failed to start new process");
         }
     }
 
     void initialise(const juce::String& commandLineArgs = "") override {
         std::locale::global(std::locale("en_US.UTF-8"));
 
-        if (!logger) {
-            container_.registerType<ILogHandler, LogHandler>(DependencyContainer::Lifetime::Singleton);
-            logger = container_.resolve<ILogHandler>();
-            logger->setLogLevel(LogLevel::LOG_DEBUG);  // Set log level to DEBUG for development
-            logger->info("Ignition sequence started...");
-        }
+        logger->info("Ignition sequence started...");
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 

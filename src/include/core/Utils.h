@@ -24,36 +24,36 @@ namespace Utils {
         size_t splits = 0;
 
         while ((end = str.find(delimiter, start)) != std::string::npos && splits < maxSplits) {
-            tokens.push_back(str.substr(start, end - start));  // Add substring before the delimiter
+            tokens.emplace_back(str.substr(start, end - start));  // Add substring before the delimiter
             start = end + delimiter.length();                  // Move past the delimiter
         }
 
-        tokens.push_back(str.substr(start));  // Add the remaining part after the last delimiter
+        tokens.emplace_back(str.substr(start));  // Add the remaining part after the last delimiter
         return tokens;
     }
 
     inline auto splitStringInPlace(std::string& str, char delimiter) -> std::vector<std::string> {
         std::vector<std::string> tokens;
-        char* start = &str[0];  // Pointer to the beginning of the string
-        char* end = start;
+        auto start = str.begin();  // Iterator to the beginning of the string
+        auto end = start;
 
-        while (*end != '\0') {  // Loop until the end of the string
+        while (end != str.end()) {  // Loop until the end of the string
             if (*end == delimiter) {
                 *end = '\0';  // Replace the delimiter with a null terminator
-                tokens.push_back(start);  // Store the start pointer as a string in the vector
-                start = end + 1;  // Move the start pointer to the next character
+                tokens.emplace_back(&(*start));  // Store the start iterator as a string in the vector
+                start = end + 1;  // Move the start iterator to the next character
             }
             end++;
         }
 
-        tokens.push_back(start);  // Add the last token after the loop ends
+        tokens.emplace_back(&(*start));  // Add the last token after the loop ends
 
         return tokens;
     }
 
     inline void removeSubstrings(std::string& str, const std::vector<std::string>& substrings) {
         for (const auto& sub : substrings) {
-            size_t pos;
+            size_t pos = 0;
             // Keep finding and erasing the substring until it no longer exists
             while ((pos = str.find(sub)) != std::string::npos) {
                 str.erase(pos, sub.length());

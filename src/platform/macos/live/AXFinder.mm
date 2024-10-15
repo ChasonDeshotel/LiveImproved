@@ -33,9 +33,9 @@ namespace AXFinder {
     }
 
     AXUIElementRef getFrontmostWindow() {
-        AXUIElementRef frontmostWindow;
+        AXUIElementRef frontmostWindow = nullptr;
 
-        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXFocusedWindowAttribute, (CFTypeRef *)&frontmostWindow);
+        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXFocusedWindowAttribute, castutil::toCFTypeRef(&frontmostWindow));
         
         if (result == kAXErrorSuccess && frontmostWindow) {
             logger->debug("Successfully obtained the frontmost window.");
@@ -47,22 +47,22 @@ namespace AXFinder {
     }
 
     CFArrayRef getAllWindows() {
-        CFArrayRef windows;
-        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXWindowsAttribute, (CFTypeRef *)&windows);
+        CFArrayRef windows = nullptr;
+        AXError result = AXUIElementCopyAttributeValue(AXFinder::appElement(), kAXWindowsAttribute, castutil::toCFTypeRef(&windows));
         
         if (result == kAXErrorSuccess && windows) {
             CFIndex windowCount = CFArrayGetCount(windows);
             logger->debug("Number of windows: " + std::to_string(windowCount));
             
             for (CFIndex i = 0; i < windowCount; i++) {
-                AXUIElementRef window = (AXUIElementRef)CFArrayGetValueAtIndex(windows, i);
+                AXUIElementRef window = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(windows, i));
                 
-                CFStringRef windowTitle;
-                AXUIElementCopyAttributeValue(window, kAXTitleAttribute, (CFTypeRef *)&windowTitle);
+                CFStringRef windowTitle = nullptr;
+                AXUIElementCopyAttributeValue(window, kAXTitleAttribute, castutil::toCFTypeRef(&windowTitle));
                 
                 if (windowTitle) {
                     // Convert CFStringRef to std::string
-                    NSString *nsString = (__bridge NSString *)windowTitle;
+                    auto *nsString = (__bridge NSString *)windowTitle;
                     std::string title([nsString UTF8String]);
                     logger->debug("Window " + std::to_string(i) + ": " + title);
                     CFRelease(windowTitle);
@@ -80,7 +80,7 @@ namespace AXFinder {
 
     AXUIElementRef findAXMain(AXUIElementRef parent) {
         CFArrayRef children = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, castutil::toCFTypeRef(&children));
 
         if (error != kAXErrorSuccess || !children) {
             std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
@@ -92,7 +92,7 @@ namespace AXFinder {
 
         CFIndex count = CFArrayGetCount(children);
         for (CFIndex i = 0; i < count; ++i) {
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+            AXUIElementRef child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(children, i));
 
             // Check the AXMain attribute
             CFTypeRef attributeValue = nullptr;
@@ -201,20 +201,20 @@ namespace AXFinder {
         if (AXAttribute::isValid(trackView)) {
 
             CFArrayRef children = nullptr;
-            AXError error = AXUIElementCopyAttributeValue(trackView, kAXChildrenAttribute, (CFTypeRef*)&children);
+            AXError error = AXUIElementCopyAttributeValue(trackView, kAXChildrenAttribute, castutil::toCFTypeRef(&children));
             CFRelease(trackView);
 
             if (error == kAXErrorSuccess && children) {
                 CFIndex count = CFArrayGetCount(children);
                 for (CFIndex i = 0; i < count; ++i) {
-                    AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+                    AXUIElementRef child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(children, i));
                     CFRetain(child);
                     trackViewDevices.push_back(child);
 
                     CFStringRef identifier = nullptr;
-                    if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
+                    if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, castutil::toCFTypeRef(&identifier)) == kAXErrorSuccess && identifier) {
                         std::cout << " Identifier: ";
-                        CFStringUtil::printCFString(identifier);
+                        cfstringutil::printCFString(identifier);
                         CFRelease(identifier);
                     } else {
                         std::cout << " Identifier: (none)" << std::endl;
@@ -249,7 +249,7 @@ namespace AXFinder {
         CFArrayRef children = nullptr;
 
         // Retrieve the children of the parent element
-        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, castutil::toCFTypeRef(&children));
         if (error != kAXErrorSuccess || !children) {
             std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
             return matches;  // Return empty if no children found
@@ -259,7 +259,7 @@ namespace AXFinder {
         std::cerr << "Number of children at level " << level << ": " << count << std::endl;
 
         for (CFIndex i = 0; i < count; i++) {
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+            auto child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(children, i));
             if (!child) {
                 std::cerr << "No valid child found at index " << i << std::endl;
                 continue;  // Skip to next child if invalid
@@ -271,7 +271,7 @@ namespace AXFinder {
             CFTypeRef role = nullptr;
             AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
             if (roleError == kAXErrorSuccess && role) {
-                CFStringRef roleStr = static_cast<CFStringRef>(role);
+                auto roleStr = static_cast<CFStringRef>(role);
                 if (CFStringCompare(roleStr, roleToFind, 0) == kCFCompareEqualTo) {
                     std::cerr << "Match found at index " << i << " - Level " << level << std::endl;
                     CFRetain(child);  // Retain the child before adding it to the vector
@@ -305,7 +305,7 @@ namespace AXFinder {
         }
 
         CFArrayRef children = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, castutil::toCFTypeRef(&children));
         if (error != kAXErrorSuccess || !children) {
             std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
             return nullptr;
@@ -318,7 +318,7 @@ namespace AXFinder {
         std::cerr << "Number of children at level " << level << ": " << count << std::endl;
 
         for (CFIndex i = 0; i < count; i++) {
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+            auto child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(children, i));
             if (!AXAttribute::isValid(child)) {
                 std::cerr << "No valid child found at index " << i << std::endl;
                 continue;
@@ -326,9 +326,9 @@ namespace AXFinder {
 
             // Get and print the title of each child
             CFStringRef title = nullptr;
-            if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, (CFTypeRef*)&title) == kAXErrorSuccess && title) {
+            if (AXUIElementCopyAttributeValue(child, kAXTitleAttribute, castutil::toCFTypeRef(&title)) == kAXErrorSuccess && title) {
                 std::cout << std::string(level * 2, ' ') << "Title: ";
-                CFStringUtil::printCFString(title);
+                cfstringutil::printCFString(title);
                 CFRelease(title);
             }
 
@@ -338,7 +338,7 @@ namespace AXFinder {
             CFTypeRef attributeValue = nullptr;
             AXError attrError = AXUIElementCopyAttributeValue(child, searchAttribute, &attributeValue);
             if (attrError == kAXErrorSuccess && attributeValue) {
-                CFStringRef attrStr = static_cast<CFStringRef>(attributeValue);
+                auto attrStr = static_cast<CFStringRef>(attributeValue);
                 if (CFStringCompare(attrStr, valueToFind, kCFCompareCaseInsensitive | kCFCompareNonliteral) == kCFCompareEqualTo) {
                     std::cerr << "Match found at index " << i << " - Level " << level << std::endl;
                     CFRelease(attributeValue);  // Release attribute value
@@ -383,7 +383,7 @@ namespace AXFinder {
         CFArrayRef children = nullptr;
 
         // Retrieve the children of the parent element
-        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+        AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, castutil::toCFTypeRef(&children));
         if (error != kAXErrorSuccess || !children) {
             std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
             return nullptr;  // If failed, return early to avoid accessing nullptr
@@ -393,7 +393,7 @@ namespace AXFinder {
         std::cerr << "Number of children at level " << level << ": " << count << std::endl;
 
         for (CFIndex i = 0; i < count; i++) {
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+            auto child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(children, i));
             if (!child) {
                 std::cerr << "No valid child found at index " << i << std::endl;
                 continue;  // Skip to next child if invalid
@@ -405,7 +405,7 @@ namespace AXFinder {
             CFTypeRef identifier = nullptr;
             AXError idError = AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, &identifier);
             if (idError == kAXErrorSuccess && identifier) {
-                CFStringRef identifierStr = static_cast<CFStringRef>(identifier);
+                auto identifierStr = static_cast<CFStringRef>(identifier);
                 if (CFStringCompare(identifierStr, identifierToFind, 0) == kCFCompareEqualTo) {
                     std::cerr << "Match found at index " << i << " - Level " << level << std::endl;
                     CFRelease(identifier);  // Release identifier
@@ -421,7 +421,7 @@ namespace AXFinder {
 
             // Recursively search in child elements
             std::cerr << "Recursing into child at index " << i << std::endl;
-            AXUIElementRef found = findElementByIdentifier(child, identifierToFind, level + 1);
+            auto found = findElementByIdentifier(child, identifierToFind, level + 1);
             if (found) {
                 std::cerr << "Found element during recursion at level " << level << std::endl;
                 CFRelease(children);  // Release children array before returning
@@ -444,7 +444,7 @@ namespace AXFinder {
         AXUIElementRef appElement = AXFinder::appElement();
         if (AXAttribute::isValid(appElement)) {
             // Get the main window of the application
-            AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, (CFTypeRef*)&window);
+            AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute, castutil::toCFTypeRef(&window));
             CFRelease(appElement);
             //std::cerr << "main window found - PID " + std::to_string(PID::getInstance().livePID()) << std::endl;
         } else {
@@ -457,7 +457,7 @@ namespace AXFinder {
         AXUIElementRef appElement = AXFinder::appElement();
         AXUIElementRef focusedElement = nullptr;
 
-        AXError error = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute, (CFTypeRef*)&focusedElement);
+        AXError error = AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute, castutil::toCFTypeRef(&focusedElement));
         if (error == kAXErrorSuccess && focusedElement != nullptr) {
             CFRetain(focusedElement);
             return(focusedElement);
@@ -490,7 +490,7 @@ namespace AXFinder {
                 break;
             }
 
-            AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(appElementChildren, i);
+            auto child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(appElementChildren, i));
             if (AXWindow::isPluginWindow(child)) {
                 logger->debug("Plugin Window: getCurrentPluginsWindow - Child " + std::to_string(static_cast<int>(i)));
                 CFRetain(child);  // Retain the child before adding to the vector
@@ -543,18 +543,18 @@ namespace AXFinder {
         AXPrinter::printAXTitle(deviceElement);
 
         CFArrayRef children = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(deviceElement, kAXChildrenAttribute, (CFTypeRef*)&children);
+        AXError error = AXUIElementCopyAttributeValue(deviceElement, kAXChildrenAttribute, castutil::toCFTypeRef(&children));
 
         if (error == kAXErrorSuccess && children) {
             CFIndex count = CFArrayGetCount(children);
 
             // Iterate over the children of TrackView.Device[i]
             for (CFIndex i = 0; i < count; i++) {
-                AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+                auto child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(children, i));
 
                 // Check if the child has the identifier TrackView.Device[i].TitleBar
                 CFStringRef identifier = nullptr;
-                if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, (CFTypeRef*)&identifier) == kAXErrorSuccess && identifier) {
+                if (AXUIElementCopyAttributeValue(child, kAXIdentifierAttribute, castutil::toCFTypeRef(&identifier)) == kAXErrorSuccess && identifier) {
                     char identifierBuffer[256];
                     if (CFStringGetCString(identifier, identifierBuffer, sizeof(identifierBuffer), kCFStringEncodingUTF8)) {
                         std::string identifierStr(identifierBuffer);

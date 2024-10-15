@@ -15,8 +15,8 @@ public:
 
   IPCResilienceDecorator(const IPCResilienceDecorator &) = delete;
   IPCResilienceDecorator(IPCResilienceDecorator &&) = delete;
-  IPCResilienceDecorator &operator=(const IPCResilienceDecorator &) = delete;
-  IPCResilienceDecorator &operator=(IPCResilienceDecorator &&) = delete;
+  auto operator=(const IPCResilienceDecorator &) -> IPCResilienceDecorator & = delete;
+  auto operator=(IPCResilienceDecorator &&) -> IPCResilienceDecorator & = delete;
 
   auto init() -> bool override;
   [[nodiscard]] auto isInitialized() const -> bool override;

@@ -10,7 +10,7 @@
 class Scope {
 public:
     template<typename T>
-    std::shared_ptr<T> resolve(const std::function<std::shared_ptr<T>()>& factory) {
+    auto resolve(const std::function<std::shared_ptr<T>()>& factory) -> std::shared_ptr<T> {
         auto it = instances_.find(typeid(T));
         if (it != instances_.end()) {
             return std::static_pointer_cast<T>(it->second);
@@ -30,9 +30,9 @@ public:
     ~DependencyContainer() = default;
 
     DependencyContainer(const DependencyContainer&) = delete;
-    DependencyContainer& operator=(const DependencyContainer&) = delete;
+    auto operator=(const DependencyContainer&) -> DependencyContainer& = delete;
     DependencyContainer(DependencyContainer&&) = delete;
-    DependencyContainer& operator=(DependencyContainer&&) = delete;
+    auto operator=(DependencyContainer&&) -> DependencyContainer& = delete;
 
     enum class Lifetime {
         Transient,

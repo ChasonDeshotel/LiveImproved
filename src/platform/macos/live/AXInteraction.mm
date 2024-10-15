@@ -28,7 +28,7 @@ namespace AXInteraction {
 
         // Try to get the close button
         AXUIElementRef closeButton = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(element, kAXCloseButtonAttribute, (CFTypeRef *)&closeButton);
+        AXError error = AXUIElementCopyAttributeValue(element, kAXCloseButtonAttribute, castutil::toCFTypeRef(&closeButton));
         
         if (error != kAXErrorSuccess || !closeButton) {
             return;
@@ -49,7 +49,7 @@ namespace AXInteraction {
         AXUIElementRef frontmostWindow = AXFinder::getFrontmostWindow();
 
         CFStringRef frontmostTitle = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(frontmostWindow, kAXTitleAttribute, (CFTypeRef *)&frontmostTitle);
+        AXError error = AXUIElementCopyAttributeValue(frontmostWindow, kAXTitleAttribute, castutil::toCFTypeRef(&frontmostTitle));
 
         if (error != kAXErrorSuccess || !frontmostTitle) {
             logger->debug("Failed to get title of frontmost window.");
@@ -57,7 +57,7 @@ namespace AXInteraction {
         }
 
         // Convert the frontmost window title to a std::string
-        NSString *frontmostTitleNS = (__bridge NSString *)frontmostTitle;
+        auto *frontmostTitleNS = (__bridge NSString *)frontmostTitle;
         std::string frontmostTitleStr([frontmostTitleNS UTF8String]);
 
         // Get plugin windows from Live
@@ -75,11 +75,11 @@ namespace AXInteraction {
         bool found = false;
         for (const auto& pluginWindow : pluginWindows) {
             CFStringRef pluginTitle = nullptr;
-            AXError pluginError = AXUIElementCopyAttributeValue(pluginWindow, kAXTitleAttribute, (CFTypeRef *)&pluginTitle);
+            AXError pluginError = AXUIElementCopyAttributeValue(pluginWindow, kAXTitleAttribute, castutil::toCFTypeRef(&pluginTitle));
 
             if (pluginError == kAXErrorSuccess && pluginTitle) {
                 // Convert the plugin window title to a std::string
-                NSString *pluginTitleNS = (__bridge NSString *)pluginTitle;
+                auto *pluginTitleNS = (__bridge NSString *)pluginTitle;
                 std::string pluginTitleStr([pluginTitleNS UTF8String]);
 
                 // plugin is top and focused
@@ -106,7 +106,7 @@ namespace AXInteraction {
 
         AXUIElementRef highestPlugin = windows[0];
 
-        CGWindowID windowID;
+        CGWindowID windowID = -1;
         AXError error = _AXUIElementGetWindow(highestPlugin, &windowID);
         if (error == kAXErrorSuccess) {
             logger->debug("ID: " + std::to_string(static_cast<int>(windowID)));
@@ -125,7 +125,7 @@ namespace AXInteraction {
 
         // now we get to close all of the windows
         for (const auto& plugin : pluginWindows) {
-            CGWindowID windowID;
+            CGWindowID windowID = -1;
             AXError error = _AXUIElementGetWindow(plugin, &windowID);
             if (error == kAXErrorSuccess) {
                 logger->debug("ID: " + std::to_string(static_cast<int>(windowID)));

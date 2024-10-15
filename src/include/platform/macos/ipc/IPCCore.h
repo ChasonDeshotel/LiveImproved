@@ -17,21 +17,21 @@ public:
 
     IPCCore(const IPCCore &) = delete;
     IPCCore(IPCCore &&) = delete;
-    IPCCore &operator=(const IPCCore &) = delete;
-    IPCCore &operator=(IPCCore &&) = delete;
+    auto operator=(const IPCCore &) -> IPCCore & = delete;
+    auto operator=(IPCCore &&) -> IPCCore & = delete;
 
-    bool init() override;
+    auto init() -> bool override;
 
-    bool isInitialized() const override {
+    [[nodiscard]] auto isInitialized() const -> bool override {
         return isInitialized_;
     }
 
     void writeRequest(const std::string& message, ResponseCallback callback) override;
     void writeRequest(const std::string& message) override {
-        return writeRequest(message, nullptr);
+        writeRequest(message, nullptr);
     }
 
-    std::string readResponse(ResponseCallback callback) override;
+    auto readResponse(ResponseCallback callback) -> std::string override;
     void drainPipe(int fd) override;
     void closeAndDeletePipes() override;
 
@@ -66,10 +66,10 @@ private:
     std::condition_variable queueCondition_;
     std::atomic<bool>isProcessingRequest_{false};
 
-    bool writeRequestInternal(const std::string& message, ResponseCallback callback);
+    auto writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool;
     void processNextRequest();
     std::atomic<uint64_t> nextRequestId_;
-	std::string formatRequest(const std::string& request, uint64_t id);
+    auto formatRequest(const std::string& request, uint64_t id) -> std::string;
 
     void resetResponsePipe();
 
@@ -80,7 +80,7 @@ private:
 
     void removePipeIfExists(const std::string& pipeName);
 
-    bool createPipe(const std::string& pipeName);
-    bool openPipeForWrite(const std::string& pipeName, bool nonBlocking = false);
-    bool openPipeForRead(const std::string& pipeName, bool nonBlocking = false);
+    auto createPipe(const std::string& pipeName) -> bool;
+    auto openPipeForWrite(const std::string& pipeName, bool nonBlocking = false) -> bool;
+    auto openPipeForRead(const std::string& pipeName, bool nonBlocking = false) -> bool;
 };

@@ -1,14 +1,16 @@
-#ifndef TYPES_H
-#define TYPES_H
+#pragma once
 
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <unordered_set>
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include "LogGlobal.h"
 
 // pid_t
 #ifdef _WIN32
@@ -19,15 +21,6 @@ typedef DWORD pid_t;
 #include <unistd.h>
 #endif
 
-enum class LogLevel {
-    LOG_TRACE,
-    LOG_DEBUG,
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR,
-    LOG_FATAL
-};
-
 struct ERect {
     int x;
     int y;
@@ -37,7 +30,7 @@ struct ERect {
 
 // Actions
 struct NamedActions {
-    static const std::unordered_set<std::string>& get() {
+    static auto get() -> const std::unordered_set<std::string>& {
         static const std::unordered_set<std::string> namedActions = {
             "load_item"
             , "plugin"
@@ -82,7 +75,7 @@ struct Action {
 
 // Keyboard
 struct NamedKeys {
-    static const std::unordered_set<std::string>& get() {
+    static auto get() -> const std::unordered_set<std::string>& {
         static const std::unordered_set<std::string> namedKeys = {
               "delete"
             , "enter"
@@ -140,6 +133,15 @@ struct EKeyPress {
            << ", key=" << kp.key << ")";
         return os;
     }
+
+    void print() const {
+        logger->info("state\t" + std::to_string(static_cast<int>(state)));
+        logger->info("shift\t" + std::string(shift ? "true" : "false"));
+        logger->info("ctrl\t" + std::string(ctrl ? "true" : "false"));
+        logger->info("cmd\t" + std::string(cmd ? "true" : "false"));
+        logger->info("alt\t" + std::string(alt ? "true" : "false"));
+        logger->info("key\t" + key);
+    }
 };
 
 struct EMacroHash {
@@ -180,6 +182,23 @@ struct EMacro {
         os << "])";
         return os;
     }
+
+    void print() const {
+        for (size_t i = 0; i < steps.size(); ++i) {
+            logger->info("Step\t" + std::to_string(i + 1));
+            std::visit([this](const auto& step) {
+                if constexpr (std::is_same_v<std::decay_t<decltype(step)>, EKeyPress>) {
+                    step.print();
+                } else if constexpr (std::is_same_v<std::decay_t<decltype(step)>, Action>) {
+                    logger->info("Action\t" + step.actionName);
+                    if (step.arguments) {
+                        logger->info("Arguments\t" + *step.arguments);
+                    }
+                }
+            }, steps[i]);
+            logger->info("");
+        }
+    }
 };
 
 // New Folder (3)
@@ -189,5 +208,3 @@ struct Plugin {
     std::string type;
     std::string uri;
 };
-
-#endif

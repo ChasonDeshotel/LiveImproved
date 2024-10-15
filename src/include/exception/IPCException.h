@@ -8,7 +8,7 @@ public:
     IPCException(const std::string& message, LogLevel level = LogLevel::LOG_ERROR)
         : std::runtime_error(message), logLevel(level) {}
 
-    [[nodiscard]] LogLevel getLogLevel() const { return logLevel; }
+    [[nodiscard]] auto getLogLevel() const -> LogLevel { return logLevel; }
 
 private:
     LogLevel logLevel;

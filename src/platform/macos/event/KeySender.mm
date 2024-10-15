@@ -17,7 +17,8 @@ std::string toLower(const std::string& str) {
     return lowerStr;
 }
 
-std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
+std::unordered_map<std::string, CGKeyCode> const keyCodeMap = {
+    // NOLINTBEGIN
     {"a", 0}
     , {"s", 1}
     , {"d", 2}
@@ -105,6 +106,7 @@ std::unordered_map<std::string, CGKeyCode> keyCodeMap = {
     , {"pagedown", 121}
     , {"help", 114}
     , {"forwarddelete", 117}
+    // NOLINTEND
 };
 
 std::optional<CGKeyCode> getKeyCode(const std::string& key) {
@@ -155,13 +157,13 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
             CGKeyCode keyCode = *keyCodeOpt;
             logger->debug("KeySender:: keycode: " + std::to_string(keyCode));
 
-            CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, keyCode, true);
+            CGEventRef keyDown = CGEventCreateKeyboardEvent(nullptr, keyCode, true);
             CGEventSetFlags(keyDown, flags);
             CGEventPost(kCGAnnotatedSessionEventTap, keyDown);
             CFRelease(keyDown);
 
             //logger->info("sending keyUp: " + std::to_string(keyCode));
-            CGEventRef keyUp = CGEventCreateKeyboardEvent(NULL, keyCode, false);
+            CGEventRef keyUp = CGEventCreateKeyboardEvent(nullptr, keyCode, false);
             CGEventSetFlags(keyUp, flags);
             CGEventPost(kCGAnnotatedSessionEventTap, keyUp);
             CFRelease(keyUp);

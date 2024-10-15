@@ -5,8 +5,10 @@
 class KeySender {
 public:
     KeySender();
+    KeySender(const KeySender&) = delete;
     KeySender(KeySender &&) = delete;
-    KeySender &operator=(KeySender &&) = delete;
+    auto operator=(const KeySender&) -> KeySender& = delete;
+    auto operator=(KeySender &&) -> KeySender& = delete;
     ~KeySender();
 
     static auto getInstance() -> KeySender& {
@@ -16,12 +18,5 @@ public:
     void sendKeyPress(const EKeyPress& kp);
 
 private:
-
-    KeySender(const KeySender&) = delete;
-    KeySender& operator=(const KeySender&) = delete;
-
-    //void sendKeyDown(const EKeyPress& kp);
-    //void sendKeyUp(const EKeyPress& kp);
     void sendIndividualKeyPress(const EKeyPress& kp);
-    //void sendModifiedKeyCombo(const EKeyPress& kp);
 };

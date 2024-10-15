@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 
-#include "Types.h"
+#include "LogLevel.h"
 #include "ILogHandler.h"
 
 class LogHandler : public ILogHandler {

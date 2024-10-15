@@ -28,6 +28,7 @@ std::string keyCodeToString(CGKeyCode keyCode) {
     // Handle special keys
     switch (keyCode) {
         // Function keys
+        // NOLINTBEGIN
         case 122: return "F1";        // kVK_F1
         case 120: return "F2";        // kVK_F2
         case 99: return "F3";         // kVK_F3
@@ -66,10 +67,11 @@ std::string keyCodeToString(CGKeyCode keyCode) {
         case 33: return "[";         // kVK_ANSI_LeftBracket
         case 30: return "]";         // kVK_ANSI_RightBracket
         case 42: return "\\";        // kVK_ANSI_Backslash
+        // NOLINTEND
         
         default:
             UniChar chars[4];
-            UniCharCount length;
+            UniCharCount length = 0;
 
             CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
             CGEventRef keyEvent = CGEventCreateKeyboardEvent(source, keyCode, false);
@@ -140,7 +142,7 @@ void EventHandler::focusWindow(void* nativeWindowHandle) {
 
         [NSApp activateIgnoringOtherApps:YES];
 
-        NSView* view = (NSView*)nativeWindowHandle;
+        auto view = (NSView*)nativeWindowHandle;
         if (view != nil) {
             NSWindow* window = [view window];  // Get the NSWindow that contains this NSView
             if (window != nil) {
@@ -153,6 +155,7 @@ void EventHandler::focusWindow(void* nativeWindowHandle) {
 
 bool EventHandler::isWindowFocused(int windowID) {
     NSArray *windows = [NSApp windows];
+    // NOLINTNEXTLINE
     for (NSWindow *window in windows) {
         if ([window windowNumber] == windowID) {
             return [window isKeyWindow];
@@ -162,6 +165,7 @@ bool EventHandler::isWindowFocused(int windowID) {
 }
 
 void EventHandler::test() {
+    // NOLINTNEXTLINE
     for (NSDictionary *windowInfo in getAllWindowsForApp()) {
         logWindowInfo(windowInfo);
     }
@@ -169,18 +173,23 @@ void EventHandler::test() {
 
 void EventHandler::logWindowInfo(NSDictionary *windowInfo) {
     // Get window name
+    // NOLINTNEXTLINE
     NSString *windowName = (__bridge NSString *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowName);
     if (!windowName) windowName = @"Unnamed Window";
 
     // Get window bounds
+    // NOLINTNEXTLINE
     NSDictionary *boundsDict = (__bridge NSDictionary *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowBounds);
-    CGRect windowBounds;
+    CGRect windowBounds{};
+    // NOLINTNEXTLINE
     CGRectMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)boundsDict, &windowBounds);
 
     // Get window ID
+    // NOLINTNEXTLINE
     NSNumber *windowID = (__bridge NSNumber *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowNumber);
 
     // Get window layer
+    // NOLINTNEXTLINE
     NSNumber *windowLayer = (__bridge NSNumber *)CFDictionaryGetValue((__bridge CFDictionaryRef)windowInfo, kCGWindowLayer);
 
     // Build the debug log string
@@ -200,17 +209,20 @@ NSArray *EventHandler::getAllWindowsForApp() {
     CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
 
     for (CFIndex i = 0; i < CFArrayGetCount(windowList); i++) {
+        // NOLINTNEXTLINE
         CFDictionaryRef windowInfo = (CFDictionaryRef)CFArrayGetValueAtIndex(windowList, i);
+        // NOLINTNEXTLINE
         CFNumberRef windowPID = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowOwnerPID);
 
-        pid_t windowPidValue;
+        pid_t windowPidValue = -1;
         CFNumberGetValue(windowPID, kCFNumberIntType, &windowPidValue);
 
         if (windowPidValue == PID::getInstance().livePID()) {
             // Get the window level to determine if it's a floating window or standard window
             // must do this or we'll return the plugin popup's bounds
+            // NOLINTNEXTLINE
             CFNumberRef windowLevel = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowLayer);
-            int level;
+            int level = -1;
             CFNumberGetValue(windowLevel, kCFNumberIntType, &level);
 
             // Live main window is level 0
@@ -220,6 +232,7 @@ NSArray *EventHandler::getAllWindowsForApp() {
 //            }
             [appWindows addObject:(__bridge NSDictionary *)windowInfo];
 
+            // NOLINTNEXTLINE
             CFDictionaryRef boundsDict = (CFDictionaryRef)CFDictionaryGetValue(windowInfo, kCGWindowBounds);
             CGRect bounds;
             CGRectMakeWithDictionaryRepresentation(boundsDict, &bounds);
@@ -275,7 +288,7 @@ void EventHandler::focusWindow(int windowID) {
 
         [NSApp activateIgnoringOtherApps:YES];
 
-        NSView* view = (NSView*)viewPointer;
+        auto* view = (NSView*)viewPointer;
         if (view != nil) {
             NSWindow* window = [view window];  // Get the NSWindow that contains this NSView
             if (window != nil) {
@@ -304,19 +317,22 @@ NSRect getLiveBounds() {
     CFIndex count = CFArrayGetCount(windowList);
 
     for (CFIndex i = 0; i < count; i++) {
+        // NOLINTNEXTLINE
         CFDictionaryRef windowInfo = (CFDictionaryRef)CFArrayGetValueAtIndex(windowList, i);
 
-        CFNumberRef windowPID;
+        CFNumberRef windowPID = nullptr;
+        // NOLINTNEXTLINE
         windowPID = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowOwnerPID);
 
-        pid_t windowPidValue;
+        pid_t windowPidValue = -1;
         CFNumberGetValue(windowPID, kCFNumberIntType, &windowPidValue);
 
         if (windowPidValue == PID::getInstance().livePID()) {
             // Get the window level to determine if it's a floating window or standard window
             // must do this or we'll return the plugin popup's bounds
+            // NOLINTNEXTLINE
             CFNumberRef windowLevel = (CFNumberRef)CFDictionaryGetValue(windowInfo, kCGWindowLayer);
-            int level;
+            int level = -1;
             CFNumberGetValue(windowLevel, kCFNumberIntType, &level);
 
             // Standard windows typically have a layer of 0, floating windows are higher
@@ -324,6 +340,7 @@ NSRect getLiveBounds() {
                 continue;  // Skip non-standard windows (likely pop-ups)
             }
 
+            // NOLINTNEXTLINE
             CFDictionaryRef boundsDict = (CFDictionaryRef)CFDictionaryGetValue(windowInfo, kCGWindowBounds);
             CGRect bounds;
             CGRectMakeWithDictionaryRepresentation(boundsDict, &bounds);
@@ -340,7 +357,7 @@ NSRect getLiveBounds() {
 
 ERect EventHandler::getLiveBoundsRect() {
     NSRect appBounds = getLiveBounds();
-    ERect rect;
+    ERect rect{};
     rect.x = static_cast<int>(appBounds.origin.x);
     rect.y = static_cast<int>(appBounds.origin.y);
     rect.width = static_cast<int>(appBounds.size.width);
@@ -368,9 +385,10 @@ const int doubleClickThresholdMs = 300;
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogEventType, CGEventRef ogEvent, void *refcon) {
     // fix some edge cases where event gets destroyed
+    // NOLINTNEXTLINE
     CGEventRef event = (CGEventRef)CFRetain(ogEvent);
     CGEventType eventType = CGEventGetType(event);
-    EventHandler* handler = static_cast<EventHandler*>(refcon);
+    auto* handler = static_cast<EventHandler*>(refcon);
 
     // TODO store/pass these so we don't have to call them every time
     // or at least only call these where necessary
@@ -379,7 +397,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
     auto actionHandler = handler->actionHandler_();
 
     // 40 is weird. The normal flag didn't work
-    pid_t eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)40);
+    const auto magicFieldThatActuallyGetsPID = 40;
+    auto eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)magicFieldThatActuallyGetsPID);
 
     // close the search box when clicking in Live
     if (windowManager->isWindowOpen("SearchBox")) {
@@ -389,13 +408,14 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                 //handler->log_->info("app pid: " + std::to_string(PID::getInstance().appPID()));
                 //handler->log_->info("live pid: " + std::to_string(PID::getInstance().livePID()));
                 
-                pid_t targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
+                auto targetPID = (pid_t)CGEventGetIntegerValueField(event, kCGEventTargetUnixProcessID);
                 CGPoint location = CGEventGetLocation(event);
                 CFRelease(event);
 
                 logger->info("target pid: " + std::to_string(targetPID));
 
-                NSView *nativeView = reinterpret_cast<NSView *>(windowManager->getWindowHandle("SearchBox"));
+                // NOLINTNEXTLINE
+                auto* nativeView = reinterpret_cast<NSView *>(windowManager->getWindowHandle("SearchBox"));
                 logger->debug("got window handle");
 
                 NSWindow *searchBoxWindow = [nativeView window];
@@ -441,7 +461,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                     dispatch_async(dispatch_get_main_queue(), ^{
                         actionHandler->handleDoubleRightClick();
                     });
-                    return NULL;
+                    return nullptr;
                 }
             } else {
                 // handler->log_->info("First right click detected, skipping double-click check");
@@ -478,7 +498,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
 
             bool shouldPassEvent = actionHandler->handleKeyEvent(pressedKey);
 
-            return shouldPassEvent ? event : NULL;
+            return shouldPassEvent ? event : nullptr;
         }
     }
 

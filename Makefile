@@ -48,3 +48,18 @@ clean:
 
 tidy:
 	@$(MAKE) -C ./build/macos-cli tidy
+
+tidy-file:
+	@if [ -z "$(SOURCE_FILE)" ]; then \
+		echo "Please specify a SOURCE_FILE to run clang-tidy on."; \
+		echo "Usage: make tidy-file SOURCE_FILE=path/to/your/file.cpp"; \
+		exit 1; \
+	fi
+	@CLANG_TIDY_EXE=$$(which clang-tidy) && \
+	BUILD_DIR=$(CLI_BUILD_DIR) && \
+	"$${CLANG_TIDY_EXE}" \
+		"-p=$${BUILD_DIR}" \
+		"--header-filter=.*(?<!lib/).*" \
+		"--checks=-*,cppcoreguidelines-*,modernize-*" \
+		"--warnings-as-errors=*" \
+		"$(SOURCE_FILE)"

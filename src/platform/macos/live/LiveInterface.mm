@@ -100,7 +100,7 @@ void LiveInterface::removePluginWindowChangeObserver() {
 
 void LiveInterface::pluginWindowCreateCallback(AXObserverRef observer, AXUIElementRef element, 
                                          CFStringRef notification, void* context) {
-    LiveInterface* interface = static_cast<LiveInterface*>(context);
+    auto* interface = static_cast<LiveInterface*>(context);
     logger->info("create callback called");
 
     if (!AXWindow::isPluginWindow(element)) return;
@@ -121,7 +121,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
     // element is invalid/empty at this point in the lifecycle -- it's just empty
     //interface->printElementInfo(element, "element from destroy: ");
 
-    LiveInterface* interface = static_cast<LiveInterface*>(context);
+    auto* interface = static_cast<LiveInterface*>(context);
     logger->debug("Destroy callback called");
 //    if (interface->windowCloseInProgress_) {
 //        logger->info("Window close already in progress, skipping this event.");

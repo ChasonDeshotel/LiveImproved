@@ -3,18 +3,19 @@
 #import <Foundation/Foundation.h>
 
 #include "LogGlobal.h"
+#include "MacUtils.h"
 
 #include "AXAttribute.h"
 
 namespace AXAttribute {
     bool isEnabled(const AXUIElementRef elem) {
         CFBooleanRef enabled = nullptr;
-        if (AXUIElementCopyAttributeValue(elem, kAXEnabledAttribute, (CFTypeRef*)&enabled) == kAXErrorSuccess && enabled) {
+        if (AXUIElementCopyAttributeValue(elem, kAXEnabledAttribute, castutil::toCFTypeRef(&enabled)) == kAXErrorSuccess && enabled) {
             bool isEnabled = CFBooleanGetValue(enabled);  // Convert CFBooleanRef to bool
             CFRelease(enabled);  // Release the CFBooleanRef after use
             return isEnabled;
         } else {
-            std::cerr << "AXEnabled attribute not found or failed to retrieve." << std::endl;
+            logger->error("AXEnabled attribute not found or failed to retrieve.");
             return false;  // Return false if the element doesn't have the AXEnabled attribute or retrieval failed
         }
     }
@@ -54,10 +55,10 @@ namespace AXAttribute {
 
     CFStringRef getRole(const AXUIElementRef elementRef) {
         CFStringRef role = nullptr;
-        AXError error = AXUIElementCopyAttributeValue(elementRef, kAXRoleAttribute, (CFTypeRef *)&role);
+        AXError error = AXUIElementCopyAttributeValue(elementRef, kAXRoleAttribute, castutil::toCFTypeRef(&role));
 
         if (error != kAXErrorSuccess || !role) {
-            std::cout << "Failed to get role for element. Error: " << error << std::endl;
+            logger->warn("Failed to get role for element. Error: " + axerror::toString(error));
             return nullptr;
         }
 
