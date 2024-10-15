@@ -4,6 +4,15 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
 
+if(MSVC)
+    # Set the debug information format to C7 (/Z7)
+    add_compile_options(/Z7)
+endif()
+
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    set(CMAKE_GENERATOR_PLATFORM x64)
+endif()
+
 # Set BUILD_TESTS option with a default value of OFF
 option(BUILD_TESTS "Build the tests" OFF)
 

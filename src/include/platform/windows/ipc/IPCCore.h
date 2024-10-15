@@ -1,5 +1,4 @@
-#ifndef IPC_H
-#define IPC_H
+#pragma once
 
 #include <windows.h>
 #include <iostream>
@@ -10,17 +9,22 @@
 class ApplicationManager;
 class LogHandler;
 
-class IPC {
+class IPCCore {
 public:
-    IPC(ApplicationManager& appManager);
-    ~IPC();
+  IPCCore();
+  ~IPCCore();
 
-    bool init();
+  IPCCore(const IPCCore &) = default;
+  IPCCore(IPCCore &&) = delete;
+  IPCCore &operator=(const IPCCore &) = default;
+  IPCCore &operator=(IPCCore &&) = delete;
 
-    bool writeRequest(const std::string& message);
-    std::string readResponse();
-    bool initReadWithEventLoop(std::function<void(const std::string&)> callback);
-    void drainPipe(HANDLE pipe);
+  bool init();
+
+  bool writeRequest(const std::string &message);
+  std::string readResponse();
+  bool initReadWithEventLoop(std::function<void(const std::string &)> callback);
+  void drainPipe(HANDLE pipe);
 
 private:
     ApplicationManager& app_;
@@ -44,6 +48,4 @@ private:
 
     bool writeToPipe(HANDLE pipe, const std::string& message);
     std::string readFromPipe(HANDLE pipe);
-};
-
-#endif
+};  

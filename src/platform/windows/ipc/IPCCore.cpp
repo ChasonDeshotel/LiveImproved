@@ -11,12 +11,12 @@
 #include "IPCCore.h"
 #include "IPluginManager.h"
 
-IPCCore::IPC()
+IPCCore::IPCCore()
     : IIPCCore() {
     init();
 }
 
-IPCCore::~IPC() {
+IPCCore::~IPCCore() {
     for (auto& pipe : pipes_) {
         if (pipe.second != INVALID_HANDLE_VALUE) {
             CloseHandle(pipe.second);
