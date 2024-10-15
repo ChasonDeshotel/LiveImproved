@@ -1,18 +1,32 @@
-#include "ContextMenu.h"
-#include "ApplicationManager.h"
-#include "LogHandler.h"
-#include "ActionHandler.h"
-#include "ConfigMenu.h"
-#include "WindowManager.h"
 #include <windows.h>
+
+#include "LogGlobal.h"
+
+#include "IActionHandler.h"
+#include "IWindow.h"
+
+#include "ContextMenu.h"
+#include "ConfigMenu.h"
+
 #include <string>
 #include <vector>
 #include <functional>
 
-ContextMenu::ContextMenu(std::function<void(const std::string&)> callback)
-    : overrideCallback_(callback), isOpen_(false), hContextMenu_(NULL) {
-    menuItems_ = ApplicationManager::getInstance().getConfigMenu()->getMenuData();
-}
+ContextMenu::ContextMenu(
+        std::function<std::shared_ptr<ConfigMenu>()> configMenu 
+        , std::function<std::shared_ptr<IActionHandler>()> actionHandler
+        , std::function<std::shared_ptr<WindowManager>()> windowManager
+    )
+    : IWindow()
+    , configMenu_(std::move(configMenu))
+    , actionHandler_(std::move(actionHandler))
+    , windowManager_(std::move(windowManager))
+    , hContextMenu_()
+    {}
+    // TODO 
+    //menuItems_ = getConfigMenu()->getMenuData();
+    //, menuItems_(configMenu_()->getMenuData())
+    //, menuGenerator_(nil)
 
 void* ContextMenu::getWindowHandle() const {
     return nullptr;
@@ -21,7 +35,7 @@ void* ContextMenu::getWindowHandle() const {
 HMENU ContextMenu::createContextMenuWithItems(const std::vector<MenuItem>& items) {
     HMENU hMenu = CreatePopupMenu();
     if (!hMenu) {
-        LogHandler::getInstance().error("Failed to create context menu");
+        logger->error("Failed to create context menu");
         return NULL;
     }
 
@@ -39,49 +53,27 @@ HMENU ContextMenu::createContextMenuWithItems(const std::vector<MenuItem>& items
 }
 
 void ContextMenu::open() {
-    if (isOpen_) return;  // Don't open if already open
-
     POINT mouseLocation;
-    GetCursorPos(&mouseLocation);  // Get current mouse location
+    GetCursorPos(&mouseLocation);
 
     if (!hContextMenu_) {
         hContextMenu_ = createContextMenuWithItems(menuItems_);
     }
 
     if (hContextMenu_) {
-        isOpen_ = true;
         int selectedItem = TrackPopupMenu(hContextMenu_, TPM_RETURNCMD | TPM_NONOTIFY, mouseLocation.x, mouseLocation.y, 0, GetForegroundWindow(), NULL);
 
         if (selectedItem) {
             std::string selectedAction = reinterpret_cast<const char*>(selectedItem);
-            if (overrideCallback_) {
-                overrideCallback_(selectedAction);
-            } else {
-                ApplicationManager::getInstance().getActionHandler()->handleAction(selectedAction);
-            }
+            //actionHandler_()->handleAction(selectedAction);
         }
     }
 }
 
 void ContextMenu::close() {
-    if (isOpen_) {
-        LogHandler::getInstance().debug("ContextMenu::close called");
-        if (hContextMenu_) {
-            DestroyMenu(hContextMenu_);
-            hContextMenu_ = NULL;
-        }
-        isOpen_ = false;
+    logger->debug("ContextMenu::close called");
+    if (hContextMenu_) {
+        DestroyMenu(hContextMenu_);
+        hContextMenu_ = NULL;
     }
-}
-
-bool ContextMenu::isOpen() const {
-    return isOpen_;
-}
-
-void ContextMenu::setIsOpen(bool isOpen) {
-    isOpen_ = isOpen;
-}
-
-void ContextMenu::closeMenu() {
-    close();
 }

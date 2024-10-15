@@ -3,9 +3,11 @@
 #include <string>
 #include <optional>
 #include <algorithm>
-#include "KeySender.h"
-#include "LogHandler.h"
+
+#include "LogGlobal.h"
 #include "Types.h"
+
+#include "KeySender.h"
 
 namespace {
     std::unordered_map<std::string, WORD> keyCodeMap = {
@@ -54,11 +56,6 @@ namespace {
     }
 }
 
-KeySender::KeySender()
-    : log_(&LogHandler::getInstance()) {}
-
-KeySender::~KeySender() {}
-
 void KeySender::sendIndividualKeyPress(const EKeyPress& kp) {
     std::optional<WORD> keyCodeOpt = getKeyCode(toLower(kp.key));
     if (keyCodeOpt) {
@@ -78,13 +75,13 @@ void KeySender::sendIndividualKeyPress(const EKeyPress& kp) {
 
 void KeySender::sendKeyPress(const EKeyPress& kpRef) {
     EKeyPress kp = kpRef; // create a copy
-    log_->debug("KeySender::sendKeyPress called");
+    logger->debug("KeySender::sendKeyPress called");
 
-    log_->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd));
-    log_->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl));
-    log_->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt));
-    log_->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift));
-    log_->debug("KeySender:: Keypress key: "   + kp.key);
+    logger->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd));
+    logger->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl));
+    logger->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt));
+    logger->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift));
+    logger->debug("KeySender:: Keypress key: "   + kp.key);
 
     sendIndividualKeyPress(kp);
 }

@@ -22,7 +22,7 @@ public:
   ContextMenu(std::function<std::shared_ptr<ConfigMenu>()> configMenu,
               std::function<std::shared_ptr<IActionHandler>()> actionHandler,
               std::function<std::shared_ptr<WindowManager>()> windowManager);
-  ~ContextMenu() override; // Define a destructor to clean up the Objective-C object
+  ~ContextMenu() override;
 
   ContextMenu(const ContextMenu &) = delete;
   ContextMenu(ContextMenu &&) = delete;
@@ -33,9 +33,6 @@ public:
   void open() override;
   void close() override;
 
-  [[nodiscard]] auto isOpen() const -> bool;
-  void setIsOpen(bool isOpen);
-
   void closeMenu();
 
 private:
@@ -44,7 +41,6 @@ private:
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
 
     std::vector<MenuItem> menuItems_;
-    bool isOpen_ = false;
 
     NSMenu* contextMenu_;
     ContextMenuGenerator* menuGenerator_;

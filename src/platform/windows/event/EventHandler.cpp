@@ -1,18 +1,18 @@
-#include <windows.h>
-#include <string>
+#define NOMINMAX
+#include <Windows.h>
+
+#include <chrono>
 #include <iostream>
 #include <optional>
-#include <chrono>
+#include <string>
 
-#include "LogHandler.h"
-#include "EventHandler.h"
+#include "LogGlobal.h"
 #include "Types.h"
+
+#include "ActionHandler.h"
+#include "EventHandler.h"
 #include "PID.h"
 #include "WindowManager.h"
-#include "ActionHandler.h"
-
-#include <Windows.h>
-#include <string>
 
 // TODO move... somewhere
 std::string keyCodeToString(DWORD keyCode) {
@@ -80,8 +80,7 @@ EventHandler* EventHandler::instance = nullptr;
 
 EventHandler::EventHandler(WindowManager& windowManager, ActionHandler& actionHandler)
     : windowManager_(windowManager)
-    , actionHandler_(actionHandler)
-    , log_(LogHandler::getInstance()) {
+    , actionHandler_(actionHandler) {
     instance = this;
 }
 
@@ -100,11 +99,11 @@ void EventHandler::setupWindowsEventHook() {
     mouseHook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
 
     if (!keyboardHook || !mouseHook) {
-        log_.error("Failed to create hooks for event handling");
+        logger.error("Failed to create hooks for event handling");
         return;
     }
 
-    log_.debug("EventHandler: Windows hooks are active!");
+    logger.debug("EventHandler: Windows hooks are active!");
 }
 
 void EventHandler::cleanupWindowsHooks() {
@@ -237,13 +236,13 @@ void EventHandler::focusApplication(pid_t pid) {
     EnumWindows(EnumWindowsProc, (LPARAM)&pidDWORD);
 
     if (hwnd != NULL) {
-        log_.debug("Bringing app into focus: " + std::to_string(pidDWORD));
+        logger.debug("Bringing app into focus: " + std::to_string(pidDWORD));
 
         // Restore and bring the window to the foreground
         ShowWindow(hwnd, SW_RESTORE);  // Restore if minimized
         SetForegroundWindow(hwnd);     // Bring to foreground
     } else {
-        log_.error("Application window not found with PID: " + std::to_string(pidDWORD));
+        logger.error("Application window not found with PID: " + std::to_string(pidDWORD));
     }
 }
 

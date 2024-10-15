@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.15)
 set(BUILD_TESTING OFF)
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
@@ -101,13 +101,15 @@ if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
         RUNTIME DESTINATION bin
     )
 
-    # Copy additional files (like LICENSE) to the bundle
-    if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
-        add_custom_command(TARGET LiveImproved POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/LICENSE
-            $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
-        )
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        # Copy additional files (like LICENSE) to the bundle
+        if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+            add_custom_command(TARGET LiveImproved POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/LICENSE
+                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
+            )
+        endif()
     endif()
 else()
     # For tests, create a dummy executable target instead of an interface library
@@ -157,6 +159,13 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Including Windows-specific directories")
     target_include_directories(common_libs INTERFACE
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/event
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/gui
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/ipc
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live/component
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/system
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/util
     )
 endif()
 
@@ -190,8 +199,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         src/platform/macos/live/AXWindow.mm
         src/platform/macos/live/LiveInterface.mm
         src/platform/macos/live/component/AXCheckBox.mm
-        src/platform/macos/system/PathFinder.mm
         src/platform/macos/system/PID.mm
+        src/platform/macos/system/PathFinder.mm
     )
     list(APPEND SRC_CPP
         src/platform/macos/ipc/IPCCore.cpp
@@ -225,13 +234,13 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-        link_directories(/usr/local/Cellar/yaml-cpp/0.8.0/lib)
         link_directories(/usr/local/Cellar/harfbuzz/9.0.0/lib)
+        link_directories(/usr/local/Cellar/yaml-cpp/0.8.0/lib)
         set(HARFBUZZ_LIB /usr/local/Cellar/harfbuzz/9.0.0/lib/libharfbuzz.a)
         set(YAML_CPP_LIB /usr/local/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
     elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-        link_directories(/opt/homebrew/Cellar/yaml-cpp/0.8.0/lib)
         link_directories(/opt/homebrew/Cellar/harfbuzz/9.0.0/lib)
+        link_directories(/opt/homebrew/Cellar/yaml-cpp/0.8.0/lib)
         set(HARFBUZZ_LIB /opt/homebrew/Cellar/harfbuzz/9.0.0/lib/libharfbuzz.a)
         set(YAML_CPP_LIB /opt/homebrew/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
     endif()
@@ -241,42 +250,46 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         PRIVATE
         ${HARFBUZZ_LIB}
         ${YAML_CPP_LIB}
+        "-framework ApplicationServices"
         "-framework Cocoa"
         "-framework CoreFoundation"
         "-framework CoreGraphics"
-        "-framework ApplicationServices"
+        "-framework CoreImage"
         "-framework CoreVideo"
         "-framework IOKit"
-        "-framework CoreImage"
-        "-framework Security"
         "-framework QuartzCore"
+        "-framework Security"
     )
 
-	set_target_properties(LiveImproved PROPERTIES
-	    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
-	)
-	# Install rules for macOS application bundle
-	install(TARGETS LiveImproved
-	    BUNDLE DESTINATION /Applications
-	    RUNTIME DESTINATION bin
-	)
-
-	# Copy additional files (like LICENSE) to the bundle
-    if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
-        add_custom_command(TARGET LiveImproved POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/LICENSE
-            $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        set_target_properties(LiveImproved PROPERTIES
+            MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
         )
+
+        # Install rules for macOS application bundle
+        install(TARGETS LiveImproved
+            BUNDLE DESTINATION /Applications
+            RUNTIME DESTINATION bin
+        )
+
+        # Copy additional files (like LICENSE) to the bundle
+        if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+            add_custom_command(TARGET LiveImproved POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/LICENSE
+                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
+            )
+        endif()
     endif()
+
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(LiveImproved
         PRIVATE
-            user32.lib
-            gdi32.lib
-            shell32.lib
-            ole32.lib
             advapi32.lib
+            gdi32.lib
+            ole32.lib
+            shell32.lib
+            user32.lib
     )
 
     # No bundle generation on Windows, so we just generate an .exe
@@ -315,12 +328,12 @@ function(add_doctest_test TEST_PATH)
     )
     target_include_directories(${TARGET_NAME}
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
             ${COMMON_INCLUDE_DIRS}
+            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
             ${CMAKE_SOURCE_DIR}/abstract
             ${CMAKE_SOURCE_DIR}/src/include
-            ${CMAKE_SOURCE_DIR}/src/include/event
             ${CMAKE_SOURCE_DIR}/src/include/core
+            ${CMAKE_SOURCE_DIR}/src/include/event
             ${CMAKE_SOURCE_DIR}/mock
     )
     target_compile_definitions(${TARGET_NAME}

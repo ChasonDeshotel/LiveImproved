@@ -1,9 +1,11 @@
 #ifndef TEST_BUILD
 #include <JuceHeader.h>
 #endif
-#include <dispatch/dispatch.h>
-#include <unistd.h>
+//#include <dispatch/dispatch.h>
+//#include <unistd.h>
+#include <chrono>
 #include <future>
+#include <thread>
 
 #include "LogGlobal.h"
 #include "PathFinder.h"
@@ -83,6 +85,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
+        #ifndef WIN32
         container_.resolve<EventHandler>()->registerAppTermination([this]() {
             logger->info("termination callback called");
 
@@ -107,12 +110,13 @@ public:
             container_.resolve<EventHandler>()->registerAppLaunch([this]() {
                 logger->info("launch callback called");
                 // delay to let Live fully start up
-                sleep(LIVE_LAUNCH_DELAY);
+                juce::Thread::sleep(LIVE_LAUNCH_DELAY);
                 this->onLiveLaunch(2);
             });
         } else {
             onLiveLaunch(DEFAULT_IPC_DELAY);
         }
+        #endif
     }
 
     void onLiveLaunch(int ipcCallDelay) {
@@ -227,7 +231,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        if (ipcCallDelay > 0) sleep(ipcCallDelay);
+        if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
         logger->info("writing READY");
         container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
@@ -235,7 +239,7 @@ public:
         });
 
         // TODO: IPC queue should be able to handle more writes without sleep
-        sleep(2);
+        juce::Thread::sleep(2);
         logger->info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 

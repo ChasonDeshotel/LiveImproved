@@ -27,7 +27,7 @@ auto ConfigManager::loadConfig() -> void {
             throw std::runtime_error("Config file is not a regular file: " + configFile_.string());
         }
 
-        YAML::Node config = YAML::LoadFile(configFile_);
+        YAML::Node config = YAML::LoadFile(configFile_.generic_string());
         logger->info("Config file loaded successfully");
 
         applyConfig(config);
