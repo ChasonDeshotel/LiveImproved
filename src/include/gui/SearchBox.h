@@ -1,6 +1,11 @@
 #ifndef GUI_SEARCH_BOX_H
 #define GUI_SEARCH_BOX_H
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
 #include <string>
 #include <vector>
 #include <memory>
