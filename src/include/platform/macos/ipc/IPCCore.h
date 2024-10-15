@@ -5,6 +5,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <sys/_types/_useconds_t.h>
 
 #include "IIPCCore.h"
 
@@ -40,9 +41,20 @@ public:
     }
 
 private:
-    std::atomic<bool> stopIPC_{false};
+    static constexpr mode_t DEFAULT_DIRECTORY_PERMISSIONS = 0777;
+    static constexpr mode_t DEFAULT_PIPE_PERMISSIONS      = 0666;
+
+    static constexpr useconds_t DELAY_BETWEEN_READS = 20000;
+    static constexpr int MAX_READ_RETRIES           = 100;
+    static constexpr int MESSAGE_TRUNCATE_CHARS     = 100;
     static constexpr int MAX_PIPE_CREATION_ATTEMPTS = 100;
+    static constexpr int MAX_PIPE_SETUP_ATTEMPTS    = 100;
+    static constexpr size_t BUFFER_SIZE             = 8192;
+
     static constexpr std::chrono::milliseconds PIPE_CREATION_RETRY_DELAY{500};
+    static constexpr std::chrono::milliseconds PIPE_SETUP_RETRY_DELAY{500};
+
+    std::atomic<bool> stopIPC_{false};
     std::atomic<bool> readPipeCreated_{false};
     std::atomic<bool> writePipeCreated_{false};
     std::condition_variable createPipesCv_;
@@ -51,8 +63,6 @@ private:
     void createReadPipe();
     void createWritePipe();
 
-    static constexpr int MAX_PIPE_SETUP_ATTEMPTS = 100;
-    static constexpr std::chrono::milliseconds PIPE_SETUP_RETRY_DELAY{500};
     std::atomic<bool> readPipeReady_{false};
     std::atomic<bool> writePipeReady_{false};
     std::atomic<bool> isInitialized_{false};

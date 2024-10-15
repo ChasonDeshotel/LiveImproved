@@ -1,7 +1,6 @@
-#include <cstring>
+#include <cerrno>
 #include <cstring>
 #include <dispatch/dispatch.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <map>
 #include <queue>
@@ -193,16 +192,16 @@ auto IPCCore::createPipe(const std::string& pipeName) -> bool {
     std::string directory = pipeName.substr(0, pipeName.find_last_of('/'));
 
     // Check if the directory exists, and create it if it doesn't
-    struct stat st;
+    struct stat st{};
     if (stat(directory.c_str(), &st) == -1) {
-        if (mkdir(directory.c_str(), 0777) == -1) {
+        if (mkdir(directory.c_str(), DEFAULT_DIRECTORY_PERMISSIONS) == -1) {
             logger->error("Failed to create directory: " + directory + " - " + strerror(errno));
             return false;
         }
     }
 
     // Now create the pipe
-    if (mkfifo(pipeName.c_str(), 0666) == -1) {
+    if (mkfifo(pipeName.c_str(), DEFAULT_PIPE_PERMISSIONS) == -1) {
         if (errno == EEXIST) {
             logger->warn("Pipe already exists: " + pipeName);
         } else {
@@ -224,7 +223,7 @@ auto IPCCore::openPipeForWrite(const std::string& pipeName, bool nonBlocking) ->
         flags |= O_NONBLOCK;
     }
 
-    int fd = open(pipeName.c_str(), flags);
+    int fd = open(pipeName.c_str(), flags); // NOLINT
     if (fd == -1) {
         logger->error("Failed to open pipe for writing: " + pipeName + " - " + strerror(errno));
         return false;
@@ -241,7 +240,7 @@ auto IPCCore::openPipeForRead(const std::string& pipeName, bool nonBlocking) -> 
         flags |= O_NONBLOCK;
     }
 
-    int fd = open(pipeName.c_str(), flags);
+    int fd = open(pipeName.c_str(), flags); // NOLINT
     if (fd == -1) {
         logger->error("Failed to open pipe for reading: " + pipeName + " - " + strerror(errno));
         return false;
@@ -256,15 +255,15 @@ auto IPCCore::formatRequest(const std::string& message, uint64_t id) -> std::str
     size_t messageLength = message.length();
 
     std::ostringstream idStream;
-    idStream << std::setw(8) << std::setfill('0') << (id % 100000000);
+    idStream << std::setw(8) << std::setfill('0') << (id % 100000000); // NOLINT
     std::string paddedId = idStream.str();
 
     std::ostringstream markerStream;
-    markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength;
+    markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT
     std::string start_marker = markerStream.str();
 
     std::string formattedRequest = start_marker + message;
-    logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "...");
+    logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT
 
     return formattedRequest;
 }
@@ -316,7 +315,7 @@ auto IPCCore::processNextRequest() -> void {
             this->writeRequestInternal(nextRequest.first, nextRequest.second);
         }
 
-        usleep(100000); // Live operates on 100ms tick -- without this sleep commands are skipped
+        usleep(100000); // NOLINT Live operates on 100ms tick -- without this sleep commands are skipped
 
         if (!stopIPC_) {
             this->processNextRequest();
@@ -379,13 +378,12 @@ auto IPCCore::writeRequestInternal(const std::string& message, ResponseCallback 
 }
 
 auto IPCCore::drainPipe(int fd) -> void {
-    const size_t bufferSize = 4096;
-    char buffer[bufferSize];
+    std::array<char, BUFFER_SIZE> buffer{};
 
     // Use non-blocking read to drain the pipe
     ssize_t bytesRead = 0;
-    do {
-        bytesRead = read(fd, buffer, bufferSize);
+    do { // NOLINT - don't be stupid. Know and love the do-while
+        bytesRead = read(fd, buffer.data(), buffer.size());  // Use .data() to get the pointer
     } while (bytesRead > 0);
 }
 
@@ -409,27 +407,26 @@ auto IPCCore::readResponse(ResponseCallback callback) -> std::string {
     const size_t START_MARKER_SIZE = 6;
     const size_t REQUEST_ID_SIZE = 8;
     const size_t HEADER_SIZE = START_MARKER_SIZE + REQUEST_ID_SIZE + 8;
-    char header[HEADER_SIZE + 1];   // +1 for null-termination
-
+    std::array<char, HEADER_SIZE + 1> header{}; // +1 for null termination
     ssize_t bytesRead = 0;
     size_t totalHeaderRead = 0;
 
     // Retry loop in case of empty or partial reads
     int retry_count = 0;
-    int max_retries = 100;
-    while (totalHeaderRead < HEADER_SIZE && retry_count < max_retries) {
+    while (totalHeaderRead < HEADER_SIZE && retry_count < MAX_READ_RETRIES) {
         if (stopIPC_) {
             logger->info("IPC write initialization cancelled during read pipe setup.");
             return "";
         }
-        bytesRead = read(fd, header + totalHeaderRead, HEADER_SIZE - totalHeaderRead);
+        auto startIt = header.begin() + totalHeaderRead;
+        bytesRead = read(fd, &(*startIt), HEADER_SIZE - totalHeaderRead);
 
-        logger->debug("Header partial read: " + std::string(header, totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
+        logger->debug("Header partial read: " + std::string(header.data(), totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
 
         if (bytesRead < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 retry_count++;
-                usleep(20000);
+                usleep(DELAY_BETWEEN_READS);
                 continue;
             } else {
                 logger->error("Failed to read the full header. Error: " + std::string(strerror(errno)));
@@ -439,7 +436,7 @@ auto IPCCore::readResponse(ResponseCallback callback) -> std::string {
 
         if (bytesRead == 0) {
             retry_count++;
-            usleep(20000);
+            usleep(DELAY_BETWEEN_READS);
             continue;
         }
 
@@ -451,14 +448,13 @@ auto IPCCore::readResponse(ResponseCallback callback) -> std::string {
         return "";
     }
 
-    header[HEADER_SIZE] = '\0';  // Null-terminate the header string
-    logger->debug("Full header received: " + std::string(header));
+    logger->debug("Full header received: " + std::string(header.data(), totalHeaderRead));
 
     // size_t instead of int because comparisons
-    size_t messageSize;
+    size_t messageSize = 0;
     try {
         // Extract the response size (last 8 characters of the header)
-        std::string messageSizeStr(header + 14);  // Skip 'START_' and the 8 characters of request ID
+        std::string messageSizeStr(header.data() + 14);  // NOLINT Skip 'START_' and the 8 characters of request ID
         messageSize = std::stoull(messageSizeStr);  // Convert to size_t
     } catch (const std::invalid_argument& e) {
         logger->error("Invalid header. Could not parse message size: " + std::string(e.what()));
@@ -473,24 +469,23 @@ auto IPCCore::readResponse(ResponseCallback callback) -> std::string {
     // init to empty string for callbacks expecting a string arg
     std::string message = "";
     size_t totalBytesRead = 0;
-    const size_t bufferSize = 8192;
-    char buffer[bufferSize];
+    std::vector<char> buffer(BUFFER_SIZE);
 
     while (totalBytesRead < messageSize + endMarker.size()) {
         if (stopIPC_) {
             logger->info("IPC write initialization cancelled during read pipe setup.");
             return "";
         }
-        size_t bytesToRead = std::min(bufferSize, messageSize + endMarker.size() - totalBytesRead);
-        bytesRead = read(fd, buffer, bytesToRead);
+        size_t bytesToRead = std::min(BUFFER_SIZE, messageSize + endMarker.size() - totalBytesRead);
+        ssize_t bytesRead = read(fd, buffer.data(), bytesToRead);
 
         if (bytesRead <= 0) {
             logger->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
-            usleep(20000);
+            usleep(DELAY_BETWEEN_READS);
             continue;
         }
 
-        message.append(buffer, bytesRead);
+        message.append(buffer.data(), bytesRead);
         totalBytesRead += bytesRead;
         logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
@@ -507,9 +502,9 @@ auto IPCCore::readResponse(ResponseCallback callback) -> std::string {
     logger->debug("Total bytes read: " + std::to_string(totalBytesRead - endMarker.size()));
 
     logger->debug("Message read from response pipe: " + responsePipePath_);
-    if (message.length() > 100) {
+    if (message.length() > MESSAGE_TRUNCATE_CHARS) {
         logger->debug("Message truncated to 100 characters");
-        logger->debug("Message: " + message.substr(0, 100));
+        logger->debug("Message: " + message.substr(0, MESSAGE_TRUNCATE_CHARS));
     } else {
         logger->debug("Message: " + message);
     }
