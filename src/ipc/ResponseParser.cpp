@@ -22,8 +22,8 @@ auto ResponseParser::parsePlugins(const std::string& input) -> std::vector<Plugi
             plugin.name = fields[1];
             size_t typePos = fields[2].find('#');
             if (typePos != std::string::npos) {
-                plugin.type = fields[2].substr(typePos + 1, 5); // Extracts type (e.g., "#AUv2")
-                plugin.uri = fields[2].substr(typePos + 6);     // Extracts the URI part
+                plugin.type = fields[2].substr(typePos + 1, 5); // NOLINT Extracts type (e.g., "#AUv2")
+                plugin.uri = fields[2].substr(typePos + 6);     // NOLINT Extracts the URI part
             } else {
                 plugin.uri = fields[2];
             }
@@ -46,7 +46,6 @@ auto ResponseParser::parsePlugins(const std::string& input) -> std::vector<Plugi
 
 auto ResponseParser::getUniquePlugins(const std::vector<Plugin>& plugins) -> std::vector<Plugin> {
     std::unordered_map<std::string, Plugin> uniquePlugins;
-    std::unordered_map<std::string, int> typePriority = { {"VST3", 1}, {"AUv2", 2}, {"VST2", 3} };
 
     for (const auto& plugin : plugins) {
         if (uniquePlugins.find(plugin.name) == uniquePlugins.end()) {
