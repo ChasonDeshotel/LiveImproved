@@ -16,13 +16,14 @@
 
 class PluginListModel : public juce::ListBoxModel {
 public:
-    PluginListModel(std::shared_ptr<IPluginManager> pluginManager, std::shared_ptr<IActionHandler> actionHandler, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<Theme> theme)
+    PluginListModel(std::shared_ptr<IPluginManager> pluginManager, std::shared_ptr<IActionHandler> actionHandler, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<Theme> theme, int delayBeforeClose)
         : pluginManager_(std::move(pluginManager))
         , actionHandler_(std::move(actionHandler))
         , windowManager_(std::move(windowManager))
         , theme_(std::move(theme))
         , plugins_(pluginManager_->getPlugins())
         , filteredPlugins_(plugins_)
+        , delayBeforeClose_(delayBeforeClose)
     {}
 
     int getNumRows() override {
@@ -53,7 +54,7 @@ public:
             const Plugin* plugin = getPluginAtRow(row);
             if (plugin) {
                 int pluginID = plugin->number;
-                juce::Timer::callAfterDelay(100, [this, pluginID]() {
+                juce::Timer::callAfterDelay(delayBeforeClose_, [this, pluginID]() {
                     actionHandler_->loadItem(pluginID);
                     windowManager_->closeWindow("SearchBox");
                 });
@@ -84,6 +85,8 @@ public:
         filteredPlugins_ = plugins_;
     }
 
+public:
+    int delayBeforeClose_;
 private:
     std::shared_ptr<IPluginManager> pluginManager_;
     std::shared_ptr<IActionHandler> actionHandler_;
@@ -109,6 +112,7 @@ SearchBox::SearchBox(
     , windowManager_(std::move(windowManager))
     , theme_(std::move(theme))
     , limLookAndFeel_(std::move(limLookAndFeel))
+    , selectedRow_()
     {
 
     logger->debug("Creating SearchBoxWindowController");
@@ -122,7 +126,7 @@ SearchBox::SearchBox(
 
     juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_().get());
 
-    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_(), actionHandler_(), windowManager_(), theme_());
+    pluginListModel_ = std::make_unique<PluginListModel>(pluginManager_(), actionHandler_(), windowManager_(), theme_(), DELAY_BEFORE_CLOSE);
     listBox_.setModel(pluginListModel_.get());
     addAndMakeVisible(listBox_);
 
@@ -176,7 +180,7 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
         const Plugin* plugin = pluginListModel_->getPluginAtRow(selectedRow);
         if (plugin) {
             int pluginID = plugin->number;
-            juce::Timer::callAfterDelay(100, [this, pluginID]() {
+            juce::Timer::callAfterDelay(DELAY_BEFORE_CLOSE, [this, pluginID]() {
                 actionHandler_()->loadItem(pluginID);
                 windowManager_()->closeWindow("SearchBox");
             });
@@ -243,34 +247,28 @@ void SearchBox::setWindowGeometry() {
 
         // Get Ableton Live's window bounds (assuming you have this method)
         ERect liveBounds = eventHandler_()->getLiveBoundsRect();
-        int widgetWidth = 350;
-
-        // TODO calculate height from listbox row height + searchBox + padding
-        int widgetHeight = 300;
 
         // Center the widget inside Ableton Live's bounds
-        int xPos = liveBounds.x + (liveBounds.width - widgetWidth) / 2;
-        int yPos = liveBounds.y + (liveBounds.height - widgetHeight) / 2;
+        int xPos = liveBounds.x + (liveBounds.width - WIDGET_WIDTH) / 2;
+        int yPos = liveBounds.y + (liveBounds.height - WIDGET_HEIGHT) / 2;
 
         // Ensure the window is within the screen boundaries
-        xPos = std::max(0, std::min(xPos, screenWidth - widgetWidth));
-        yPos = std::max(0, std::min(yPos, screenHeight - widgetHeight));
+        xPos = std::max(0, std::min(xPos, screenWidth - WIDGET_WIDTH));
+        yPos = std::max(0, std::min(yPos, screenHeight - WIDGET_HEIGHT));
 
         // Set the position and size of the window
-        setBounds(xPos, yPos, widgetWidth, widgetHeight);
+        setBounds(xPos, yPos, WIDGET_WIDTH, WIDGET_HEIGHT);
     }
 }
 
 void SearchBox::resized() {
-    const int padding = 15;
     const int listBoxOffset = 10;
 
-    auto bounds = getLocalBounds().reduced(padding);
-    searchField_.setBounds(bounds.removeFromTop(30));
+    auto bounds = getLocalBounds().reduced(PADDING);
+    searchField_.setBounds(bounds.removeFromTop(SEARCHBOX_REMOVE_FROM_TOP));
 
-    listBox_.setRowHeight(20);
-    int numVisibleItems = 11;
-    int totalHeight = listBox_.getRowHeight() * numVisibleItems;
+    listBox_.setRowHeight(ROW_HEIGHT);
+    int totalHeight = listBox_.getRowHeight() * NUM_VISIBLE_ITEMS;
 
     listBox_.setBounds(bounds.translated(0, listBoxOffset));
     listBox_.setBounds(listBox_.getX(), listBox_.getY(), listBox_.getWidth(), totalHeight);
@@ -294,7 +292,7 @@ void SearchBox::open() {
 
     // hack for macOS
     // https://forum.juce.com/t/keyboard-focus-on-application-startup/9382/2
-    juce::Timer::callAfterDelay(100, [this]() {
+    juce::Timer::callAfterDelay(DELAY_BEFORE_FOCUS, [this]() {
         focus();
     });
 }
@@ -304,7 +302,7 @@ void SearchBox::focus() {
     // https://forum.juce.com/t/keyboard-focus-on-application-startup/9382/2
     if (!searchField_.hasKeyboardFocus(false)) {
         searchField_.grabKeyboardFocus();
-        juce::Timer::callAfterDelay(100, [this]() { focus(); });
+        juce::Timer::callAfterDelay(DELAY_BEFORE_FOCUS, [this]() { focus(); });
     }
 }
 
@@ -338,7 +336,7 @@ void* SearchBox::getWindowHandle() const {
 
         juce::MessageManager::callAsync([this, &handle, &event]() {
             handle = (void*)Component::getWindowHandle();
-            logger->debug("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle)));
+            logger->debug("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle))); // NOLINT
             event.signal();
         });
 
@@ -352,8 +350,12 @@ int SearchBox::getNumRows() {
     return static_cast<int>(filteredOptions_.size());
 }
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
 void SearchBox::paint(juce::Graphics& g) {
-    auto bounds = getLocalBounds().toFloat().reduced(0.5f); // Reduce by 0.5 to avoid anti-aliasing artifacts
+    auto bounds = getLocalBounds().toFloat().reduced(0.5f); // NOLINT Reduce by 0.5 to avoid anti-aliasing artifacts
 
     g.setColour(theme_()->getColorValue("SceneContrast"));
     g.fillRoundedRectangle(bounds, 6.0f); // bounds, cornerSize
@@ -373,6 +375,9 @@ void SearchBox::paint(juce::Graphics& g) {
     g.setFont(getHeight() * 0.7f);
 
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) {
     return;

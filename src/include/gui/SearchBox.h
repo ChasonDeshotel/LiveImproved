@@ -1,29 +1,22 @@
-#ifndef GUI_SEARCH_BOX_H
-#define GUI_SEARCH_BOX_H
-
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#endif
-
-#include <string>
-#include <vector>
-#include <memory>
-
-#include "IWindow.h"
-
-class IPluginManager;
+#pragma once
 
 #include <JuceHeader.h>
 
-class ApplicationManager;
-class PluginManager;
-class Plugin;
-class EventHandler;
+#include <memory>
+#include <vector>
+
+#include "IWindow.h"
+
 class IActionHandler;
-class WindowManager;
+class IPluginManager;
+
+class ApplicationManager;
+class EventHandler;
 class LimLookAndFeel;
+class Plugin;
+class PluginManager;
 class Theme;
+class WindowManager;
 
 class PluginListModel;
 
@@ -63,9 +56,6 @@ public:
     }
 };
 
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
 
 class CenteredTextEditor : public juce::TextEditor {
 public:
@@ -74,9 +64,9 @@ public:
         void resized() override
     {
         // Define the padding/margins
-        const int leftPadding = 10;
-        const int rightPadding = 10;
-        const int topPadding = 8;
+        const int leftPadding   = 10;
+        const int rightPadding  = 10;
+        const int topPadding    = 8;
         const int bottomPadding = 8;
 
         // Calculate the reduced bounds with padding applied
@@ -117,6 +107,9 @@ public:
         );
     ~SearchBox() override;
 
+    SearchBox(SearchBox&&) noexcept = delete;
+    SearchBox& operator=(SearchBox&&) noexcept = delete;
+
     void open() override;
     void close() override;
 
@@ -136,6 +129,20 @@ protected:
     void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
 
 private:
+    static constexpr int DELAY_BEFORE_FOCUS = 100;
+    static constexpr int DELAY_BEFORE_CLOSE = 100;
+
+    static constexpr int WIDGET_WIDTH  = 350;
+    static constexpr int WIDGET_HEIGHT = 300;
+
+    static constexpr int ROW_HEIGHT        = 20;
+    static constexpr int NUM_VISIBLE_ITEMS = 20;
+
+    static constexpr int PADDING        = 15;
+    static constexpr int LISTBOX_OFFSET = 10;
+
+    static constexpr int SEARCHBOX_REMOVE_FROM_TOP = 30;
+
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<EventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
@@ -158,10 +165,5 @@ private:
     void setWindowGeometry();
     void resetFilters();
 
-    SearchBox(SearchBox&&) noexcept = default;
-    SearchBox& operator=(SearchBox&&) noexcept = default;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SearchBox)
 };
-
-#endif
