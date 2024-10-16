@@ -40,8 +40,12 @@ public:
     EventHandler &operator=(const EventHandler &) = default;
     EventHandler &operator=(EventHandler &&) = delete;
 
-    void setupQuartzEventTap() override;
+    #ifndef _WIN32
     void runPlatform() override;
+    void setupQuartzEventTap() override;
+    void registerAppLaunch(std::function<void()> onLaunchCallback) override;
+    void registerAppTermination(std::function<void()> onTerminationCallback) override;
+    #endif
 
     void focusLim() override;
     void focusLive() override;
@@ -49,10 +53,6 @@ public:
     void focusWindow(int windowID) override;
 
     ERect getLiveBoundsRect() override;
-
-    void registerAppLaunch(std::function<void()> onLaunchCallback) override;
-    void registerAppTermination(std::function<void()> onTerminationCallback) override;
-
 
 private:
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;

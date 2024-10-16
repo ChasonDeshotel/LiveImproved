@@ -339,10 +339,10 @@ bool IPCCore::initReadWithEventLoop(std::function<void(const std::string&)> call
                 callback(response);
                 emptyReadCounter = 0;
             } else {
-                context->first->logger->debug("still transmitting");
+                logger->debug("still transmitting");
                 emptyReadCounter++;
                 if (emptyReadCounter > MAX_EMPTY_READS) {
-                    context->first->logger->error("Maximum empty reads reached. Terminating read attempt.");
+                    logger->error("Maximum empty reads reached. Terminating read attempt.");
                     emptyReadCounter = 0;
                     break;  // Exit the loop if too many empty reads
                 }

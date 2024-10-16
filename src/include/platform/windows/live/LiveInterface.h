@@ -7,12 +7,12 @@
 
 #include "ILiveInterface.h"
 
-class EventHandler;
+class IEventHandler;
 
 class LiveInterface : public ILiveInterface {
 public:
     LiveInterface(
-        std::function<std::shared_ptr<EventHandler>()> eventHandler
+        std::function<std::shared_ptr<IEventHandler>()> eventHandler
     );
 
     ~LiveInterface() override;

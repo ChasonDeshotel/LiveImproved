@@ -27,9 +27,6 @@ public:
   void drainPipe(HANDLE pipe);
 
 private:
-    ApplicationManager& app_;
-    LogHandler* log_;
-
     std::string readResponseInternal(HANDLE pipe);
 
     std::string requestPipePath = "\\\\.\\pipe\\lim_request";

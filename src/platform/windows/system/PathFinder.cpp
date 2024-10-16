@@ -1,4 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
@@ -12,7 +11,7 @@
 namespace fs = std::filesystem;
 
 namespace PathFinder {
-    std::string config() {
+    fs::path config() {
         char path[MAX_PATH];
         if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
             return fs::path(path) / "Ableton" / "User Library" / "LiveImproved" / "config.txt";
@@ -20,30 +19,30 @@ namespace PathFinder {
         throw std::runtime_error("Failed to get config file path");
     }
 
-    std::string configMenu() {
+    fs::path configMenu() {
         char path[MAX_PATH];
         if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
             return fs::path(path) / "Ableton" / "User Library" / "LiveImproved" / "config-menu.txt";
         }
         throw std::runtime_error("Failed to get config menu file path");
     }
-    std::string home() {
+    fs::path home() {
         char path[MAX_PATH];
         if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, path))) {
-            return std::string(path);
+            return fs::path(path);
         }
         throw std::runtime_error("Failed to get home directory");
     }
 
-    std::string log() {
+    fs::path log() {
         char path[MAX_PATH];
         if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
-            return fs::path(path) / "Logs" / "YourAppName.log";
+            fs::path(path) / "Logs" / "YourAppName.log";
         }
         throw std::runtime_error("Failed to get log path");
     }
 
-    std::string liveBundle() {
+    fs::path liveBundle() {
         char path[MAX_PATH];
         if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
             return fs::path(path) / "Ableton" / "Live";
@@ -51,7 +50,7 @@ namespace PathFinder {
         throw std::runtime_error("Failed to get Ableton Live bundle path");
     }
 
-    std::string liveBinary() {
+    fs::path liveBinary() {
         HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if (hSnapshot == INVALID_HANDLE_VALUE) {
             throw std::runtime_error("Failed to create process snapshot");
@@ -84,7 +83,7 @@ namespace PathFinder {
         throw std::runtime_error("Ableton Live process not found");
     }
 
-    std::string liveTheme() {
+    fs::path liveTheme() {
         HKEY hKey;
         LONG result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Ableton\\Live", 0, KEY_READ, &hKey);
         if (result != ERROR_SUCCESS) {
@@ -107,7 +106,7 @@ namespace PathFinder {
             throw std::runtime_error("Failed to parse Ableton Live version");
         }
 
-        std::string themePath = "C:\\ProgramData\\Ableton\\Live " + match.str() + "\\Themes";
+        fs::path themePath = "C:\\ProgramData\\Ableton\\Live " + match.str() + "\\Themes";
         if (!fs::exists(themePath)) {
             throw std::runtime_error("Ableton Live Themes folder not found");
         }

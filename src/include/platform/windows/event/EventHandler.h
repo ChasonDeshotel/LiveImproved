@@ -4,35 +4,41 @@
 #include <string>
 #include <optional>
 
+#include "IEventHandler.h"
 #include "Types.h"
 
-class ActionHandler;
+class IActionHandler;
 class WindowManager;
-class PID;
 
-class EventHandler {
+class EventHandler : public IEventHandler {
 public:
-  EventHandler(WindowManager &windowManager, ActionHandler &actionHandler);
-  ~EventHandler();
+    EventHandler(std::function<std::shared_ptr<IActionHandler>()> actionHandler
+                 , std::function<std::shared_ptr<WindowManager>()> windowManager
+    );
 
-  EventHandler(const EventHandler &) = default;
-  EventHandler(EventHandler &&) = delete;
-  EventHandler &operator=(const EventHandler &) = default;
-  EventHandler &operator=(EventHandler &&) = delete;
+    ~EventHandler() override;
 
-  void setupWindowsEventHook();
-  void cleanupWindowsHooks();
+    EventHandler(const EventHandler &) = default;
+    EventHandler(EventHandler &&) = delete;
+    EventHandler &operator=(const EventHandler &) = default;
+    EventHandler &operator=(EventHandler &&) = delete;
 
-  void focusLim();
-  void focusLive();
+    void focusLim() override;
+    void focusLive() override;
+    void focusWindow(void* nativeWindowHandle) override;
+    void focusWindow(int windowID) override;
 
-  ERect getLiveBoundsRect();
-
-  static EventHandler *instance;
+    ERect getLiveBoundsRect() override;
+    
+    void registerAppLaunch(std::function<void()> onLaunchCallback) override;
+    void registerAppTermination(std::function<void()> onLaunchCallback) override;
 
 private:
+    IActionHandler& actionHandler_;
     WindowManager& windowManager_;
-    ActionHandler& actionHandler_;
+
+    void setupWindowsEventHook();
+    void cleanupWindowsHooks();
 
     void focusApplication(pid_t pid);
 

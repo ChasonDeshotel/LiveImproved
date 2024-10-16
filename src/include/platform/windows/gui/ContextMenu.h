@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 
+#include "IWindow.h"
 #include "Types.h"
 
 class ConfigMenu;

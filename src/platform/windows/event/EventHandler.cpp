@@ -2,14 +2,16 @@
 #include <Windows.h>
 
 #include <chrono>
+#include <functional>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 
 #include "LogGlobal.h"
 #include "Types.h"
 
-#include "ActionHandler.h"
+#include "IActionHandler.h"
 #include "EventHandler.h"
 #include "PID.h"
 #include "WindowManager.h"
@@ -76,16 +78,15 @@ std::string keyCodeToString(DWORD keyCode) {
 HHOOK keyboardHook__ = NULL;
 HHOOK mouseHook_ = NULL;
 
-EventHandler* EventHandler::instance = nullptr;
-
-EventHandler::EventHandler(WindowManager& windowManager, ActionHandler& actionHandler)
-    : windowManager_(windowManager)
-    , actionHandler_(actionHandler)
-	, keyboardHook_(NULL)
+EventHandler::EventHandler(
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler
+    , std::function<std::shared_ptr<WindowManager>()> windowManager
+    )
+    : actionHandler_(std::move(actionHandler)
+    , windowManager_(std::move(windowManager)
+    , keyboardHook_(NULL)
     , mouseHook_(NULL)
-{
-    instance = this;
-}
+{}
 
 EventHandler::~EventHandler() {
     cleanupWindowsHooks();
@@ -231,6 +232,12 @@ void EventHandler::focusLive() {
     focusApplication(PID::getInstance().livePID());
 }
 
+void EventHandler::focusWindow(void* nativeWindowHandle) {
+}
+
+void EventHandler::focusWindow(int windowID) {
+}
+
 void EventHandler::focusApplication(pid_t pid) {
     HWND hwnd = NULL;
     DWORD pidDWORD = static_cast<DWORD>(pid);
@@ -274,4 +281,10 @@ ERect EventHandler::getLiveBoundsRect() {
         }, (LPARAM)&livePID);
 
     return appBounds;  // Return the bounds
+}
+
+void EventHandler::registerAppLaunch(std::function<void()> onLaunchCallback) {
+}
+
+void EventHandler::registerAppTermination(std::function<void()> onLaunchCallback) {
 }
