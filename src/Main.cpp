@@ -6,6 +6,7 @@
 #include <chrono>
 #include <future>
 #include <thread>
+#include <utility>
 
 #include "LogGlobal.h"
 #include "PathFinder.h"
@@ -42,6 +43,9 @@ private:
     static constexpr int LIVE_LAUNCH_DELAY = 10;
     static constexpr int DEFAULT_IPC_DELAY = 5;
 
+    std::optional<std::filesystem::path> configFilePath_;
+    std::optional<std::filesystem::path> configMenuPath_;
+
 public:
     JuceApp()
         : container_(DependencyContainer::getInstance())
@@ -67,20 +71,8 @@ public:
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
-        container_.registerFactory<IEventHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
-                // We can delay these resolutions if needed
-                return std::make_shared<EventHandler>(
-                    [&c]() { return c.resolve<IActionHandler>(); }
-                    , [&c]() { return c.resolve<WindowManager>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.resolve<IEventHandler>()->registerAppTermination([this]() {
-            restartApplication();
-        });
+        DependencyRegisterer r(std::make_shared<JuceApp>());
+        r.eventHandler();
 
         // If Live already exists, go straight to launch
         // If not, add a the app launch callback
@@ -95,121 +87,25 @@ public:
         } else {
             onLiveLaunch(DEFAULT_IPC_DELAY);
         }
+
+        container_.resolve<IEventHandler>()->registerAppTermination([this]() {
+            restartApplication();
+        });
     }
 
     void onLiveLaunch(int ipcCallDelay) {
         logger->info("onLiveLaunch() called");
 
-        auto configFilePath = PathFinder::config();
-        auto configMenuPath = PathFinder::configMenu();
-
-        if (!configFilePath || !configMenuPath) {
-            logger->error("Failed to get config file paths");
-            return;
-        }
-
-        auto themeFilePath = PathFinder::liveTheme();
-        if (!themeFilePath) {
-            logger->error("Failed to get theme file path");
-            return;
-        }
-
-        container_.registerFactory<Theme>(
-            [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(*themeFilePath); }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<LimLookAndFeel>(
-            [](DependencyContainer& c) -> std::shared_ptr<LimLookAndFeel> {
-                return std::make_shared<LimLookAndFeel>(
-                    [&c]() { return c.resolve<Theme>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<ConfigManager>(
-            [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(*configFilePath); }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<ConfigMenu>(
-            [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(*configMenuPath); }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<ResponseParser>(
-            [](DependencyContainer&) { return std::make_shared<ResponseParser>(); }
-        );
-
-        container_.registerFactory<KeySender>(
-            [](DependencyContainer&) { return std::make_shared<KeySender>(); }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<IIPCCore>(
-            [](DependencyContainer& c) -> std::shared_ptr<IIPCCore> {
-                return std::make_shared<IPCResilienceDecorator>(
-                    []() {
-                        return std::make_shared<IPCCore>();
-                    }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<IPluginManager>(
-            [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
-                return std::make_shared<PluginManager>(
-                    [&c]() { return c.resolve<IIPCCore>(); }
-                    , [&c]() { return c.resolve<ResponseParser>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<IActionHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
-                // We can delay these resolutions if needed
-                return std::make_shared<ActionHandler>(
-                    [&c]() { return c.resolve<IPluginManager>(); }
-                    , [&c]() { return c.resolve<WindowManager>(); }
-                    , [&c]() { return c.resolve<ConfigManager>(); }
-                    , [&c]() { return c.resolve<IIPCCore>(); }
-                    , [&c]() { return c.resolve<IEventHandler>(); }
-                    , [&c]() { return c.resolve<ILiveInterface>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        container_.registerFactory<ILiveInterface>(
-            [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
-                // We can delay these resolutions if needed
-                return std::make_shared<LiveInterface>(
-                    [&c]() { return c.resolve<IEventHandler>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-        // kick off the window observers
-        container_.resolve<ILiveInterface>();
-
-        container_.registerFactory<WindowManager>(
-            [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
-                // We can delay these resolutions if needed
-                return std::make_shared<WindowManager>(
-                    [&c]() { return c.resolve<IPluginManager>(); }
-                    , [&c]() { return c.resolve<IEventHandler>(); }
-                    , [&c]() { return c.resolve<IActionHandler>(); }
-                    , [&c]() { return c.resolve<WindowManager>(); }
-                    , [&c]() { return c.resolve<Theme>(); }
-                    , [&c]() { return c.resolve<LimLookAndFeel>(); }
-                    , [&c]() { return c.resolve<ConfigMenu>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
+        DependencyRegisterer r(std::make_shared<JuceApp>());
+        r.configFiles();
+        r.theme();
+        r.liveInterfaceAndStartObservers();
+        r.responseParser();
+        r.keySender();
+        r.ipc();
+        r.pluginManager();
+        r.actionHandler();
+        r.windowManager();
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
@@ -274,6 +170,155 @@ public:
 
         logger->info("bye");
     }
+
+    class DependencyRegisterer {
+    private:
+        std::shared_ptr<JuceApp> app;
+    public:
+        explicit DependencyRegisterer(std::shared_ptr<JuceApp> parentApp) : app(std::move(parentApp)) {}
+
+        void theme() {
+            auto themeFilePath = PathFinder::liveTheme();
+            if (!themeFilePath) {
+                logger->error("Failed to get theme file path");
+                return;
+            }
+
+            app->container_.registerFactory<Theme>(
+                [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(*themeFilePath); }
+                , DependencyContainer::Lifetime::Singleton
+            );
+
+            app->container_.registerFactory<LimLookAndFeel>(
+                [](DependencyContainer& c) -> std::shared_ptr<LimLookAndFeel> {
+                    return std::make_shared<LimLookAndFeel>(
+                        [&c]() { return c.resolve<Theme>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
+        void configFiles() {
+            auto configFilePath = PathFinder::config();
+            auto configMenuPath = PathFinder::configMenu();
+
+            if (!configFilePath || !configMenuPath) {
+                logger->error("Failed to get config file paths");
+                return;
+            }
+
+            app->container_.registerFactory<ConfigManager>(
+                [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(*configFilePath); }
+                , DependencyContainer::Lifetime::Singleton
+            );
+
+            app->container_.registerFactory<ConfigMenu>(
+                [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(*configMenuPath); }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
+        void eventHandler() {
+            app->container_.registerFactory<IEventHandler>(
+                [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
+                    // We can delay these resolutions if needed
+                    return std::make_shared<EventHandler>(
+                        [&c]() { return c.resolve<IActionHandler>(); }
+                        , [&c]() { return c.resolve<WindowManager>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
+        void liveInterfaceAndStartObservers() {
+            app->container_.registerFactory<ILiveInterface>(
+                [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
+                    // We can delay these resolutions if needed
+                    return std::make_shared<LiveInterface>(
+                        [&c]() { return c.resolve<IEventHandler>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+            // kick off the window observers
+            app->container_.resolve<ILiveInterface>();
+        }
+
+        void responseParser() {
+            app->container_.registerFactory<ResponseParser>(
+                [](DependencyContainer&) { return std::make_shared<ResponseParser>(); }
+            );
+        }
+
+        void keySender() {
+            app->container_.registerFactory<KeySender>(
+                [](DependencyContainer&) { return std::make_shared<KeySender>(); }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
+        void ipc() {
+            app->container_.registerFactory<IIPCCore>(
+                [](DependencyContainer& c) -> std::shared_ptr<IIPCCore> {
+                    return std::make_shared<IPCResilienceDecorator>(
+                        []() {
+                            return std::make_shared<IPCCore>();
+                        }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
+        void pluginManager() {
+            app->container_.registerFactory<IPluginManager>(
+                [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
+                    return std::make_shared<PluginManager>(
+                        [&c]() { return c.resolve<IIPCCore>(); }
+                        , [&c]() { return c.resolve<ResponseParser>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
+        void actionHandler() {
+            app->container_.registerFactory<IActionHandler>(
+                [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
+                    // We can delay these resolutions if needed
+                    return std::make_shared<ActionHandler>(
+                        [&c]() { return c.resolve<IPluginManager>(); }
+                        , [&c]() { return c.resolve<WindowManager>(); }
+                        , [&c]() { return c.resolve<ConfigManager>(); }
+                        , [&c]() { return c.resolve<IIPCCore>(); }
+                        , [&c]() { return c.resolve<IEventHandler>(); }
+                        , [&c]() { return c.resolve<ILiveInterface>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
+        void windowManager() {
+            app->container_.registerFactory<WindowManager>(
+                [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
+                    // We can delay these resolutions if needed
+                    return std::make_shared<WindowManager>(
+                        [&c]() { return c.resolve<IPluginManager>(); }
+                        , [&c]() { return c.resolve<IEventHandler>(); }
+                        , [&c]() { return c.resolve<IActionHandler>(); }
+                        , [&c]() { return c.resolve<WindowManager>(); }
+                        , [&c]() { return c.resolve<Theme>(); }
+                        , [&c]() { return c.resolve<LimLookAndFeel>(); }
+                        , [&c]() { return c.resolve<ConfigMenu>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+    };
 };
 
 // NOLINTBEGIN
