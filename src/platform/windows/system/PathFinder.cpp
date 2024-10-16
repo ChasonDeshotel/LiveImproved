@@ -11,6 +11,13 @@
 namespace fs = std::filesystem;
 
 namespace PathFinder {
+    std::string config() {
+        char path[MAX_PATH];
+        if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
+            return fs::path(path) / "Ableton" / "User Library" / "LiveImproved" / "config.txt";
+        }
+        throw std::runtime_error("Failed to get config file path");
+    }
     std::string home() {
         char path[MAX_PATH];
         if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, path))) {
