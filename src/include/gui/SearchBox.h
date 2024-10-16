@@ -8,13 +8,11 @@
 #include "IWindow.h"
 
 class IActionHandler;
+class IEventHandler;
 class IPluginManager;
 
-class ApplicationManager;
-class EventHandler;
 class LimLookAndFeel;
 class Plugin;
-class PluginManager;
 class Theme;
 class WindowManager;
 
@@ -99,7 +97,7 @@ class SearchBox : public juce::TopLevelWindow, public IWindow,
 public:
     SearchBox(
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
-              , std::function<std::shared_ptr<EventHandler>()> eventHandler
+              , std::function<std::shared_ptr<IEventHandler>()> eventHandler
               , std::function<std::shared_ptr<IActionHandler>()> actionHandler
               , std::function<std::shared_ptr<WindowManager>()> windowManager
               , std::function<std::shared_ptr<Theme>()> theme
@@ -144,7 +142,7 @@ private:
     static constexpr int SEARCHBOX_REMOVE_FROM_TOP = 30;
 
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
-    std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
     std::function<std::shared_ptr<Theme>()> theme_;

@@ -9,22 +9,23 @@
 #include "Types.h"
 #include "Utils.h"
 
+#include "IEventHandler.h"
+#include "IIPCCore.h"
+#include "ILiveInterface.h"
+
 #include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ContextMenu.h"
-#include "IIPCCore.h"
 #include "KeySender.h"
 #include "PluginManager.h"
 #include "WindowManager.h"
-#include "EventHandler.h"
-#include "ILiveInterface.h"
 
 ActionHandler::ActionHandler(
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
               , std::function<std::shared_ptr<WindowManager>()> windowManager
               , std::function<std::shared_ptr<ConfigManager>()> configManager
               , std::function<std::shared_ptr<IIPCCore>()> ipc
-              , std::function<std::shared_ptr<EventHandler>()> eventHandler
+              , std::function<std::shared_ptr<IEventHandler>()> eventHandler
               , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
               )
     : ipc_(std::move(ipc))

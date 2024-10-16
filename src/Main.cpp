@@ -11,6 +11,7 @@
 #include "DependencyContainer.h"
 #include "PlatformInitializer.h"
 
+#include "IEventHandler.h"
 #include "IIPCCore.h"
 #include "ILiveInterface.h"
 #include "IPCCore.h"
@@ -72,8 +73,8 @@ public:
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
-        container_.registerFactory<EventHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<EventHandler> {
+        container_.registerFactory<IEventHandler>(
+            [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
                 // We can delay these resolutions if needed
                 return std::make_shared<EventHandler>(
                     [&c]() { return c.resolve<IActionHandler>(); }
@@ -83,7 +84,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        container_.resolve<EventHandler>()->registerAppTermination([this]() {
+        container_.resolve<IEventHandler>()->registerAppTermination([this]() {
             logger->info("termination callback called");
 
             auto ipc = this->container_.resolve<IIPCCore>();
@@ -104,7 +105,7 @@ public:
 
         // TODO needs a isRunning for multiple instances?
         if (PID::getInstance().livePID() == -1) {
-            container_.resolve<EventHandler>()->registerAppLaunch([this]() {
+            container_.resolve<IEventHandler>()->registerAppLaunch([this]() {
                 logger->info("launch callback called");
                 // delay to let Live fully start up
                 sleep(LIVE_LAUNCH_DELAY);
@@ -192,7 +193,7 @@ public:
                     , [&c]() { return c.resolve<WindowManager>(); }
                     , [&c]() { return c.resolve<ConfigManager>(); }
                     , [&c]() { return c.resolve<IIPCCore>(); }
-                    , [&c]() { return c.resolve<EventHandler>(); }
+                    , [&c]() { return c.resolve<IEventHandler>(); }
                     , [&c]() { return c.resolve<ILiveInterface>(); }
                 );
             }
@@ -203,7 +204,7 @@ public:
             [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
                 // We can delay these resolutions if needed
                 return std::make_shared<LiveInterface>(
-                    [&c]() { return c.resolve<EventHandler>(); }
+                    [&c]() { return c.resolve<IEventHandler>(); }
                 );
             }
             , DependencyContainer::Lifetime::Singleton
@@ -216,7 +217,7 @@ public:
                 // We can delay these resolutions if needed
                 return std::make_shared<WindowManager>(
                     [&c]() { return c.resolve<IPluginManager>(); }
-                    , [&c]() { return c.resolve<EventHandler>(); }
+                    , [&c]() { return c.resolve<IEventHandler>(); }
                     , [&c]() { return c.resolve<IActionHandler>(); }
                     , [&c]() { return c.resolve<WindowManager>(); }
                     , [&c]() { return c.resolve<Theme>(); }
@@ -241,7 +242,7 @@ public:
 
         #ifndef _WIN32
         PlatformInitializer::init();
-        container_.resolve<EventHandler>()->setupQuartzEventTap();
+        container_.resolve<IEventHandler>()->setupQuartzEventTap();
         PlatformInitializer::run();
         #endif
     }

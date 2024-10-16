@@ -2,15 +2,18 @@
 
 #include "LogGlobal.h"
 
-#include "ContextMenu.h"
-#include "EventHandler.h"
+#include "IEventHandler.h"
+#include "IEventHandler.h"
+
 #include "IWindow.h"
+
+#include "ContextMenu.h"
 #include "SearchBox.h"
 #include "Theme.h"
 
 WindowManager::WindowManager(
                              std::function<std::shared_ptr<IPluginManager>()> pluginManager
-                             , std::function<std::shared_ptr<EventHandler>()> eventHandler
+                             , std::function<std::shared_ptr<IEventHandler>()> eventHandler
                              , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                              , std::function<std::shared_ptr<WindowManager>()> windowManager
                              , std::function<std::shared_ptr<Theme>()> theme

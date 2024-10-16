@@ -6,7 +6,7 @@
 #include "LogGlobal.h"
 #include "Types.h"
 
-#include "EventHandler.h"
+#include "IEventHandler.h"
 #include "IActionHandler.h"
 #include "LimLookAndFeel.h"
 #include "PluginManager.h"
@@ -99,7 +99,7 @@ private:
 
 SearchBox::SearchBox(
                      std::function<std::shared_ptr<IPluginManager>()> pluginManager
-                     , std::function<std::shared_ptr<EventHandler>()> eventHandler
+                     , std::function<std::shared_ptr<IEventHandler>()> eventHandler
                      , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                      , std::function<std::shared_ptr<WindowManager>()> windowManager
                      , std::function<std::shared_ptr<Theme>()> theme

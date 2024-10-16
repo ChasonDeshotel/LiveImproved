@@ -7,17 +7,18 @@
 
 #include <string>
 
-#include "IActionHandler.h"
 #include "Types.h"
+#include "IActionHandler.h"
 
-class KeyMapper;
-class IPluginManager;
-class ResponseParser;
+class IEventHandler;
 class IIPCCore;
-class WindowManager;
-class ConfigManager;
-class EventHandler;
 class ILiveInterface;
+class IPluginManager;
+
+class ConfigManager;
+class KeyMapper;
+class ResponseParser;
+class WindowManager;
 
 class ActionHandler : public IActionHandler {
 public:
@@ -25,7 +26,7 @@ public:
                 , std::function<std::shared_ptr<WindowManager>()>  windowManager
                 , std::function<std::shared_ptr<ConfigManager>()>  configManager
                 , std::function<std::shared_ptr<IIPCCore>()>       ipc
-                , std::function<std::shared_ptr<EventHandler>()>   eventHandler
+                , std::function<std::shared_ptr<IEventHandler>()>   eventHandler
                 , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     );
 
@@ -51,7 +52,7 @@ private:
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
-    std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
 
     using ActionHandlerFunction = std::function<void(const std::optional<std::string>& args)>;

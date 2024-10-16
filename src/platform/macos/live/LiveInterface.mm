@@ -12,6 +12,9 @@
 #include <vector>
 
 #include "LogGlobal.h"
+#include "MacUtils.h"
+
+#include "IEventHandler.h"
 
 #include "AXAttribute.h"
 #include "AXComponents.h"
@@ -19,16 +22,18 @@
 #include "AXInteraction.h"
 #include "AXPrinter.h"
 #include "AXWindow.h"
-#include "EventHandler.h"
+
 #include "LiveInterface.h"
 #include "PID.h"
 
-LiveInterface::LiveInterface(std::function<std::shared_ptr<EventHandler>()> eventHandler)
+LiveInterface::LiveInterface(std::function<std::shared_ptr<IEventHandler>()> eventHandler)
     : ILiveInterface()
     , eventHandler_(std::move(eventHandler))
+    , pluginWindowCreateObserver_()
+    , pluginWindowDestroyObserver_()
 {
     setupPluginWindowChangeObserver([]() {
-//        std::cout << "Window change detected!" << std::endl;
+        // logger->info("Window change detected!");
     });
 }
 
@@ -52,27 +57,27 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
     // create the window create observer, set the callback
     AXError error = AXObserverCreate(livePID, pluginWindowCreateCallback, &pluginWindowCreateObserver_);
     if (error != kAXErrorSuccess) {
-        std::cerr << "Failed to create accessibility observer. Error: " << error << std::endl;
+        logger->error("Failed to create accessibility observer. Error: " + axerror::toString(error));
         return;
     }
 
     // same for destroy
     error = AXObserverCreate(livePID, pluginWindowDestroyCallback, &pluginWindowDestroyObserver_);
     if (error != kAXErrorSuccess) {
-        std::cerr << "Failed to create accessibility observer. Error: " << error << std::endl;
+        logger->error("Failed to create accessibility observer. Error: " + axerror::toString(error));
         return;
     }
 
     error = AXObserverAddNotification(pluginWindowCreateObserver_, appElement, kAXCreatedNotification, this);
     if (error != kAXErrorSuccess) {
-        std::cerr << "Failed to add creation notification. Error: " << error << std::endl;
+        logger->error("Failed to add creation notification. Error: " + axerror::toString(error));
         return;
     }
 
     // there is no window destroy observer, we'll have to check the type of what was destroyed
     error = AXObserverAddNotification(pluginWindowDestroyObserver_, appElement, kAXUIElementDestroyedNotification, this);
     if (error != kAXErrorSuccess) {
-        std::cerr << "Failed to add destruction notification. Error: " << error << std::endl;
+        logger->error("Failed to add destruction notification. Error: " + axerror::toString(error));
         return;
     }
 
@@ -366,15 +371,15 @@ void LiveInterface::tilePluginWindows() {
 }
 
 //bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
-////    std::cerr << "recursion level " << level << " - Parent element: " << parent << std::endl;
+////    logger->("recursion level " << level << " - Parent element: " << parent << std::endl;
 //
 //    if (level > 10) {
-////        std::cerr << "Max recursion depth reached at level " << level << std::endl;
+////        logger->("Max recursion depth reached at level " << level << std::endl;
 //        return false;
 //    }
 //
 //    if (!parent) {
-//        std::cerr << "Invalid parent element at level " << level << std::endl;
+//        logger->("Invalid parent element at level " << level << std::endl;
 //        return false;
 //    }
 //
@@ -384,17 +389,17 @@ void LiveInterface::tilePluginWindows() {
 //    // Retrieve the children of the parent element
 //    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
 //    if (error != kAXErrorSuccess || !children) {
-////        std::cerr << "Failed to retrieve children for the element. Error code: " << error << std::endl;
+////        logger->("Failed to retrieve children for the element. Error code: " << error << std::endl;
 //        return false;  // Return false if no children found
 //    }
 //
 //    CFIndex count = CFArrayGetCount(children);
-////    std::cerr << "Number of children at level " << level << ": " << count << std::endl;
+////    logger->("Number of children at level " << level << ": " << count << std::endl;
 //
 //    for (CFIndex i = 0; i < count; i++) {
 //        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
 //        if (!child) {
-////            std::cerr << "No valid child found at index " << i << std::endl;
+////            logger->("No valid child found at index " << i << std::endl;
 //            continue;  // Skip to next child if invalid
 //        }
 //
@@ -410,7 +415,7 @@ void LiveInterface::tilePluginWindows() {
 //                CFTypeRef focusedValue;
 //                AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &focusedValue);
 //                if (focusedError == kAXErrorSuccess && focusedValue == kCFBooleanTrue) {
-//                    std::cerr << "Focused text field found at level " << level << std::endl;
+//                    logger->("Focused text field found at level " << level << std::endl;
 //                    CFRelease(children);
 //                    return true;  // Exit early if a focused text field is found
 //                }
@@ -435,7 +440,7 @@ void LiveInterface::tilePluginWindows() {
 //bool LiveInterface::isAnyTextFieldFocused() {
 //    AXElement window = AXElement(AXFinder::findApplicationWindow());
 //    if (!window.isValid()) {
-//        std::cerr << "Window is null or invalid." << std::endl;
+//        logger->("Window is null or invalid." << std::endl;
 //        return false;
 //    }
 //
@@ -450,7 +455,7 @@ void LiveInterface::tilePluginWindows() {
 //        CFRelease(cfIdentifier);
 //
 //        if (liveSearchBox) {
-//            std::cerr << "Search box found." << std::endl;
+//            logger->("Search box found." << std::endl;
 //            printAllAttributes(liveSearchBox);
 //            CFTypeRef focusedValue;
 //            AXUIElementCopyAttributeValue(liveSearchBox, kAXFocusedAttribute, &focusedValue);
@@ -462,12 +467,12 @@ void LiveInterface::tilePluginWindows() {
 //            CFRelease(liveSearchBox);
 //        }
 //    } else {
-//        std::cerr << "Search box not found." << std::endl;
+//        logger->("Search box not found." << std::endl;
 //    }
 
 //void LiveInterface::searchFocusedTextField(AXUIElementRef parent) {
 //    if (!parent) {
-//        std::cerr << "No parent element provided." << std::endl;
+//        logger->("No parent element provided." << std::endl;
 //        return;
 //    }
 //
@@ -476,7 +481,7 @@ void LiveInterface::tilePluginWindows() {
 //    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
 //
 //    if (error != kAXErrorSuccess || !children) {
-//        std::cerr << "Unable to retrieve children for the element or no children found." << std::endl;
+//        logger->("Unable to retrieve children for the element or no children found." << std::endl;
 //        return;
 //    }
 //

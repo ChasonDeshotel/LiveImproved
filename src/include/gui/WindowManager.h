@@ -7,20 +7,20 @@
 
 #include "IWindow.h"
 
-class ApplicationManager;
-class IWindow;
-class IPluginManager;
-class EventHandler;
 class IActionHandler;
+class IEventHandler;
+class IPluginManager;
+class IWindow;
+
+class ConfigMenu;
 class LimLookAndFeel;
 class Theme;
-class ConfigMenu;
 
 class WindowManager {
 public:
    WindowManager(
                  std::function<std::shared_ptr<IPluginManager>()> pluginManager
-                 , std::function<std::shared_ptr<EventHandler>()> eventHandler
+                 , std::function<std::shared_ptr<IEventHandler>()> eventHandler
                  , std::function<std::shared_ptr<IActionHandler>()> actionHandler
                  , std::function<std::shared_ptr<WindowManager>()> windowManager
                  , std::function<std::shared_ptr<Theme>()> theme
@@ -43,7 +43,7 @@ public:
 
 private:
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
-    std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;
     std::function<std::shared_ptr<Theme>()> theme_;

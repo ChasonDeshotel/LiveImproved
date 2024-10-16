@@ -13,29 +13,32 @@
 
 #include "ILiveInterface.h"
 
-class EventHandler;
+class IEventHandler;
 
 class LiveInterface : public ILiveInterface {
 public:
-    LiveInterface(
-        std::function<std::shared_ptr<EventHandler>()> eventHandler
-    );
+  LiveInterface(std::function<std::shared_ptr<IEventHandler>()> eventHandler);
 
-    ~LiveInterface() override;
+  ~LiveInterface() override;
 
-    // TODO
-    void safelyFocusAfterDestroy(int windowIDToDestroy, int windowIDToFocus);
+  LiveInterface(const LiveInterface &) = default;
+  LiveInterface(LiveInterface &&) = delete;
+  LiveInterface &operator=(const LiveInterface &) = default;
+  LiveInterface &operator=(LiveInterface &&) = delete;
 
-    void setupPluginWindowChangeObserver(std::function<void()> callback) override;
-    void removePluginWindowChangeObserver() override;
+  // TODO
+  void safelyFocusAfterDestroy(int windowIDToDestroy, int windowIDToFocus);
 
-    void closeFocusedPlugin() override;
-    void closeAllPlugins() override;
-    void openAllPlugins() override;
-    void tilePluginWindows() override;
+  void setupPluginWindowChangeObserver(std::function<void()> callback) override;
+  void removePluginWindowChangeObserver() override;
+
+  void closeFocusedPlugin() override;
+  void closeAllPlugins() override;
+  void openAllPlugins() override;
+  void tilePluginWindows() override;
 
 private:
-    std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
     void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height);
     std::map<AXUIElementRef, CGRect> cachedWindowBounds_;
     CGRect getWindowBounds(AXUIElementRef window);

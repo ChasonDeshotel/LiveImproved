@@ -20,7 +20,7 @@ namespace AXCheckBox {
             CFRelease(value);
             return isChecked;
         } else {
-            std::cerr << "AXValue attribute not found or failed to retrieve for checkbox." << std::endl;
+            logger->warn("AXValue attribute not found or failed to retrieve for checkbox.");
             return false; // not found or false
         }
     }
@@ -40,7 +40,7 @@ namespace AXCheckBox {
             logger->info("Successfully pressed the checkbox.");
             return true;
         } else {
-            std::cerr << "Failed to press the checkbox. Error: " << error << std::endl;
+            logger->error("Failed to press the checkbox. Error: " + axerror::toString(error));
             return false;
         }
     }
