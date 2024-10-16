@@ -37,7 +37,7 @@ LiveInterface::LiveInterface(std::function<std::shared_ptr<IEventHandler>()> eve
     });
 }
 
-LiveInterface::~LiveInterface() {}
+LiveInterface::~LiveInterface() = default;
 
 void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callback) {
     pid_t livePID = PID::getInstance().livePID();

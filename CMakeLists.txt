@@ -309,12 +309,10 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
             user32.lib
     )
 
-    # No bundle generation on Windows, so we just generate an .exe
     set_target_properties(LiveImproved PROPERTIES
         OUTPUT_NAME "LiveImproved"
     )
 
-    # Windows-specific install rules
     install(TARGETS LiveImproved
         RUNTIME DESTINATION bin
     )
