@@ -68,8 +68,18 @@ public:
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
-        DependencyRegisterer r(std::make_shared<JuceApp>());
-        r.eventHandler();
+        // use of DependencyRegisterer causes a JuceAssertion error
+        // so we won't wrap this dependency
+        container_.registerFactory<IEventHandler>(
+            [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
+                // We can delay these resolutions if needed
+                return std::make_shared<EventHandler>(
+                    [&c]() { return c.resolve<IActionHandler>(); }
+                    , [&c]() { return c.resolve<WindowManager>(); }
+                );
+            }
+            , DependencyContainer::Lifetime::Singleton
+        );
 
         // If Live already exists, go straight to launch
         // If not, add a the app launch callback
@@ -212,19 +222,6 @@ public:
 
             app->container_.registerFactory<ConfigMenu>(
                 [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(*configMenuPath); }
-                , DependencyContainer::Lifetime::Singleton
-            );
-        }
-
-        void eventHandler() {
-            app->container_.registerFactory<IEventHandler>(
-                [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
-                    // We can delay these resolutions if needed
-                    return std::make_shared<EventHandler>(
-                        [&c]() { return c.resolve<IActionHandler>(); }
-                        , [&c]() { return c.resolve<WindowManager>(); }
-                    );
-                }
                 , DependencyContainer::Lifetime::Singleton
             );
         }
