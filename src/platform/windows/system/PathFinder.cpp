@@ -18,6 +18,14 @@ namespace PathFinder {
         }
         throw std::runtime_error("Failed to get config file path");
     }
+
+    std::string configMenu() {
+        char path[MAX_PATH];
+        if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
+            return fs::path(path) / "Ableton" / "User Library" / "LiveImproved" / "config-menu.txt";
+        }
+        throw std::runtime_error("Failed to get config menu file path");
+    }
     std::string home() {
         char path[MAX_PATH];
         if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, path))) {
