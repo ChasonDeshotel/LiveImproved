@@ -1,9 +1,11 @@
 #ifndef TEST_BUILD
 #include <JuceHeader.h>
 #endif
-#include <dispatch/dispatch.h>
-#include <unistd.h>
+//#include <dispatch/dispatch.h>
+//#include <unistd.h>
+#include <chrono>
 #include <future>
+#include <thread>
 
 #include "LogGlobal.h"
 #include "PathFinder.h"
@@ -32,16 +34,20 @@
 
 
 class JuceApp : public juce::JUCEApplication {
+private:
+    DependencyContainer& container_;
+    std::unique_ptr<LimLookAndFeel> limLookAndFeel_;
+
+    static constexpr int RESTART_DELAY_MS = 5000;
+    static constexpr int LIVE_LAUNCH_DELAY = 10;
+    static constexpr int DEFAULT_IPC_DELAY = 5;
+
 public:
     JuceApp()
         : container_(DependencyContainer::getInstance())
     {
         ::initializeLogger();
     }
-
-    static constexpr int RESTART_DELAY_MS = 5000;
-    static constexpr int LIVE_LAUNCH_DELAY = 10;
-    static constexpr int DEFAULT_IPC_DELAY = 5;
 
     auto getApplicationName() -> const juce::String override {
         return "Live Improved";
@@ -51,22 +57,10 @@ public:
         return "0.69.420";
     }
 
-    void restartApplication() {
-        juce::String executablePath = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getFullPathName();
-
-        // Spawn a new process to re-launch the application
-        juce::ChildProcess process;
-        if (process.start(executablePath)) {
-            logger->info("Restarting application...");
-
-            // delay so the new process can spawn. 1000 was not enough
-            juce::Thread::sleep(RESTART_DELAY_MS);
-        } else {
-            logger->error("Failed to start new process");
-        }
-    }
-
     void initialise(const juce::String& commandLineArgs = "") override {
+        //
+        // TODO add check for is LES running
+        //
         std::locale::global(std::locale("en_US.UTF-8"));
 
         logger->info("Ignition sequence started...");
@@ -85,30 +79,17 @@ public:
         );
 
         container_.resolve<IEventHandler>()->registerAppTermination([this]() {
-            logger->info("termination callback called");
-
-            auto ipc = this->container_.resolve<IIPCCore>();
-            ipc->stopIPC();
-
-            std::promise<void> closePromise;
-            std::future<void> closeFuture = closePromise.get_future();
-
-            std::thread([&closePromise, ipc, this]() {
-                ipc->closeAndDeletePipes();
-                closePromise.set_value();  // Notify that pipes are closed
-            }).detach();
-            closeFuture.wait();
-
-            logger->info("restarting");
             restartApplication();
         });
 
+        // If Live already exists, go straight to launch
+        // If not, add a the app launch callback
         // TODO needs a isRunning for multiple instances?
         if (PID::getInstance().livePID() == -1) {
             container_.resolve<IEventHandler>()->registerAppLaunch([this]() {
                 logger->info("launch callback called");
                 // delay to let Live fully start up
-                sleep(LIVE_LAUNCH_DELAY);
+                juce::Thread::sleep(LIVE_LAUNCH_DELAY);
                 this->onLiveLaunch(2);
             });
         } else {
@@ -117,6 +98,8 @@ public:
     }
 
     void onLiveLaunch(int ipcCallDelay) {
+        logger->info("onLiveLaunch() called");
+
         auto configFilePath = PathFinder::config();
         auto configMenuPath = PathFinder::configMenu();
 
@@ -228,7 +211,7 @@ public:
             , DependencyContainer::Lifetime::Singleton
         );
 
-        if (ipcCallDelay > 0) sleep(ipcCallDelay);
+        if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
         logger->info("writing READY");
         container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
@@ -236,7 +219,7 @@ public:
         });
 
         // TODO: IPC queue should be able to handle more writes without sleep
-        sleep(2);
+        juce::Thread::sleep(2);
         logger->info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 
@@ -247,25 +230,50 @@ public:
         #endif
     }
 
+    void restartApplication() {
+        juce::String executablePath = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getFullPathName();
+        logger->info("executable path: " + executablePath.toStdString());
+
+        // Spawn a new process to re-launch the application
+        juce::ChildProcess process;
+        if (process.start(executablePath)) {
+            logger->info("Restarting application...");
+
+            // Terminate the current process after the new one starts
+            juce::Thread::sleep(RESTART_DELAY_MS);
+            juce::JUCEApplicationBase::quit();
+            // std::exit(0) for the hammer
+
+        } else {
+            logger->error("Failed to start new process");
+        }
+    }
+
     void shutdown() override {
-        auto ipc = this->container_.resolve<IIPCCore>();
-        ipc->stopIPC();
+        logger->info("shutdown() called");
+        try {
+            auto ipc = this->container_.resolve<IIPCCore>();
+            if (ipc) {
+                logger->info("stopping IPC...");
+                ipc->stopIPC();
 
-        std::promise<void> closePromise;
-        std::future<void> closeFuture = closePromise.get_future();
+                std::promise<void> closePromise;
+                std::future<void> closeFuture = closePromise.get_future();
 
-        std::thread([&closePromise, ipc, this]() {
-            ipc->closeAndDeletePipes();
-            closePromise.set_value();  // Notify that pipes are closed
-        }).detach();
-        closeFuture.wait();
+                std::thread([&closePromise, ipc, this]() {
+                    ipc->closeAndDeletePipes();
+                    closePromise.set_value();  // Notify that pipes are closed
+                }).detach();
+                closeFuture.wait();
+            }
+        } catch (const std::exception& e) {
+            logger->error("Failed to resolve IIPCCore: " + std::string(e.what()));
+        } catch (...) {
+            logger->error("Unknown error occurred while resolving IIPCCore.");
+        }
 
         logger->info("bye");
     }
-
-private:
-    DependencyContainer& container_;
-    std::unique_ptr<LimLookAndFeel> limLookAndFeel_;
 };
 
 // NOLINTBEGIN

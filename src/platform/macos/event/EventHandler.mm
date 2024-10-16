@@ -2,7 +2,6 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
-
 #include <chrono>
 #include <fstream>
 #include <functional>
@@ -579,13 +578,13 @@ void EventHandler::registerAppTermination(std::function<void()> onTerminationCal
                                                                 usingBlock:^(NSNotification *notification) {
         NSDictionary *userInfo = [notification userInfo];
         NSRunningApplication *terminatedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
-        pid_t terminatedPID = [terminatedApp processIdentifier];
+        NSString *terminatedBundleID = [terminatedApp bundleIdentifier];
 
-        logger->debug("Termination detected for PID: " + std::to_string(terminatedPID));
+        logger->debug("Termination detected for bundle ID: " + std::string([terminatedBundleID UTF8String]));
 
-        if (terminatedPID == PID::getInstance().livePID()) {
-            logger->info("Target application with PID " + std::to_string(terminatedPID) + " has been terminated");
-            logger->debug("Live terminated -- restarting");
+        NSString *targetBundleID = @"com.ableton.live";
+        if ([terminatedBundleID isEqualToString:targetBundleID]) {
+            logger->info("Target application with bundle ID " + std::string([terminatedBundleID UTF8String]) + " has been terminated");
             if (onTerminationCallback) {
                 onTerminationCallback();
             }

@@ -66,24 +66,27 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
         return;
     }
 
-    if (!logPath.has_value()) {
-        std::cerr << logLevelToString(level) << ": " << message << std::endl;
-        return;
-    }
+    // TODO
+    juce::Logger::writeToLog(message);
 
-    if (!logfile.is_open()) {
-        logfile.open(logPath->string(), std::ios_base::app);
-    }
-
-    if (logfile.is_open()) {
-        auto now = std::time(nullptr);
-        auto localTime = std::localtime(&now);
-
-        logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
-                << logLevelToString(level) << ": " << message << std::endl;
-    } else {
-        std::cerr << "Unable to open log file: " << logPath->string() << std::endl;
-    }
+//    if (!logPath.has_value()) {
+//        std::cerr << logLevelToString(level) << ": " << message << std::endl;
+//        return;
+//    }
+//
+//    if (!logfile.is_open()) {
+//        logfile.open(logPath->string(), std::ios_base::app);
+//    }
+//
+//    if (logfile.is_open()) {
+//        auto now = std::time(nullptr);
+//        auto localTime = std::localtime(&now);
+//
+//        logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
+//                << logLevelToString(level) << ": " << message << std::endl;
+//    } else {
+//        std::cerr << "Unable to open log file: " << logPath->string() << std::endl;
+//    }
 }
 
 auto LogHandler::debug(const std::string& message) -> void {
@@ -92,7 +95,6 @@ auto LogHandler::debug(const std::string& message) -> void {
 
 auto LogHandler::info(const std::string& message) -> void {
     log(message, LogLevel::LOG_INFO);
-    juce::Logger::writeToLog(message);
 }
 
 auto LogHandler::warn(const std::string& message) -> void {

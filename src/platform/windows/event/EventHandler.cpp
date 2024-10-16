@@ -1,18 +1,18 @@
-#include <windows.h>
-#include <string>
+#define NOMINMAX
+#include <Windows.h>
+
+#include <chrono>
 #include <iostream>
 #include <optional>
-#include <chrono>
+#include <string>
 
-#include "LogHandler.h"
-#include "EventHandler.h"
+#include "LogGlobal.h"
 #include "Types.h"
+
+#include "ActionHandler.h"
+#include "EventHandler.h"
 #include "PID.h"
 #include "WindowManager.h"
-#include "ActionHandler.h"
-
-#include <Windows.h>
-#include <string>
 
 // TODO move... somewhere
 std::string keyCodeToString(DWORD keyCode) {
@@ -73,15 +73,17 @@ std::string keyCodeToString(DWORD keyCode) {
     }
 }
 
-HHOOK keyboardHook = NULL;
-HHOOK mouseHook = NULL;
+HHOOK keyboardHook__ = NULL;
+HHOOK mouseHook_ = NULL;
 
 EventHandler* EventHandler::instance = nullptr;
 
 EventHandler::EventHandler(WindowManager& windowManager, ActionHandler& actionHandler)
     : windowManager_(windowManager)
     , actionHandler_(actionHandler)
-    , log_(LogHandler::getInstance()) {
+	, keyboardHook_(NULL)
+    , mouseHook_(NULL)
+{
     instance = this;
 }
 
@@ -96,23 +98,23 @@ struct MouseLocationAndBounds {
 };
 
 void EventHandler::setupWindowsEventHook() {
-    keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
-    mouseHook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
+    keyboardHook_ = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
+    mouseHook_ = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
 
-    if (!keyboardHook || !mouseHook) {
-        log_.error("Failed to create hooks for event handling");
+    if (!keyboardHook_ || !mouseHook_) {
+        logger->error("Failed to create hooks for event handling");
         return;
     }
 
-    log_.debug("EventHandler: Windows hooks are active!");
+    logger->debug("EventHandler: Windows hooks are active!");
 }
 
 void EventHandler::cleanupWindowsHooks() {
-    if (keyboardHook) {
-        UnhookWindowsHookEx(keyboardHook);
+    if (keyboardHook_) {
+        UnhookWindowsHookEx(keyboardHook_);
     }
-    if (mouseHook) {
-        UnhookWindowsHookEx(mouseHook);
+    if (mouseHook_) {
+        UnhookWindowsHookEx(mouseHook_);
     }
 }
 
@@ -127,7 +129,7 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
 
         // Check for mouse down events
         if (wParam == WM_RBUTTONDOWN || wParam == WM_LBUTTONDOWN) {
-            LogHandler::getInstance().debug("Mouse down event detected");
+            logger->debug("Mouse down event detected");
 
             // Check if search box is open
             if (instance->windowManager_.isWindowOpen("SearchBox")) {
@@ -146,11 +148,11 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
                     GetWindowRect(liveHwnd, &liveBounds);
 
                     if (PtInRect(&liveBounds, mouseLocation)) {
-                        LogHandler::getInstance().debug("Click is outside app but inside Live, closing search box.");
+                        logger->debug("Click is outside app but inside Live, closing search box.");
                         instance->windowManager_.closeWindow("SearchBox");
                     }
                 } else {
-                    LogHandler::getInstance().debug("Click is inside the search box window, keeping window open.");
+                    logger->debug("Click is inside the search box window, keeping window open.");
                 }
             }
 
@@ -160,7 +162,7 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
                 if (lastRightClickTime.has_value()) {
                     auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
                     if (durationSinceLastClick.count() <= doubleClickThresholdMs) {
-                        LogHandler::getInstance().debug("Double-right-click detected, handling action.");
+                        logger->debug("Double-right-click detected, handling action.");
                         instance->actionHandler_.handleDoubleRightClick();
                         return 1;  // Stop further processing
                     }
@@ -177,13 +179,13 @@ LRESULT CALLBACK EventHandler::LowLevelKeyboardProc(int nCode, WPARAM wParam, LP
         KBDLLHOOKSTRUCT* kbdStruct = (KBDLLHOOKSTRUCT*)lParam;
 
         if (wParam == WM_KEYDOWN) {
-            LogHandler::getInstance().debug("Key down event detected in Ableton Live.");
+            logger->debug("Key down event detected in Ableton Live.");
 
             // TODO cross platform
             #ifndef _WIN32
 				// Pass event if any text field in Ableton Live has focus
 				if (liveInterface->isAnyTextFieldFocused()) {
-					LogHandler::getInstance().debug("Ableton Live text field has focus, passing event.");
+					logger->debug("Ableton Live text field has focus, passing event.");
 					return CallNextHookEx(NULL, nCode, wParam, lParam);
 				}
 			#endif
@@ -231,19 +233,19 @@ void EventHandler::focusLive() {
 
 void EventHandler::focusApplication(pid_t pid) {
     HWND hwnd = NULL;
-    DWORD pidDWORD = static_cast<DWORD>(pid); 
+    DWORD pidDWORD = static_cast<DWORD>(pid);
 
     // Enumerate all windows to find the one that matches the given PID
     EnumWindows(EnumWindowsProc, (LPARAM)&pidDWORD);
 
     if (hwnd != NULL) {
-        log_.debug("Bringing app into focus: " + std::to_string(pidDWORD));
+        logger->debug("Bringing app into focus: " + std::to_string(pidDWORD));
 
         // Restore and bring the window to the foreground
         ShowWindow(hwnd, SW_RESTORE);  // Restore if minimized
         SetForegroundWindow(hwnd);     // Bring to foreground
     } else {
-        log_.error("Application window not found with PID: " + std::to_string(pidDWORD));
+        logger->error("Application window not found with PID: " + std::to_string(pidDWORD));
     }
 }
 

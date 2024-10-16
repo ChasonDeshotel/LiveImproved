@@ -1,38 +1,35 @@
-#ifndef CONTEXT_MENU_H
-#define CONTEXT_MENU_H
+#pragma once
 
 #include <windows.h>
 #include <string>
 #include <vector>
 #include <functional>
+
 #include "Types.h"
+
+class ConfigMenu;
+class IActionHandler;
+class WindowManager;
 
 class ContextMenu : public IWindow {
 public:
-    // Constructor
-    ContextMenu(std::function<void(const std::string&)> callback = nullptr);
+    ContextMenu(std::function<std::shared_ptr<ConfigMenu>()> configMenu,
+                std::function<std::shared_ptr<IActionHandler>()> actionHandler,
+                std::function<std::shared_ptr<WindowManager>()> windowManager);
+    ~ContextMenu() override;
 
-    // Window handle related methods
-    void* getWindowHandle() const;
+    [[nodiscard]] void* getWindowHandle() const;
 
-    // Menu control methods
     void open();
     void close();
-    bool isOpen() const;
-    void setIsOpen(bool isOpen);
-
-    // Utility method for closing the menu
-    void closeMenu();
+    [[nodiscard]] bool isOpen() const;
 
 private:
-    // Private method to recursively create a context menu
-    HMENU createContextMenuWithItems(const std::vector<MenuItem>& items);
+    std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
+    std::function<std::shared_ptr<WindowManager>()> windowManager_;
 
-    // Private member variables
     std::vector<MenuItem> menuItems_;                         // Holds menu items
-    std::function<void(const std::string&)> overrideCallback_; // Callback function for handling actions
-    bool isOpen_;                                              // Flag indicating if the menu is open
+    HMENU createContextMenuWithItems(const std::vector<MenuItem>& items);
     HMENU hContextMenu_;                                       // Windows handle for the context menu
 };
-
-#endif // CONTEXT_MENU_H

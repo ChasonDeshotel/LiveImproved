@@ -1,6 +1,6 @@
 #pragma once
 
-#include <windows.h>
+#include <Windows.h>
 #include <string>
 #include <optional>
 
@@ -12,18 +12,23 @@ class PID;
 
 class EventHandler {
 public:
-    EventHandler(WindowManager& windowManager, ActionHandler& actionHandler);
-    ~EventHandler();
+  EventHandler(WindowManager &windowManager, ActionHandler &actionHandler);
+  ~EventHandler();
 
-    void setupWindowsEventHook();
-    void cleanupWindowsHooks();
+  EventHandler(const EventHandler &) = default;
+  EventHandler(EventHandler &&) = delete;
+  EventHandler &operator=(const EventHandler &) = default;
+  EventHandler &operator=(EventHandler &&) = delete;
 
-    void focusLim();
-    void focusLive();
+  void setupWindowsEventHook();
+  void cleanupWindowsHooks();
 
-    ERect getLiveBoundsRect();
+  void focusLim();
+  void focusLive();
 
-    static EventHandler* instance;
+  ERect getLiveBoundsRect();
+
+  static EventHandler *instance;
 
 private:
     WindowManager& windowManager_;
@@ -35,8 +40,8 @@ private:
     static LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
-    HHOOK keyboardHook;
-    HHOOK mouseHook;
+    HHOOK keyboardHook_;
+    HHOOK mouseHook_;
 
     static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 };

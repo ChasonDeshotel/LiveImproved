@@ -3,6 +3,8 @@
 #include <functional>
 
 class ERect;
+class IActionHandler;
+class WindowManager;
 
 class IEventHandler {
 public:

@@ -25,7 +25,6 @@ struct NSArray;
 #endif
 
 class IActionHandler;
-
 class WindowManager;
 
 class EventHandler : public IEventHandler {
@@ -54,9 +53,13 @@ public:
     void registerAppLaunch(std::function<void()> onLaunchCallback) override;
     void registerAppTermination(std::function<void()> onTerminationCallback) override;
 
+
 private:
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
-    std::function<std::shared_ptr<WindowManager>()> windowManager_;
+    std::function<std::shared_ptr<WindowManager>()>  windowManager_;
+
+    std::shared_ptr<IActionHandler> resolvedActionHandler_;
+    std::shared_ptr<WindowManager>  resolvedWindowManager_;
 
     static void focusApplication(pid_t pid);
 
