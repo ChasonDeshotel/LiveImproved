@@ -157,6 +157,13 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Including Windows-specific directories")
     target_include_directories(common_libs INTERFACE
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/event
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/gui
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/ipc
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live/component
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/system
+        ${CMAKE_SOURCE_DIR}/src/include/platform/windows/util
     )
 endif()
 
@@ -205,6 +212,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         src/platform/windows/ipc/IPCCore.cpp
         src/platform/windows/live/LiveInterface.cpp
         src/platform/windows/system/PID.cpp
+        src/platform/windows/system/PathFinder.cpp
     )
 endif()
 
@@ -236,7 +244,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         set(YAML_CPP_LIB /opt/homebrew/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
     endif()
 
-    # Link frameworks and libraries
     target_link_libraries(LiveImproved
         PRIVATE
         ${HARFBUZZ_LIB}
@@ -251,17 +258,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         "-framework Security"
         "-framework QuartzCore"
     )
-
 	set_target_properties(LiveImproved PROPERTIES
 	    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
 	)
-	# Install rules for macOS application bundle
 	install(TARGETS LiveImproved
 	    BUNDLE DESTINATION /Applications
 	    RUNTIME DESTINATION bin
 	)
-
-	# Copy additional files (like LICENSE) to the bundle
     if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
         add_custom_command(TARGET LiveImproved POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
@@ -269,6 +272,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
             $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
         )
     endif()
+
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(LiveImproved
         PRIVATE
