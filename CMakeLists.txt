@@ -4,9 +4,21 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
 
+# if(WIN32) ?
 if(MSVC)
     # Set the debug information format to C7 (/Z7)
     add_compile_options(/Z7)
+    add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_WIN32_WINNT=0x0A00)
+    if(POLICY CMP0126)
+        cmake_policy(SET CMP0126 NEW)
+    endif()
+    set(BUILD_SHARED_LIBS ON)
+    # Set the debug information format to C7 (/Z7)
+    add_compile_options(/Z7)
+    set(CMAKE_CXX_COMPILER clang++)
+    set(COMPILER clang)
+    find_package(WindowsSDK REQUIRED)
+    include_directories(${WindowsSDK_INCLUDE_DIRS})
 endif()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -175,6 +187,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live/component
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/system
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/util
+        "$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/Include/10.0.19041.0/um"
     )
 endif()
 
