@@ -19,11 +19,11 @@ public:
                 std::function<std::shared_ptr<WindowManager>()> windowManager);
     ~ContextMenu() override;
 
-    [[nodiscard]] void* getWindowHandle() const;
+    [[nodiscard]] void* getWindowHandle() const override;
 
-    void open();
-    void close();
-    [[nodiscard]] bool isOpen() const;
+    void open() override;
+    void close() override;
+    [[nodiscard]] bool isOpen() const override;
 
 private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;

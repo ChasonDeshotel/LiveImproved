@@ -2,11 +2,11 @@
 
 #include "LogGlobal.h"
 
-#include "EventHandler.h"
+#include "IEventHandler.h"
 #include "LiveInterface.h"
 #include "PID.h"
 
-LiveInterface::LiveInterface(std::function<std::shared_ptr<EventHandler>()> eventHandler)
+LiveInterface::LiveInterface(std::function<std::shared_ptr<IEventHandler>()> eventHandler)
     : ILiveInterface()
     , eventHandler_(std::move(eventHandler))
 {}
