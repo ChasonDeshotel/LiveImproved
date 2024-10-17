@@ -20,7 +20,7 @@ public:
 
     EventHandler(const EventHandler &) = default;
     EventHandler(EventHandler &&) = delete;
-    EventHandler &operator=(const EventHandler &) = default;
+    EventHandler &operator=(const EventHandler &) = delete;
     EventHandler &operator=(EventHandler &&) = default;
 
     void focusLim() override;
