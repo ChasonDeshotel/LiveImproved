@@ -8,8 +8,28 @@ WINDOWS_OUTPUT_DIR="$WINDOWS_SOURCE_DIR/build/win"
 FLAG_FILE="compilation_complete.flag"
 MAX_WAIT_TIME=300  # Maximum wait time in seconds
 
-# Sync the source code to the Windows machine (if using Git)
-#git push
+CHANGED_FILES=$(git diff --name-only HEAD)
+
+if [ -z "$CHANGED_FILES" ]; then
+    echo "No changes since last commit. Nothing to transfer."
+    exit 0
+fi
+
+# Function to properly escape paths for Windows
+escape_path() {
+    # Replace spaces with \ and escape other special characters
+    printf '%q' "$1"
+}
+
+echo "$CHANGED_FILES" | while IFS= read -r file; do
+    # Escape both the local file path and the destination Windows path
+    escaped_file=$(escape_path "$file")
+    win_path=$(escape_path "${WINDOWS_SOURCE_DIR}/${file}")
+
+    # Transfer the file to the Windows machine
+    scp -r "$escaped_file" "${WINDOWS_USER}@${WINDOWS_IP}:${win_path}"
+done
+
 
 # Run the compilation script on the Windows machine
 echo "Starting remote CMake and Ninja build process..."

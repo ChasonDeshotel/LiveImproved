@@ -23,7 +23,7 @@ public:
 
     void open() override;
     void close() override;
-    [[nodiscard]] bool isOpen() const override;
+    [[nodiscard]] bool isOpen() const;
 
 private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;

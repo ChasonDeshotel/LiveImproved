@@ -210,14 +210,15 @@ bool IPCCore::openPipeForRead(const std::string& pipe_name) {
     logger->debug("Pipe opened for reading: " + pipe_name);
     return true;
 }
-bool IPCCore::writeRequest(const std::string& message) {
+void IPCCore::writeRequest(const std::string& message) {
     HANDLE pipe = pipes_[requestPipePath];
     if (pipe == INVALID_HANDLE_VALUE) {
         logger->error("Request pipe not opened for writing: " + requestPipePath);
-        return false;
+        return;
     }
 
-    return writeToPipe(pipe, message);
+    writeToPipe(pipe, message);
+    return;
 }
 
 void IPCCore::drainPipe(HANDLE pipe) {

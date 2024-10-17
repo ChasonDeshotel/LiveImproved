@@ -30,5 +30,4 @@ public:
 
 private:
     std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
-
 };

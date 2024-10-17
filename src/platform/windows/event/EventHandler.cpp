@@ -82,9 +82,8 @@ EventHandler::EventHandler(
     std::function<std::shared_ptr<IActionHandler>()> actionHandler
     , std::function<std::shared_ptr<WindowManager>()> windowManager
     )
-    : actionHandler_(std::move(actionHandler)
-    , windowManager_(std::move(windowManager)
-    )
+    : actionHandler_(std::move(actionHandler))
+    , windowManager_(std::move(windowManager))
    // , keyboardHook_(NULL)
    // , mouseHook_(NULL))
 {}
