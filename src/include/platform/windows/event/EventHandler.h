@@ -21,7 +21,7 @@ public:
     EventHandler(const EventHandler &) = default;
     EventHandler(EventHandler &&) = delete;
     EventHandler &operator=(const EventHandler &) = delete;
-    EventHandler &operator=(EventHandler &&) = default;
+    EventHandler &operator=(EventHandler &&) noexcept = default;
 
     void focusLim() override;
     void focusLive() override;
