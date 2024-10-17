@@ -84,8 +84,9 @@ EventHandler::EventHandler(
     )
     : actionHandler_(std::move(actionHandler)
     , windowManager_(std::move(windowManager)
-    , keyboardHook_(NULL)
-    , mouseHook_(NULL)
+    )
+   // , keyboardHook_(NULL)
+   // , mouseHook_(NULL))
 {}
 
 EventHandler::~EventHandler() {
@@ -287,4 +288,9 @@ void EventHandler::registerAppLaunch(std::function<void()> onLaunchCallback) {
 }
 
 void EventHandler::registerAppTermination(std::function<void()> onLaunchCallback) {
+}
+
+void EventHandler::runPlatform() {}
+
+void EventHandler::setupQuartzEventTap() {
 }

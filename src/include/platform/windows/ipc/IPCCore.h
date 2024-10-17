@@ -6,23 +6,23 @@
 #include <string>
 #include <functional>
 
-class ApplicationManager;
-class LogHandler;
+#include "IIPCCore.h"
 
-class IPCCore {
+class IPCCore : public IIPCCore {
 public:
   IPCCore();
-  ~IPCCore();
+  ~IPCCore() override;
 
   IPCCore(const IPCCore &) = default;
   IPCCore(IPCCore &&) = delete;
   IPCCore &operator=(const IPCCore &) = default;
   IPCCore &operator=(IPCCore &&) = delete;
 
-  bool init();
+  auto init() -> bool override;
+  auto isInitialized() const -> bool override;
 
-  bool writeRequest(const std::string &message);
-  std::string readResponse();
+  auto writeRequest(const std::string& message, ResponseCallback callback) -> void override;
+  auto readResponse(ResponseCallback callback) -> std::string override;
   bool initReadWithEventLoop(std::function<void(const std::string &)> callback);
   void drainPipe(HANDLE pipe);
 

@@ -30,12 +30,15 @@ public:
 
     ERect getLiveBoundsRect() override;
     
+    void runPlatform() override;
+    void setupQuartzEventTap() override;
+
     void registerAppLaunch(std::function<void()> onLaunchCallback) override;
     void registerAppTermination(std::function<void()> onLaunchCallback) override;
 
 private:
-    IActionHandler& actionHandler_;
-    WindowManager& windowManager_;
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
+    std::function<std::shared_ptr<WindowManager>()>  windowManager_;
 
     void setupWindowsEventHook();
     void cleanupWindowsHooks();
