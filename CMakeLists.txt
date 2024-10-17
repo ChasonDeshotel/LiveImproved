@@ -5,8 +5,14 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
 
 if(MSVC)
+    if(POLICY CMP0126)
+        cmake_policy(SET CMP0126 NEW)
+    endif()
+    set(BUILD_SHARED_LIBS ON)
     # Set the debug information format to C7 (/Z7)
     add_compile_options(/Z7)
+    set(CMAKE_CXX_COMPILER clang++)
+    set(COMPILER clang)
 endif()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -284,10 +290,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         )
 
         # Install rules for macOS application bundle
-        install(TARGETS LiveImproved
-            BUNDLE DESTINATION /Applications
-            RUNTIME DESTINATION bin
-        )
+	#install(TARGETS LiveImproved
+	#    BUNDLE DESTINATION /Applications
+	#    RUNTIME DESTINATION bin
+	#)
 
         # Copy additional files (like LICENSE) to the bundle
         if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
@@ -297,6 +303,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
                 $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
             )
         endif()
+    endif()
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        install(TARGETS LiveImproved
+        BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}/Applications
+        RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    )
+
     endif()
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
