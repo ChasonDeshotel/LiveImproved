@@ -26,12 +26,21 @@ namespace PathFinder {
         }
         throw std::runtime_error("Failed to get config menu file path");
     }
+
     fs::path home() {
-        char path[MAX_PATH];
-        if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, path))) {
-            return fs::path(path);
+        wchar_t* path = nullptr;
+        try {
+            if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &path))) {
+                fs::path result = path;
+                CoTaskMemFree(path);
+                return result;
+            }
+            throw std::runtime_error("Failed to get home directory");
         }
-        throw std::runtime_error("Failed to get home directory");
+        catch (...) {
+            if (path) CoTaskMemFree(path);
+            throw;
+        }
     }
 
     fs::path log() {
@@ -43,11 +52,39 @@ namespace PathFinder {
     }
 
     fs::path liveBundle() {
-        char path[MAX_PATH];
-        if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
-            return fs::path(path) / "Ableton" / "Live";
+        wchar_t* path = nullptr;
+        try {
+            if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &path))) {
+                fs::path result = path;
+                CoTaskMemFree(path);
+                return result;
+            }
+            throw std::runtime_error("Failed to get AppData directory");
         }
-        throw std::runtime_error("Failed to get Ableton Live bundle path");
+        catch (...) {
+            if (path) CoTaskMemFree(path);
+            throw;
+        }
+    }
+
+    fs::path liveBinary() {
+        DWORD processID = PID::getInstance().livePID();
+        HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID);
+        if (hProcess == NULL) {
+            std::wcerr << L"OpenProcess failed. Error: " << GetLastError() << std::endl;
+            return L"";
+        }
+
+        WCHAR path[MAX_PATH];
+        DWORD size = MAX_PATH;
+        if (!QueryFullProcessImageNameW(hProcess, 0, path, &size)) {
+            std::wcerr << L"QueryFullProcessImageNameW failed. Error: " << GetLastError() << std::endl;
+            CloseHandle(hProcess);
+            return L"";
+        }
+
+        CloseHandle(hProcess);
+        return fs::path(path);
     }
 
     fs::path liveBinary() {
@@ -112,23 +149,6 @@ namespace PathFinder {
         }
 
         return themePath;
-    }
-
-    std::string findExecutable(const std::string& name) {
-        char buffer[MAX_PATH];
-        std::string path = getEnvVar("PATH");
-        std::vector<std::string> paths = splitPath(path);
-
-        for (const auto& dir : paths) {
-            std::string fullPath = dir + "\\" + name;
-            if (PathFileExistsA(fullPath.c_str())) {
-                if (GetFullPathNameA(fullPath.c_str(), MAX_PATH, buffer, nullptr) != 0) {
-                    return std::string(buffer);
-                }
-            }
-        }
-
-        throw std::runtime_error("Executable not found: " + name);
     }
 
 private:

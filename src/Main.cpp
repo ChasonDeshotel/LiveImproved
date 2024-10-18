@@ -12,13 +12,12 @@
 #include "PathFinder.h"
 
 #include "DependencyContainer.h"
-#include "PlatformInitializer.h"
 
 #include "IEventHandler.h"
-//#include "IIPCCore.h"
+#include "IIPCCore.h"
 #include "ILiveInterface.h"
-//#include "IPCCore.h"
-//#include "IPCResilienceDecorator.h"
+#include "IPCCore.h"
+#include "IPCResilienceDecorator.h"
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
@@ -116,15 +115,15 @@ public:
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
-//        logger->info("writing READY");
-//        container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
-//            logger->info("received READY response: " + response);
-//        });
+        logger->info("writing READY");
+        container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
+            logger->info("received READY response: " + response);
+        });
 
         // TODO: IPC queue should be able to handle more writes without sleep
-//        juce::Thread::sleep(2);
-//        logger->info("refreshing plugin cache");
-//        container_.resolve<IPluginManager>()->refreshPlugins();
+        juce::Thread::sleep(2);
+        logger->info("refreshing plugin cache");
+        container_.resolve<IPluginManager>()->refreshPlugins();
 
         #ifndef _WIN32
         PlatformInitializer::init();
@@ -253,7 +252,6 @@ public:
             );
         }
 
-        /*
         void ipc() {
             app->container_.registerFactory<IIPCCore>(
                 [](DependencyContainer& c) -> std::shared_ptr<IIPCCore> {
@@ -266,7 +264,6 @@ public:
                 , DependencyContainer::Lifetime::Singleton
             );
         }
-        */
 
         void pluginManager() {
             app->container_.registerFactory<IPluginManager>(

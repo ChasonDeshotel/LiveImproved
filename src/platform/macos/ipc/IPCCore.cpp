@@ -3,6 +3,7 @@
 #include <dispatch/dispatch.h>
 #include <fcntl.h>
 #include <map>
+#include <mutex>
 #include <queue>
 #include <sstream>
 #include <sys/stat.h>

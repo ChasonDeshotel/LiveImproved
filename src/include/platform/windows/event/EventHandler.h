@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Windows.h>
-#include <string>
-#include <optional>
 
 #include "IEventHandler.h"
 #include "Types.h"
@@ -21,7 +19,7 @@ public:
     EventHandler(const EventHandler &) = default;
     EventHandler(EventHandler &&) = delete;
     EventHandler &operator=(const EventHandler &) = delete;
-    EventHandler &operator=(EventHandler &&) = default;
+    EventHandler &operator=(EventHandler &&) = delete;
 
     void focusLim() override;
     void focusLive() override;
@@ -44,6 +42,9 @@ private:
     void cleanupWindowsHooks();
 
     void focusApplication(pid_t pid);
+
+    static EventHandler* instance_;
+    std::string foo;
 
     // Hook callback functions
     static LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam);

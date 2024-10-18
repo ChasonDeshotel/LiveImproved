@@ -9,7 +9,6 @@ public:
 
     virtual ~IIPCCore() = default;
 
-    // Disable copying and moving
     IIPCCore(const IIPCCore&) = delete;
     auto operator=(const IIPCCore&) -> IIPCCore& = delete;
     IIPCCore(IIPCCore&&) = delete;
@@ -28,5 +27,5 @@ public:
     virtual auto stopIPC() -> void = 0;
 
 protected:
-    IIPCCore() = default;  // Protected default constructor
+    IIPCCore() = default;
 };
