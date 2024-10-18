@@ -8,8 +8,27 @@ WINDOWS_OUTPUT_DIR="$WINDOWS_SOURCE_DIR/build/win"
 FLAG_FILE="compilation_complete.flag"
 MAX_WAIT_TIME=300  # Maximum wait time in seconds
 
-# Sync the source code to the Windows machine (if using Git)
-#git push
+CHANGED_FILES=$(git diff --name-only HEAD)
+
+if [ -z "$CHANGED_FILES" ]; then
+    echo "No changes since last commit. Nothing to transfer."
+    exit 0
+fi
+
+# Function to properly escape paths for Windows
+escape_path() {
+    # Replace spaces with \ and escape other special characters
+    printf '%q' "$1"
+}
+
+echo "$CHANGED_FILES" | while IFS= read -r file; do
+    # Escape both the local file path and the destination Windows path
+    escaped_file=$(escape_path "$file")
+    win_path=$(escape_path "${WINDOWS_SOURCE_DIR}/${file}")
+
+    # Transfer the file to the Windows machine
+    scp -r "$escaped_file" "${WINDOWS_USER}@${WINDOWS_IP}:${win_path}"
+done
 
 # Run the compilation script on the Windows machine
 ssh $WINDOWS_USER@$WINDOWS_IP "$WINDOWS_SOURCE_DIR\dev\win\compile.bat"
@@ -47,21 +66,18 @@ while true; do
 done
 
 # Remove the flag file
-echo "Removing completion flag file..."
-ssh $WINDOWS_USER@$WINDOWS_IP "rm $WINDOWS_OUTPUT_DIR/$FLAG_FILE"
+ssh $WINDOWS_USER@$WINDOWS_IP "del $WINDOWS_OUTPUT_DIR/$FLAG_FILE"
 
 # Retrieve the CMake-generated compile_commands.json file
 echo "Retrieving CMake-generated compile_commands.json..."
 scp $WINDOWS_USER@$WINDOWS_IP:$WINDOWS_OUTPUT_DIR/compile_commands.json ./build
 
-# Retrieve the build log
-echo "Retrieving compile_log.txt..."
-scp $WINDOWS_USER@$WINDOWS_IP:$WINDOWS_OUTPUT_DIR/compile_log.txt ./build
-
-echo "Files retrieved from Windows machine."
+## Retrieve the build log
+#echo "Retrieving compile_log.txt..."
+#scp $WINDOWS_USER@$WINDOWS_IP:$WINDOWS_OUTPUT_DIR/compile_log.txt ./build
 
 # Display the contents of the log file
-echo "Contents of compile_log.txt:"
-cat ./build/compile_log.txt
+#echo "Contents of compile_log.txt:"
+#cat ./build/compile_log.txt
 
 echo "Remote build process complete."
