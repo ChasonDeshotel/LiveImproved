@@ -1,90 +1,79 @@
-#include <windows.h>
+#include <Windows.h>
+#include <Psapi.h>
+#include <ShlObj.h>
+#include <filesystem>
+#include <regex>
 #include <shlobj.h>
 #include <shlwapi.h>
-#include <string>
-#include <vector>
 #include <stdexcept>
-#include <filesystem>
+#include <string>
+#include <system_error>
 #include <tlhelp32.h>
-#include <regex>
+#include <vector>
+#include <windows.h>
 
 namespace fs = std::filesystem;
 
 namespace PathFinder {
-    fs::path config() {
-        char path[MAX_PATH];
-        if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
-            return fs::path(path) / "Ableton" / "User Library" / "LiveImproved" / "config.txt";
+    fs::path home() {
+        PWSTR path = nullptr;
+        HRESULT result = SHGetKnownFolderPath(FOLDERID_Profile, 0, nullptr, &path);
+        
+        if (SUCCEEDED(result)) {
+            std::filesystem::path homePath(path);
+            CoTaskMemFree(path);
+            return homePath;
         }
-        throw std::runtime_error("Failed to get config file path");
+        
+        CoTaskMemFree(path);  // Free memory even if the function failed
+        throw std::runtime_error("Failed to get user's home directory");
+    }
+
+    fs::path config() {
+        return fs::path(documents()) / "Ableton" / "User Library" / "LiveImproved" / "config.txt";
     }
 
     fs::path configMenu() {
-        char path[MAX_PATH];
-        if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
-            return fs::path(path) / "Ableton" / "User Library" / "LiveImproved" / "config-menu.txt";
-        }
+        return fs::path(documents()) / "Ableton" / "User Library" / "LiveImproved" / "config-menu.txt";
         throw std::runtime_error("Failed to get config menu file path");
     }
 
-    fs::path home() {
-        wchar_t* path = nullptr;
-        try {
-            if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &path))) {
-                fs::path result = path;
-                CoTaskMemFree(path);
-                return result;
-            }
-            throw std::runtime_error("Failed to get home directory");
+    fs::path documents() {
+        PWSTR path = nullptr;
+        HRESULT result = SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &path);
+        
+        if (SUCCEEDED(result)) {
+            std::filesystem::path docPath(path);
+            CoTaskMemFree(path);
+            return docPath;
         }
-        catch (...) {
-            if (path) CoTaskMemFree(path);
-            throw;
+        
+        CoTaskMemFree(path);
+        throw std::runtime_error("Failed to get user's Documents directory");
+    }
+
+    fs::path localAppData() {
+        PWSTR path = nullptr;
+        HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
+        
+        if (SUCCEEDED(result)) {
+            fs::path appDataPath(path);
+            CoTaskMemFree(path);
+            return appDataPath;
         }
+        
+        CoTaskMemFree(path);  // Free memory even if the function failed
+        throw std::runtime_error("Failed to get user's AppData directory");
     }
 
     fs::path log() {
-        char path[MAX_PATH];
-        if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
-            fs::path(path) / "Logs" / "YourAppName.log";
-        }
+        fs::path(localAppData()) / "Logs" / "YourAppName.log";
         throw std::runtime_error("Failed to get log path");
     }
 
     fs::path liveBundle() {
-        wchar_t* path = nullptr;
-        try {
-            if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &path))) {
-                fs::path result = path;
-                CoTaskMemFree(path);
-                return result;
-            }
-            throw std::runtime_error("Failed to get AppData directory");
-        }
-        catch (...) {
-            if (path) CoTaskMemFree(path);
-            throw;
-        }
-    }
-
-    fs::path liveBinary() {
-        DWORD processID = PID::getInstance().livePID();
-        HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID);
-        if (hProcess == NULL) {
-            std::wcerr << L"OpenProcess failed. Error: " << GetLastError() << std::endl;
-            return L"";
-        }
-
-        WCHAR path[MAX_PATH];
-        DWORD size = MAX_PATH;
-        if (!QueryFullProcessImageNameW(hProcess, 0, path, &size)) {
-            std::wcerr << L"QueryFullProcessImageNameW failed. Error: " << GetLastError() << std::endl;
-            CloseHandle(hProcess);
-            return L"";
-        }
-
-        CloseHandle(hProcess);
-        return fs::path(path);
+        return fs::path(localAppData()) / "Ableton" / "Live";
+        //throw std::runtime_error("Failed to get Ableton Live bundle path");
     }
 
     fs::path liveBinary() {
@@ -120,6 +109,24 @@ namespace PathFinder {
         throw std::runtime_error("Ableton Live process not found");
     }
 
+    fs::path getProcessPath(DWORD processId) {
+        HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processId);
+        if (hProcess == NULL) {
+            throw std::system_error(GetLastError(), std::system_category(), "OpenProcess failed");
+        }
+
+        wchar_t buffer[MAX_PATH];
+        DWORD result = GetModuleFileNameExW(hProcess, NULL, buffer, MAX_PATH);
+        
+        CloseHandle(hProcess);
+
+        if (result == 0) {
+            throw std::system_error(GetLastError(), std::system_category(), "GetModuleFileNameEx failed");
+        }
+
+        return std::filesystem::path(buffer);
+    }
+
     fs::path liveTheme() {
         HKEY hKey;
         LONG result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Ableton\\Live", 0, KEY_READ, &hKey);
@@ -149,6 +156,23 @@ namespace PathFinder {
         }
 
         return themePath;
+    }
+
+    std::string findExecutable(const std::string& name) {
+        char buffer[MAX_PATH];
+        std::string path = getEnvVar("PATH");
+        std::vector<std::string> paths = splitPath(path);
+
+        for (const auto& dir : paths) {
+            std::string fullPath = dir + "\\" + name;
+            if (PathFileExistsA(fullPath.c_str())) {
+                if (GetFullPathNameA(fullPath.c_str(), MAX_PATH, buffer, nullptr) != 0) {
+                    return std::string(buffer);
+                }
+            }
+        }
+
+        throw std::runtime_error("Executable not found: " + name);
     }
 
 private:
