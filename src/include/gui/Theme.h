@@ -1,12 +1,15 @@
 #pragma once
 
-#include <string>
-#include <pugixml.hpp>
 #include <JuceHeader.h>
+
+#include <filesystem>
+#include <string>
+
+#include <pugixml.hpp>
 
 class Theme {
 public:
-    Theme(const std::string& filePath);
+    Theme(const std::filesystem::path& filePath);
 
     auto getControlTextBack() -> juce::Colour;
 

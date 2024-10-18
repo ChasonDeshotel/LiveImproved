@@ -5,6 +5,7 @@
 
 #include <JuceHeader.h>
 
+#include "LogGlobal.h"
 #include "Theme.h"
 
 // Helper function to convert hex color to RGB
@@ -24,12 +25,12 @@ RGB hexToRGB(const std::string& hex) {
     return RGB(0, 0, 0); // Default black
 }
 
-Theme::Theme(const std::string& filePath) {
-        pugi::xml_parse_result result = doc.load_file(filePath.c_str());
+Theme::Theme(const std::filesystem::path& filePath) {
+        pugi::xml_parse_result result = doc.load_file(filePath.generic_string().c_str());
         if (!result) {
-            std::cerr << "Failed to load theme file: "
-            << filePath << " reason: "
-              << result.description() << std::endl;
+            logger->error("Failed to load theme file: "
+            + filePath.generic_string() + " reason: "
+              + result.description());
         }
     }
 
