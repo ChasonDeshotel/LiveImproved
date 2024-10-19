@@ -1,17 +1,13 @@
 #ifndef TEST_BUILD
 #include <JuceHeader.h>
 #endif
-//#include <dispatch/dispatch.h>
-//#include <unistd.h>
-#include <chrono>
 #include <future>
 #include <thread>
-#include <utility>
 
-#include "PathManager.h"
 #include "LogGlobal.h"
 
 #include "DependencyContainer.h"
+#include "PathManager.h"
 
 #include "IEventHandler.h"
 #include "IIPCCore.h"
@@ -27,6 +23,7 @@
 #include "LimLookAndFeel.h"
 #include "LiveInterface.h"
 #include "PID.h"
+#include "PlatformInitializer.h"
 #include "PluginManager.h"
 #include "ResponseParser.h"
 #include "Theme.h"
@@ -39,8 +36,10 @@ private:
     std::unique_ptr<LimLookAndFeel> limLookAndFeel_;
 
     static constexpr int RESTART_DELAY_MS = 5000;
-    static constexpr int LIVE_LAUNCH_DELAY = 10;
-    static constexpr int DEFAULT_IPC_DELAY = 5;
+    static constexpr int LIVE_LAUNCH_DELAY = 6000;
+    static constexpr int DEFAULT_IPC_DELAY = 5000;
+
+    std::shared_ptr<JuceApp> app;
 
 public:
     JuceApp()
@@ -65,31 +64,22 @@ public:
 
         logger->info("Ignition sequence started...");
 
-        logger->info("home path: " + PathManager::home().generic_string());
-        logger->info("log path: " + PathManager::log().generic_string());
-        logger->info("liveBundle path: " + PathManager::liveBundle().generic_string());
-        logger->info("liveBinary path: " + PathManager::liveBinary().generic_string());
-        logger->info("liveThemes path: " + PathManager::liveThemes().generic_string());
-        logger->info("liveTheme path: " + PathManager::liveTheme().generic_string());
-        logger->info("config path: " + PathManager::config().generic_string());
-        logger->info("configMenu path: " + PathManager::configMenu().generic_string());
-        logger->info("requestPipe path: " + PathManager::requestPipe().generic_string());
-        logger->info("responsePipe path: " + PathManager::responsePipe().generic_string());
+        PathManager p = PathManager();
+        logger->info("home:         " + p.home().generic_string());
+        logger->info("documents:    " + p.documents().generic_string());
+        logger->info("log:          " + p.log().generic_string());
+        logger->info("liveBundle:   " + p.liveBundle().generic_string());
+        logger->info("liveBinary:   " + p.liveBinary().generic_string());
+        logger->info("liveThemes:   " + p.liveThemes().generic_string());
+        logger->info("liveTheme:    " + p.liveTheme().generic_string());
+        logger->info("config:       " + p.config().generic_string());
+        logger->info("configMenu:   " + p.configMenu().generic_string());
+        logger->info("requestPipe:  " + p.requestPipe().generic_string());
+        logger->info("responsePipe: " + p.responsePipe().generic_string());
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
-        // use of DependencyRegisterer causes a JuceAssertion error
-        // so we won't wrap this dependency
-        container_.registerFactory<IEventHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
-                // We can delay these resolutions if needed
-                return std::make_shared<EventHandler>(
-                    [&c]() { return c.resolve<IActionHandler>(); }
-                    , [&c]() { return c.resolve<WindowManager>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
+        DependencyRegisterer(this).eventHandler();
 
         // If Live already exists, go straight to launch
         // If not, add a the app launch callback
@@ -99,7 +89,7 @@ public:
                 logger->info("launch callback called");
                 // delay to let Live fully start up
                 juce::Thread::sleep(LIVE_LAUNCH_DELAY);
-                this->onLiveLaunch(2);
+                this->onLiveLaunch(2000);
             });
         } else {
             onLiveLaunch(DEFAULT_IPC_DELAY);
@@ -113,10 +103,10 @@ public:
     void onLiveLaunch(int ipcCallDelay) {
         logger->info("onLiveLaunch() called");
 
-        DependencyRegisterer r(std::make_shared<JuceApp>());
+        DependencyRegisterer r(this);
         r.configFiles();
         r.theme();
-        r.liveInterfaceAndStartObservers();
+        r.liveInterface(); // also starts observers
         r.responseParser();
         r.keySender();
         r.ipc();
@@ -132,7 +122,7 @@ public:
         });
 
         // TODO: IPC queue should be able to handle more writes without sleep
-        juce::Thread::sleep(2);
+        juce::Thread::sleep(4000);
         logger->info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 
@@ -190,19 +180,29 @@ public:
 
     class DependencyRegisterer {
     private:
-        std::shared_ptr<JuceApp> app;
+        JuceApp* app;
     public:
-        explicit DependencyRegisterer(std::shared_ptr<JuceApp> parentApp) : app(std::move(parentApp)) {}
+        explicit DependencyRegisterer(JuceApp* parentApp) : app(parentApp) {}
+
+        void eventHandler() {
+            app->container_.registerFactory<IEventHandler>(
+                [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
+                    // We can delay these resolutions if needed
+                    return std::make_shared<EventHandler>(
+                        [&c]() { return c.resolve<IActionHandler>(); }
+                        , [&c]() { return c.resolve<WindowManager>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
 
         void theme() {
-            auto themeFilePath = PathManager::liveTheme();
-            if (!themeFilePath) {
-                logger->error("Failed to get theme file path");
-                return;
-            }
+            auto pathManager = PathManager();
+            auto themeFilePath = pathManager.liveTheme();
 
             app->container_.registerFactory<Theme>(
-                [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(*themeFilePath); }
+                [themeFilePath](DependencyContainer&) { return std::make_shared<Theme>(themeFilePath); }
                 , DependencyContainer::Lifetime::Singleton
             );
 
@@ -217,26 +217,30 @@ public:
         }
 
         void configFiles() {
-            auto configFilePath = PathManager::config();
-            auto configMenuPath = PathManager::configMenu();
+            auto pathManager = PathManager();
 
+            auto configFilePath = pathManager.config();
+            auto configMenuPath = pathManager.configMenu();
+
+            /*
             if (!configFilePath || !configMenuPath) {
                 logger->error("Failed to get config file paths");
                 return;
             }
+            */
 
             app->container_.registerFactory<ConfigManager>(
-                [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(*configFilePath); }
+                [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(configFilePath); }
                 , DependencyContainer::Lifetime::Singleton
             );
 
             app->container_.registerFactory<ConfigMenu>(
-                [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(*configMenuPath); }
+                [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(configMenuPath); }
                 , DependencyContainer::Lifetime::Singleton
             );
         }
 
-        void liveInterfaceAndStartObservers() {
+        void liveInterface() {
             app->container_.registerFactory<ILiveInterface>(
                 [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
                     // We can delay these resolutions if needed
