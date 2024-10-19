@@ -4,13 +4,13 @@
 #include <memory>
 #include <string>
 
-#include "Types.h"
+#include "LogLevel.h"
 
-#include "IIPCCore.h"
+#include "IIPC.h"
 
-class IPCResilienceDecorator : public IIPCCore {
+class IPCResilienceDecorator : public IIPC {
 public:
-  IPCResilienceDecorator(std::function<std::shared_ptr<IIPCCore>()> factory);
+  IPCResilienceDecorator(std::function<std::shared_ptr<IIPC>()> factory);
   ~IPCResilienceDecorator() override = default;
 
   IPCResilienceDecorator(const IPCResilienceDecorator &) = delete;
@@ -34,8 +34,8 @@ public:
   auto checkAndReestablishConnection() -> bool;
 
 private:
-    std::shared_ptr<IIPCCore> instance_;
-    std::function<std::shared_ptr<IIPCCore>()> ipcFactory_;
+    std::shared_ptr<IIPC> instance_;
+    std::function<std::shared_ptr<IIPC>()> ipcFactory_;
 
     template<typename Func>
     auto handleError(const std::string& operation, Func retry) -> decltype(retry());

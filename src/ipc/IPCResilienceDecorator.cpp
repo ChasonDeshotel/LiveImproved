@@ -4,10 +4,10 @@
 #include "IPCException.h"
 #include "IPCResilienceDecorator.h"
 #include "Types.h"
-#include "IIPCCore.h"
+#include "IIPC.h"
 
 IPCResilienceDecorator::IPCResilienceDecorator(
-    std::function<std::shared_ptr<IIPCCore>()> ipcFactory
+    std::function<std::shared_ptr<IIPC>()> ipcFactory
 ) : ipcFactory_(std::move(ipcFactory)),
     instance_(nullptr)
 {

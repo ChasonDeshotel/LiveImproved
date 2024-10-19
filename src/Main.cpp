@@ -10,9 +10,9 @@
 #include "PathManager.h"
 
 #include "IEventHandler.h"
-#include "IIPCCore.h"
+#include "IIPC.h"
 #include "ILiveInterface.h"
-#include "IPCCore.h"
+#include "IPC.h"
 #include "IPCResilienceDecorator.h"
 
 #include "ActionHandler.h"
@@ -117,7 +117,7 @@ public:
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
         logger->info("writing READY");
-        container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
+        container_.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
             logger->info("received READY response: " + response);
         });
 
@@ -155,7 +155,7 @@ public:
     void shutdown() override {
         logger->info("shutdown() called");
         try {
-            auto ipc = this->container_.resolve<IIPCCore>();
+            auto ipc = this->container_.resolve<IIPC>();
             if (ipc) {
                 logger->info("stopping IPC...");
                 ipc->stopIPC();
@@ -170,9 +170,9 @@ public:
                 closeFuture.wait();
             }
         } catch (const std::exception& e) {
-            logger->error("Failed to resolve IIPCCore: " + std::string(e.what()));
+            logger->error("Failed to resolve IIPC: " + std::string(e.what()));
         } catch (...) {
-            logger->error("Unknown error occurred while resolving IIPCCore.");
+            logger->error("Unknown error occurred while resolving IIPC.");
         }
 
         logger->info("bye");
@@ -268,11 +268,11 @@ public:
         }
 
         void ipc() {
-            app->container_.registerFactory<IIPCCore>(
-                [](DependencyContainer& c) -> std::shared_ptr<IIPCCore> {
+            app->container_.registerFactory<IIPC>(
+                [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
                     return std::make_shared<IPCResilienceDecorator>(
                         []() {
-                            return std::make_shared<IPCCore>();
+                            return std::make_shared<IPC>();
                         }
                     );
                 }
@@ -284,7 +284,7 @@ public:
             app->container_.registerFactory<IPluginManager>(
                 [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
                     return std::make_shared<PluginManager>(
-                        [&c]() { return c.resolve<IIPCCore>(); }
+                        [&c]() { return c.resolve<IIPC>(); }
                         , [&c]() { return c.resolve<ResponseParser>(); }
                     );
                 }
@@ -301,7 +301,7 @@ public:
                         [&c]() { return c.resolve<IPluginManager>(); }
                         , [&c]() { return c.resolve<WindowManager>(); }
                         , [&c]() { return c.resolve<ConfigManager>(); }
-                        , [&c]() { return c.resolve<IIPCCore>(); }
+                        , [&c]() { return c.resolve<IIPC>(); }
                         , [&c]() { return c.resolve<IEventHandler>(); }
                         , [&c]() { return c.resolve<ILiveInterface>(); }
                     );

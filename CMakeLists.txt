@@ -205,6 +205,7 @@ set(SRC_CPP
     src/gui/SearchBox.cpp
     src/gui/Theme.cpp
     src/gui/WindowManager.cpp
+    src/ipc/IPCBase.cpp
     src/ipc/IPCResilienceDecorator.cpp
     src/ipc/ResponseParser.cpp
 )
@@ -226,7 +227,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         src/platform/macos/system/PathManager.mm
     )
     list(APPEND SRC_CPP
-        src/platform/macos/ipc/IPCCore.cpp
+        src/platform/macos/ipc/IPC.cpp
     )
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -234,7 +235,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         src/platform/windows/event/EventHandler.cpp
         src/platform/windows/event/KeySender.cpp
         src/platform/windows/gui/ContextMenu.cpp
-        src/platform/windows/ipc/IPCCore.cpp
+        src/platform/windows/ipc/IPC.cpp
         src/platform/windows/live/LiveInterface.cpp
         src/platform/windows/system/PID.cpp
         src/platform/windows/system/PathManager.cpp
