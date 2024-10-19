@@ -8,8 +8,8 @@
 #include <thread>
 #include <utility>
 
+#include "PathManager.h"
 #include "LogGlobal.h"
-#include "PathFinder.h"
 
 #include "DependencyContainer.h"
 
@@ -64,6 +64,17 @@ public:
         std::locale::global(std::locale("en_US.UTF-8"));
 
         logger->info("Ignition sequence started...");
+
+        logger->info("home path: " + PathManager::home().generic_string());
+        logger->info("log path: " + PathManager::log().generic_string());
+        logger->info("liveBundle path: " + PathManager::liveBundle().generic_string());
+        logger->info("liveBinary path: " + PathManager::liveBinary().generic_string());
+        logger->info("liveThemes path: " + PathManager::liveThemes().generic_string());
+        logger->info("liveTheme path: " + PathManager::liveTheme().generic_string());
+        logger->info("config path: " + PathManager::config().generic_string());
+        logger->info("configMenu path: " + PathManager::configMenu().generic_string());
+        logger->info("requestPipe path: " + PathManager::requestPipe().generic_string());
+        logger->info("responsePipe path: " + PathManager::responsePipe().generic_string());
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
@@ -184,7 +195,7 @@ public:
         explicit DependencyRegisterer(std::shared_ptr<JuceApp> parentApp) : app(std::move(parentApp)) {}
 
         void theme() {
-            auto themeFilePath = PathFinder::liveTheme();
+            auto themeFilePath = PathManager::liveTheme();
             if (!themeFilePath) {
                 logger->error("Failed to get theme file path");
                 return;
@@ -206,8 +217,8 @@ public:
         }
 
         void configFiles() {
-            auto configFilePath = PathFinder::config();
-            auto configMenuPath = PathFinder::configMenu();
+            auto configFilePath = PathManager::config();
+            auto configMenuPath = PathManager::configMenu();
 
             if (!configFilePath || !configMenuPath) {
                 logger->error("Failed to get config file paths");

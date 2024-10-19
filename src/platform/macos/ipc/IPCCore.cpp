@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 #include "LogGlobal.h"
-#include "PathFinder.h"
+#include "PathManager.h"
 
 #include "IPCCore.h"
 
@@ -19,8 +19,9 @@ IPCCore::IPCCore()
     : IIPCCore()
     , isProcessingRequest_(false)
 {
-    requestPipePath_  = PathFinder::requestPipe().generic_string();
-    responsePipePath_ = PathFinder::responsePipe().generic_string();
+    auto path = PathManager();
+    requestPipePath_  = path.requestPipe().generic_string();
+    responsePipePath_ = path.responsePipe().generic_string();
 }
 
 IPCCore::~IPCCore() {

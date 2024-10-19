@@ -223,7 +223,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         src/platform/macos/live/LiveInterface.mm
         src/platform/macos/live/component/AXCheckBox.mm
         src/platform/macos/system/PID.mm
-        src/platform/macos/system/PathFinder.mm
+        src/platform/macos/system/PathManager.mm
     )
     list(APPEND SRC_CPP
         src/platform/macos/ipc/IPCCore.cpp
@@ -237,7 +237,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         src/platform/windows/ipc/IPCCore.cpp
         src/platform/windows/live/LiveInterface.cpp
         src/platform/windows/system/PID.cpp
-        src/platform/windows/system/PathFinder.cpp
+        src/platform/windows/system/PathManager.cpp
     )
 endif()
 

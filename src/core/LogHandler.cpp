@@ -1,6 +1,5 @@
 #include <iostream>
 #include <ctime>
-#include <iomanip>
 #include <filesystem>  // C++17
 #include <optional>
 
@@ -9,18 +8,20 @@
 #endif
 
 #include "LogHandler.h"
-#include "PathFinder.h"
+#include "PathManager.h"
 
 namespace fs = std::filesystem;
 
 LogHandler::LogHandler()
     : ILogHandler()
-    , currentLogLevel(LogLevel::LOG_DEBUG)
-    , logPath(std::nullopt) {
-    auto path = PathFinder::log();
-    if (!path) {
-        logPath = path;
-    }
+    , currentLogLevel(LogLevel::LOG_DEBUG) {
+    #ifdef _WIN32
+        logPath = "C:\\Users\\Billy Maizere\\source\\repos\\LiveImproved\\log.txt";
+		//logPath = "NUL";
+    #else
+        logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/logs/log.txt";
+		//logPath = "/dev/null";
+    #endif
 }
 
 LogHandler::~LogHandler() {
