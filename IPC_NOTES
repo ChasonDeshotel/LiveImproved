@@ -1,0 +1,55 @@
+Certainly! I'll go through the code and identify lines that are likely incompatible with Windows. Here are the lines that stand out:
+
+ 1 #include <dispatch/dispatch.h>
+ 2 #include <sys/stat.h>
+  3 #include <unistd.h>
+  4 unlink(pipe.first.c_str());
+  5 return mkfifo(pipeName.c_str(), DEFAULT_PIPE_PERMISSIONS) == 0;
+  6 int fd = open(pipeName.c_str(), flags);
+  7 close(fd);
+  8 ssize_t bytesRead = read(fd, buffer.data(), buffer.size());
+  9 ssize_t result = write(fd, formattedRequest.c_str(), formattedRequest.length());
+ 10 Any usage of errno
+ 11 if (access(pipeName.c_str(), F_OK) != -1) {
+ 12 usleep(100000);
+
+
+
+You're correct that macOS (POSIX) pipes and Windows named pipes have significant differences. Here are some key areas where you might encounter challenges when porting from macOS to Windows:
+
+ 1 Pipe Creation and Naming:
+    • macOS: Uses mkfifo() to create pipes with filesystem paths.
+    • Windows: Uses CreateNamedPipe() with a special naming convention (\.\pipe\pipename).
+ 2 Opening Pipes:
+    • macOS: Uses open() with O_RDONLY or O_WRONLY flags.
+    • Windows: Uses CreateFile() for clients and ConnectNamedPipe() for servers.
+ 3 Non-blocking I/O:
+    • macOS: Uses fcntl() to set O_NONBLOCK flag.
+    • Windows: Requires using overlapped I/O or separate thread for true non-blocking operations.
+ 4 Error Handling:
+    • macOS: Uses errno for error codes.
+    • Windows: Uses GetLastError() and Windows-specific error codes.
+ 5 Pipe Modes:
+    • macOS: Pipes are byte streams by default.
+    • Windows: Needs to specify PIPE_TYPE_BYTE for byte stream mode.
+ 6 Pipe Cleanup:
+    • macOS: Uses unlink() to remove pipes.
+    • Windows: Pipes are automatically removed when the last handle is closed.
+  7 Blocking Behavior:
+     • macOS: read() blocks until data is available or pipe is closed.
+     • Windows: ReadFile() may return immediately with ERROR_NO_DATA if no data is available.
+  8 Multiple Instances:
+     • macOS: Multiple processes can open the same named pipe.
+     • Windows: Requires careful management of instances with PIPE_UNLIMITED_INSTANCES.
+  9 Permissions and Security:
+     • macOS: Uses standard file permissions.
+     • Windows: Uses security descriptors and access tokens.
+ 10 Buffering:
+     • macOS: Has a fixed buffer size for pipes.
+     • Windows: Allows specifying input and output buffer sizes.
+ 11 Polling and Select:
+     • macOS: Can use select() or poll() for multiple pipes.
+     • Windows: Typically uses WaitForMultipleObjects() or I/O Completion Ports.
+ 12 Pipe Capacity:
+     • macOS: Has a system-defined capacity (typically 65536 bytes).
+     • Windows: Allows specifying the capacity when creating the pipe.

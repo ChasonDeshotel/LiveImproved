@@ -49,6 +49,7 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
     logger->debug("set up plugin window change observer");
 
     AXUIElementRef appElement = AXFinder::appElement();
+    // TODO retry because Live might not be fully launched
     if (!AXAttribute::isValid(appElement)) {
         logger->error("unable to get app element");
         return;

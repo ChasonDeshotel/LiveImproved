@@ -2,6 +2,19 @@
 
 #include <string>
 #include <functional>
+#include <filesystem>
+
+#ifdef _WIN32
+struct HANDLE__;
+using PipeHandle = struct HANDLE__*;
+static constexpr PipeHandle UNINITIALIZED_HANDLE = nullptr;
+#else
+using PipeHandle = int;
+static constexpr PipeHandle NULL_PIPE_HANDLE = -69420;
+static constexpr PipeHandle INVALID_PIPE_HANDLE = -1;
+#endif
+
+using Path = std::filesystem::path;
 
 class IIPC {
 public:
@@ -26,6 +39,9 @@ public:
 
     virtual auto stopIPC() -> void = 0;
 
+
 protected:
+    virtual auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void = 0;
+
     IIPC() = default;
 };

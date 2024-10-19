@@ -12,7 +12,7 @@
 #include "IEventHandler.h"
 #include "IIPC.h"
 #include "ILiveInterface.h"
-#include "IPC.h"
+#include "IPCBase.h"
 #include "IPCResilienceDecorator.h"
 
 #include "ActionHandler.h"
@@ -272,7 +272,7 @@ public:
                 [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
                     return std::make_shared<IPCResilienceDecorator>(
                         []() {
-                            return std::make_shared<IPC>();
+                            return std::make_shared<IPCBase>();
                         }
                     );
                 }
