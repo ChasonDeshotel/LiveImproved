@@ -51,7 +51,8 @@ protected:
     void readyReadPipe();
     void readyWritePipe();
 
-    auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void override = 0;
+    auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void;
+    auto cleanUpPipes() -> void override;
 
     auto writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool;
     void processNextRequest();

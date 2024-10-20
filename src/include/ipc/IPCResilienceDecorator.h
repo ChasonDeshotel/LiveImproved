@@ -10,31 +10,31 @@
 
 class IPCResilienceDecorator : public IIPC {
 public:
-  IPCResilienceDecorator(std::function<std::shared_ptr<IIPC>()> factory);
-  ~IPCResilienceDecorator() override = default;
+    IPCResilienceDecorator(std::function<std::shared_ptr<IIPC>()> factory);
+    ~IPCResilienceDecorator() override = default;
 
-  IPCResilienceDecorator(const IPCResilienceDecorator &) = delete;
-  IPCResilienceDecorator(IPCResilienceDecorator &&) = delete;
-  auto operator=(const IPCResilienceDecorator &) -> IPCResilienceDecorator & = delete;
-  auto operator=(IPCResilienceDecorator &&) -> IPCResilienceDecorator & = delete;
+    IPCResilienceDecorator(const IPCResilienceDecorator &) = delete;
+    IPCResilienceDecorator(IPCResilienceDecorator &&) = delete;
+    auto operator=(const IPCResilienceDecorator &) -> IPCResilienceDecorator & = delete;
+    auto operator=(IPCResilienceDecorator &&) -> IPCResilienceDecorator & = delete;
 
-  auto init() -> bool override;
-  [[nodiscard]] auto isInitialized() const -> bool override;
+    auto init() -> bool override;
+    [[nodiscard]] auto isInitialized() const -> bool override;
 
-  void writeRequest(const std::string &message) override;
-  void writeRequest(const std::string &message,
+    void writeRequest(const std::string &message) override;
+    void writeRequest(const std::string &message,
                     ResponseCallback callback) override;
 
-  auto readResponse(ResponseCallback callback) -> std::string override;
-  void drainPipe(int fd) override;
-  void closeAndDeletePipes() override;
+    auto readResponse(ResponseCallback callback) -> std::string override;
+    void drainPipe(int fd) override;
+    void closeAndDeletePipes() override;
 
-  void stopIPC() override;
+    void stopIPC() override;
 
-  auto checkAndReestablishConnection() -> bool;
+    auto checkAndReestablishConnection() -> bool;
 
 protected:
-     auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void override = 0;
+     auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void;
 
 private:
     std::shared_ptr<IIPC> instance_;

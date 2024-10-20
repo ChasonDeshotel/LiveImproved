@@ -41,7 +41,7 @@ public:
 
 
 protected:
-    virtual auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void = 0;
+    virtual auto cleanUpPipes() -> void = 0;
 
     IIPC() = default;
 };
