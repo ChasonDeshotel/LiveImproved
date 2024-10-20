@@ -482,3 +482,24 @@ auto IPCBase::readResponse(ResponseCallback callback) -> std::string {
 
     return message;
 }
+
+ auto IPCBase::cleanUpPipe(const Path& path, PipeHandle& handle) -> void {
+     // Default implementation or leave it pure virtual
+     throw std::runtime_error("cleanUpPipe not implemented in base class");
+ }
+
+ auto IPCBase::cleanUpPipes() -> void {
+     // Default implementation
+     cleanUpPipe(_requestPipePath_, _requestPipeHandle_);
+     cleanUpPipe(_responsePipePath_, _responsePipeHandle_);
+ }
+
+ auto IPCBase::createReadPipe() -> bool {
+     // Default implementation or leave it pure virtual
+     throw std::runtime_error("createReadPipe not implemented in base class");
+ }
+
+ auto IPCBase::createWritePipe() -> bool {
+     // Default implementation or leave it pure virtual
+     throw std::runtime_error("createWritePipe not implemented in base class");
+ }

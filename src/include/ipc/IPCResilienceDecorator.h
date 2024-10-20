@@ -34,7 +34,10 @@ public:
     auto checkAndReestablishConnection() -> bool;
 
 protected:
-     auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void override;
+    auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void override;
+    auto cleanUpPipes() -> void override;
+    auto createReadPipe() -> bool override;
+    auto createWritePipe() -> bool override;
 
 private:
     std::shared_ptr<IIPC> instance_;

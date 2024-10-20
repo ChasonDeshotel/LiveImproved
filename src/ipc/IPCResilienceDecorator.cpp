@@ -112,3 +112,19 @@ auto IPCResilienceDecorator::closeAndDeletePipes() -> void {
 auto IPCResilienceDecorator::stopIPC() -> void {
     handleError("stopIPC", [this]() { instance_->stopIPC(); });
 }
+
+auto IPCResilienceDecorator::cleanUpPipe(const Path& path, PipeHandle& handle) -> void {
+    handleError("cleanUpPipe", [this, &path, &handle]() { instance_->cleanUpPipe(path, handle); });
+}
+
+ auto IPCResilienceDecorator::cleanUpPipes() -> void {
+     handleError("cleanUpPipes", [this]() { instance_->cleanUpPipes(); });
+ }
+
+ auto IPCResilienceDecorator::createReadPipe() -> bool {
+     return handleError("createReadPipe", [this]() { return instance_->createReadPipe(); });
+ }
+
+ auto IPCResilienceDecorator::createWritePipe() -> bool {
+     return handleError("createWritePipe", [this]() { return instance_->createWritePipe(); });
+ }
