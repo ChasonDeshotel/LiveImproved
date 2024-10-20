@@ -19,6 +19,7 @@ public:
 private:
     auto createReadPipe() -> bool override;
     auto createWritePipe() -> bool override;
+    auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void override;
     auto createPipe(const Path& pipePath) -> bool;
 
     auto cleanUpPipes() -> void override;
