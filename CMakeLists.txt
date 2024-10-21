@@ -205,8 +205,11 @@ set(SRC_CPP
     src/gui/SearchBox.cpp
     src/gui/Theme.cpp
     src/gui/WindowManager.cpp
-    src/ipc/IPCBase.cpp
-    src/ipc/IPCResilienceDecorator.cpp
+    src/ipc/IPCQueue.cpp
+    src/platform/macos/ipc/IPCPipe.cpp
+    src/platform/macos/ipc/IPCRequestPipe.cpp
+    src/platform/macos/ipc/IPCResponsePipe.cpp
+    #src/ipc/IPCResilienceDecorator.cpp
     src/ipc/ResponseParser.cpp
 )
 
@@ -227,7 +230,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         src/platform/macos/system/PathManager.mm
     )
     list(APPEND SRC_CPP
-        src/platform/macos/ipc/IPC.cpp
+        src/platform/macos/ipc/IPCPipe.cpp
     )
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")

@@ -1,17 +1,7 @@
 Certainly! I'll go through the code and identify lines that are likely incompatible with Windows. Here are the lines that stand out:
 
- 1 #include <dispatch/dispatch.h>
- 2 #include <sys/stat.h>
-  3 #include <unistd.h>
-  4 unlink(pipe.first.c_str());
-  5 return mkfifo(pipeName.c_str(), DEFAULT_PIPE_PERMISSIONS) == 0;
-  6 int fd = open(pipeName.c_str(), flags);
-  7 close(fd);
   8 ssize_t bytesRead = read(fd, buffer.data(), buffer.size());
-  9 ssize_t result = write(fd, formattedRequest.c_str(), formattedRequest.length());
  10 Any usage of errno
- 11 if (access(pipeName.c_str(), F_OK) != -1) {
- 12 usleep(100000);
 
 
 

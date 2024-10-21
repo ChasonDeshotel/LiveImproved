@@ -21,7 +21,7 @@ public:
     auto cleanUp()  -> void;
 
     virtual auto openPipe() -> bool = 0;
-    virtual auto createWritePipeLoop() -> void = 0;
+    //virtual auto createWritePipeLoop() -> void = 0;
 
     auto getHandle() -> PipeHandle;
     auto setHandleNull() -> void;

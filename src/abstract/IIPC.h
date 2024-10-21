@@ -28,8 +28,6 @@ public:
     virtual auto stopIPC() -> void = 0;
 
     virtual auto cleanUpPipes() -> void = 0;
-    virtual auto createReadPipe() -> bool = 0;
-    virtual auto createWritePipe() -> bool = 0;
 
 protected:
     IIPC() = default;

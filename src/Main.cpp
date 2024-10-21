@@ -12,13 +12,14 @@
 #include "IEventHandler.h"
 #include "IIPC.h"
 #include "ILiveInterface.h"
-#include "IPCBase.h"
-#include "IPCResilienceDecorator.h"
+#include "IPCQueue.h"
+//#include "IPCResilienceDecorator.h"
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
 #include "EventHandler.h"
+#include "IPCPipe.h"
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
 #include "LiveInterface.h"
@@ -28,7 +29,6 @@
 #include "ResponseParser.h"
 #include "Theme.h"
 #include "WindowManager.h"
-
 
 class JuceApp : public juce::JUCEApplication {
 private:
@@ -268,16 +268,32 @@ public:
         }
 
         void ipc() {
+            // platform-specific IPC
+            app->container_.registerType<IPCRequestPipe, IPCRequestPipe>(DependencyContainer::Lifetime::Singleton);
+            app->container_.registerType<IPCResponsePipe, IPCResponsePipe>(DependencyContainer::Lifetime::Singleton);
+
+            app->container_.registerFactory<IIPC>(
+                [](DependencyContainer& c) -> std::shared_ptr<IPCQueue> {
+                    return std::make_shared<IPCQueue>(
+                        [&c]() { return c.resolve<IPCRequestPipe>(); }
+                        , [&c]() { return c.resolve<IPCResponsePipe>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+
+            /*
             app->container_.registerFactory<IIPC>(
                 [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
                     return std::make_shared<IPCResilienceDecorator>(
-                        []() {
-                            return std::make_shared<IPCBase>();
+                        [&c]() {
+                            return std::make_shared<IPCQueue>(c.resolve<IPCRequestPipe>(), c.resolve<IPCResponsePipe>());
                         }
                     );
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
+            */
         }
 
         void pluginManager() {

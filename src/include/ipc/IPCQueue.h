@@ -16,7 +16,10 @@ public:
     using ResponseCallback = std::function<void(const std::string&)>;
     using Request = std::pair<std::string, ResponseCallback>;
 
-    IPCQueue(std::unique_ptr<IPCRequestPipe> requestPipe, std::unique_ptr<IPCResponsePipe> responsePipe);
+    IPCQueue(
+            std::function<std::shared_ptr<IPCRequestPipe>()> requestPipe
+            , std::function<std::shared_ptr<IPCResponsePipe>()> responsePipe
+    );
     ~IPCQueue() override;
 
     IPCQueue(const IPCQueue &) = delete;
@@ -44,13 +47,13 @@ public:
     auto cleanUpPipes() -> void override;
 
 protected:
-    auto createReadPipe()  -> bool override;
-    auto createWritePipe() -> bool override;
-    void createReadPipeLoop();
-    void createWritePipeLoop();
+    //auto createReadPipe()  -> bool override;
+    //auto createWritePipe() -> bool override;
+    //void createReadPipeLoop();
+    //void createWritePipeLoop();
 
-    void readyReadPipe();
-    void readyWritePipe();
+    //void readyReadPipe();
+    //void readyWritePipe();
 
     auto writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool;
     void processNextRequest();
@@ -96,6 +99,6 @@ protected:
     std::atomic<uint64_t>   nextRequestId_;                                              // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
-    std::unique_ptr<IPCRequestPipe> requestPipe_;
-    std::unique_ptr<IPCResponsePipe> responsePipe_;
+    std::shared_ptr<IPCRequestPipe> requestPipe_;
+    std::shared_ptr<IPCResponsePipe> responsePipe_;
 };
