@@ -8,6 +8,8 @@
 
 #include "IIPC.h"
 #include "Types.h"
+#include "IPCRequestPipe.h"
+#include "IPCResponsePipe.h"
 
 class IPCQueue : public IIPC {
 public:
@@ -54,9 +56,6 @@ protected:
     void processNextRequest();
     auto formatRequest(const std::string& request, uint64_t id) -> std::string;
 
-    auto openPipeForWrite(const std::string& pipeName, bool nonBlocking = false) -> bool;
-    auto openPipeForRead (const std::string& pipeName, bool nonBlocking = false) -> bool;
-
     static constexpr int    MAX_READ_RETRIES           {100};
     static constexpr int    MESSAGE_TRUNCATE_CHARS     {100};
     static constexpr int    MAX_PIPE_CREATION_ATTEMPTS {100};
@@ -97,5 +96,6 @@ protected:
     std::atomic<uint64_t>   nextRequestId_;                                              // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
-
+    std::unique_ptr<IPCRequestPipe> requestPipe_;
+    std::unique_ptr<IPCResponsePipe> responsePipe_;
 };
