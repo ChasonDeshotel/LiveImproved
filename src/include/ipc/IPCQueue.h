@@ -16,7 +16,7 @@ public:
     using ResponseCallback = std::function<void(const std::string&)>;
     using Request = std::pair<std::string, ResponseCallback>;
 
-    IPCQueue();
+    IPCQueue(std::unique_ptr<IPCRequestPipe> requestPipe, std::unique_ptr<IPCResponsePipe> responsePipe);
     ~IPCQueue() override;
 
     IPCQueue(const IPCQueue &) = delete;

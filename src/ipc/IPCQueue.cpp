@@ -11,12 +11,13 @@
 
 #include "IPCQueue.h"
 
-IPCQueue::IPCQueue()
+IPCQueue::IPCQueue(std::unique_ptr<IPCRequestPipe> requestPipe, std::unique_ptr<IPCResponsePipe> responsePipe)
     : IIPC()
     , isProcessingRequest_(false)
+    , requestPipe_(std::move(requestPipe))
+    , responsePipe_(std::move(responsePipe))
 {
     DependencyContainer::getInstance();
-
 }
 
 IPCQueue::~IPCQueue() {
