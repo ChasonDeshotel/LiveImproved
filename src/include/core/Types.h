@@ -21,16 +21,6 @@ typedef DWORD pid_t;
 #include <unistd.h>
 #endif
 
-#ifdef _WIN32
-struct HANDLE__;
-using PipeHandle = struct HANDLE__*;
-static constexpr PipeHandle UNINITIALIZED_HANDLE = nullptr;
-#else
-using PipeHandle = int;
-static constexpr PipeHandle NULL_PIPE_HANDLE = -69420;
-static constexpr PipeHandle INVALID_PIPE_HANDLE = -1;
-#endif
-
 struct ERect {
     int x;
     int y;

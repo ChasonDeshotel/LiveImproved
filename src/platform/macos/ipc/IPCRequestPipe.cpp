@@ -1,24 +1,25 @@
 #include <cerrno>
 #include <fcntl.h>
-#include <filesystem>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include "LogGlobal.h"
-#include "Types.h"
 #include "PathManager.h"
 
+#include "IPCPipe.h"
 #include "IPCRequestPipe.h"
-
-using Path = std::filesystem::path;
-namespace fs = std::filesystem;
 
 IPCRequestPipe::IPCRequestPipe()
     : IPCPipe()
-    , pipeHandle_(INVALID_PIPE_HANDLE)
+    , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_(PathManager().requestPipe())
-{}
+{
+    logger->error("\n\n\n");
+    logger->error(PathManager().requestPipe());
+    logger->error("\n\n\n");
+    setPipePath(PathManager().requestPipe());
+}
 
 IPCRequestPipe::~IPCRequestPipe() = default;
 
@@ -27,7 +28,7 @@ auto IPCRequestPipe::openPipe() -> bool {
     flags |= O_NONBLOCK;
 
     pipeHandle_ = open(pipePath_.c_str(), flags); // NOLINT
-    if (pipeHandle_ == INVALID_PIPE_HANDLE) {
+    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
         logger->error("Failed to open pipe for writing: " + pipePath_.string() + " - " + strerror(errno));
         return false;
     }

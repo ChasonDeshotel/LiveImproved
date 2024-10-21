@@ -8,6 +8,7 @@
 
 #include "LogGlobal.h"
 
+#include "IPCDefinitions.h"
 #include "IPCQueue.h"
 #include "IPCRequestPipe.h"
 #include "IPCResponsePipe.h"
@@ -20,7 +21,9 @@ IPCQueue::IPCQueue(
     , isProcessingRequest_(false)
     , requestPipe_(std::move(requestPipe)())
     , responsePipe_(std::move(responsePipe)())
-{}
+{
+    init();
+}
 
 IPCQueue::~IPCQueue() {
     this->cleanUpPipes();
@@ -29,6 +32,9 @@ IPCQueue::~IPCQueue() {
 auto IPCQueue::init() -> bool {
     logger->debug("IPCQueue::init() called");
     stopIPC_ = false;
+
+    requestPipe_->cleanUp();
+    requestPipe_->create();
     return true;
     /*
     std::thread createReadPipeThread(&IPCQueue::createReadPipeLoop, this);
@@ -178,7 +184,7 @@ auto IPCQueue::processNextRequest() -> void {
         }
 
         // Live operates on 100ms tick -- without this sleep commands are skipped
-        std::this_thread::sleep_for(LIVE_TICK);
+        std::this_thread::sleep_for(ipc::LIVE_TICK);
 
         if (!stopIPC_) {
             this->processNextRequest();
@@ -406,10 +412,6 @@ auto IPCQueue::readResponse(ResponseCallback callback) -> std::string {
     */
 }
 
-auto IPCQueue::cleanUpPipes() -> void {
-    requestPipe_->cleanUp();
-    responsePipe_->cleanUp();
-}
 
 /*
 auto IPCQueue::createReadPipe() -> bool {
@@ -421,3 +423,13 @@ auto IPCQueue::createWritePipe() -> bool {
     return requestPipe_->create();
 }
 */
+
+auto IPCQueue::cleanUpPipes() -> void {
+    requestPipe_->cleanUp();
+    responsePipe_->cleanUp();
+}
+
+void IPCQueue::stopIPC() {
+    requestPipe_->stop();
+    responsePipe_->stop();
+}

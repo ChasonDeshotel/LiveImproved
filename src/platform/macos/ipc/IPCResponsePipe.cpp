@@ -1,22 +1,18 @@
 #include <cerrno>
 #include <fcntl.h>
-#include <filesystem>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include "LogGlobal.h"
-#include "Types.h"
 #include "PathManager.h"
 
+#include "IPCDefinitions.h"
 #include "IPCResponsePipe.h"
-
-using Path = std::filesystem::path;
-namespace fs = std::filesystem;
 
 IPCResponsePipe::IPCResponsePipe()
     : IPCPipe()
-    , pipeHandle_(INVALID_PIPE_HANDLE)
+    , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_(PathManager().responsePipe())
 {}
 
@@ -27,7 +23,7 @@ auto IPCResponsePipe::openPipe() -> bool {
     flags |= O_NONBLOCK;
 
     pipeHandle_ = open(pipePath_.c_str(), flags); // NOLINT
-    if (pipeHandle_ == INVALID_PIPE_HANDLE) {
+    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
         logger->error("Failed to open pipe for writing: " + pipePath_.string() + " - " + strerror(errno));
         return false;
     }

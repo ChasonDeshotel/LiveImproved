@@ -1,12 +1,7 @@
 #pragma once
-#include <filesystem>
 
-#include "Types.h"
-
+#include "IPCDefinitions.h"
 #include "IPCPipe.h"
-
-using Path = std::filesystem::path;
-namespace fs = std::filesystem;
 
 class IPCRequestPipe : public IPCPipe {
 public:
@@ -19,11 +14,8 @@ public:
     IPCRequestPipe &operator=(IPCRequestPipe &&) = delete;
 
     auto openPipe()  -> bool override;
-    //auto createWritePipeLoop() -> void override;
-
+    
 private:
-
-    Path       pipePath_;
-    PipeHandle pipeHandle_;
-
+    Path        pipePath_;
+    ipc::Handle pipeHandle_;
 };

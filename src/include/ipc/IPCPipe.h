@@ -1,11 +1,7 @@
 #pragma once
-#include <filesystem>
 #include <string>
 
-#include "Types.h"
-
-using Path = std::filesystem::path;
-namespace fs = std::filesystem;
+#include "IPCDefinitions.h"
 
 class IPCPipe {
 public:
@@ -17,32 +13,36 @@ public:
     IPCPipe &operator=(const IPCPipe &) = delete;
     IPCPipe &operator=(IPCPipe &&) = delete;
 
-    auto create()   -> bool;
     auto cleanUp()  -> void;
 
     virtual auto openPipe() -> bool = 0;
     //virtual auto createWritePipeLoop() -> void = 0;
 
-    auto getHandle() -> PipeHandle;
+    auto getHandle() -> ipc::Handle;
     auto setHandleNull() -> void;
 
     auto string() -> std::string;
 
     auto drainPipe(int fd, size_t bufferSize) -> void;
+    auto stop() -> void {
+        stopIPC_ = true;
+    }
 
+    auto create() -> bool;
     // static auto resetResponsePipe() -> void;
 protected:
-    // TODO fix
+
+    auto setPipePath(const ipc::Path& path) {
+        pipePath_ = path;
+    }
+    virtual auto getPipePath() const -> const ipc::Path& {
+        return pipePath_;
+    }
+
     std::atomic<bool> stopIPC_       {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //
-    static constexpr int    MAX_PIPE_CREATION_ATTEMPTS {100};
-    static constexpr int    MAX_PIPE_SETUP_ATTEMPTS    {100};
-
-    static constexpr mode_t     DEFAULT_DIRECTORY_PERMISSIONS  {0777};
-    static constexpr mode_t     DEFAULT_PIPE_PERMISSIONS       {0666};
-
 private:
-    Path       pipePath_;
-    PipeHandle pipeHandle_;
+    ipc::Path pipePath_;
+    ipc::Handle pipeHandle_;
 
 };

@@ -1,12 +1,7 @@
 #pragma once
-#include <filesystem>
 
-#include "Types.h"
-
+#include "IPCDefinitions.h"
 #include "IPCPipe.h"
-
-using Path = std::filesystem::path;
-namespace fs = std::filesystem;
 
 class IPCResponsePipe : public IPCPipe {
 public:
@@ -21,11 +16,6 @@ public:
     auto openPipe() -> bool override;
 
 private:
-    static constexpr mode_t     DEFAULT_DIRECTORY_PERMISSIONS  {0777};
-    static constexpr mode_t     DEFAULT_PIPE_PERMISSIONS       {0666};
-
-    Path       pipePath_;
-    PipeHandle pipeHandle_;
-
+    Path        pipePath_;
+    ipc::Handle pipeHandle_;
 };
-

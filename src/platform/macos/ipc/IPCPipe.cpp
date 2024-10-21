@@ -6,34 +6,33 @@
 #include <unistd.h>
 
 #include "LogGlobal.h"
-#include "Types.h"
 #include "PathManager.h"
 
+#include "IPCDefinitions.h"
 #include "IPCPipe.h"
 
-using Path = std::filesystem::path;
 namespace fs = std::filesystem;
 
 IPCPipe::IPCPipe()
-    : pipeHandle_(INVALID_PIPE_HANDLE)
+    : pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_()
 {}
 
 auto IPCPipe::create() -> bool {
-    logger->debug("pipe name: " + pipePath_.string());
-    std::filesystem::path directory = pipePath_.parent_path();
+    logger->error("pipe name: " + getPipePath().string());
+    Path directory = pipePath_.parent_path();
 
     // Check if the directory exists, and create it if it doesn't
     struct stat st{};
     if (stat(directory.c_str(), &st) == -1) {
-        if (mkdir(directory.c_str(), DEFAULT_DIRECTORY_PERMISSIONS) == -1) {
+        if (mkdir(directory.c_str(), ipc::DEFAULT_DIRECTORY_PERMISSIONS) == -1) {
             logger->error("Failed to create directory: " + directory.string() + " - " + strerror(errno));
             return false;
         }
     }
 
     // Now create the pipe
-    if (mkfifo(pipePath_.c_str(), DEFAULT_PIPE_PERMISSIONS) == -1) {
+    if (mkfifo(pipePath_.c_str(), ipc::DEFAULT_PIPE_PERMISSIONS) == -1) {
         if (errno == EEXIST) {
             logger->warn("Pipe already exists: " + pipePath_.string());
         } else {
@@ -48,13 +47,13 @@ auto IPCPipe::create() -> bool {
 }
 
 auto IPCPipe::cleanUp() -> void {
-    if (pipeHandle_ != NULL_PIPE_HANDLE && pipeHandle_ != INVALID_PIPE_HANDLE) {
+    if (pipeHandle_ != ipc::NULL_PIPE_HANDLE && pipeHandle_ != ipc::INVALID_PIPE_HANDLE) {
         close(pipeHandle_);
         logger->debug("closed pipe");
     }
-    pipeHandle_ = NULL_PIPE_HANDLE;
+    setHandleNull();
 
-    if (! (fs::exists(pipePath_) && fs::is_regular_file(pipePath_)) ) {
+    if (! (fs::exists(pipePath_)) ) {
         logger->warn("pipe does not exist or is not a regular file: " + pipePath_.string());
         return;
     }
@@ -64,7 +63,7 @@ auto IPCPipe::cleanUp() -> void {
         logger->warn("Failed to remove request pipe file: " + pipePath_.string());
     }
 
-    pipeHandle_ = INVALID_PIPE_HANDLE;
+    setHandleNull();
 }
 
 auto IPCPipe::drainPipe(int fd, size_t bufferSize) -> void {
@@ -75,12 +74,12 @@ auto IPCPipe::drainPipe(int fd, size_t bufferSize) -> void {
     } while (bytesRead > 0);
 }
 
-auto IPCPipe::getHandle() -> PipeHandle {
+auto IPCPipe::getHandle() -> ipc::Handle {
     return pipeHandle_;
 }
 
 auto IPCPipe::setHandleNull() -> void {
-    pipeHandle_ = NULL_PIPE_HANDLE;
+    pipeHandle_ = ipc::NULL_PIPE_HANDLE;
 }
 
 auto IPCPipe::string() -> std::string {
