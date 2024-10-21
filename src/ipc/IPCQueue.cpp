@@ -33,10 +33,8 @@ auto IPCQueue::init() -> bool {
     logger->debug("IPCQueue::init() called");
     stopIPC_ = false;
 
-    requestPipe_->cleanUp();
     requestPipe_->create();
     requestPipe_->ready();
-
 
     return true;
     /*
@@ -77,28 +75,6 @@ auto IPCQueue::init() -> bool {
     }
     */
 }
-/*
-auto IPCQueue::createReadPipeLoop() -> void {
-    logger->debug("Creating read pipe");
-    for (int attempt = 0; attempt < MAX_PIPE_CREATION_ATTEMPTS; ++attempt) {
-        if (stopIPC_) {
-            logger->info("IPCQueue read pipe creation cancelled.");
-            return;
-        }
-        if (createReadPipe()) {
-            // initialize the file descriptor -- indicates pipe has not yet been opened
-            responsePipeHandle_ = NULL_PIPE_HANDLE;
-            logger->info("Response pipe successfully created");
-            readPipeCreated_ = true;
-            createPipesCv_.notify_one();
-            return;
-        }
-        logger->warn("Attempt to create response pipe failed. Retrying...");
-        std::this_thread::sleep_for(PIPE_CREATION_RETRY_DELAY);
-    }
-    logger->error("Max attempts reached for creating response pipe");
-}
-*/
 
 auto IPCQueue::formatRequest(const std::string& message, uint64_t id) -> std::string {
     size_t messageLength = message.length();
@@ -268,27 +244,6 @@ auto IPCQueue::readyReadPipe() -> void {
     return;
 }
 */
-/*
-auto IPCQueue::readyWritePipe() -> void {
-    logger->debug("Setting up write pipe. Path: " + requestPipe_->string());
-    for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
-        if (stopIPC_) {
-            logger->warn("IPCRequestPipe write initialization cancelled.");
-            return;
-        }
-        if (requestPipe_->openPipe()) {
-            logger->info("Request pipe successfully opened for writing");
-            writePipeReady_.store(true, std::memory_order_release);
-            initCv_.notify_one();
-            return;
-        }
-        logger->warn("Attempt to open request pipe for writing failed. Retrying...");
-        std::this_thread::sleep_for(PIPE_SETUP_RETRY_DELAY);
-    }
-    logger->error("Max attempts reached for opening request pipe");
-    return;
-}
-*/
 
 auto IPCQueue::readResponse(ResponseCallback callback) -> std::string {
     return "Asdf";
@@ -416,18 +371,6 @@ auto IPCQueue::readResponse(ResponseCallback callback) -> std::string {
     return message;
     */
 }
-
-
-/*
-auto IPCQueue::createReadPipe() -> bool {
-    return true;
-    //return IPC::createPipe(responsePipePath_);
-}
-
-auto IPCQueue::createWritePipe() -> bool {
-    return requestPipe_->create();
-}
-*/
 
 auto IPCQueue::cleanUpPipes() -> void {
     requestPipe_->cleanUp();

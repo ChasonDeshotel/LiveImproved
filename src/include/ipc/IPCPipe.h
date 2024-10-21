@@ -48,7 +48,6 @@ protected:
         return pipePath_.string();
     }
 
-
     std::atomic<bool> stopIPC_       {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //
 private:

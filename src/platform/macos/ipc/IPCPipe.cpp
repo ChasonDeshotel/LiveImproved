@@ -84,6 +84,11 @@ auto IPCPipe::ready() -> bool {
         }
         if (openPipe()) {
             logger->info("Pipe successfully opened");
+
+            // TODO
+            // if response pipe
+            // setHandleNull()
+
             return false;
         }
         logger->warn("Attempt to open response pipe for reading failed. Retrying...");

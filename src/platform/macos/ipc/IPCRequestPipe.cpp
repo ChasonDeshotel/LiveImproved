@@ -15,10 +15,8 @@ IPCRequestPipe::IPCRequestPipe()
     , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_(PathManager().requestPipe())
 {
-    logger->error("\n\n\n");
-    logger->error(PathManager().requestPipe());
-    logger->error("\n\n\n");
-    setPipePath(PathManager().requestPipe());
+    // set on base class
+    setPipePath(pipePath_);
 }
 
 IPCRequestPipe::~IPCRequestPipe() = default;
