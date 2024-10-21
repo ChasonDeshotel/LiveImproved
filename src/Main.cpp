@@ -164,7 +164,7 @@ public:
                 std::future<void> closeFuture = closePromise.get_future();
 
                 std::thread([&closePromise, ipc, this]() {
-                    ipc->closeAndDeletePipes();
+                    ipc->cleanUpPipes();
                     closePromise.set_value();  // Notify that pipes are closed
                 }).detach();
                 closeFuture.wait();

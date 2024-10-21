@@ -26,15 +26,12 @@ public:
                     ResponseCallback callback) override;
 
     auto readResponse(ResponseCallback callback) -> std::string override;
-    void drainPipe(int fd) override;
-    void closeAndDeletePipes() override;
 
     void stopIPC() override;
 
     auto checkAndReestablishConnection() -> bool;
 
 protected:
-    auto cleanUpPipe(const Path& path, PipeHandle& handle) -> void override;
     auto cleanUpPipes() -> void override;
     auto createReadPipe() -> bool override;
     auto createWritePipe() -> bool override;

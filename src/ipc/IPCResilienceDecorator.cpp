@@ -101,20 +101,8 @@ auto IPCResilienceDecorator::readResponse(ResponseCallback callback) -> std::str
     return handleError("readResponse", [this, &callback]() { return instance_->readResponse(callback); });
 }
 
-auto IPCResilienceDecorator::drainPipe(int fd) -> void {
-    handleError("drainPipe", [this, fd]() { instance_->drainPipe(fd); });
-}
-
-auto IPCResilienceDecorator::closeAndDeletePipes() -> void {
-    handleError("closeAndDeletePipes", [this]() { instance_->closeAndDeletePipes(); });
-}
-
 auto IPCResilienceDecorator::stopIPC() -> void {
     handleError("stopIPC", [this]() { instance_->stopIPC(); });
-}
-
-auto IPCResilienceDecorator::cleanUpPipe(const Path& path, PipeHandle& handle) -> void {
-    handleError("cleanUpPipe", [this, &path, &handle]() { instance_->cleanUpPipe(path, handle); });
 }
 
  auto IPCResilienceDecorator::cleanUpPipes() -> void {

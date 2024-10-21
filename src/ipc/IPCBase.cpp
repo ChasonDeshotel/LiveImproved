@@ -1,7 +1,6 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
-#include <map>
 #include <mutex>
 #include <queue>
 #include <sstream>
@@ -13,36 +12,27 @@
 #include "PathManager.h"
 
 #include "IPCBase.h"
+#include "IPC.h"
 
 IPCBase::IPCBase()
     : IIPC()
-    , isProcessingRequest_(false)
+    , _isProcessingRequest_(false)
     , _requestPipeHandle_(INVALID_PIPE_HANDLE)
     , _responsePipeHandle_(INVALID_PIPE_HANDLE)
-{
-    auto path = PathManager();
-    _requestPipePath_  = path.requestPipe().generic_string();
-    _responsePipePath_ = path.responsePipe().generic_string();
-}
+    , _requestPipePath_(PathManager().requestPipe().generic_string())
+    , _responsePipePath_(PathManager().responsePipe().generic_string())
+{}
 
 IPCBase::~IPCBase() {
-    for (auto& pipe : pipes_) {
-        if (pipe.second != -1) {
-            close(pipe.second);
-        }
-        unlink(pipe.first.c_str());
-    }
-
-    std::filesystem::remove(_requestPipePath_);
-    std::filesystem::remove(_responsePipePath_);
+    this->cleanUpPipes();
 }
 
 auto IPCBase::init() -> bool {
     logger->debug("IPCBase::init() called");
     _stopIPC_ = false;
 
-    std::thread createReadPipeThread(&IPCBase::createReadPipe, this);
-    std::thread createWritePipeThread(&IPCBase::createWritePipe, this);
+    std::thread createReadPipeThread(&IPCBase::createReadPipeLoop, this);
+    std::thread createWritePipeThread(&IPCBase::createWritePipeLoop, this);
 
     {
         std::unique_lock<std::mutex> lock(_createPipesMutex_);
@@ -61,8 +51,8 @@ auto IPCBase::init() -> bool {
     std::thread readyWriteThread(&IPCBase::readyWritePipe, this);
 
     {
-        std::unique_lock<std::mutex> lock(initMutex_);
-        initCv_.wait(lock, [this] { return (_readPipeReady_ && _writePipeReady_) || _stopIPC_; });
+        std::unique_lock<std::mutex> lock(_initMutex_);
+        _initCv_.wait(lock, [this] { return (_readPipeReady_ && _writePipeReady_) || _stopIPC_; });
     }
 
     readyReadThread.join();
@@ -126,10 +116,10 @@ auto IPCBase::readyReadPipe() -> void {
             logger->warn("IPCBase read initialization cancelled.");
             return;
         }
-        if (openPipeForRead(_responsePipePath_, true)) {
+        if (IPC::openResponsePipe(_responsePipePath_, _responsePipeHandle_)) {
             logger->info("Response pipe successfully opened for reading");
             _readPipeReady_.store(true, std::memory_order_release);
-            initCv_.notify_one();
+            _initCv_.notify_one();
             return;
         }
         logger->warn("Attempt to open response pipe for reading failed. Retrying...");
@@ -146,10 +136,10 @@ auto IPCBase::readyWritePipe() -> void {
             logger->warn("IPCBase write initialization cancelled.");
             return;
         }
-        if (openPipeForWrite(_requestPipePath_, true)) {
+        if (IPC::openRequestPipe(_requestPipePath_, _requestPipeHandle_)) {
             logger->info("Request pipe successfully opened for writing");
             _writePipeReady_.store(true, std::memory_order_release);
-            initCv_.notify_one();
+            _initCv_.notify_one();
             return;
         }
         logger->warn("Attempt to open request pipe for writing failed. Retrying...");
@@ -159,23 +149,8 @@ auto IPCBase::readyWritePipe() -> void {
     return;
 }
 
-auto IPCBase::closeAndDeletePipes() -> void {
-    cleanUpPipe(_requestPipePath_, _requestPipeHandle_);
-    cleanUpPipe(_responsePipePath_, _responsePipeHandle_);
-}
-
-auto IPCBase::resetResponsePipe() -> void {
-    logger->debug("Resetting response pipe");
-    close(pipes_[_responsePipePath_]);
-    pipes_[_responsePipePath_] = INVALID_PIPE_HANDLE;
-    if (!openPipeForRead(_responsePipePath_, true)) {
-        logger->error("Failed to reopen response pipe");
-    } else {
-        logger->info("Response pipe reopened successfully");
-    }
-}
-
 auto IPCBase::removePipeIfExists(const std::string& pipeName) -> void {
+    // TODO: use filesystem remove
     if (access(pipeName.c_str(), F_OK) != -1) {
         // File exists, so remove it
         if (unlink(pipeName.c_str()) == 0) {
@@ -186,53 +161,20 @@ auto IPCBase::removePipeIfExists(const std::string& pipeName) -> void {
     }
 }
 
-auto IPCBase::openPipeForWrite(const std::string& pipeName, bool nonBlocking) -> bool {
-    int flags = O_WRONLY;
-    if (nonBlocking) {
-        flags |= O_NONBLOCK;
-    }
-
-    int fd = open(pipeName.c_str(), flags); // NOLINT
-    if (fd == -1) {
-        logger->error("Failed to open pipe for writing: " + pipeName + " - " + strerror(errno));
-        return false;
-    }
-
-    pipes_[pipeName] = fd;
-    logger->debug("Pipe opened for writing: " + pipeName);
-    return true;
-}
-
-auto IPCBase::openPipeForRead(const std::string& pipeName, bool nonBlocking) -> bool {
-    int flags = O_RDONLY;
-    if (nonBlocking) {
-        flags |= O_NONBLOCK;
-    }
-
-    int fd = open(pipeName.c_str(), flags); // NOLINT
-    if (fd == -1) {
-        logger->error("Failed to open pipe for reading: " + pipeName + " - " + strerror(errno));
-        return false;
-    }
-
-    pipes_[pipeName] = fd;
-    logger->info("Pipe opened for reading: " + pipeName);
-    return true;
-}
-
 auto IPCBase::formatRequest(const std::string& message, uint64_t id) -> std::string {
     size_t messageLength = message.length();
 
     std::ostringstream idStream;
-    idStream << std::setw(8) << std::setfill('0') << (id % 100000000); // NOLINT
+    idStream << std::setw(8) << std::setfill('0') << (id % 100000000); // NOLINT - magic numbers
     std::string paddedId = idStream.str();
 
     std::ostringstream markerStream;
-    markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT
+    markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT - magic numbers
     std::string start_marker = markerStream.str();
 
     std::string formattedRequest = start_marker + message;
-    logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT
+    logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT - magic numbers
+    formattedRequest += "\n"; // add newline as a delimiter
 
     return formattedRequest;
 }
@@ -253,7 +195,7 @@ auto IPCBase::writeRequest(const std::string& message, ResponseCallback callback
     logger->debug("Request enqueued: " + message);
 
     // If no request is currently being processed, start processing
-    if (!isProcessingRequest_) {
+    if (!_isProcessingRequest_) {
         processNextRequest();
     }
 }
@@ -263,16 +205,16 @@ auto IPCBase::processNextRequest() -> void {
 
     if (_stopIPC_) {
         logger->info("Stopping IPCBase request processing.");
-        isProcessingRequest_ = false;
+        _isProcessingRequest_ = false;
         return;
     }
 
     if (requestQueue_.empty()) {
-        isProcessingRequest_ = false;
+        _isProcessingRequest_ = false;
         return;
     }
 
-    isProcessingRequest_ = true;
+    _isProcessingRequest_ = true;
 
     auto nextRequest = requestQueue_.front();
     requestQueue_.pop();
@@ -284,7 +226,8 @@ auto IPCBase::processNextRequest() -> void {
             this->writeRequestInternal(nextRequest.first, nextRequest.second);
         }
 
-        usleep(100000); // NOLINT Live operates on 100ms tick -- without this sleep commands are skipped
+        // Live operates on 100ms tick -- without this sleep commands are skipped
+        std::this_thread::sleep_for(LIVE_TICK);
 
         if (!_stopIPC_) {
             this->processNextRequest();
@@ -294,17 +237,18 @@ auto IPCBase::processNextRequest() -> void {
 
 auto IPCBase::writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool {
 	// Check if the pipe is already open for writing
-	if (pipes_[_requestPipePath_] == INVALID_PIPE_HANDLE) {
-		if (!openPipeForWrite(_requestPipePath_, true)) {  // Open in non-blocking mode
+	if (_requestPipeHandle_ == INVALID_PIPE_HANDLE) {
+		if (!IPC::openRequestPipe(_requestPipePath_, _requestPipeHandle_)) {
 			return false;
 		}
 	}
-	int fd = pipes_[_requestPipePath_];
-	if (fd == INVALID_PIPE_HANDLE) {
+
+	if (_requestPipeHandle_ == INVALID_PIPE_HANDLE) {
 		logger->error("Request pipe not opened for writing: " + _requestPipePath_.string());
 		return false;
 	}
-	drainPipe(pipes_[_responsePipePath_]);
+
+    IPC::drainPipe(_responsePipeHandle_, BUFFER_SIZE);
 
     uint64_t id = nextRequestId_++;
 
@@ -319,23 +263,19 @@ auto IPCBase::writeRequestInternal(const std::string& message, ResponseCallback 
 
     logger->debug("Writing request: " + formattedRequest);
 
-	ssize_t result = write(fd, formattedRequest.c_str(), formattedRequest.length());
-
-    ssize_t bytesWritten = write(pipes_[_requestPipePath_], formattedRequest.c_str(), formattedRequest.length());
-	if (bytesWritten == -1) {
-		if (errno == EAGAIN) {
-			logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
-		} else {
-			logger->error("Failed to write to request pipe: " + _requestPipePath_.string() + " - " + strerror(errno));
-		}
-		return false;
-	}
-
-    if (bytesWritten != static_cast<ssize_t>(formattedRequest.size())) {
-        logger->error("Failed to write the full request. Bytes written: " + std::to_string(bytesWritten));
+    // TODO add the delimiter on the formatter
+    ssize_t bytesWritten = write(_requestPipeHandle_, formattedRequest.c_str(), formattedRequest.length());
+    if (bytesWritten == -1) {
+        if (errno == EAGAIN) {
+            logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
+        } else {
+            logger->error("Failed to write to request pipe: " + _requestPipePath_.string() + " - " + strerror(errno));
+        }
+        return false;
+    } else if (bytesWritten != formattedRequest.length()) {
+        logger->error("Incomplete write to request pipe. Wrote " + std::to_string(bytesWritten) + " of " + std::to_string(formattedRequest.length()) + " bytes");
         return false;
     }
-
     logger->debug("Request written successfully, bytes written: " + std::to_string(bytesWritten));
 
     std::thread readerThread([this, callback]() {
@@ -346,34 +286,21 @@ auto IPCBase::writeRequestInternal(const std::string& message, ResponseCallback 
     return true;
 }
 
-auto IPCBase::drainPipe(int fd) -> void {
-    std::array<char, BUFFER_SIZE> buffer{};
-
-    // Use non-blocking read to drain the pipe
-    ssize_t bytesRead = 0;
-    do { // NOLINT - don't be stupid. Know and love the do-while
-        bytesRead = read(fd, buffer.data(), buffer.size());  // Use .data() to get the pointer
-    } while (bytesRead > 0);
-}
-
 auto IPCBase::readResponse(ResponseCallback callback) -> std::string {
     logger->debug("IPCBase::readResponse() called");
 
-    int fd = pipes_[_responsePipePath_];
+    int fd = _responsePipeHandle_;
 
     if (fd == -1) {
         logger->error("Response pipe is not open for reading.");
-        if (!openPipeForRead(_responsePipePath_, true)) {  // Open in non-blocking mode
+        if (!IPC::openResponsePipe(_responsePipePath_, _responsePipeHandle_)) {  // Open in non-blocking mode
             return "";
         }
-        fd = pipes_[_responsePipePath_];  // Reassign fd after reopening the pipe
+        fd = _responsePipeHandle_;  // Reassign fd after reopening the pipe
     }
 
     std::string requestId;
 
-    const size_t START_MARKER_SIZE = 6;
-    const size_t REQUEST_ID_SIZE = 8;
-    const size_t HEADER_SIZE = START_MARKER_SIZE + REQUEST_ID_SIZE + 8;
     std::array<char, HEADER_SIZE + 1> header{}; // +1 for null termination
     ssize_t bytesRead = 0;
     size_t totalHeaderRead = 0;
@@ -386,7 +313,7 @@ auto IPCBase::readResponse(ResponseCallback callback) -> std::string {
             return "";
         }
         auto startIt = header.begin() + totalHeaderRead;
-        bytesRead = read(fd, &(*startIt), HEADER_SIZE - totalHeaderRead);
+        bytesRead = read(_responsePipeHandle_, &(*startIt), HEADER_SIZE - totalHeaderRead);
 
         logger->debug("Header partial read: " + std::string(header.data(), totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
 
@@ -444,7 +371,7 @@ auto IPCBase::readResponse(ResponseCallback callback) -> std::string {
             return "";
         }
         size_t bytesToRead = std::min(BUFFER_SIZE, messageSize + END_MARKER.size() - totalBytesRead);
-        ssize_t bytesRead = read(fd, buffer.data(), bytesToRead);
+        ssize_t bytesRead = read(_responsePipeHandle_, buffer.data(), bytesToRead);
 
         if (bytesRead <= 0) {
             logger->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
@@ -483,23 +410,16 @@ auto IPCBase::readResponse(ResponseCallback callback) -> std::string {
     return message;
 }
 
- auto IPCBase::cleanUpPipe(const Path& path, PipeHandle& handle) -> void {
-     // Default implementation or leave it pure virtual
-     throw std::runtime_error("cleanUpPipe not implemented in base class");
- }
+auto IPCBase::cleanUpPipes() -> void {
+    IPC::cleanUpPipe(_requestPipePath_, _requestPipeHandle_);
+    IPC::cleanUpPipe(_responsePipePath_, _responsePipeHandle_);
+}
 
- auto IPCBase::cleanUpPipes() -> void {
-     // Default implementation
-     cleanUpPipe(_requestPipePath_, _requestPipeHandle_);
-     cleanUpPipe(_responsePipePath_, _responsePipeHandle_);
- }
+auto IPCBase::createReadPipe() -> bool {
+    return IPC::createPipe(_responsePipePath_);
+}
 
- auto IPCBase::createReadPipe() -> bool {
-     // Default implementation or leave it pure virtual
-     throw std::runtime_error("createReadPipe not implemented in base class");
- }
+auto IPCBase::createWritePipe() -> bool {
+    return IPC::createPipe(_requestPipePath_);
+}
 
- auto IPCBase::createWritePipe() -> bool {
-     // Default implementation or leave it pure virtual
-     throw std::runtime_error("createWritePipe not implemented in base class");
- }

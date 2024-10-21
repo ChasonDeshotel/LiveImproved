@@ -23,6 +23,7 @@ public:
 
     static auto drainPipe(int fd, size_t bufferSize) -> void;
 
+    // static auto resetResponsePipe() -> void;
 private:
     static constexpr mode_t     DEFAULT_DIRECTORY_PERMISSIONS  {0777};
     static constexpr mode_t     DEFAULT_PIPE_PERMISSIONS       {0666};
