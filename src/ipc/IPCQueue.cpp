@@ -35,6 +35,9 @@ auto IPCQueue::init() -> bool {
 
     requestPipe_->cleanUp();
     requestPipe_->create();
+    requestPipe_->ready();
+
+
     return true;
     /*
     std::thread createReadPipeThread(&IPCQueue::createReadPipeLoop, this);
@@ -94,27 +97,6 @@ auto IPCQueue::createReadPipeLoop() -> void {
         std::this_thread::sleep_for(PIPE_CREATION_RETRY_DELAY);
     }
     logger->error("Max attempts reached for creating response pipe");
-}
-*/
-/*
-auto IPCQueue::readyReadPipe() -> void {
-    logger->debug("Setting up read pipe. Path: " + responsePipePath_.string());
-    for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
-        if (stopIPC_) {
-            logger->warn("IPCQueue read initialization cancelled.");
-            return;
-        }
-        if (IPC::openResponsePipe(responsePipePath_, responsePipeHandle_)) {
-            logger->info("Response pipe successfully opened for reading");
-            readPipeReady_.store(true, std::memory_order_release);
-            initCv_.notify_one();
-            return;
-        }
-        logger->warn("Attempt to open response pipe for reading failed. Retrying...");
-        std::this_thread::sleep_for(PIPE_SETUP_RETRY_DELAY);
-    }
-    logger->error("Max attempts reached for opening response pipe");
-    return;
 }
 */
 
@@ -263,7 +245,30 @@ auto IPCQueue::createWritePipeLoop() -> void {
     }
     logger->error("Max attempts reached for creating request pipe");
 }
+*/
 
+/*
+auto IPCQueue::readyReadPipe() -> void {
+    logger->debug("Setting up read pipe. Path: " + responsePipePath_.string());
+    for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
+        if (stopIPC_) {
+            logger->warn("IPCQueue read initialization cancelled.");
+            return;
+        }
+        if (IPC::openResponsePipe(responsePipePath_, responsePipeHandle_)) {
+            logger->info("Response pipe successfully opened for reading");
+            readPipeReady_.store(true, std::memory_order_release);
+            initCv_.notify_one();
+            return;
+        }
+        logger->warn("Attempt to open response pipe for reading failed. Retrying...");
+        std::this_thread::sleep_for(PIPE_SETUP_RETRY_DELAY);
+    }
+    logger->error("Max attempts reached for opening response pipe");
+    return;
+}
+*/
+/*
 auto IPCQueue::readyWritePipe() -> void {
     logger->debug("Setting up write pipe. Path: " + requestPipe_->string());
     for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {

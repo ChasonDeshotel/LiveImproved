@@ -18,26 +18,36 @@ public:
     virtual auto openPipe() -> bool = 0;
     //virtual auto createWritePipeLoop() -> void = 0;
 
-    auto getHandle() -> ipc::Handle;
-    auto setHandleNull() -> void;
-
-    auto string() -> std::string;
-
     auto drainPipe(int fd, size_t bufferSize) -> void;
     auto stop() -> void {
         stopIPC_ = true;
     }
 
     auto create() -> bool;
+    auto ready() -> bool;
     // static auto resetResponsePipe() -> void;
 protected:
 
     auto setPipePath(const ipc::Path& path) {
         pipePath_ = path;
     }
+    auto setPipeHandle(const ipc::Handle handle) {
+        pipeHandle_ = handle;
+    }
     virtual auto getPipePath() const -> const ipc::Path& {
         return pipePath_;
     }
+    auto getHandle() -> ipc::Handle {
+        return pipeHandle_;
+    }
+    auto setHandleNull() -> void {
+        pipeHandle_ = ipc::NULL_PIPE_HANDLE;
+    }
+
+    auto string() -> std::string {
+        return pipePath_.string();
+    }
+
 
     std::atomic<bool> stopIPC_       {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //

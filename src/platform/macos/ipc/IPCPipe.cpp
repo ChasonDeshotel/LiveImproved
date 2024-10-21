@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <string>
 #include <sys/stat.h>
+#include <thread>
 #include <unistd.h>
 
 #include "LogGlobal.h"
@@ -74,18 +75,23 @@ auto IPCPipe::drainPipe(int fd, size_t bufferSize) -> void {
     } while (bytesRead > 0);
 }
 
-auto IPCPipe::getHandle() -> ipc::Handle {
-    return pipeHandle_;
+auto IPCPipe::ready() -> bool {
+    logger->debug("Setting up pipe. Path: " + pipePath_.string());
+    for (int attempt = 0; attempt < ipc::MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
+        if (stopIPC_) {
+            logger->warn("IPCQueue initialization cancelled.");
+            return false;
+        }
+        if (openPipe()) {
+            logger->info("Pipe successfully opened");
+            return false;
+        }
+        logger->warn("Attempt to open response pipe for reading failed. Retrying...");
+        std::this_thread::sleep_for(ipc::PIPE_SETUP_RETRY_DELAY);
+    }
+    logger->error("Max attempts reached for opening response pipe");
+    return true;
 }
-
-auto IPCPipe::setHandleNull() -> void {
-    pipeHandle_ = ipc::NULL_PIPE_HANDLE;
-}
-
-auto IPCPipe::string() -> std::string {
-    return pipePath_.string();
-}
-
 //auto IPCPipeBase::resetResponsePipe() -> void {
 //    logger->debug("Resetting response pipe");
 //    close(_responsePipeHandle_);
