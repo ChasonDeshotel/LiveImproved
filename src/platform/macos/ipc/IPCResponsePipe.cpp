@@ -7,6 +7,7 @@
 #include "LogGlobal.h"
 #include "PathManager.h"
 
+#include "IPCPipe.h"
 #include "IPCDefinitions.h"
 #include "IPCResponsePipe.h"
 
@@ -22,6 +23,14 @@ IPCResponsePipe::IPCResponsePipe()
 }
 
 IPCResponsePipe::~IPCResponsePipe() = default;
+
+auto IPCResponsePipe::openPipe() -> bool {
+    if (IPCPipe::openPipe()) {
+        setHandleNull();
+        return true;
+    }
+    return false;
+}
 
 //auto IPCRequestPipeBase::resetResponsePipe() -> void {
 //    logger->debug("Resetting response pipe");

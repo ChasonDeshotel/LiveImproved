@@ -15,7 +15,7 @@ public:
 
     auto cleanUp()  -> void;
 
-    auto openPipe() -> bool;
+    virtual auto openPipe() -> bool;
     //virtual auto createWritePipeLoop() -> void = 0;
 
     auto drainPipe(int fd, size_t bufferSize) -> void;

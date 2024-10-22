@@ -13,6 +13,8 @@ public:
     IPCResponsePipe &operator=(const IPCResponsePipe &) = delete;
     IPCResponsePipe &operator=(IPCResponsePipe &&) = delete;
 
+    auto openPipe() -> bool override;
+
 private:
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;

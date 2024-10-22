@@ -20,4 +20,3 @@ IPCRequestPipe::IPCRequestPipe()
 }
 
 IPCRequestPipe::~IPCRequestPipe() = default;
-
