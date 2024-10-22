@@ -50,8 +50,8 @@ protected:
     //void createReadPipeLoop();
     //void createWritePipeLoop();
 
-    //void readyReadPipe();
-    //void readyWritePipe();
+    auto readyRequestWrapper() -> void;
+    auto readyResponseWrapper() -> void;
 
     auto writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool;
     void processNextRequest();
@@ -67,8 +67,9 @@ protected:
     std::mutex              createPipesMutex_         ;                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::atomic<bool>       readPipeCreated_   {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::atomic<bool>       writePipeCreated_  {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<bool>       readPipeReady_     {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<bool>       writePipeReady_    {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+                                                                                         //
+    std::atomic<bool>       requestPipeReady_  {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    std::atomic<bool>       responsePipeReady_ {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //
     std::queue<Request>     requestQueue_;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::mutex              queueMutex_;                                                 // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)

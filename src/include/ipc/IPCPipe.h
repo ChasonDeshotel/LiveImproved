@@ -15,7 +15,7 @@ public:
 
     auto cleanUp()  -> void;
 
-    virtual auto openPipe() -> bool = 0;
+    auto openPipe() -> bool;
     //virtual auto createWritePipeLoop() -> void = 0;
 
     auto drainPipe(int fd, size_t bufferSize) -> void;
@@ -24,34 +24,44 @@ public:
     }
 
     auto create() -> bool;
-    auto ready() -> bool;
-    // static auto resetResponsePipe() -> void;
-protected:
+    auto openPipeLoop() -> bool;
 
-    auto setPipePath(const ipc::Path& path) {
-        pipePath_ = path;
-    }
-    auto setPipeHandle(const ipc::Handle handle) {
-        pipeHandle_ = handle;
-    }
-    virtual auto getPipePath() const -> const ipc::Path& {
-        return pipePath_;
-    }
-    auto getHandle() -> ipc::Handle {
-        return pipeHandle_;
-    }
-    auto setHandleNull() -> void {
-        pipeHandle_ = ipc::NULL_PIPE_HANDLE;
-    }
+    // static auto resetResponsePipe() -> void;
 
     auto string() -> std::string {
         return pipePath_.string();
     }
 
-    std::atomic<bool> stopIPC_       {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+protected:
+    std::atomic<bool> stopIPC_ {false};                           // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+
+    auto setPipePath(const ipc::Path& path) -> void {
+        pipePath_ = path;
+    }
+    virtual auto getPipePath() const -> const ipc::Path& {
+        return pipePath_;
+    }
+
+    auto setPipeFlags(const int flags) -> void {
+        pipeFlags_ = flags;
+    }
+    auto getPipeFlags() -> int {
+        return pipeFlags_;
+    }
+
+    auto setPipeHandle(const ipc::Handle handle) {
+        pipeHandle_ = handle;
+    }
+    auto getHandle() -> ipc::Handle {
+        return pipeHandle_;
+    }
+
+    auto setHandleNull() -> void {
+        pipeHandle_ = ipc::NULL_PIPE_HANDLE;
+    }
                                                                                          //
 private:
-    ipc::Path pipePath_;
+    ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;
-
+    int         pipeFlags_;
 };

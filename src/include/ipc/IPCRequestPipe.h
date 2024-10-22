@@ -13,9 +13,8 @@ public:
     IPCRequestPipe &operator=(const IPCRequestPipe &) = delete;
     IPCRequestPipe &operator=(IPCRequestPipe &&) = delete;
 
-    auto openPipe()  -> bool override;
-    
 private:
-    Path        pipePath_;
+    ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;
+    int         pipeFlags_;
 };

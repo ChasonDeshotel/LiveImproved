@@ -14,23 +14,14 @@ IPCResponsePipe::IPCResponsePipe()
     : IPCPipe()
     , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_(PathManager().responsePipe())
-{}
+    , pipeFlags_(O_RDONLY | O_NONBLOCK)
+{
+    // set on base class
+    setPipePath(pipePath_);
+    setPipeFlags(pipeFlags_);
+}
 
 IPCResponsePipe::~IPCResponsePipe() = default;
-
-auto IPCResponsePipe::openPipe() -> bool {
-    int flags = O_WRONLY;
-    flags |= O_NONBLOCK;
-
-    pipeHandle_ = open(pipePath_.c_str(), flags); // NOLINT
-    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
-        logger->error("Failed to open pipe for writing: " + pipePath_.string() + " - " + strerror(errno));
-        return false;
-    }
-
-    logger->debug("Pipe opened for writing: " + pipePath_.string());
-    return true;
-}
 
 //auto IPCRequestPipeBase::resetResponsePipe() -> void {
 //    logger->debug("Resetting response pipe");

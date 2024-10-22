@@ -33,39 +33,23 @@ auto IPCQueue::init() -> bool {
     logger->debug("IPCQueue::init() called");
     stopIPC_ = false;
 
-    requestPipe_->create();
-    requestPipe_->ready();
-
-    return true;
-    /*
-    std::thread createReadPipeThread(&IPCQueue::createReadPipeLoop, this);
-    std::thread createWritePipeThread(&IPCQueue::createWritePipeLoop, this);
-
-    {
-        std::unique_lock<std::mutex> lock(createPipesMutex_);
-        createPipesCv_.wait(lock, [this] { return (readPipeCreated_ && writePipeCreated_) || stopIPC_; });
-    }
-
-    createReadPipeThread.join();
-    createWritePipeThread.join();
-
-    if (!readPipeCreated_ || !writePipeCreated_) {
+    // create the pipes
+    if(!requestPipe_->create() || !responsePipe_->create()) {
         logger->error("IPCQueue::init() failed to create pipes");
-        return false;
     }
 
-    std::thread readyReadThread(&IPCQueue::readyReadPipe, this);
-    std::thread readyWriteThread(&IPCQueue::readyWritePipe, this);
+    std::thread readyRequestThread(&IPCQueue::readyRequestWrapper, this);
+    std::thread readyResponseThread(&IPCQueue::readyResponseWrapper, this);
 
     {
         std::unique_lock<std::mutex> lock(initMutex_);
-        initCv_.wait(lock, [this] { return (readPipeReady_ && writePipeReady_) || stopIPC_; });
+        initCv_.wait(lock, [this] { return (requestPipeReady_ && responsePipeReady_) || stopIPC_; });
     }
 
-    readyReadThread.join();
-    readyWriteThread.join();
+    readyRequestThread.join();
+    readyResponseThread.join();
 
-    if (readPipeReady_ && writePipeReady_) {
+    if (requestPipeReady_ && responsePipeReady_) {
         isInitialized_ = true;
         logger->info("IPCQueue::init() read/write enabled");
         return true;
@@ -73,7 +57,29 @@ auto IPCQueue::init() -> bool {
         logger->error("IPCQueue::init() failed");
         return false;
     }
-    */
+}
+
+auto IPCQueue::readyRequestWrapper() -> void {
+    if (requestPipe_->openPipeLoop()) {
+        std::lock_guard<std::mutex> lock(initMutex_);
+        logger->warn("request ready");
+        requestPipeReady_ = true;
+        initCv_.notify_one();  // Notify that the request pipe is ready
+        logger->warn("after notify request ready");
+    }
+    return;
+}
+
+auto IPCQueue::readyResponseWrapper() -> void {
+    if (responsePipe_->openPipeLoop()) {
+        std::lock_guard<std::mutex> lock(initMutex_);
+        logger->warn("response ready");
+        responsePipeReady_ = true;
+        initCv_.notify_one();  // Notify that the request pipe is ready
+        logger->warn("after notify response ready");
+        return;
+    }
+    return;
 }
 
 auto IPCQueue::formatRequest(const std::string& message, uint64_t id) -> std::string {
@@ -84,7 +90,7 @@ auto IPCQueue::formatRequest(const std::string& message, uint64_t id) -> std::st
     std::string paddedId = idStream.str();
 
     std::ostringstream markerStream;
-    markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT - magic numbers
+    markerStream << ipc::START_MARKER << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT - magic numbers
     std::string start_marker = markerStream.str();
 
     std::string formattedRequest = start_marker + message;
@@ -223,27 +229,25 @@ auto IPCQueue::createWritePipeLoop() -> void {
 }
 */
 
-/*
-auto IPCQueue::readyReadPipe() -> void {
-    logger->debug("Setting up read pipe. Path: " + responsePipePath_.string());
-    for (int attempt = 0; attempt < MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
-        if (stopIPC_) {
-            logger->warn("IPCQueue read initialization cancelled.");
-            return;
-        }
-        if (IPC::openResponsePipe(responsePipePath_, responsePipeHandle_)) {
-            logger->info("Response pipe successfully opened for reading");
-            readPipeReady_.store(true, std::memory_order_release);
-            initCv_.notify_one();
-            return;
-        }
-        logger->warn("Attempt to open response pipe for reading failed. Retrying...");
-        std::this_thread::sleep_for(PIPE_SETUP_RETRY_DELAY);
-    }
-    logger->error("Max attempts reached for opening response pipe");
-    return;
-}
-*/
+//auto IPCQueue::readyReadPipe() -> void {
+//    logger->debug("Setting up read pipe. Path: " + responsePipe_->string());
+//    for (int attempt = 0; attempt < ipc::MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
+//        if (stopIPC_) {
+//            logger->warn("IPCQueue read initialization cancelled.");
+//            return;
+//        }
+//        if (responsePipe_->openPipe()) {
+//            logger->info("Response pipe successfully opened for reading");
+//            readPipeReady_.store(true, std::memory_order_release);
+//            initCv_.notify_one();
+//            return;
+//        }
+//        logger->warn("Attempt to open response pipe for reading failed. Retrying...");
+//        std::this_thread::sleep_for(ipc::PIPE_SETUP_RETRY_DELAY);
+//    }
+//    logger->error("Max attempts reached for opening response pipe");
+//    return;
+//}
 
 auto IPCQueue::readResponse(ResponseCallback callback) -> std::string {
     return "Asdf";

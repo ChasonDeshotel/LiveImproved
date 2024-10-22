@@ -17,6 +17,7 @@ namespace fs = std::filesystem;
 IPCPipe::IPCPipe()
     : pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_()
+    , pipeFlags_()
 {}
 
 auto IPCPipe::create() -> bool {
@@ -36,6 +37,7 @@ auto IPCPipe::create() -> bool {
     if (mkfifo(pipePath_.c_str(), ipc::DEFAULT_PIPE_PERMISSIONS) == -1) {
         if (errno == EEXIST) {
             logger->warn("Pipe already exists: " + pipePath_.string());
+            return true;
         } else {
             logger->error("Failed to create named pipe: " + pipePath_.string() + " - " + strerror(errno));
             return false;
@@ -44,6 +46,17 @@ auto IPCPipe::create() -> bool {
         logger->debug("Pipe created: " + pipePath_.string());
     }
 
+    return true;
+}
+
+auto IPCPipe::openPipe() -> bool {
+    pipeHandle_ = open(pipePath_.c_str(), getPipeFlags()); // NOLINT
+    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
+        logger->error("Failed to open pipe: " + pipePath_.string() + " - " + strerror(errno));
+        return false;
+    }
+
+    logger->debug("Pipe opened: " + pipePath_.string());
     return true;
 }
 
@@ -75,7 +88,8 @@ auto IPCPipe::drainPipe(int fd, size_t bufferSize) -> void {
     } while (bytesRead > 0);
 }
 
-auto IPCPipe::ready() -> bool {
+// loops openPipe
+auto IPCPipe::openPipeLoop() -> bool {
     logger->debug("Setting up pipe. Path: " + pipePath_.string());
     for (int attempt = 0; attempt < ipc::MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
@@ -89,13 +103,13 @@ auto IPCPipe::ready() -> bool {
             // if response pipe
             // setHandleNull()
 
-            return false;
+            return true;
         }
         logger->warn("Attempt to open response pipe for reading failed. Retrying...");
         std::this_thread::sleep_for(ipc::PIPE_SETUP_RETRY_DELAY);
     }
     logger->error("Max attempts reached for opening response pipe");
-    return true;
+    return false;
 }
 //auto IPCPipeBase::resetResponsePipe() -> void {
 //    logger->debug("Resetting response pipe");
