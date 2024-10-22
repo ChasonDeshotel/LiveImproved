@@ -56,7 +56,9 @@ auto IPCPipe::openPipe() -> bool {
         return false;
     }
 
+    setHandle(pipeHandle_);
     logger->debug("Pipe opened: " + pipePath_.string());
+    logger->debug("Pipe opened handle: " + std::to_string(pipeHandle_));
     return true;
 }
 
