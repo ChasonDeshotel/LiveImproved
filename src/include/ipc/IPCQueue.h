@@ -2,19 +2,16 @@
 
 #include <atomic>
 #include <mutex>
-#include <queue>
 #include <string>
 #include <sys/_types/_useconds_t.h>
 
 #include "IIPC.h"
-#include "Types.h"
+#include "IPCDefinitions.h"
 #include "IPCRequestPipe.h"
 #include "IPCResponsePipe.h"
 
 class IPCQueue : public IIPC {
 public:
-    using ResponseCallback = std::function<void(const std::string&)>;
-    using Request = std::pair<std::string, ResponseCallback>;
 
     IPCQueue(
             std::function<std::shared_ptr<IPCRequestPipe>()> requestPipe
@@ -38,8 +35,6 @@ public:
         writeRequest(message, nullptr);
     }
 
-    auto readResponse(ResponseCallback callback) -> std::string override;
-
     void stopIPC() override;
 
     auto cleanUpPipes() -> void override;
@@ -53,7 +48,7 @@ protected:
     auto readyRequestWrapper() -> void;
     auto readyResponseWrapper() -> void;
 
-    auto writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool;
+    auto writeRequestInternal(const std::string& message, ipc::ResponseCallback callback) -> bool;
     void processNextRequest();
     auto formatRequest(const std::string& request, uint64_t id) -> std::string;
 
@@ -71,13 +66,13 @@ protected:
     std::atomic<bool>       requestPipeReady_  {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::atomic<bool>       responsePipeReady_ {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //
-    std::queue<Request>     requestQueue_;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::mutex              queueMutex_;                                                 // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::condition_variable queueCondition_;                                             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<bool>       isProcessingRequest_{false};                                 // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::mutex              initMutex_   ;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::condition_variable initCv_      ;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<uint64_t>   nextRequestId_;                                              // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    ipc::RequestQueue        requestQueue_;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    std::mutex               queueMutex_;                                                 // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    std::condition_variable  queueCondition_;                                             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    std::atomic<bool>        isProcessingRequest_{false};                                 // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    std::mutex               initMutex_   ;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    std::condition_variable  initCv_      ;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+    std::atomic<uint64_t>    nextRequestId_;                                              // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
     std::shared_ptr<IPCRequestPipe> requestPipe_;

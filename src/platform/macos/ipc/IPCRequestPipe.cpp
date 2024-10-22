@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "LogGlobal.h"
 #include "PathManager.h"
 
 #include "IPCPipe.h"
@@ -20,3 +21,35 @@ IPCRequestPipe::IPCRequestPipe()
 }
 
 IPCRequestPipe::~IPCRequestPipe() = default;
+
+auto IPCRequestPipe::writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool {
+	// Check if the pipe is already open for writing
+	if (this->getHandle() == ipc::INVALID_PIPE_HANDLE) {
+		if (!this->openPipe()) {
+		    logger->error("Request pipe not opened for writing: " + this->string());
+			return false;
+		}
+	}
+
+    logger->debug("Draining pipe.");
+    this->drainPipe(ipc::BUFFER_SIZE);
+
+    logger->debug("Writing request: " + message);
+
+    // TODO add the delimiter on the formatter
+    ssize_t bytesWritten = write(this->getHandle(), message.c_str(), message.length());
+    if (bytesWritten == -1) {
+        if (errno == EAGAIN) {
+            logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
+        } else {
+            logger->error("Failed to write to request pipe: " + this->string() + " - " + strerror(errno));
+        }
+        return false;
+    } else if (bytesWritten != message.length()) {
+        logger->error("Incomplete write to request pipe. Wrote " + std::to_string(bytesWritten) + " of " + std::to_string(message.length()) + " bytes");
+        return false;
+    }
+    logger->debug("Request written successfully, bytes written: " + std::to_string(bytesWritten));
+
+    return true;
+}

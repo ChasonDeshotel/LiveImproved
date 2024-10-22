@@ -18,7 +18,8 @@ public:
     virtual auto openPipe() -> bool;
     //virtual auto createWritePipeLoop() -> void = 0;
 
-    auto drainPipe(int fd, size_t bufferSize) -> void;
+    auto drainPipe(size_t bufferSize) -> void;
+
     auto stop() -> void {
         stopIPC_ = true;
     }
@@ -31,9 +32,6 @@ public:
     auto string() -> std::string {
         return pipePath_.string();
     }
-
-protected:
-    std::atomic<bool> stopIPC_ {false};                           // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
     auto setPipePath(const ipc::Path& path) -> void {
         pipePath_ = path;
@@ -49,7 +47,7 @@ protected:
         return pipeFlags_;
     }
 
-    auto setPipeHandle(const ipc::Handle handle) {
+    auto setHandle(const ipc::Handle handle) {
         pipeHandle_ = handle;
     }
     auto getHandle() -> ipc::Handle {
@@ -59,7 +57,12 @@ protected:
     auto setHandleNull() -> void {
         pipeHandle_ = ipc::NULL_PIPE_HANDLE;
     }
-                                                                                         //
+
+//    virtual auto writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool = 0;
+
+protected:
+    std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+
 private:
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;

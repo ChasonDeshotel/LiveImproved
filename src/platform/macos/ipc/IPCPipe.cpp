@@ -80,11 +80,11 @@ auto IPCPipe::cleanUp() -> void {
     setHandleNull();
 }
 
-auto IPCPipe::drainPipe(int fd, size_t bufferSize) -> void {
+auto IPCPipe::drainPipe(size_t bufferSize) -> void {
     std::vector<char> buffer(bufferSize);
     ssize_t bytesRead = 0;
     do { // NOLINT - don't be stupid. Know and love the do-while
-        bytesRead = read(fd, const_cast<char*>(buffer.data()), buffer.size());
+        bytesRead = read(pipeHandle_, const_cast<char*>(buffer.data()), buffer.size());
     } while (bytesRead > 0);
 }
 

@@ -15,6 +15,8 @@ public:
 
     auto openPipe() -> bool override;
 
+    auto readResponse(ipc::ResponseCallback callback) -> std::string;
+
 private:
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;

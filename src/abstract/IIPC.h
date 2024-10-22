@@ -23,8 +23,6 @@ public:
     virtual auto writeRequest(const std::string& message) -> void = 0;
     virtual auto writeRequest(const std::string& message, ResponseCallback callback) -> void = 0;
 
-    virtual auto readResponse(ResponseCallback callback) -> std::string = 0;
-
     virtual auto stopIPC() -> void = 0;
 
     virtual auto cleanUpPipes() -> void = 0;

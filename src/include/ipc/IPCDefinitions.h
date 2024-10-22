@@ -1,8 +1,13 @@
 #pragma once
 #include <chrono>
 #include <filesystem>
+#include <queue>
 
 namespace ipc {
+    using ResponseCallback = std::function<void(const std::string&)>;
+    using Request = std::pair<std::string, ResponseCallback>;
+    using RequestQueue = std::queue<Request>;
+
     #ifdef _WIN32
     struct HANDLE__;
     using Handle = struct HANDLE__*;

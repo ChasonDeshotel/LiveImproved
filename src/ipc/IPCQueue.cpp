@@ -157,21 +157,8 @@ auto IPCQueue::processNextRequest() -> void {
 }
 
 auto IPCQueue::writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool {
-    return true;
-    /*
-	// Check if the pipe is already open for writing
-	if (requestPipeHandle_ == INVALID_PIPE_HANDLE) {
-		if (!IPC::openRequestPipe(requestPipePath_, requestPipeHandle_)) {
-		    logger->error("Request pipe not opened for writing: " + requestPipePath_.string());
-			return false;
-		}
-	}
-
-    IPC::drainPipe(responsePipeHandle_, BUFFER_SIZE);
-
-    uint64_t id = nextRequestId_++;
-
     std::string formattedRequest;
+    uint64_t id = nextRequestId_++;
     try {
         formattedRequest = formatRequest(message, id);
         logger->debug("Request formatted successfully");
@@ -180,54 +167,16 @@ auto IPCQueue::writeRequestInternal(const std::string& message, ResponseCallback
         return false;
     }
 
-    logger->debug("Writing request: " + formattedRequest);
-
-    // TODO add the delimiter on the formatter
-    ssize_t bytesWritten = write(requestPipeHandle_, formattedRequest.c_str(), formattedRequest.length());
-    if (bytesWritten == -1) {
-        if (errno == EAGAIN) {
-            logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
-        } else {
-            logger->error("Failed to write to request pipe: " + requestPipePath_.string() + " - " + strerror(errno));
-        }
-        return false;
-    } else if (bytesWritten != formattedRequest.length()) {
-        logger->error("Incomplete write to request pipe. Wrote " + std::to_string(bytesWritten) + " of " + std::to_string(formattedRequest.length()) + " bytes");
-        return false;
+    if (requestPipe_->writeToPipe(message, callback)) {
+        std::thread readerThread([this, callback]() {
+            std::this_thread::sleep_for(ipc::LIVE_TICK * 2);
+            responsePipe_->readResponse(callback);
+        });
+        readerThread.detach();
     }
-    logger->debug("Request written successfully, bytes written: " + std::to_string(bytesWritten));
-
-    std::thread readerThread([this, callback]() {
-        std::this_thread::sleep_for(LIVE_TICK * 2);
-        this->readResponse(callback);
-    });
-    readerThread.detach();
 
     return true;
-    */
 }
-
-/*
-auto IPCQueue::createWritePipeLoop() -> void {
-    logger->debug("Creating write pipe");
-    for (int attempt = 0; attempt < MAX_PIPE_CREATION_ATTEMPTS; ++attempt) {
-        if (stopIPC_) {
-            logger->info("IPCQueue write pipe creation cancelled.");
-            return;
-        }
-        if (requestPipe_->create()) {
-            //requestPipeHandle_ = NULL_PIPE_HANDLE;
-            logger->info("Request pipe successfully created");
-            writePipeCreated_ = true;
-            createPipesCv_.notify_one();
-            return;
-        }
-        logger->warn("Attempt to create request pipe failed. Retrying...");
-        std::this_thread::sleep_for(PIPE_CREATION_RETRY_DELAY);
-    }
-    logger->error("Max attempts reached for creating request pipe");
-}
-*/
 
 //auto IPCQueue::readyReadPipe() -> void {
 //    logger->debug("Setting up read pipe. Path: " + responsePipe_->string());
@@ -249,132 +198,6 @@ auto IPCQueue::createWritePipeLoop() -> void {
 //    return;
 //}
 
-auto IPCQueue::readResponse(ResponseCallback callback) -> std::string {
-    return "Asdf";
-    /*
-    logger->debug("IPCQueue::readResponse() called");
-
-    int fd = responsePipe_()->getHandle();
-
-    if (fd == -1) {
-        logger->error("Response pipe is not open for reading.");
-        if (!IPC::openResponsePipe(responsePipePath_, responsePipeHandle_)) {  // Open in non-blocking mode
-            return "";
-        }
-        fd = responsePipeHandle_;  // Reassign fd after reopening the pipe
-    }
-
-    std::string requestId;
-
-    std::array<char, HEADER_SIZE + 1> header{}; // +1 for null termination
-    ssize_t bytesRead = 0;
-    size_t totalHeaderRead = 0;
-
-    // Retry loop in case of empty or partial reads
-    int retry_count = 0;
-    while (totalHeaderRead < HEADER_SIZE && retry_count < MAX_READ_RETRIES) {
-        if (stopIPC_) {
-            logger->info("IPCQueue write initialization cancelled during read pipe setup.");
-            return "";
-        }
-        auto startIt = header.begin() + totalHeaderRead;
-        bytesRead = read(responsePipe_()->getHandle(), &(*startIt), HEADER_SIZE - totalHeaderRead);
-
-        logger->debug("Header partial read: " + std::string(header.data(), totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
-
-        if (bytesRead < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                retry_count++;
-                std::this_thread::sleep_for(DELAY_BETWEEN_READS);
-                continue;
-            } else {
-                logger->error("Failed to read the full header. Error: " + std::string(strerror(errno)));
-                return "";
-            }
-        }
-
-        if (bytesRead == 0) {
-            retry_count++;
-            std::this_thread::sleep_for(DELAY_BETWEEN_READS);
-            continue;
-        }
-
-        totalHeaderRead += bytesRead;
-    }
-
-    if (totalHeaderRead != HEADER_SIZE) {
-        logger->error("Failed to read the full header after " + std::to_string(retry_count) + " retries. Total header bytes read: " + std::to_string(totalHeaderRead));
-        return "";
-    }
-
-    logger->debug("Full header received: " + std::string(header.data(), totalHeaderRead));
-
-    // size_t instead of int because comparisons
-    size_t messageSize = 0;
-    try {
-        // Extract the response size (last 8 characters of the header)
-        std::string messageSizeStr(header.data() + 14);  // NOLINT Skip 'START_' and the 8 characters of request ID
-        messageSize = std::stoull(messageSizeStr);  // Convert to size_t
-    } catch (const std::invalid_argument& e) {
-        logger->error("Invalid header. Could not parse message size: " + std::string(e.what()));
-        return "";
-    } catch (const std::out_of_range& e) {
-        logger->error("Header size out of range: " + std::string(e.what()));
-        return "";
-    }
-
-    logger->debug("Message size to read: " + std::to_string(messageSize));
-
-    // init to empty string for callbacks expecting a string arg
-    std::string message = "";
-    size_t totalBytesRead = 0;
-    std::vector<char> buffer(BUFFER_SIZE);
-
-    while (totalBytesRead < messageSize + END_MARKER.size()) {
-        if (stopIPC_) {
-            logger->info("IPCQueue write initialization cancelled during read pipe setup.");
-            return "";
-        }
-        size_t bytesToRead = std::min(BUFFER_SIZE, messageSize + END_MARKER.size() - totalBytesRead);
-        ssize_t bytesRead = read(responsePipe_()->getHandle(), buffer.data(), bytesToRead);
-
-        if (bytesRead <= 0) {
-            logger->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
-            std::this_thread::sleep_for(DELAY_BETWEEN_READS);
-            continue;
-        }
-
-        message.append(buffer.data(), bytesRead);
-        totalBytesRead += bytesRead;
-        logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
-
-        // check for end marker in the accumulated message
-        if (message.size() >= END_MARKER.size()) {
-            if (message.compare(message.size() - END_MARKER.size(), END_MARKER.size(), END_MARKER) == 0) {
-                logger->debug("End of message marker found.");
-                message = message.substr(0, message.size() - END_MARKER.size()); // Remove the end marker
-                break;
-            }
-        }
-    }
-
-    logger->debug("Total bytes read: " + std::to_string(totalBytesRead - END_MARKER.size()));
-
-    logger->debug("Message read from response pipe: " + responsePipe_()->string());
-    if (message.length() > MESSAGE_TRUNCATE_CHARS) {
-        logger->debug("Message truncated to 100 characters");
-        logger->debug("Message: " + message.substr(0, MESSAGE_TRUNCATE_CHARS));
-    } else {
-        logger->debug("Message: " + message);
-    }
-
-    if (callback && !stopIPC_) {
-        callback(message);
-    }
-
-    return message;
-    */
-}
 
 auto IPCQueue::cleanUpPipes() -> void {
     requestPipe_->cleanUp();

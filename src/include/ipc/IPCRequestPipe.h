@@ -13,6 +13,8 @@ public:
     IPCRequestPipe &operator=(const IPCRequestPipe &) = delete;
     IPCRequestPipe &operator=(IPCRequestPipe &&) = delete;
 
+    auto writeToPipe(const std::string& messaeg, ipc::ResponseCallback callback) -> bool;
+
 private:
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;
