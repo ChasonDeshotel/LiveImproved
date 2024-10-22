@@ -1,8 +1,6 @@
-#include <cerrno>
 #include <cstring>
 #include <fcntl.h>
 #include <mutex>
-#include <queue>
 #include <sstream>
 #include <thread>
 
@@ -62,10 +60,8 @@ auto IPCQueue::init() -> bool {
 auto IPCQueue::readyRequestWrapper() -> void {
     if (requestPipe_->openPipeLoop()) {
         std::lock_guard<std::mutex> lock(initMutex_);
-        logger->warn("request ready");
         requestPipeReady_ = true;
-        initCv_.notify_one();  // Notify that the request pipe is ready
-        logger->warn("after notify request ready");
+        initCv_.notify_one();
     }
     return;
 }
@@ -73,10 +69,8 @@ auto IPCQueue::readyRequestWrapper() -> void {
 auto IPCQueue::readyResponseWrapper() -> void {
     if (responsePipe_->openPipeLoop()) {
         std::lock_guard<std::mutex> lock(initMutex_);
-        logger->warn("response ready");
         responsePipeReady_ = true;
-        initCv_.notify_one();  // Notify that the request pipe is ready
-        logger->warn("after notify response ready");
+        initCv_.notify_one();
         return;
     }
     return;
@@ -167,7 +161,7 @@ auto IPCQueue::writeRequestInternal(const std::string& message, ResponseCallback
         return false;
     }
 
-    if (requestPipe_->writeToPipe(message, callback)) {
+    if (requestPipe_->writeToPipe(formattedRequest, callback)) {
         std::thread readerThread([this, callback]() {
             std::this_thread::sleep_for(ipc::LIVE_TICK * 2);
             responsePipe_->readResponse(callback);
@@ -177,27 +171,6 @@ auto IPCQueue::writeRequestInternal(const std::string& message, ResponseCallback
 
     return true;
 }
-
-//auto IPCQueue::readyReadPipe() -> void {
-//    logger->debug("Setting up read pipe. Path: " + responsePipe_->string());
-//    for (int attempt = 0; attempt < ipc::MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
-//        if (stopIPC_) {
-//            logger->warn("IPCQueue read initialization cancelled.");
-//            return;
-//        }
-//        if (responsePipe_->openPipe()) {
-//            logger->info("Response pipe successfully opened for reading");
-//            readPipeReady_.store(true, std::memory_order_release);
-//            initCv_.notify_one();
-//            return;
-//        }
-//        logger->warn("Attempt to open response pipe for reading failed. Retrying...");
-//        std::this_thread::sleep_for(ipc::PIPE_SETUP_RETRY_DELAY);
-//    }
-//    logger->error("Max attempts reached for opening response pipe");
-//    return;
-//}
-
 
 auto IPCQueue::cleanUpPipes() -> void {
     requestPipe_->cleanUp();

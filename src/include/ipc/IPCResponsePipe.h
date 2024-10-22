@@ -13,8 +13,6 @@ public:
     IPCResponsePipe &operator=(const IPCResponsePipe &) = delete;
     IPCResponsePipe &operator=(IPCResponsePipe &&) = delete;
 
-    auto openPipe() -> bool override;
-
     auto readResponse(ipc::ResponseCallback callback) -> std::string;
 
 private:

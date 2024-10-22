@@ -23,7 +23,6 @@ IPCRequestPipe::IPCRequestPipe()
 IPCRequestPipe::~IPCRequestPipe() = default;
 
 auto IPCRequestPipe::writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool {
-	// Check if the pipe is already open for writing
 	if (this->getHandle() == ipc::INVALID_PIPE_HANDLE) {
 		if (!this->openPipe()) {
 		    logger->error("Request pipe not opened for writing: " + this->string());
@@ -31,12 +30,10 @@ auto IPCRequestPipe::writeToPipe(const std::string& message, ipc::ResponseCallba
 		}
 	}
 
-    logger->debug("Draining pipe.");
     this->drainPipe(ipc::BUFFER_SIZE);
 
     logger->debug("Writing request: " + message);
 
-    // TODO add the delimiter on the formatter
     ssize_t bytesWritten = write(this->getHandle(), message.c_str(), message.length());
     if (bytesWritten == -1) {
         if (errno == EAGAIN) {

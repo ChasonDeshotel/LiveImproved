@@ -25,25 +25,17 @@ IPCResponsePipe::IPCResponsePipe()
 
 IPCResponsePipe::~IPCResponsePipe() = default;
 
-auto IPCResponsePipe::openPipe() -> bool {
-    if (IPCPipe::openPipe()) {
-        setHandleNull(); // indicates open / ready to read
-        return true;
-    }
-    return false;
-}
-
 auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::string {
     logger->debug("IPCResponsePipe::readResponse() called");
 
     int fd = this->getHandle();
+    logger->debug("read response handle: " + std::to_string(fd));
 
     if (fd == -1) {
         logger->error("Response pipe is not open for reading.");
         if (!this->openPipe()) {  // Open in non-blocking mode
             return "";
         }
-        setHandle(this->getHandle());  // Reassign fd after reopening the pipe
     }
 
     std::string requestId;
