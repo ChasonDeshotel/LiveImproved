@@ -30,7 +30,8 @@ namespace ipc {
     static constexpr size_t BUFFER_SIZE                {8192};
 
     using ms = std::chrono::milliseconds;
-    static constexpr ms     DELAY_BETWEEN_READS        {2000};
+    // TODO: increasing delay causes buffer issues
+    static constexpr ms     DELAY_BETWEEN_READS        {50};
     static constexpr ms     PIPE_CREATION_RETRY_DELAY  {500};
     static constexpr ms     PIPE_SETUP_RETRY_DELAY     {500};
     static constexpr ms     LIVE_TICK                  {100};
