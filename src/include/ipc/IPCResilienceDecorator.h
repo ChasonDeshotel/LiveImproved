@@ -20,8 +20,8 @@ public:
 
     auto init() -> bool override;
 
-    void writeRequest(const std::string &message) override;
-    void writeRequest(const std::string &message,
+    void createRequest(const std::string &message) override;
+    void createRequest(const std::string &message,
                     ResponseCallback callback) override;
 
 private:

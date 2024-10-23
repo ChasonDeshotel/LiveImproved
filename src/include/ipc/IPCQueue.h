@@ -4,6 +4,7 @@
 #include <mutex>
 #include <string>
 #include <sys/_types/_useconds_t.h>
+#include <thread>
 
 #include "IIPC.h"
 #include "IPCDefinitions.h"
@@ -30,18 +31,20 @@ public:
         return currentState_ == ipc::QueueState::Running ? true : false;
     }
 
-    void writeRequest(const std::string& message, ResponseCallback callback) override;
-    void writeRequest(const std::string& message) override {
-        writeRequest(message, nullptr);
+    void createRequest(const std::string& message, ipc::ResponseCallback callback) override;
+    void createRequest(const std::string& message) override {
+        createRequest(message, nullptr);
     }
 
     void stopIPC() override;
 
     auto cleanUpPipes() -> void override;
 
-     auto setState(ipc::QueueState newState) -> void {
-         currentState_.store(newState, std::memory_order_release);
-     }
+    auto setState(ipc::QueueState newState) -> void {
+        auto oldState = currentState_.exchange(newState);
+        logger->debug("Queue state changed from " + std::to_string(static_cast<int>(oldState)) +
+                      " to " + std::to_string(static_cast<int>(newState)));
+    }
 
      auto getState() const -> ipc::QueueState {
          return currentState_.load(std::memory_order_acquire);
@@ -56,9 +59,8 @@ protected:
     auto readyRequestWrapper() -> void;
     auto readyResponseWrapper() -> void;
 
-    auto writeRequestInternal(const std::string& message, ipc::ResponseCallback callback) -> bool;
+    auto writeToPipe(ipc::Request) -> bool;
     void processNextRequest();
-    auto formatRequest(const std::string& request, uint64_t id) -> std::string;
 
     // no fucking clue why NOLNTBEGIN (sic) doesn't want to work here
     // protected to allow derived classes direct access
@@ -84,7 +86,12 @@ protected:
     std::atomic<uint64_t>    nextRequestId_;                                              // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
-    auto createExtendedCallback(const ipc::ResponseCallback& originalCallback) -> ipc::ResponseCallback;
+    std::thread processingThread_;
+    auto startProcessing() -> void;
+    auto stopProcessing() -> void;
+    auto processQueue() -> void;
+    auto processRequest(const ipc::Request& request) -> void;
+
     std::shared_ptr<IPCRequestPipe> requestPipe_;
     std::shared_ptr<IPCResponsePipe> responsePipe_;
 };

@@ -3,9 +3,7 @@
 #include <filesystem>  // C++17
 #include <optional>
 
-#ifndef TEST_BUILD
 #include <JuceHeader.h>
-#endif
 
 #include "LogHandler.h"
 #include "PathManager.h"

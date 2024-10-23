@@ -13,9 +13,9 @@ public:
     IPCResponsePipe &operator=(const IPCResponsePipe &) = delete;
     IPCResponsePipe &operator=(IPCResponsePipe &&) = delete;
 
-    auto writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool override;
+    auto writeToPipe(ipc::Request) -> bool override;
 
-    auto readResponse(ipc::ResponseCallback callback) -> std::string override;
+    auto readResponse(ipc::ResponseCallback callback) -> ipc::Response override;
 
     auto logMessage(const std::string& message) -> void;
 

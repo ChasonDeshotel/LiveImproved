@@ -87,56 +87,50 @@ target_link_libraries(common_libs
 )
 
 # Conditionally include JUCE and set up the main application
-if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
-    add_subdirectory(lib/JUCE)
+add_subdirectory(lib/JUCE)
 
-    # Set up your project with JUCE modules
-    juce_add_gui_app(LiveImproved
-        PRODUCT_NAME "LiveImproved"
-    )
+# Set up your project with JUCE modules
+juce_add_gui_app(LiveImproved
+    PRODUCT_NAME "LiveImproved"
+)
 
-    # Add the necessary JUCE modules
-    target_link_libraries(LiveImproved
-        PRIVATE
-            juce::juce_core
-            juce::juce_gui_basics
-            juce::juce_graphics
-            juce::juce_events
-            juce::juce_data_structures
-            common_libs
-    )
+# Add the necessary JUCE modules
+target_link_libraries(LiveImproved
+    PRIVATE
+        juce::juce_core
+        juce::juce_gui_basics
+        juce::juce_graphics
+        juce::juce_events
+        juce::juce_data_structures
+        common_libs
+)
 
-    # JUCE-specific include directories (only for LiveImproved target)
-    target_include_directories(LiveImproved PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/include/juce
-        ${CMAKE_SOURCE_DIR}/lib/juce/modules
-    )
+# JUCE-specific include directories (only for LiveImproved target)
+target_include_directories(LiveImproved PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/include/juce
+    ${CMAKE_SOURCE_DIR}/lib/juce/modules
+)
 
-    # JUCE-specific compile definitions
-    target_compile_definitions(LiveImproved PRIVATE
-        JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
-    )
+# JUCE-specific compile definitions
+target_compile_definitions(LiveImproved PRIVATE
+    JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
+)
 
-    # Install rules for macOS application bundle
-    install(TARGETS LiveImproved
-        BUNDLE DESTINATION /Applications
-        RUNTIME DESTINATION bin
-    )
+# Install rules for macOS application bundle
+install(TARGETS LiveImproved
+    BUNDLE DESTINATION /Applications
+    RUNTIME DESTINATION bin
+)
 
-    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        # Copy additional files (like LICENSE) to the bundle
-        if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
-            add_custom_command(TARGET LiveImproved POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_SOURCE_DIR}/LICENSE
-                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
-            )
-        endif()
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # Copy additional files (like LICENSE) to the bundle
+    if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+        add_custom_command(TARGET LiveImproved POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/LICENSE
+            $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
+        )
     endif()
-else()
-    # For tests, create a dummy executable target instead of an interface library
-    add_executable(LiveImproved src/Main.cpp)
-    target_link_libraries(LiveImproved PRIVATE common_libs)
 endif()
 
 # Common include directories
@@ -149,6 +143,7 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src/include/exception
     ${CMAKE_SOURCE_DIR}/src/include/gui
     ${CMAKE_SOURCE_DIR}/src/include/ipc
+    ${CMAKE_SOURCE_DIR}/src/include/juce
     ${CMAKE_SOURCE_DIR}/src/include/system
 )
 

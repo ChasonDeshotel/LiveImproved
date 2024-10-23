@@ -1,14 +1,14 @@
 #pragma once
 
 #include <string>
-#include <functional>
 #include <filesystem>
+
+#include "IPCDefinitions.h"
 
 using Path = std::filesystem::path;
 
 class IIPC {
 public:
-    using ResponseCallback = std::function<void(const std::string&)>;
 
     virtual ~IIPC() = default;
 
@@ -20,8 +20,8 @@ public:
     virtual auto init() -> bool = 0;
     [[nodiscard]] virtual auto isInitialized() const -> bool = 0;
 
-    virtual auto writeRequest(const std::string& message) -> void = 0;
-    virtual auto writeRequest(const std::string& message, ResponseCallback callback) -> void = 0;
+    virtual auto createRequest(const std::string& message) -> void = 0;
+    virtual auto createRequest(const std::string& message, ipc::ResponseCallback callback) -> void = 0;
 
     virtual auto stopIPC() -> void = 0;
 

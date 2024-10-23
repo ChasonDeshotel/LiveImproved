@@ -1,28 +1,12 @@
 #pragma once
 #include <chrono>
 #include <filesystem>
+#include <optional>
 #include <queue>
 
+#include "LogGlobal.h"
+
 namespace ipc {
-    enum class QueueState {
-        Initializing
-        , Running
-        , Halted
-        , Processing
-        , Recovering
-    };
-    enum class PipeState {
-        Ready
-        , Reading
-        , Writing
-        , Error
-        , Closed
-    };
-
-    using ResponseCallback = std::function<void(const std::string&)>;
-    using Request = std::pair<std::string, ResponseCallback>;
-    using RequestQueue = std::queue<Request>;
-
     #ifdef _WIN32
     struct HANDLE__;
     using Handle = struct HANDLE__*;
@@ -56,4 +40,76 @@ namespace ipc {
     static constexpr size_t           START_MARKER_SIZE {6};
     static constexpr size_t           REQUEST_ID_SIZE   {8};
     static constexpr size_t           HEADER_SIZE       {START_MARKER_SIZE + REQUEST_ID_SIZE + REQUEST_ID_SIZE};
+
+    using ResponseCallback = std::optional<std::function<void(const std::string&)>>;
+
+    enum class QueueState {
+        Initializing
+        , Running
+        , Halted
+        , Processing
+        , Recovering
+    };
+    enum class PipeState {
+        Ready
+        , Reading
+        , Writing
+        , Error
+        , Closed
+    };
+
+    enum class ResponseType {
+        Success
+        , Error
+    };
+
+    struct Request {
+        std::string message;
+        ipc::ResponseCallback callback;
+
+        Request(std::string msg, ipc::ResponseCallback cb = std::nullopt)
+            : message(std::move(msg)), callback(std::move(cb)) {}
+
+        [[nodiscard]] auto formatted() -> std::string {
+            uint64_t id = 1;
+            //try {
+            //    formattedRequest = formatRequest(request.message, id);
+            //    logger->debug("Request formatted successfully");
+            //} catch (const std::exception& e) {
+            //    logger->error("Exception in formatRequest: " + std::string(e.what()));
+            //    return false;
+            //}
+            size_t messageLength = message.length();
+
+            std::ostringstream idStream;
+            idStream << std::setw(8) << std::setfill('0') << (id % 100000000); // NOLINT - magic numbers
+            std::string paddedId = idStream.str();
+
+            std::ostringstream markerStream;
+            markerStream << ipc::START_MARKER << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT - magic numbers
+            std::string start_marker = markerStream.str();
+
+            std::string formattedRequest = start_marker + message;
+            logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT - magic numbers
+            formattedRequest += "\n"; // add newline as a delimiter
+
+            return formattedRequest;
+        }
+
+    };
+    
+    struct Response {
+        ipc::ResponseType type;
+        std::optional<std::string> data;
+
+        Response(ipc::ResponseType t, std::optional<std::string> d)
+            : type(t), data(std::move(d)) {}
+
+        [[nodiscard]] auto success() const -> bool {
+            return type == ipc::ResponseType::Success;
+        }
+    };
+
+    using RequestQueue = std::queue<Request>;
+
 }

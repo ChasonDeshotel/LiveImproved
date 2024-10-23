@@ -116,12 +116,11 @@ public:
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
         logger->info("writing READY");
-        container_.resolve<IIPC>()->writeRequest("READY", [this](const std::string& response) {
+        container_.resolve<IIPC>()->createRequest("READY", [this](const std::string& response) {
             logger->info("received READY response: " + response);
         });
 
         // TODO: IPC queue should be able to handle more writes without sleep
-        juce::Thread::sleep(4000);
         logger->info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 

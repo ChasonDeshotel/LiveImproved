@@ -75,7 +75,7 @@ void ActionHandler::initializeActionMap() {
     actionMap["write-request"] = [this](const std::optional<std::string>& args) {
         if (args) {
             auto ipc = ipc_();
-            ipc->writeRequest(*args);
+            ipc->createRequest(*args);
         } else {
             throw std::runtime_error("write-request action requires an argument");
         }
@@ -131,7 +131,7 @@ auto ActionHandler::closeWindows() -> bool {
 
 auto ActionHandler::loadItem(int itemIndex) -> bool {
     auto ipc = ipc_();
-    ipc->writeRequest("load_item," + std::to_string(itemIndex));
+    ipc->createRequest("load_item," + std::to_string(itemIndex));
 
     return false;
 }
@@ -141,7 +141,7 @@ auto ActionHandler::loadItemByName(const std::string& itemName) -> bool {
     auto pluginManager = pluginManager_();
     for (const auto& plugin : pluginManager->getPlugins()) {
         if (itemName == plugin.name) {
-          ipc->writeRequest("load_item," + std::to_string(plugin.number));
+          ipc->createRequest("load_item," + std::to_string(plugin.number));
           return true;
         }
     }

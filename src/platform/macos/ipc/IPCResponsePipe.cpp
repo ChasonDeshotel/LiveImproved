@@ -1,6 +1,7 @@
 #include <cerrno>
 #include <thread>
 #include <fcntl.h>
+#include <optional>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -12,20 +13,20 @@
 #include "IPCDefinitions.h"
 #include "IPCResponsePipe.h"
 
+using ipc::Response;
+
 IPCResponsePipe::IPCResponsePipe()
-    : IPCPipe()
-    , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
-    , pipePath_(PathManager().responsePipe())
-    , pipeFlags_(O_RDONLY | O_NONBLOCK)
-{
-    // set on base class
-    setPipePath(pipePath_);
-    setPipeFlags(pipeFlags_);
+    : IPCPipe(), pipeHandle_(ipc::INVALID_PIPE_HANDLE),
+      pipePath_(PathManager().responsePipe()),
+      pipeFlags_(O_RDONLY | O_NONBLOCK) {
+  // set on base class
+  setPipePath(pipePath_);
+  setPipeFlags(pipeFlags_);
 }
 
 IPCResponsePipe::~IPCResponsePipe() = default;
 
-auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::string {
+auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
     logger->debug("IPCResponsePipe::readResponse() called");
 
     int fd = this->getHandle();
@@ -34,7 +35,7 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
     if (fd == -1) {
         logger->error("Response pipe is not open for reading.");
         if (!this->openPipe()) {  // Open in non-blocking mode
-            return "";
+          return {ipc::ResponseType::Error, std::nullopt};
         }
     }
 
@@ -49,7 +50,7 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
     while (totalHeaderRead < ipc::HEADER_SIZE && retry_count < ipc::MAX_READ_RETRIES) {
         if (stopIPC_) {
             logger->info("IPCQueue write initialization cancelled during read pipe setup.");
-            return "";
+            return {ipc::ResponseType::Error, std::nullopt};
         }
         auto startIt = header.begin() + totalHeaderRead;
         bytesRead = read(this->getHandle(), &(*startIt), ipc::HEADER_SIZE - totalHeaderRead);
@@ -63,7 +64,7 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
                 continue;
             } else {
                 logger->error("Failed to read the full header. Error: " + std::string(strerror(errno)));
-                return "";
+                return {ipc::ResponseType::Error, std::nullopt};
             }
         }
 
@@ -78,7 +79,7 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
 
     if (totalHeaderRead != ipc::HEADER_SIZE) {
         logger->error("Failed to read the full header after " + std::to_string(retry_count) + " retries. Total header bytes read: " + std::to_string(totalHeaderRead));
-        return "";
+        return {ipc::ResponseType::Error, std::nullopt};
     }
 
     logger->debug("Full header received: " + std::string(header.data(), totalHeaderRead));
@@ -91,10 +92,10 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
         messageSize = std::stoull(messageSizeStr);  // Convert to size_t
     } catch (const std::invalid_argument& e) {
         logger->error("Invalid header. Could not parse message size: " + std::string(e.what()));
-        return "";
+        return {ipc::ResponseType::Error, std::nullopt};
     } catch (const std::out_of_range& e) {
         logger->error("Header size out of range: " + std::string(e.what()));
-        return "";
+        return {ipc::ResponseType::Error, std::nullopt};
     }
 
     logger->debug("Message size to read: " + std::to_string(messageSize));
@@ -107,7 +108,7 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
     while (totalBytesRead < messageSize + ipc::END_MARKER.size()) {
         if (stopIPC_) {
             logger->info("IPCQueue write initialization cancelled during read pipe setup.");
-            return "";
+            return {ipc::ResponseType::Error, std::nullopt};
         }
         size_t bytesToRead = std::min(ipc::BUFFER_SIZE, messageSize + ipc::END_MARKER.size() - totalBytesRead);
         ssize_t bytesRead = read(this->getHandle(), buffer.data(), bytesToRead);
@@ -135,18 +136,14 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
     logger->debug("Total bytes read: " + std::to_string(totalBytesRead - ipc::END_MARKER.size()));
     logMessage(message);
 
-    // TODO:
-    // dependency container
-    // resolve IPCQueue
-    // tell queue it's ready for the next message
-    if (callback && !stopIPC_) {
-        callback(message);
+    if (callback.has_value() && !stopIPC_) {
+        (*callback)(message);
     }
 
-    return message;
+    return {ipc::ResponseType::Success, message};
 }
 
-auto IPCResponsePipe::writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool {
+auto IPCResponsePipe::writeToPipe(ipc::Request) -> bool {
     logger->error("unimplemented in response pipe");
     return false;
 }

@@ -22,7 +22,7 @@ auto PluginManager::getPlugins() const -> const std::vector<Plugin>& {
 
 void PluginManager::refreshPlugins() {
     auto ipc = ipc_();
-    ipc->writeRequest("PLUGINS", [this](const std::string& response) {
+    ipc->createRequest("PLUGINS", [this](const std::string& response) {
         auto responseParser = responseParser_();
         try {
             if (!response.empty()) {
