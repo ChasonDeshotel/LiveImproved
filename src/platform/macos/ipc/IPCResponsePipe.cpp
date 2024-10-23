@@ -149,6 +149,10 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
     return message;
 }
 
+auto IPCResponsePipe::writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool {
+    logger->error("unimplemented in response pipe");
+    return false;
+}
 
 //auto IPCRequestPipeBase::resetResponsePipe() -> void {
 //    logger->debug("Resetting response pipe");

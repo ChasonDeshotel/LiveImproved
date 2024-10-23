@@ -58,6 +58,9 @@ public:
         pipeHandle_ = ipc::NULL_PIPE_HANDLE;
     }
 
+    virtual auto readResponse(ipc::ResponseCallback callback) -> std::string = 0;
+    virtual auto writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool = 0;
+
 //    virtual auto writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool = 0;
 
 protected:

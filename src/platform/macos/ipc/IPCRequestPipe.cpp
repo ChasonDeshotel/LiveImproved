@@ -50,3 +50,8 @@ auto IPCRequestPipe::writeToPipe(const std::string& message, ipc::ResponseCallba
 
     return true;
 }
+
+auto IPCRequestPipe::readResponse(ipc::ResponseCallback dummy) -> std::string {
+    logger->error("unimplemented in response pipe");
+    return "";
+}

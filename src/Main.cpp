@@ -12,14 +12,13 @@
 #include "IEventHandler.h"
 #include "IIPC.h"
 #include "ILiveInterface.h"
-#include "IPCQueue.h"
-//#include "IPCResilienceDecorator.h"
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
 #include "EventHandler.h"
-#include "IPCPipe.h"
+#include "IPCQueue.h"
+//#include "IPCPipeResilienceDecorator.h"
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
 #include "LiveInterface.h"
@@ -271,6 +270,19 @@ public:
             // platform-specific IPC
             app->container_.registerType<IPCRequestPipe, IPCRequestPipe>(DependencyContainer::Lifetime::Singleton);
             app->container_.registerType<IPCResponsePipe, IPCResponsePipe>(DependencyContainer::Lifetime::Singleton);
+
+            //app->container_.registerFactory<IPCRequestPipe>(
+            //    [](DependencyContainer& c) -> std::shared_ptr<IPCRequestPipe> {
+            //        return std::dynamic_pointer_cast<IPCRequestPipe>(
+            //            std::make_shared<IPCPipeResilienceDecorator>(
+            //                []() {
+            //                    return std::make_shared<IPCRequestPipe>();
+            //                }
+            //            )
+            //        );
+            //    }
+            //    , DependencyContainer::Lifetime::Singleton
+            //);
 
             app->container_.registerFactory<IIPC>(
                 [](DependencyContainer& c) -> std::shared_ptr<IPCQueue> {

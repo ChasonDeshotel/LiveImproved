@@ -19,29 +19,17 @@ public:
     auto operator=(IPCResilienceDecorator &&) -> IPCResilienceDecorator & = delete;
 
     auto init() -> bool override;
-    [[nodiscard]] auto isInitialized() const -> bool override;
 
     void writeRequest(const std::string &message) override;
     void writeRequest(const std::string &message,
                     ResponseCallback callback) override;
-
-    auto readResponse(ResponseCallback callback) -> std::string override;
-
-    void stopIPC() override;
-
-    auto checkAndReestablishConnection() -> bool;
-
-protected:
-    auto cleanUpPipes() -> void override;
-    auto createReadPipe() -> bool override;
-    auto createWritePipe() -> bool override;
 
 private:
     std::shared_ptr<IIPC> instance_;
     std::function<std::shared_ptr<IIPC>()> ipcFactory_;
 
     template<typename Func>
-    auto handleError(const std::string& operation, Func retry) -> decltype(retry());
+    auto withResilience(const std::string& operation, Func retry) -> decltype(retry());
 
     void logMessage(const std::string& message, LogLevel logLevel);
 };
