@@ -189,6 +189,7 @@ public:
                     return std::make_shared<EventHandler>(
                         [&c]() { return c.resolve<IActionHandler>(); }
                         , [&c]() { return c.resolve<WindowManager>(); }
+                        , [&c]() { return c.resolve<ILiveInterface>(); }
                     );
                 }
                 , DependencyContainer::Lifetime::Singleton

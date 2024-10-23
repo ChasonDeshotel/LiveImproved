@@ -10,6 +10,7 @@
 
 #include "Types.h"
 #include "IEventHandler.h"
+#include "ILiveInterface.h"
 
 #ifdef __OBJC__
 @class NSView;
@@ -31,6 +32,7 @@ class EventHandler : public IEventHandler {
 public:
     EventHandler(std::function<std::shared_ptr<IActionHandler>()> actionHandler
                  , std::function<std::shared_ptr<WindowManager>()> windowManager
+                 , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     );
 
     ~EventHandler() override;
@@ -57,6 +59,7 @@ public:
 private:
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
     std::function<std::shared_ptr<WindowManager>()>  windowManager_;
+    std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
 
     std::shared_ptr<IActionHandler> resolvedActionHandler_;
     std::shared_ptr<WindowManager>  resolvedWindowManager_;

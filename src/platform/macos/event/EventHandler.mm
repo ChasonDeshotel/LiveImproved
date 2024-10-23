@@ -90,9 +90,11 @@ std::string keyCodeToString(CGKeyCode keyCode) {
 EventHandler::EventHandler(
     std::function<std::shared_ptr<IActionHandler>()> actionHandler
     , std::function<std::shared_ptr<WindowManager>()> windowManager
+    , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     )
     : windowManager_(std::move(windowManager))
     , actionHandler_(std::move(actionHandler))
+    , liveInterface_(std::move(liveInterface))
     , eventTap(nullptr)
     , runLoopSource(nullptr)
 {}
@@ -395,6 +397,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
     // and/or call the log via the singleton interface
     auto windowManager = handler->windowManager_();
     auto actionHandler = handler->actionHandler_();
+    auto liveInterface = handler->liveInterface_();
 
     // 40 is weird. The normal flag didn't work
     const auto magicFieldThatActuallyGetsPID = 40;
@@ -473,12 +476,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
         } else if (eventType == kCGEventKeyDown) {
             logger->debug("Ableton Live keydown event detected.");
 
-// TODO fix
-//            if (liveInterface->isAnyTextFieldFocused()) {
-//                logger->debug("Ableton Live text field has focus. Passing event.");
-//                return event;
-//            }
-
             // TODO
             // You can use the CGWindowListCopyWindowInfo function to get information about
             // all windows on the screen and correlate it with the window receiving the event
@@ -495,6 +492,12 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             pressedKey.cmd   = (flags & Cmd  ) != 0;
             pressedKey.alt   = (flags & Alt  ) != 0;
             pressedKey.key   = keyCodeToString(keyCode);
+
+            if (liveInterface->isAnyTextFieldFocused() &&
+                !(pressedKey.ctrl || pressedKey.cmd || pressedKey.alt)
+            ) {
+                return event;
+            }
 
             bool shouldPassEvent = actionHandler->handleKeyEvent(pressedKey);
 

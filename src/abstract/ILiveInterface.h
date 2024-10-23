@@ -21,6 +21,8 @@ public:
     virtual auto openAllPlugins() -> void = 0;
     virtual auto tilePluginWindows() -> void = 0;
 
+    virtual auto isAnyTextFieldFocused() -> bool = 0;
+
 protected:
     ILiveInterface() = default;
 };

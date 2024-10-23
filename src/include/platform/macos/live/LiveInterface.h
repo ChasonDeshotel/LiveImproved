@@ -29,32 +29,35 @@ public:
     LiveInterface &operator=(LiveInterface &&) = delete;
 
     // TODO
-    void safelyFocusAfterDestroy(int windowIDToDestroy, int windowIDToFocus);
+    auto safelyFocusAfterDestroy(int windowIDToDestroy, int windowIDToFocus) -> void;
 
-    void setupPluginWindowChangeObserver(std::function<void()> callback) override;
-    void removePluginWindowChangeObserver() override;
+    auto setupPluginWindowChangeObserver(std::function<void()> callback) -> void override;
+    auto removePluginWindowChangeObserver() -> void override;
 
-    void closeFocusedPlugin() override;
-    void closeAllPlugins() override;
-    void openAllPlugins() override;
-    void tilePluginWindows() override;
+    auto closeFocusedPlugin() -> void override;
+    auto closeAllPlugins() -> void override;
+    auto openAllPlugins() -> void override;
+    auto tilePluginWindows() -> void override;
+
+    auto isAnyTextFieldFocused() -> bool override;
 
 private:
+    auto isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) -> bool;
     std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
-    void setWindowBounds(AXUIElementRef window, int x, int y, int width, int height);
+    auto setWindowBounds(AXUIElementRef window, int x, int y, int width, int height) -> void;
     std::map<AXUIElementRef, CGRect> cachedWindowBounds_;
-    CGRect getWindowBounds(AXUIElementRef window);
+    auto getWindowBounds(AXUIElementRef window) -> CGRect;
 
     bool windowCloseInProgress_ = false;
     AXObserverRef pluginWindowCreateObserver_;
     AXObserverRef pluginWindowDestroyObserver_;
 
     std::function<void()> createCallback_;
-    static void pluginWindowCreateCallback(AXObserverRef observer, AXUIElementRef element,
-                                     CFStringRef notification, void* context);
+    static auto pluginWindowCreateCallback(AXObserverRef observer, AXUIElementRef element,
+                                     CFStringRef notification, void* context) -> void;
 
     std::function<void()> destroyCallback_;
-    static void pluginWindowDestroyCallback(AXObserverRef observer, AXUIElementRef element,
-                                     CFStringRef notification, void* context);
+    static auto pluginWindowDestroyCallback(AXObserverRef observer, AXUIElementRef element,
+                                     CFStringRef notification, void* context) -> void;
 
 };

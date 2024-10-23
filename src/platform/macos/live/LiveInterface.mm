@@ -371,82 +371,75 @@ void LiveInterface::tilePluginWindows() {
     }
 }
 
-//bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
-////    logger->("recursion level " << level << " - Parent element: " << parent << std::endl;
-//
-//    if (level > 10) {
-////        logger->("Max recursion depth reached at level " << level << std::endl;
-//        return false;
-//    }
-//
-//    if (!parent) {
-//        logger->("Invalid parent element at level " << level << std::endl;
-//        return false;
-//    }
-//
-//    // Initialize children to nullptr
-//    CFArrayRef children = nullptr;
-//
-//    // Retrieve the children of the parent element
-//    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
-//    if (error != kAXErrorSuccess || !children) {
-////        logger->("Failed to retrieve children for the element. Error code: " << error << std::endl;
-//        return false;  // Return false if no children found
-//    }
-//
-//    CFIndex count = CFArrayGetCount(children);
-////    logger->("Number of children at level " << level << ": " << count << std::endl;
-//
-//    for (CFIndex i = 0; i < count; i++) {
-//        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
-//        if (!child) {
-////            logger->("No valid child found at index " << i << std::endl;
-//            continue;  // Skip to next child if invalid
-//        }
-//
-//        // Check if the element is a text field
-//        CFTypeRef role = nullptr;
-//        AXError roleError = AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &role);
-//        if (roleError == kAXErrorSuccess && role) {
-//            CFStringRef roleStr = static_cast<CFStringRef>(role);
-//            if (CFStringCompare(roleStr, CFSTR("AXTextField"), 0) == kCFCompareEqualTo) {
-//                CFRelease(role);
-//
-//                // Check if the text field is focused
-//                CFTypeRef focusedValue;
-//                AXError focusedError = AXUIElementCopyAttributeValue(child, kAXFocusedAttribute, &focusedValue);
-//                if (focusedError == kAXErrorSuccess && focusedValue == kCFBooleanTrue) {
-//                    logger->("Focused text field found at level " << level << std::endl;
-//                    CFRelease(children);
-//                    return true;  // Exit early if a focused text field is found
-//                }
-//                CFRelease(focusedValue);
-//            } else {
-//                CFRelease(role);
-//            }
-//        }
-//
-//        // Recursively search in child elements
-//        if (isAnyTextFieldFocusedRecursive(child, level + 1)) {
-//            CFRelease(children);  // Release children array before returning
-//            return true;  // Exit early if a focused text field is found during recursion
-//        }
-//    }
-//
-//    // Release children if nothing is found
-//    CFRelease(children);
-//    return false;  // No focused text field found
-//}
+bool LiveInterface::isAnyTextFieldFocusedRecursive(AXUIElementRef parent, int level) {
+//    logger->("recursion level " << level << " - Parent element: " << parent << std::endl;
 
-//bool LiveInterface::isAnyTextFieldFocused() {
-//    AXElement window = AXElement(AXFinder::findApplicationWindow());
-//    if (!window.isValid()) {
-//        logger->("Window is null or invalid." << std::endl;
-//        return false;
-//    }
-//
-//    return isAnyTextFieldFocusedRecursive(window.getRef(), 0);
-//}
+    if (level > 10) {
+//        logger->("Max recursion depth reached at level " << level << std::endl;
+        return false;
+    }
+
+    if (!parent) {
+        logger->warn("Invalid parent element at level " + std::to_string(level));
+        return false;
+    }
+
+    // Initialize children to nullptr
+    CFArrayRef children = nullptr;
+
+    // Retrieve the children of the parent element
+    AXError error = AXUIElementCopyAttributeValue(parent, kAXChildrenAttribute, (CFTypeRef*)&children);
+    if (error != kAXErrorSuccess || !children) {
+//        logger->("Failed to retrieve children for the element. Error code: " << error << std::endl;
+        return false;  // Return false if no children found
+    }
+
+    CFIndex count = CFArrayGetCount(children);
+//    logger->("Number of children at level " << level << ": " << count << std::endl;
+
+    for (CFIndex i = 0; i < count; i++) {
+        AXUIElementRef child = (AXUIElementRef)CFArrayGetValueAtIndex(children, i);
+        if (!child) {
+//            logger->("No valid child found at index " << i << std::endl;
+            continue;  // Skip to next child if invalid
+        }
+
+        // Check if the element is a text field
+        auto role = AXAttribute::getRole(child);
+        if (CFStringCompare(role, CFSTR("AXTextField"), 0) == kCFCompareEqualTo) {
+            CFRelease(role);
+
+            // Check if the text field is focused
+            if (AXAttribute::isFocused(child)) {
+                logger->info("Focused text field found at level " + std::to_string(level));
+                CFRelease(children);
+                return true;  // Exit early if a focused text field is found
+            }
+        } else {
+            CFRelease(role);
+        }
+
+        // Recursively search in child elements
+        if (isAnyTextFieldFocusedRecursive(child, level + 1)) {
+            CFRelease(children);  // Release children array before returning
+            return true;  // Exit early if a focused text field is found during recursion
+        }
+    }
+
+    // Release children if nothing is found
+    CFRelease(children);
+    return false;  // No focused text field found
+}
+
+bool LiveInterface::isAnyTextFieldFocused() {
+    AXUIElementRef window = AXFinder::findApplicationWindow();
+    if (!AXAttribute::isValid(window)) {
+        logger->error("Window is null or invalid.");
+        return false;
+    }
+
+    return isAnyTextFieldFocusedRecursive(window, 0);
+}
 
 // search box
 //    if (window) {
