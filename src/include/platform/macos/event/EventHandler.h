@@ -55,14 +55,17 @@ public:
     void focusWindow(int windowID) override;
 
     ERect getLiveBoundsRect() override;
+    
+    auto initializeCache() -> void;
 
 private:
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
     std::function<std::shared_ptr<WindowManager>()>  windowManager_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
 
-    std::shared_ptr<IActionHandler> resolvedActionHandler_;
-    std::shared_ptr<WindowManager>  resolvedWindowManager_;
+    WindowManager* resolvedWindowManager_;
+    IActionHandler* resolvedActionHandler_;
+    ILiveInterface* resolvedLiveInterface_;
 
     static void focusApplication(pid_t pid);
 
