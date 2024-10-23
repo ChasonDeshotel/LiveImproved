@@ -53,7 +53,6 @@ public:
     auto getHandle() -> ipc::Handle {
         return pipeHandle_;
     }
-
     auto setHandleNull() -> void {
         pipeHandle_ = ipc::NULL_PIPE_HANDLE;
     }

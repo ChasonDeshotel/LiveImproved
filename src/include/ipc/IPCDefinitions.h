@@ -4,6 +4,21 @@
 #include <queue>
 
 namespace ipc {
+    enum class QueueState {
+        Initializing
+        , Running
+        , Halted
+        , Processing
+        , Recovering
+    };
+    enum class PipeState {
+        Ready
+        , Reading
+        , Writing
+        , Error
+        , Closed
+    };
+
     using ResponseCallback = std::function<void(const std::string&)>;
     using Request = std::pair<std::string, ResponseCallback>;
     using RequestQueue = std::queue<Request>;

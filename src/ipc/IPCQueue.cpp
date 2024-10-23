@@ -19,6 +19,7 @@ IPCQueue::IPCQueue(
     , isProcessingRequest_(false)
     , requestPipe_(std::move(requestPipe)())
     , responsePipe_(std::move(responsePipe)())
+    , currentState_(ipc::QueueState::Initializing)
 {
     init();
 }
@@ -29,7 +30,6 @@ IPCQueue::~IPCQueue() {
 
 auto IPCQueue::init() -> bool {
     logger->debug("IPCQueue::init() called");
-    stopIPC_ = false;
 
     // create the pipes
     if(!requestPipe_->create() || !responsePipe_->create()) {
@@ -48,11 +48,12 @@ auto IPCQueue::init() -> bool {
     readyResponseThread.join();
 
     if (requestPipeReady_ && responsePipeReady_) {
-        isInitialized_ = true;
         logger->info("IPCQueue::init() read/write enabled");
+        setState(ipc::QueueState::Running);
         return true;
     } else {
         logger->error("IPCQueue::init() failed");
+        setState(ipc::QueueState::Halted);
         return false;
     }
 }
@@ -99,8 +100,9 @@ auto IPCQueue::writeRequest(const std::string& message, ResponseCallback callbac
     // the pipe check is called when the request is actually written --
     // this just queues the request. But we shouldn't queue a request
     // if the pipes aren't initialized
-    if (!isInitialized_) {
-        logger->error("IPCQueue not initialized. Cannot write request.");
+    auto state = getState();
+    if (state != ipc::QueueState::Running) {
+        logger->error("IPCQueue not running. Cannot write request.");
         return;
     }
 
@@ -110,7 +112,7 @@ auto IPCQueue::writeRequest(const std::string& message, ResponseCallback callbac
     logger->debug("Request enqueued: " + message);
 
     // If no request is currently being processed, start processing
-    if (!isProcessingRequest_) {
+    if (state == ipc::QueueState::Running && state != ipc::QueueState::Processing) {
         processNextRequest();
     }
 }
@@ -120,16 +122,16 @@ auto IPCQueue::processNextRequest() -> void {
 
     if (stopIPC_) {
         logger->info("Stopping IPCQueue request processing.");
-        isProcessingRequest_ = false;
+        setState(ipc::QueueState::Running);
         return;
     }
 
     if (requestQueue_.empty()) {
-        isProcessingRequest_ = false;
+        setState(ipc::QueueState::Running);
         return;
     }
 
-    isProcessingRequest_ = true;
+    setState(ipc::QueueState::Processing);
 
     auto nextRequest = requestQueue_.front();
     requestQueue_.pop();
@@ -137,20 +139,20 @@ auto IPCQueue::processNextRequest() -> void {
 
     logger->debug("Processing next request: " + nextRequest.first);
     std::thread([this, nextRequest]() {
-        if (!stopIPC_) {
+        if (getState() != ipc::QueueState::Halted) {
             this->writeRequestInternal(nextRequest.first, nextRequest.second);
         }
 
         // Live operates on 100ms tick -- without this sleep commands are skipped
         std::this_thread::sleep_for(ipc::LIVE_TICK);
 
-        if (!stopIPC_) {
+        if (getState() != ipc::QueueState::Halted) {
             this->processNextRequest();
         }
     }).detach();
 }
 
-auto IPCQueue::writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool {
+auto IPCQueue::writeRequestInternal(const std::string& message, ipc::ResponseCallback callback) -> bool {
     std::string formattedRequest;
     uint64_t id = nextRequestId_++;
     try {
@@ -171,6 +173,23 @@ auto IPCQueue::writeRequestInternal(const std::string& message, ResponseCallback
 
     return true;
 }
+
+auto IPCQueue::createExtendedCallback(const ipc::ResponseCallback& originalCallback) -> ipc::ResponseCallback {
+    return [this, originalCallback](const std::string& response, bool success) {
+        // Call the original callback
+        originalCallback(response, success);
+
+        // Set the state of the IPCQueue
+        if (success) {
+            this->setState(ipc::QueueState::Running);
+        } else {
+            this->setState(ipc::QueueState::Error);
+            // Optionally, you might want to initiate recovery here
+            // this->initiateRecovery();
+        }
+    };
+}
+
 
 auto IPCQueue::cleanUpPipes() -> void {
     requestPipe_->cleanUp();

@@ -17,6 +17,8 @@ public:
 
     auto readResponse(ipc::ResponseCallback callback) -> std::string override;
 
+    auto logMessage(const std::string& message) -> void;
+
 private:
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;

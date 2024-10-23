@@ -27,7 +27,7 @@ public:
     auto init() -> bool override;
 
     [[nodiscard]] auto isInitialized() const -> bool override {
-        return isInitialized_;
+        return currentState_ == ipc::QueueState::Running ? true : false;
     }
 
     void writeRequest(const std::string& message, ResponseCallback callback) override;
@@ -38,6 +38,14 @@ public:
     void stopIPC() override;
 
     auto cleanUpPipes() -> void override;
+
+     auto setState(ipc::QueueState newState) -> void {
+         currentState_.store(newState, std::memory_order_release);
+     }
+
+     auto getState() const -> ipc::QueueState {
+         return currentState_.load(std::memory_order_acquire);
+     }
 
 protected:
     //auto createReadPipe()  -> bool override;
@@ -58,6 +66,7 @@ protected:
     std::atomic<bool> stopIPC_       {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::atomic<bool> isInitialized_ {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //
+    std::atomic<ipc::QueueState> currentState_ {ipc::QueueState::Initializing}; // NOLINT
     std::condition_variable createPipesCv_            ;                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::mutex              createPipesMutex_         ;                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::atomic<bool>       readPipeCreated_   {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
@@ -75,6 +84,7 @@ protected:
     std::atomic<uint64_t>    nextRequestId_;                                              // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
+    auto createExtendedCallback(const ipc::ResponseCallback& originalCallback) -> ipc::ResponseCallback;
     std::shared_ptr<IPCRequestPipe> requestPipe_;
     std::shared_ptr<IPCResponsePipe> responsePipe_;
 };

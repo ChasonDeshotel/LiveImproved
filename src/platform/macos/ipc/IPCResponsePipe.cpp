@@ -133,15 +133,12 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
     }
 
     logger->debug("Total bytes read: " + std::to_string(totalBytesRead - ipc::END_MARKER.size()));
+    logMessage(message);
 
-    logger->debug("Message read from response pipe: " + this->string());
-    if (message.length() > ipc::MESSAGE_TRUNCATE_CHARS) {
-        logger->debug("Message truncated to 100 characters");
-        logger->debug("Message: " + message.substr(0, ipc::MESSAGE_TRUNCATE_CHARS));
-    } else {
-        logger->debug("Message: " + message);
-    }
-
+    // TODO:
+    // dependency container
+    // resolve IPCQueue
+    // tell queue it's ready for the next message
     if (callback && !stopIPC_) {
         callback(message);
     }
@@ -152,6 +149,18 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> std::strin
 auto IPCResponsePipe::writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool {
     logger->error("unimplemented in response pipe");
     return false;
+}
+
+auto IPCResponsePipe::logMessage(const std::string& message) -> void {
+
+    logger->debug("Message read from response pipe: " + this->string());
+    if (message.length() > ipc::MESSAGE_TRUNCATE_CHARS) {
+        logger->debug("Message truncated to 100 characters");
+        logger->debug("Message: " + message.substr(0, ipc::MESSAGE_TRUNCATE_CHARS));
+    } else {
+        logger->debug("Message: " + message);
+    }
+
 }
 
 //auto IPCRequestPipeBase::resetResponsePipe() -> void {
