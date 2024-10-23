@@ -517,6 +517,10 @@ void EventHandler::setupQuartzEventTap() {
         return;
     }
 
+    auto resolvedWindowManager = windowManager_();
+    auto resolvedActionHandler = actionHandler_();
+    auto resolvedLiveInterface = liveInterface_();
+
     CGEventMask eventMask = (1 << kCGEventKeyDown)
                             | (1 << kCGEventKeyUp)
                             | (1 << kCGEventLeftMouseDown)
