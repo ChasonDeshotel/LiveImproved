@@ -143,7 +143,7 @@ void EventHandler::focusApplication(pid_t pid) {
         }
 
         logger->debug("Bringing app into focus: " + std::to_string(pid));
-        [app activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
+        [app activateWithOptions:(NSApplicationActivateAllWindows)];
     }
 }
 
@@ -500,6 +500,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             pressedKey.alt   = (flags & Alt  ) != 0;
             pressedKey.key   = keyCodeToString(keyCode);
 
+            // unless a modifier is pressed, just pass keys directly to text fields if they're focused
+            // this allows single-key shortcuts while still being able to type in boxes
             if (liveInterface->isAnyTextFieldFocused() &&
                 !(pressedKey.ctrl || pressedKey.cmd || pressedKey.alt)
             ) {

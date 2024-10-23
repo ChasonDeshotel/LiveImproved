@@ -18,7 +18,6 @@
 #include "ConfigMenu.h"
 #include "EventHandler.h"
 #include "IPCQueue.h"
-//#include "IPCPipeResilienceDecorator.h"
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
 #include "LiveInterface.h"
@@ -264,19 +263,6 @@ public:
             app->container_.registerType<IPCRequestPipe, IPCRequestPipe>(DependencyContainer::Lifetime::Singleton);
             app->container_.registerType<IPCResponsePipe, IPCResponsePipe>(DependencyContainer::Lifetime::Singleton);
 
-            //app->container_.registerFactory<IPCRequestPipe>(
-            //    [](DependencyContainer& c) -> std::shared_ptr<IPCRequestPipe> {
-            //        return std::dynamic_pointer_cast<IPCRequestPipe>(
-            //            std::make_shared<IPCPipeResilienceDecorator>(
-            //                []() {
-            //                    return std::make_shared<IPCRequestPipe>();
-            //                }
-            //            )
-            //        );
-            //    }
-            //    , DependencyContainer::Lifetime::Singleton
-            //);
-
             app->container_.registerFactory<IIPC>(
                 [](DependencyContainer& c) -> std::shared_ptr<IPCQueue> {
                     return std::make_shared<IPCQueue>(
@@ -286,19 +272,6 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
-
-            /*
-            app->container_.registerFactory<IIPC>(
-                [](DependencyContainer& c) -> std::shared_ptr<IIPC> {
-                    return std::make_shared<IPCResilienceDecorator>(
-                        [&c]() {
-                            return std::make_shared<IPCQueue>(c.resolve<IPCRequestPipe>(), c.resolve<IPCResponsePipe>());
-                        }
-                    );
-                }
-                , DependencyContainer::Lifetime::Singleton
-            );
-            */
         }
 
         void pluginManager() {

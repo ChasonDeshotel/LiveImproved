@@ -38,18 +38,16 @@ namespace AXAttribute {
         CFTypeRef isFocused = nullptr;
         AXError result = AXUIElementCopyAttributeValue(element, kAXFocusedAttribute, &isFocused);
 
-        if (result == kAXErrorSuccess && isFocused == kCFBooleanTrue) {
-            logger->info("element is focused.");
-            if (isFocused != nullptr) {
-                CFRelease(isFocused);
-            }
+        if (result != kAXErrorSuccess) {
+            return false;
+        }
+
+        if (isFocused == kCFBooleanTrue) {
+            CFRelease(isFocused);
             return true;
         }
 
-        logger->info("element is not focused.");
-        if (isFocused != nullptr) {
-            CFRelease(isFocused);
-        }
+        CFRelease(isFocused);
         return false;
     }
 
