@@ -392,19 +392,12 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
     CGEventType eventType = CGEventGetType(event);
     auto* handler = static_cast<EventHandler*>(refcon);
 
-    // TODO store/pass these so we don't have to call them every time
-    // or at least only call these where necessary
-    // and/or call the log via the singleton interface
-    auto windowManager = handler->windowManager_();
-    auto actionHandler = handler->actionHandler_();
-    auto liveInterface = handler->liveInterface_();
-
     // 40 is weird. The normal flag didn't work
     const auto magicFieldThatActuallyGetsPID = 40;
     auto eventPID = (pid_t)CGEventGetIntegerValueField(event, (CGEventField)magicFieldThatActuallyGetsPID);
 
     // close the search box when clicking in Live
-    if (windowManager->isWindowOpen("SearchBox")) {
+    if (handler->windowManager_()->isWindowOpen("SearchBox")) {
         if (eventType == kCGEventLeftMouseDown || eventType == kCGEventRightMouseDown || eventType == kCGEventOtherMouseDown) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 //handler->log_->info("event pid: " + std::to_string(eventPID));
@@ -452,7 +445,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
         // double-right-click menu
         if (eventType == kCGEventRightMouseDown) {
             logger->debug("Ableton Live right click event detected.");
-            //handler->log_->info("right click event");
             auto now = std::chrono::steady_clock::now();
 
             if (lastRightClickTime.has_value()) {
@@ -460,14 +452,11 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                 logger->debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
 
                 if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
-                    //handler->log_->info(        logger->debug("Termination detected for PID: " + std::to_string(terminatedPID));"double right click");
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        actionHandler->handleDoubleRightClick();
+                        handler->actionHandler_()->handleDoubleRightClick();
                     });
                     return nullptr;
                 }
-            } else {
-                // handler->log_->info("First right click detected, skipping double-click check");
             }
 
             lastRightClickTime = now;
@@ -475,12 +464,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
 
         } else if (eventType == kCGEventKeyDown) {
             logger->debug("Ableton Live keydown event detected.");
-
-            // TODO
-            // You can use the CGWindowListCopyWindowInfo function to get information about
-            // all windows on the screen and correlate it with the window receiving the event
-            // like see if the event app bounds match live's to determine if live is receiving
-            // the event vs a plugin window
 
             CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
             CGEventFlags flags = CGEventGetFlags(event);
@@ -493,13 +476,13 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             pressedKey.alt   = (flags & Alt  ) != 0;
             pressedKey.key   = keyCodeToString(keyCode);
 
-            if (liveInterface->isAnyTextFieldFocused() &&
+            if (handler->liveInterface_()->isAnyTextFieldFocused() &&
                 !(pressedKey.ctrl || pressedKey.cmd || pressedKey.alt)
             ) {
                 return event;
             }
 
-            bool shouldPassEvent = actionHandler->handleKeyEvent(pressedKey);
+            bool shouldPassEvent = handler->actionHandler_()->handleKeyEvent(pressedKey);
 
             return shouldPassEvent ? event : nullptr;
         }
