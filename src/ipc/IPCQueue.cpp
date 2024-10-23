@@ -1,7 +1,5 @@
-#include <cstring>
 #include <fcntl.h>
 #include <mutex>
-#include <sstream>
 #include <thread>
 
 #include "LogGlobal.h"
@@ -29,7 +27,7 @@ IPCQueue::~IPCQueue() {
     this->cleanUpPipes();
 }
 
-auto IPCQueue::init() -> bool {
+auto IPCQueue::init() -> ipc::QueueState {
     logger->debug("IPCQueue::init() called");
 
     // create the pipes
@@ -42,21 +40,24 @@ auto IPCQueue::init() -> bool {
 
     {
         std::unique_lock<std::mutex> lock(initMutex_);
-        initCv_.wait(lock, [this] { return (requestPipeReady_ && responsePipeReady_) || stopIPC_; });
+        initCv_.wait(lock, [this] {
+                return (requestPipeReady_ && responsePipeReady_)
+                        || getState() == ipc::QueueState::Halted;
+                });
     }
 
     readyRequestThread.join();
     readyResponseThread.join();
 
-    if (requestPipeReady_ && responsePipeReady_) {
+    if ((requestPipeReady_ && responsePipeReady_) && getState() != ipc::QueueState::Halted) {
         logger->info("IPCQueue::init() read/write enabled");
         setState(ipc::QueueState::Running);
         startProcessing();
-        return true;
+        return ipc::QueueState::Running;
     } else {
         logger->error("IPCQueue::init() failed");
         setState(ipc::QueueState::Halted);
-        return false;
+        return ipc::QueueState::Halted;
     }
 }
 
@@ -83,15 +84,21 @@ void IPCQueue::startProcessing() {
     processingThread_ = std::thread(&IPCQueue::processQueue, this);
 }
 
+void IPCQueue::halt() {
+    stopProcessing();
+    requestPipe_->stop();
+    responsePipe_->stop();
+}
+
 void IPCQueue::stopProcessing() {
-    stopIPC_ = true;
+    setState(ipc::QueueState::Halted);
     if (processingThread_.joinable()) {
         processingThread_.join();
     }
 }
 
 void IPCQueue::processQueue() {
-    while (!stopIPC_) {
+    while (getState() != ipc::QueueState::Halted) {
 
         std::unique_lock<std::mutex> lock(queueMutex_);
         if (!requestQueue_.empty()) {
@@ -100,13 +107,11 @@ void IPCQueue::processQueue() {
             lock.unlock();
 
             setState(ipc::QueueState::Processing);
-            logger->error("launching process request: " + request.message);
             processRequest(request);
-            logger->error("finished process request: " + request.message);
         } else {
             lock.unlock();
         }
-        std::this_thread::sleep_for(ipc::LIVE_TICK * 2);
+        std::this_thread::sleep_for(ipc::LIVE_TICK);
     }
 }
 
@@ -115,8 +120,7 @@ auto IPCQueue::createRequest(const std::string& message, ipc::ResponseCallback c
     std::unique_lock<std::mutex> lock(queueMutex_);
     requestQueue_.emplace(req);
     lock.unlock();
-    logger->error("Request enqueued: " + req.message);
-    logger->debug("New request added. Queue size: " + std::to_string(requestQueue_.size()));
+    logger->debug("Request enqueued: " + req.message + " Queue size: " + std::to_string(requestQueue_.size()));
 }
 
 
@@ -127,41 +131,6 @@ void IPCQueue::processRequest(const ipc::Request& request) {
     }
 }
 
-auto IPCQueue::processNextRequest() -> void {
-    std::unique_lock<std::mutex> lock(queueMutex_);
-
-    if (stopIPC_) {
-        logger->info("Stopping IPCQueue request processing.");
-        setState(ipc::QueueState::Halted);
-        return;
-    }
-
-    if (requestQueue_.empty()) {
-        setState(ipc::QueueState::Running);
-        return;
-    }
-
-    setState(ipc::QueueState::Processing);
-
-    auto nextRequest = requestQueue_.front();
-    requestQueue_.pop();
-    lock.unlock();
-
-    logger->debug("Processing next request: " + nextRequest.message);
-    std::thread([this, nextRequest]() {
-        if (getState() != ipc::QueueState::Halted) {
-            this->writeToPipe(nextRequest);
-        }
-
-        // Live operates on 100ms tick -- without this sleep commands are skipped
-        std::this_thread::sleep_for(ipc::LIVE_TICK);
-
-        if (getState() != ipc::QueueState::Halted) {
-            this->processNextRequest();
-        }
-    }).detach();
-}
-
 auto IPCQueue::writeToPipe(ipc::Request request) -> bool {
     std::string formattedRequest;
     uint64_t id = nextRequestId_++;
@@ -170,12 +139,12 @@ auto IPCQueue::writeToPipe(ipc::Request request) -> bool {
         std::thread readerThread([this, request]() {
             std::this_thread::sleep_for(ipc::LIVE_TICK * 2);
             auto response = responsePipe_->readResponse(request.callback);
-            if (response.type == ipc::ResponseType::Success) {
-                logger->error("got success.");
+            if (response.success()) {
+                // done processing -- set queue back to running
                 setState(ipc::QueueState::Running);
             } else {
                 // TODO: make halt method
-                logger->error("not success.");
+                logger->error("readResponse did not return success.");
                 setState(ipc::QueueState::Halted);
             }
         });
@@ -188,9 +157,4 @@ auto IPCQueue::writeToPipe(ipc::Request request) -> bool {
 auto IPCQueue::cleanUpPipes() -> void {
     requestPipe_->cleanUp();
     responsePipe_->cleanUp();
-}
-
-void IPCQueue::stopIPC() {
-    requestPipe_->stop();
-    responsePipe_->stop();
 }

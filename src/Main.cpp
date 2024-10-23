@@ -115,8 +115,8 @@ public:
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
-        logger->info("writing READY");
-        container_.resolve<IIPC>()->createRequest("READY", [this](const std::string& response) {
+        auto ipcQueue = container_.resolve<IIPC>();
+        ipcQueue->createRequest("READY", [this](const std::string& response) {
             logger->info("received READY response: " + response);
         });
 
@@ -156,7 +156,7 @@ public:
             auto ipc = this->container_.resolve<IIPC>();
             if (ipc) {
                 logger->info("stopping IPC...");
-                ipc->stopIPC();
+                ipc->halt();
 
                 std::promise<void> closePromise;
                 std::future<void> closeFuture = closePromise.get_future();
@@ -219,13 +219,6 @@ public:
 
             auto configFilePath = pathManager.config();
             auto configMenuPath = pathManager.configMenu();
-
-            /*
-            if (!configFilePath || !configMenuPath) {
-                logger->error("Failed to get config file paths");
-                return;
-            }
-            */
 
             app->container_.registerFactory<ConfigManager>(
                 [configFilePath](DependencyContainer&) { return std::make_shared<ConfigManager>(configFilePath); }

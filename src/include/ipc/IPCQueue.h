@@ -25,7 +25,7 @@ public:
     auto operator=(const IPCQueue &) -> IPCQueue & = delete;
     auto operator=(IPCQueue &&) -> IPCQueue & = delete;
 
-    auto init() -> bool override;
+    auto init() -> ipc::QueueState override;
 
     [[nodiscard]] auto isInitialized() const -> bool override {
         return currentState_ == ipc::QueueState::Running ? true : false;
@@ -36,26 +36,21 @@ public:
         createRequest(message, nullptr);
     }
 
-    void stopIPC() override;
-
     auto cleanUpPipes() -> void override;
 
     auto setState(ipc::QueueState newState) -> void {
         auto oldState = currentState_.exchange(newState);
-        logger->debug("Queue state changed from " + std::to_string(static_cast<int>(oldState)) +
-                      " to " + std::to_string(static_cast<int>(newState)));
+        //logger->debug("Queue state changed from " + std::to_string(static_cast<int>(oldState)) +
+        //              " to " + std::to_string(static_cast<int>(newState)));
     }
 
      auto getState() const -> ipc::QueueState {
          return currentState_.load(std::memory_order_acquire);
      }
 
-protected:
-    //auto createReadPipe()  -> bool override;
-    //auto createWritePipe() -> bool override;
-    //void createReadPipeLoop();
-    //void createWritePipeLoop();
+     auto halt() -> void override;
 
+protected:
     auto readyRequestWrapper() -> void;
     auto readyResponseWrapper() -> void;
 
@@ -65,14 +60,8 @@ protected:
     // no fucking clue why NOLNTBEGIN (sic) doesn't want to work here
     // protected to allow derived classes direct access
     // consider moving the non-performance-critical ones to private
-    std::atomic<bool> stopIPC_       {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<bool> isInitialized_ {false};                                            // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //
     std::atomic<ipc::QueueState> currentState_ {ipc::QueueState::Initializing}; // NOLINT
-    std::condition_variable createPipesCv_            ;                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::mutex              createPipesMutex_         ;                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<bool>       readPipeCreated_   {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<bool>       writePipeCreated_  {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
                                                                                          //
     std::atomic<bool>       requestPipeReady_  {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::atomic<bool>       responsePipeReady_ {false};                                  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)

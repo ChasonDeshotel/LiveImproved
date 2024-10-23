@@ -17,13 +17,13 @@ public:
     IIPC(IIPC&&) = delete;
     auto operator=(IIPC&&) -> IIPC& = delete;
 
-    virtual auto init() -> bool = 0;
+    virtual auto init() -> ipc::QueueState = 0;
     [[nodiscard]] virtual auto isInitialized() const -> bool = 0;
 
     virtual auto createRequest(const std::string& message) -> void = 0;
     virtual auto createRequest(const std::string& message, ipc::ResponseCallback callback) -> void = 0;
 
-    virtual auto stopIPC() -> void = 0;
+    virtual auto halt() -> void = 0;
 
     virtual auto cleanUpPipes() -> void = 0;
 

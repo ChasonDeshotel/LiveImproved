@@ -48,7 +48,6 @@ namespace ipc {
         , Running
         , Halted
         , Processing
-        , Recovering
     };
     enum class PipeState {
         Ready
@@ -106,7 +105,10 @@ namespace ipc {
             : type(t), data(std::move(d)) {}
 
         [[nodiscard]] auto success() const -> bool {
-            return type == ipc::ResponseType::Success;
+            bool isSuccess = (type == ipc::ResponseType::Success);
+            logger->debug("Response success check: " + std::to_string(isSuccess) +
+                          " (type: " + std::to_string(static_cast<int>(type)) + ")");
+            return isSuccess;
         }
     };
 
