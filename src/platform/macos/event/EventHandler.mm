@@ -97,7 +97,9 @@ EventHandler::EventHandler(
     , liveInterface_(std::move(liveInterface))
     , eventTap(nullptr)
     , runLoopSource(nullptr)
-{}
+{
+    instance_ = this;
+}
 
 EventHandler::~EventHandler() {
     if (eventTap) {
