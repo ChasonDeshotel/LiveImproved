@@ -15,7 +15,7 @@ namespace AXAttribute {
             CFRelease(enabled);  // Release the CFBooleanRef after use
             return isEnabled;
         } else {
-            logger->error("AXEnabled attribute not found or failed to retrieve.");
+            //logger->error("AXEnabled attribute not found or failed to retrieve.");
             return false;  // Return false if the element doesn't have the AXEnabled attribute or retrieval failed
         }
     }
@@ -25,7 +25,7 @@ namespace AXAttribute {
         AXError result = AXUIElementCopyAttributeValue(element, kAXRoleAttribute, &role);
             
         if (result != kAXErrorSuccess || role == nullptr) {
-            logger->warn("AXUIElementRef is invalid, failed to get role attribute!");
+            //logger->warn("AXUIElementRef is invalid, failed to get role attribute!");
             return false;
         }
 
@@ -56,7 +56,7 @@ namespace AXAttribute {
         AXError error = AXUIElementCopyAttributeValue(elementRef, kAXRoleAttribute, castutil::toCFTypeRef(&role));
 
         if (error != kAXErrorSuccess || !role) {
-            logger->warn("Failed to get role for element. Error: " + axerror::toString(error));
+            //logger->warn("Failed to get role for element. Error: " + axerror::toString(error));
             return nullptr;
         }
 
