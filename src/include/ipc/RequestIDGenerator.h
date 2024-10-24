@@ -4,19 +4,19 @@
 
 class RequestIDGenerator {
 public:
-    static RequestIDGenerator &getInstance() {
+    static auto getInstance() -> RequestIDGenerator & {
         static RequestIDGenerator instance;
         return instance;
     }
 
-    [[nodiscard]] uint64_t getNextID() noexcept {
+    [[nodiscard]] auto getNextID() noexcept -> uint64_t {
         return nextID_.fetch_add(1, std::memory_order_relaxed);
     }
 
     RequestIDGenerator(const RequestIDGenerator &) = delete;
     RequestIDGenerator(RequestIDGenerator &&) = delete;
-    RequestIDGenerator &operator=(const RequestIDGenerator &) = delete;
-    RequestIDGenerator &operator=(RequestIDGenerator &&) = delete;
+    auto operator=(const RequestIDGenerator &) -> RequestIDGenerator & = delete;
+    auto operator=(RequestIDGenerator &&) -> RequestIDGenerator & = delete;
 
 private:
     RequestIDGenerator() noexcept = default;
