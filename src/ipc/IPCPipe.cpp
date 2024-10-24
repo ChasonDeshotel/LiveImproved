@@ -185,29 +185,28 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
     return std::nullopt;
 }
 
- auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
-     logger->debug("IPCResponsePipe::readResponse() called");
+auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
+    logger->debug("IPCResponsePipe::readResponse() called");
 
-     if (!p_->ensurePipeOpen()) {
-         return {ipc::ResponseType::Error, std::nullopt};
-     }
+    if (!p_->ensurePipeOpen()) {
+        return {ipc::ResponseType::Error, std::nullopt};
+    }
 
-     auto header = readHeader();
-     if (!header) {
-         return {ipc::ResponseType::Error, std::nullopt};
-     }
+    auto header = readHeader();
+    if (!header) {
+        return {ipc::ResponseType::Error, std::nullopt};
+    }
 
-     auto message = readMessage(header->messageSize);
-     if (!message) {
-         return {ipc::ResponseType::Error, std::nullopt};
-     }
+    auto message = readMessage(header->messageSize);
+    if (!message) {
+        return {ipc::ResponseType::Error, std::nullopt};
+    }
 
-     logMessage(*message);
+    logMessage(*message);
 
-     if (callback && !stopIPC_) {
-         (*callback)(*message);
-     }
+    if (callback && !stopIPC_) {
+        (*callback)(*message);
+    }
 
-     return {ipc::ResponseType::Success, std::move(*message)};
- }
-
+    return {ipc::ResponseType::Success, std::move(*message)};
+}

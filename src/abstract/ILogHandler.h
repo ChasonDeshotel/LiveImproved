@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 #include "LogLevel.h"
@@ -21,6 +22,7 @@ public:
     virtual auto error(const std::string &message) -> void = 0;
 
     virtual auto setLogLevel(LogLevel level) -> void = 0;
+    virtual auto setLogPath(const std::filesystem::path& path) -> void = 0;
 
 protected:
     ILogHandler() = default;  // Protected default constructor

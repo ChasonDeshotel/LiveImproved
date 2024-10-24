@@ -26,7 +26,7 @@ public:
     auto warn(const std::string& message) -> void override;
     auto error(const std::string& message) -> void override;
 
-    auto setLogPath(const std::string& path) -> void;
+    auto setLogPath(const std::filesystem::path& path) -> void override;
     auto setLogLevel(LogLevel level) -> void override;
 
 private:

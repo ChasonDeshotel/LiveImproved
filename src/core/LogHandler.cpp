@@ -1,6 +1,6 @@
 #include <iostream>
 #include <ctime>
-#include <filesystem>  // C++17
+#include <filesystem>
 #include <optional>
 
 #include <JuceHeader.h>
@@ -13,13 +13,7 @@ namespace fs = std::filesystem;
 LogHandler::LogHandler()
     : ILogHandler()
     , currentLogLevel(LogLevel::LOG_DEBUG) {
-    #ifdef _WIN32
-        logPath = "C:\\Users\\Billy Maizere\\source\\repos\\LiveImproved\\log.txt";
-		//logPath = "NUL";
-    #else
-        logPath = "/Users/cdeshotel/Scripts/Ableton/LiveImproved/logs/log.txt";
-		//logPath = "/dev/null";
-    #endif
+    logPath = PathManager().log();
 }
 
 LogHandler::~LogHandler() {
@@ -33,19 +27,16 @@ auto LogHandler::getInstance() -> LogHandler& {
     return instance;
 }
 
-auto LogHandler::setLogPath(const std::string& path) -> void {
+auto LogHandler::setLogPath(const std::filesystem::path& path) -> void {
     std::lock_guard<std::mutex> lock(logMutex);
 
     try {
-        logPath = fs::path(path);
         if (logfile.is_open()) {
             logfile.close();
         }
-        if (logPath) {
-            logfile.open(logPath->string(), std::ios_base::app);
-            if (!logfile.is_open()) {
-                std::cerr << "Failed to open log file at: " << logPath->string() << std::endl;
-            }
+        logfile.open(path.string(), std::ios_base::app);
+        if (!logfile.is_open()) {
+            std::cerr << "Failed to open log file at: " << logPath->string() << std::endl;
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Filesystem error: " << e.what() << std::endl;
@@ -67,25 +58,25 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
 
     // TODO
     juce::Logger::writeToLog(message);
-
+//
 //    if (!logPath.has_value()) {
 //        std::cerr << logLevelToString(level) << ": " << message << std::endl;
 //        return;
 //    }
-//
-//    if (!logfile.is_open()) {
-//        logfile.open(logPath->string(), std::ios_base::app);
-//    }
-//
-//    if (logfile.is_open()) {
-//        auto now = std::time(nullptr);
-//        auto localTime = std::localtime(&now);
-//
-//        logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
-//                << logLevelToString(level) << ": " << message << std::endl;
-//    } else {
-//        std::cerr << "Unable to open log file: " << logPath->string() << std::endl;
-//    }
+
+    if (!logfile.is_open()) {
+        logfile.open(logPath->string(), std::ios_base::app);
+    }
+
+    if (logfile.is_open()) {
+        auto now = std::time(nullptr);
+        auto localTime = std::localtime(&now);
+
+        logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
+                << logLevelToString(level) << ": " << message << std::endl;
+    } else {
+        std::cerr << "Unable to open log file: " << logPath->string() << std::endl;
+    }
 }
 
 auto LogHandler::debug(const std::string& message) -> void {
@@ -107,8 +98,8 @@ auto LogHandler::error(const std::string& message) -> void {
 auto LogHandler::logLevelToString(LogLevel level) -> std::string {
     switch (level) {
         case LogLevel::LOG_DEBUG: return "DEBUG";
-        case LogLevel::LOG_INFO: return "INFO";
-        case LogLevel::LOG_WARN: return "WARN";
+        case LogLevel::LOG_INFO:  return "INFO";
+        case LogLevel::LOG_WARN:  return "WARN";
         case LogLevel::LOG_ERROR: return "ERROR";
         default: return "UNKNOWN";
     }
