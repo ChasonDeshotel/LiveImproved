@@ -66,7 +66,9 @@ auto PipeUtil::closePipe() -> bool {
     if (close(this->getHandle()) == -1) {
         std::string errorString = strerror(errno);
         this->setHandle(ipc::INVALID_PIPE_HANDLE);
-        throw std::runtime_error("Failed to close pipe: " + errorString);
+        //throw std::runtime_error("Failed to close pipe: " + errorString);
+        logger->error("failed to close pipe: " + errorString);
+        return false;
     } else {
         this->setHandle(ipc::INVALID_PIPE_HANDLE);
         return true;
@@ -83,6 +85,10 @@ auto PipeUtil::deletePipe() -> void {
     } else {
         logger->warn("Failed to remove request pipe file: " + pipePath_.string());
     }
+}
+
+auto PipeUtil::ensurePipeOpen() -> bool {
+    return true;
 }
 
 auto PipeUtil::drainPipe() -> void {
@@ -114,28 +120,11 @@ auto PipeUtil::writeToPipe(ipc::Request request) -> size_t {
     return static_cast<size_t>(result);
 }
 
-auto PipeUtil::setHandle(ipc::Handle handle) -> void {
-    pipeHandle_ = handle;
+auto PipeUtil::readFromPipe(void* buffer, size_t count) const -> ssize_t {
+    ssize_t result = ::read(this->getHandle(), buffer, count);
+    if (result == -1) {
+        throw std::runtime_error("Read error: " + std::string(strerror(errno)));
+    }
+    return result;
 }
 
-auto PipeUtil::setPath(const ipc::Path& path) -> void {
-    logger->error("setting path: " + path.string());
-    pipePath_ = path;
-}
-
-auto PipeUtil::setFlags(int flags) -> void {
-    logger->error("setting flags");
-    pipeFlags_ = flags;
-}
-
-auto PipeUtil::getHandle() const -> ipc::Handle {
-    return pipeHandle_;
-}
-
-auto PipeUtil::getPath() const -> const ipc::Path& {
-    return pipePath_;
-}
-
-auto PipeUtil::getFlags() const -> int {
-    return pipeFlags_;
-}

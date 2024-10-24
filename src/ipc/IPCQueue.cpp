@@ -8,7 +8,6 @@
 #include "IPCQueue.h"
 #include "IPCRequestPipe.h"
 #include "IPCResponsePipe.h"
-#include "PipeUtil.h"
 
 IPCQueue::IPCQueue(
          std::function<std::shared_ptr<IPCRequestPipe>()> requestPipe
@@ -133,7 +132,6 @@ void IPCQueue::processRequest(const ipc::Request& request) {
 }
 
 auto IPCQueue::pipeObjWrite(ipc::Request request) -> bool {
-    std::string formattedRequest;
     uint64_t id = nextRequestId_++;
 
     if (requestPipe_->writeRequest(request)) {

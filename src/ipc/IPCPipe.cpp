@@ -1,6 +1,5 @@
 #include <cerrno>
 #include <fcntl.h>
-#include <filesystem>
 #include <string>
 #include <sys/stat.h>
 #include <thread>
@@ -36,10 +35,7 @@ auto IPCPipe::openPipe() -> bool {
 
 auto IPCPipe::cleanUp() -> void {
     p_->closePipe();
-    logger->debug("closed pipe");
-
     p_->deletePipe();
-
     p_->setHandle(ipc::NULL_PIPE_HANDLE);
 }
 
@@ -67,6 +63,7 @@ auto IPCPipe::openPipeLoop() -> bool {
 }
 
 auto IPCPipe::writeRequest(ipc::Request request) -> bool {
+    logger->debug("Writing request: " + request.formatted());
 	if (p_->getHandle() == ipc::INVALID_PIPE_HANDLE) {
 		if (!p_->openPipe()) {
 		    logger->error("Request pipe not opened for writing: " + p_->getPath().string());
@@ -75,10 +72,6 @@ auto IPCPipe::writeRequest(ipc::Request request) -> bool {
 	}
 
     p_->drainPipe();
-
-    logger->debug("Writing request: " + request.formatted());
-
-
     p_->writeToPipe(request);
 
     return true;
@@ -94,34 +87,22 @@ auto IPCPipe::logMessage(const std::string& message) -> void {
     }
 }
 
-auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
-    logger->debug("IPCResponsePipe::readResponse() called");
-
-    int fd = p_->getHandle();
-    logger->debug("read response handle: " + std::to_string(fd));
-
-    if (fd == -1) {
-        logger->error("Response pipe is not open for reading.");
-        if (!p_->openPipe()) {  // Open in non-blocking mode
-          return {ipc::ResponseType::Error, std::nullopt};
-        }
-    }
-
+auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
+    size_t totalHeaderRead = 0;
     std::string requestId;
 
     std::array<char, ipc::HEADER_SIZE + 1> header{}; // +1 for null termination
     ssize_t bytesRead = 0;
-    size_t totalHeaderRead = 0;
 
     // Retry loop in case of empty or partial reads
-    int retry_count = 0;
-    while (totalHeaderRead < ipc::HEADER_SIZE && retry_count < ipc::MAX_READ_RETRIES) {
+    for (int retry_count = 0; totalHeaderRead < ipc::HEADER_SIZE && retry_count < ipc::MAX_READ_RETRIES; ++retry_count) {
         if (stopIPC_) {
-            logger->info("IPCQueue write initialization cancelled during read pipe setup.");
-            return {ipc::ResponseType::Error, std::nullopt};
+            logger->info("Cannot read header: IPC halted.");
+            //throw std::runtime_error("Cannot read header: IPC Halted.");
+            return std::nullopt;
         }
         auto startIt = header.begin() + totalHeaderRead;
-        bytesRead = read(p_->getHandle(), &(*startIt), ipc::HEADER_SIZE - totalHeaderRead);
+        bytesRead = p_->readFromPipe(&(*startIt), ipc::HEADER_SIZE - totalHeaderRead);
 
         logger->debug("Header partial read: " + std::string(header.data(), totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
 
@@ -132,7 +113,8 @@ auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
                 continue;
             } else {
                 logger->error("Failed to read the full header. Error: " + std::string(strerror(errno)));
-                return {ipc::ResponseType::Error, std::nullopt};
+                //throw std::runtime_error("Failed to read the full error. Error: " + std::string(strerror(errno)));
+                return std::nullopt;
             }
         }
 
@@ -146,40 +128,40 @@ auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
     }
 
     if (totalHeaderRead != ipc::HEADER_SIZE) {
-        logger->error("Failed to read the full header after " + std::to_string(retry_count) + " retries. Total header bytes read: " + std::to_string(totalHeaderRead));
-        return {ipc::ResponseType::Error, std::nullopt};
+        logger->error("Failed to read the full header after " + std::to_string(ipc::MAX_READ_RETRIES) + " retries. Total header bytes read: " + std::to_string(totalHeaderRead));
+        //throw std::runtime_error("Failed to read the full error. Error: " + std::string(strerror(errno)));
+        return std::nullopt;
     }
 
     logger->debug("Full header received: " + std::string(header.data(), totalHeaderRead));
 
-    // size_t instead of int because comparisons
-    size_t messageSize = 0;
     try {
-        // Extract the response size (last 8 characters of the header)
-        std::string messageSizeStr(header.data() + 14);  // NOLINT Skip 'START_' and the 8 characters of request ID
-        messageSize = std::stoull(messageSizeStr);  // Convert to size_t
-    } catch (const std::invalid_argument& e) {
-        logger->error("Invalid header. Could not parse message size: " + std::string(e.what()));
-        return {ipc::ResponseType::Error, std::nullopt};
-    } catch (const std::out_of_range& e) {
-        logger->error("Header size out of range: " + std::string(e.what()));
-        return {ipc::ResponseType::Error, std::nullopt};
+        std::string_view headerView(header.data(), ipc::HEADER_SIZE);
+        uint64_t requestId = std::stoull(std::string(headerView.substr(ipc::START_MARKER_SIZE, ipc::REQUEST_ID_SIZE)));
+        size_t messageSize = std::stoull(std::string(headerView.substr(ipc::START_MARKER_SIZE + ipc::REQUEST_ID_SIZE, ipc::REQUEST_ID_SIZE)));
+        return ipc::Header{requestId, messageSize};
+    } catch (const std::exception& e) {
+        logger->error("Failed to parse header: " + std::string(e.what()));
+        return std::nullopt;
     }
+}
 
-    logger->debug("Message size to read: " + std::to_string(messageSize));
-
-    // init to empty string for callbacks expecting a string arg
-    std::string message = "";
+auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
+    // size_t instead of int because comparisons
+    std::string message;
+    message.reserve(messageSize + ipc::END_MARKER.size());
     size_t totalBytesRead = 0;
     std::vector<char> buffer(ipc::BUFFER_SIZE);
 
     while (totalBytesRead < messageSize + ipc::END_MARKER.size()) {
         if (stopIPC_) {
             logger->info("IPCQueue write initialization cancelled during read pipe setup.");
-            return {ipc::ResponseType::Error, std::nullopt};
+            return std::nullopt;
         }
+
         size_t bytesToRead = std::min(ipc::BUFFER_SIZE, messageSize + ipc::END_MARKER.size() - totalBytesRead);
-        ssize_t bytesRead = read(p_->getHandle(), buffer.data(), bytesToRead);
+        ssize_t bytesRead = p_->readFromPipe(buffer.data(), bytesToRead);
+        logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
         if (bytesRead <= 0) {
             logger->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
@@ -189,24 +171,43 @@ auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
 
         message.append(buffer.data(), bytesRead);
         totalBytesRead += bytesRead;
-        logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
-        // check for end marker in the accumulated message
-        if (message.size() >= ipc::END_MARKER.size()) {
-            if (message.compare(message.size() - ipc::END_MARKER.size(), ipc::END_MARKER.size(), ipc::END_MARKER) == 0) {
-                logger->debug("End of message marker found.");
-                message = message.substr(0, message.size() - ipc::END_MARKER.size()); // Remove the end marker
-                break;
-            }
+        //if (message.compare(message.size() - ipc::END_MARKER.size(), ipc::END_MARKER.size(), ipc::END_MARKER) == 0) {
+        if (message.size() >= ipc::END_MARKER.size() &&
+            std::string_view(message).substr(message.size() - ipc::END_MARKER.size()) == ipc::END_MARKER) {
+            message.resize(message.size() - ipc::END_MARKER.size());
+            logger->debug("Total bytes read: " + std::to_string(totalBytesRead - ipc::END_MARKER.size()));
+            return message;
         }
     }
 
-    logger->debug("Total bytes read: " + std::to_string(totalBytesRead - ipc::END_MARKER.size()));
-    logMessage(message);
-
-    if (callback.has_value() && !stopIPC_) {
-        (*callback)(message);
-    }
-
-    return {ipc::ResponseType::Success, message};
+    logger->error("Failed to find end marker in message");
+    return std::nullopt;
 }
+
+ auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
+     logger->debug("IPCResponsePipe::readResponse() called");
+
+     if (!p_->ensurePipeOpen()) {
+         return {ipc::ResponseType::Error, std::nullopt};
+     }
+
+     auto header = readHeader();
+     if (!header) {
+         return {ipc::ResponseType::Error, std::nullopt};
+     }
+
+     auto message = readMessage(header->messageSize);
+     if (!message) {
+         return {ipc::ResponseType::Error, std::nullopt};
+     }
+
+     logMessage(*message);
+
+     if (callback && !stopIPC_) {
+         (*callback)(*message);
+     }
+
+     return {ipc::ResponseType::Success, std::move(*message)};
+ }
+

@@ -19,7 +19,6 @@ public:
     auto cleanUp()  -> void;
 
     virtual auto openPipe() -> bool;
-    //virtual auto createWritePipeLoop() -> void = 0;
 
     auto drainPipe() -> void;
 
@@ -30,35 +29,8 @@ public:
     auto create() -> bool;
     auto openPipeLoop() -> bool;
 
-    // static auto resetResponsePipe() -> void;
-
-    auto string() -> std::string {
-        return pipePath_.string();
-    }
-
-    auto setPipePath(const ipc::Path& path) -> void {
-        pipePath_ = path;
-    }
-    virtual auto getPipePath() const -> const ipc::Path& {
-        return pipePath_;
-    }
-
-    auto setPipeFlags(const int flags) -> void {
-        pipeFlags_ = flags;
-    }
-    auto getPipeFlags() -> int {
-        return pipeFlags_;
-    }
-
-    auto setHandle(const ipc::Handle handle) {
-        pipeHandle_ = handle;
-    }
-    auto getHandle() -> ipc::Handle {
-        return pipeHandle_;
-    }
-    auto setHandleNull() -> void {
-        pipeHandle_ = ipc::NULL_PIPE_HANDLE;
-    }
+    auto readHeader() -> std::optional<ipc::Header>;
+    auto readMessage(size_t messageSize) -> std::optional<std::string>;
 
     virtual auto readResponse(ipc::ResponseCallback callback) -> ipc::Response;
     virtual auto writeRequest(ipc::Request) -> bool;

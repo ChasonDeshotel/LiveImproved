@@ -42,6 +42,11 @@ namespace ipc {
     static constexpr size_t           REQUEST_ID_SIZE   {8};
     static constexpr size_t           HEADER_SIZE       {START_MARKER_SIZE + REQUEST_ID_SIZE + REQUEST_ID_SIZE};
 
+    struct Header {
+        uint64_t requestId;
+        size_t messageSize;
+     };
+
     using ResponseCallback = std::optional<std::function<void(const std::string&)>>;
 
     enum class QueueState {
@@ -104,7 +109,7 @@ namespace ipc {
             std::string start_marker = markerStream.str();
 
             std::string formattedRequest = start_marker + message;
-            logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT - magic numbers
+            //logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT - magic numbers
             formattedRequest += "\n"; // add newline as a delimiter
 
             return formattedRequest;

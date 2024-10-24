@@ -18,15 +18,36 @@ public:
     auto drainPipe() -> void;
     auto deletePipe() -> void;
 
-    auto writeToPipe(ipc::Request request) -> size_t;
-    
-    auto setHandle(ipc::Handle handle) -> void;
-    auto setPath(const ipc::Path& path) -> void;
-    auto setFlags(int flags) -> void;
+    auto ensurePipeOpen() -> bool;
 
-    auto getHandle() const -> ipc::Handle;
-    auto getPath() const -> const ipc::Path&;
-    auto getFlags() const -> int;
+    auto writeToPipe(ipc::Request request) -> size_t;
+    auto readFromPipe(void* buffer, size_t count) const -> ssize_t;
+    
+    auto setHandle(ipc::Handle handle) -> void {
+        pipeHandle_ = handle;
+    }
+
+    auto setPath(const ipc::Path& path) -> void {
+        logger->error("setting path: " + path.string());
+        pipePath_ = path;
+    }
+
+    auto setFlags(int flags) -> void {
+        logger->error("setting flags");
+        pipeFlags_ = flags;
+    }
+
+    auto getHandle() const -> ipc::Handle {
+        return pipeHandle_;
+    }
+
+    auto getPath() const -> const ipc::Path& {
+        return pipePath_;
+    }
+
+    auto getFlags() const -> int {
+        return pipeFlags_;
+    }
 
 protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
