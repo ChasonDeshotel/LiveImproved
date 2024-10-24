@@ -63,16 +63,18 @@ namespace Utils {
     }
 
     inline auto ltrim(std::string& str) -> std::string& {
-        str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char ch) {
+        auto it = std::ranges::find_if(str, [](unsigned char ch) {
             return !std::isspace(ch);
-        }).begin());
+        });
+        str.erase(str.begin(), it);
         return str;
     }
 
     inline auto rtrim(std::string& str) -> std::string& {
-        str.erase(std::ranges::find_if(std::ranges::reverse_view(str), [](unsigned char ch) {
+        auto it = std::ranges::find_if(str | std::views::reverse, [](unsigned char ch) {
             return !std::isspace(ch);
-        }).base().base(), str.end());
+        });
+        str.erase(it.base(), str.end());
         return str;
     }
 
