@@ -11,8 +11,8 @@ public:
 
     IPCPipe(const IPCPipe &) = delete;
     IPCPipe(IPCPipe &&) = delete;
-    IPCPipe &operator=(const IPCPipe &) = delete;
-    IPCPipe &operator=(IPCPipe &&) = delete;
+    auto operator=(const IPCPipe &) -> IPCPipe & = delete;
+    auto operator=(IPCPipe &&) -> IPCPipe & = delete;
 
     auto getPipeUtil() -> std::shared_ptr<PipeUtil>;
 
