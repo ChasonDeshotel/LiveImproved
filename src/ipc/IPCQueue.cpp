@@ -32,7 +32,7 @@ auto IPCQueue::init() -> ipc::QueueState {
     logger->debug("IPCQueue::init() called");
 
     // create the pipes
-    if(!requestPipe_->getPipeUtil()->create() || !responsePipe_->getPipeUtil()->create()) {
+    if(!requestPipe_->create() || !responsePipe_->create()) {
         logger->error("IPCQueue::init() failed to create pipes");
     }
 

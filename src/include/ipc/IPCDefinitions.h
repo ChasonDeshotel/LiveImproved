@@ -63,6 +63,20 @@ namespace ipc {
         , Error
     };
 
+    struct PipeResponse {
+        ipc::ResponseType returnType;
+        ipc::Handle pipeHandle;
+        std::optional<std::string> errorStr;
+        
+        // Constructor for success
+        PipeResponse(ResponseType type, int handle)
+            : returnType(type), pipeHandle(handle), errorStr(std::nullopt) {}
+
+        // Constructor for error
+        PipeResponse(ResponseType type, const std::string& error)
+            : returnType(type), pipeHandle(-1), errorStr(error) {}
+    };
+
     struct Request {
         std::string message;
         ipc::ResponseCallback callback;

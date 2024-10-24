@@ -4,8 +4,12 @@
 
 #include <cerrno>
 #include <fcntl.h>
+#include <filesystem>
+#include <stdexcept>
 #include <sys/stat.h>
 #include <unistd.h>
+
+namespace fs = std::filesystem;
 
 PipeUtil::PipeUtil()
     : pipeHandle_(ipc::INVALID_PIPE_HANDLE)
@@ -16,7 +20,7 @@ PipeUtil::PipeUtil()
 
 using Path = std::filesystem::path;
 
-auto PipeUtil::create() -> bool {
+auto PipeUtil::createPipe() -> bool {
     logger->error("pipe name: " + this->getPath().string());
     Path directory = this->getPath().parent_path();
 
@@ -55,6 +59,59 @@ auto PipeUtil::openPipe() -> bool {
     logger->debug("Pipe opened: " + this->getPath().string());
     logger->debug("Pipe opened handle: " + std::to_string(pipeHandle_));
     return true;
+}
+
+auto PipeUtil::closePipe() -> bool {
+//    if (h != ipc::NULL_PIPE_HANDLE && h != ipc::INVALID_PIPE_HANDLE) {
+    if (close(this->getHandle()) == -1) {
+        std::string errorString = strerror(errno);
+        this->setHandle(ipc::INVALID_PIPE_HANDLE);
+        throw std::runtime_error("Failed to close pipe: " + errorString);
+    } else {
+        this->setHandle(ipc::INVALID_PIPE_HANDLE);
+        return true;
+    }
+}
+
+auto PipeUtil::deletePipe() -> void {
+    if (! (fs::exists(pipePath_)) ) {
+        logger->warn("pipe does not exist or is not a regular file: " + pipePath_.string());
+        return;
+    }
+    if (std::filesystem::remove(pipePath_)) {
+        logger->debug("deleted pipe: " + pipePath_.string());
+    } else {
+        logger->warn("Failed to remove request pipe file: " + pipePath_.string());
+    }
+}
+
+auto PipeUtil::drainPipe() -> void {
+    std::vector<char> buffer(ipc::BUFFER_SIZE);
+    ssize_t bytesRead = 0;
+    do { // NOLINT - don't be stupid. Know and love the do-while
+        bytesRead = read(this->getHandle(), const_cast<char*>(buffer.data()), buffer.size());
+    } while (bytesRead > 0);
+}
+
+auto PipeUtil::writeToPipe(ipc::Request request) -> size_t {
+    ssize_t result = ::write(
+            this->getHandle()
+            , request.formatted().c_str()
+            , request.formatted().length()
+    );
+    if (result == -1) {
+        if (errno == EAGAIN) {
+            logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
+        } else {
+            logger->error("Failed to write to request pipe: " + this->getPath().string() + " - " + strerror(errno));
+        }
+        return false;
+    } else if (result != request.formatted().length()) {
+        logger->error("Incomplete write to request pipe. Wrote " + std::to_string(result) + " of " + std::to_string(request.formatted().length()) + " bytes");
+        return false;
+    }
+    logger->debug("Request written successfully, bytes written: " + std::to_string(result));
+    return static_cast<size_t>(result);
 }
 
 auto PipeUtil::setHandle(ipc::Handle handle) -> void {

@@ -17,49 +17,34 @@ using std::shared_ptr;
 namespace fs = std::filesystem;
 
 IPCPipe::IPCPipe(std::shared_ptr<PipeUtil> pipeUtil)
-    : pipeUtil_(std::move(pipeUtil))
+    : p_(std::move(pipeUtil))
     , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_()
     , pipeFlags_() {}
 
 auto IPCPipe::getPipeUtil() -> std::shared_ptr<PipeUtil> {
-    return pipeUtil_;
+    return p_;
 }
 
 auto IPCPipe::create() -> bool {
-    return pipeUtil_->create();
+    return p_->createPipe();
 }
 
 auto IPCPipe::openPipe() -> bool {
-    return pipeUtil_->openPipe();
+    return p_->openPipe();
 }
 
 auto IPCPipe::cleanUp() -> void {
-    if (pipeHandle_ != ipc::NULL_PIPE_HANDLE && pipeHandle_ != ipc::INVALID_PIPE_HANDLE) {
-        close(pipeHandle_);
-        logger->debug("closed pipe");
-    }
-    setHandleNull();
+    p_->closePipe();
+    logger->debug("closed pipe");
 
-    if (! (fs::exists(pipePath_)) ) {
-        logger->warn("pipe does not exist or is not a regular file: " + pipePath_.string());
-        return;
-    }
-    if (std::filesystem::remove(pipePath_)) {
-        logger->debug("deleted pipe: " + pipePath_.string());
-    } else {
-        logger->warn("Failed to remove request pipe file: " + pipePath_.string());
-    }
+    p_->deletePipe();
 
-    setHandleNull();
+    p_->setHandle(ipc::NULL_PIPE_HANDLE);
 }
 
-auto IPCPipe::drainPipe(size_t bufferSize) -> void {
-    std::vector<char> buffer(bufferSize);
-    ssize_t bytesRead = 0;
-    do { // NOLINT - don't be stupid. Know and love the do-while
-        bytesRead = read(pipeHandle_, const_cast<char*>(buffer.data()), buffer.size());
-    } while (bytesRead > 0);
+auto IPCPipe::drainPipe() -> void {
+    p_->drainPipe();
 }
 
 // loops openPipe
@@ -70,13 +55,8 @@ auto IPCPipe::openPipeLoop() -> bool {
             logger->warn("IPCQueue initialization cancelled.");
             return false;
         }
-        if (openPipe()) {
+        if (p_->openPipe()) {
             logger->info("Pipe successfully opened");
-
-            // TODO
-            // if response pipe
-            // setHandleNull()
-
             return true;
         }
         logger->warn("Attempt to open response pipe for reading failed. Retrying...");
@@ -86,42 +66,26 @@ auto IPCPipe::openPipeLoop() -> bool {
     return false;
 }
 
-//auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
-//    logger->error("not implemented. Must be called from IPCResponsePipe.");
-//    return {ipc::ResponseType::Error, std::nullopt};
-//}
-
 auto IPCPipe::writeRequest(ipc::Request request) -> bool {
-	if (this->getHandle() == ipc::INVALID_PIPE_HANDLE) {
-		if (!this->openPipe()) {
-		    logger->error("Request pipe not opened for writing: " + this->string());
+	if (p_->getHandle() == ipc::INVALID_PIPE_HANDLE) {
+		if (!p_->openPipe()) {
+		    logger->error("Request pipe not opened for writing: " + p_->getPath().string());
 			return false;
 		}
 	}
 
-    this->drainPipe(ipc::BUFFER_SIZE);
+    p_->drainPipe();
 
     logger->debug("Writing request: " + request.formatted());
 
-    ssize_t bytesWritten = write(this->getHandle(), request.formatted().c_str(), request.formatted().length());
-    if (bytesWritten == -1) {
-        if (errno == EAGAIN) {
-            logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
-        } else {
-            logger->error("Failed to write to request pipe: " + this->string() + " - " + strerror(errno));
-        }
-        return false;
-    } else if (bytesWritten != request.formatted().length()) {
-        logger->error("Incomplete write to request pipe. Wrote " + std::to_string(bytesWritten) + " of " + std::to_string(request.formatted().length()) + " bytes");
-        return false;
-    }
-    logger->debug("Request written successfully, bytes written: " + std::to_string(bytesWritten));
+
+    p_->writeToPipe(request);
 
     return true;
 }
 
 auto IPCPipe::logMessage(const std::string& message) -> void {
-    logger->debug("Message read from response pipe: " + this->string());
+    logger->debug("Message read from response pipe: " + p_->getPath().string());
     if (message.length() > ipc::MESSAGE_TRUNCATE_CHARS) {
         logger->debug("Message truncated to 100 characters");
         logger->debug("Message: " + message.substr(0, ipc::MESSAGE_TRUNCATE_CHARS));
@@ -133,12 +97,12 @@ auto IPCPipe::logMessage(const std::string& message) -> void {
 auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
     logger->debug("IPCResponsePipe::readResponse() called");
 
-    int fd = this->getHandle();
+    int fd = p_->getHandle();
     logger->debug("read response handle: " + std::to_string(fd));
 
     if (fd == -1) {
         logger->error("Response pipe is not open for reading.");
-        if (!this->openPipe()) {  // Open in non-blocking mode
+        if (!p_->openPipe()) {  // Open in non-blocking mode
           return {ipc::ResponseType::Error, std::nullopt};
         }
     }
@@ -157,7 +121,7 @@ auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
             return {ipc::ResponseType::Error, std::nullopt};
         }
         auto startIt = header.begin() + totalHeaderRead;
-        bytesRead = read(this->getHandle(), &(*startIt), ipc::HEADER_SIZE - totalHeaderRead);
+        bytesRead = read(p_->getHandle(), &(*startIt), ipc::HEADER_SIZE - totalHeaderRead);
 
         logger->debug("Header partial read: " + std::string(header.data(), totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
 
@@ -215,7 +179,7 @@ auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
             return {ipc::ResponseType::Error, std::nullopt};
         }
         size_t bytesToRead = std::min(ipc::BUFFER_SIZE, messageSize + ipc::END_MARKER.size() - totalBytesRead);
-        ssize_t bytesRead = read(this->getHandle(), buffer.data(), bytesToRead);
+        ssize_t bytesRead = read(p_->getHandle(), buffer.data(), bytesToRead);
 
         if (bytesRead <= 0) {
             logger->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));

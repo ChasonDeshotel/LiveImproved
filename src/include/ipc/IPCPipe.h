@@ -21,7 +21,7 @@ public:
     virtual auto openPipe() -> bool;
     //virtual auto createWritePipeLoop() -> void = 0;
 
-    auto drainPipe(size_t bufferSize) -> void;
+    auto drainPipe() -> void;
 
     auto stop() -> void {
         stopIPC_ = true;
@@ -68,7 +68,7 @@ protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
-    std::shared_ptr<PipeUtil> pipeUtil_;
+    std::shared_ptr<PipeUtil> p_;
 
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;
