@@ -99,7 +99,6 @@ void IPCQueue::stopProcessing() {
 
 void IPCQueue::processQueue() {
     while (getState() != ipc::QueueState::Halted) {
-
         std::unique_lock<std::mutex> lock(queueMutex_);
         if (!requestQueue_.empty()) {
             auto request = std::move(requestQueue_.front());

@@ -7,6 +7,8 @@
 
 #include "LogGlobal.h"
 
+#include "RequestIDGenerator.h"
+
 namespace ipc {
     #ifdef _WIN32
     struct HANDLE__;
@@ -85,36 +87,34 @@ namespace ipc {
     struct Request {
         std::string message;
         ipc::ResponseCallback callback;
+        uint64_t id;
+        mutable std::string cachedFormatted;
 
-        Request(std::string msg, ipc::ResponseCallback cb = std::nullopt)
-            : message(std::move(msg)), callback(std::move(cb)) {}
+        Request(std::string msg, ipc::ResponseCallback cb)
+            : message(std::move(msg)),
+              callback(std::move(cb)),
+              id(RequestIDGenerator::getInstance().getNextID()) {}
 
         [[nodiscard]] auto formatted() -> std::string {
-            uint64_t id = 1;
-            //try {
-            //    formattedRequest = formatRequest(request.message, id);
-            //    logger->debug("Request formatted successfully");
-            //} catch (const std::exception& e) {
-            //    logger->error("Exception in formatRequest: " + std::string(e.what()));
-            //    return false;
-            //}
-            size_t messageLength = message.length();
+            if (cachedFormatted.empty()) {
+                size_t messageLength = message.length();
 
-            std::ostringstream idStream;
-            idStream << std::setw(8) << std::setfill('0') << (id % 100000000); // NOLINT - magic numbers
-            std::string paddedId = idStream.str();
+                std::ostringstream idStream;
+                idStream << std::setw(8) << std::setfill('0') << (id % 100000000); // NOLINT - magic numbers
+                std::string paddedId = idStream.str();
 
-            std::ostringstream markerStream;
-            markerStream << ipc::START_MARKER << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT - magic numbers
-            std::string start_marker = markerStream.str();
+                std::ostringstream markerStream;
+                markerStream << ipc::START_MARKER << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT - magic numbers
+                std::string start_marker = markerStream.str();
 
-            std::string formattedRequest = start_marker + message;
-            //logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT - magic numbers
-            formattedRequest += "\n"; // add newline as a delimiter
+                std::string formattedRequest = start_marker + message;
+                //logger->debug("Formatted request (truncated): " + formattedRequest.substr(0, 50) + "..."); // NOLINT - magic numbers
+                formattedRequest += "\n"; // add newline as a delimiter
 
-            return formattedRequest;
+                cachedFormatted = formattedRequest;
+            }
+            return cachedFormatted;
         }
-
     };
 
     struct Response {

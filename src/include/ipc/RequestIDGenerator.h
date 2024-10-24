@@ -1,18 +1,26 @@
 #pragma once
 #include <cstdint>
+#include <atomic>
 
 class RequestIDGenerator {
 public:
-    static RequestIDGenerator& getInstance();
-    uint64_t getNextID();
+    static RequestIDGenerator &getInstance() {
+        static RequestIDGenerator instance;
+        return instance;
+    }
 
-    RequestIDGenerator(const RequestIDGenerator&) = delete;
-    RequestIDGenerator& operator=(const RequestIDGenerator&) = delete;
+    [[nodiscard]] uint64_t getNextID() noexcept {
+        return nextID_.fetch_add(1, std::memory_order_relaxed);
+    }
 
-    RequestIDGenerator(RequestIDGenerator&&) = delete;
-    RequestIDGenerator& operator=(RequestIDGenerator&&) = delete;
+    RequestIDGenerator(const RequestIDGenerator &) = delete;
+    RequestIDGenerator(RequestIDGenerator &&) = delete;
+    RequestIDGenerator &operator=(const RequestIDGenerator &) = delete;
+    RequestIDGenerator &operator=(RequestIDGenerator &&) = delete;
 
 private:
-    RequestIDGenerator() = default;
+    RequestIDGenerator() noexcept = default;
     ~RequestIDGenerator() = default;
+
+    std::atomic<uint64_t> nextID_{1};
 };
