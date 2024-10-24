@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <ranges>
 
 namespace Utils {
     inline auto split(const std::string& str, char delimiter) -> std::vector<std::string> {
@@ -62,16 +63,16 @@ namespace Utils {
     }
 
     inline auto ltrim(std::string& str) -> std::string& {
-        str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](unsigned char ch) {
+        str.erase(str.begin(), std::ranges::find_if(str, [](unsigned char ch) {
             return !std::isspace(ch);
-        }));
+        }).begin());
         return str;
     }
 
     inline auto rtrim(std::string& str) -> std::string& {
-        str.erase(std::find_if(str.rbegin(), str.rend(), [](unsigned char ch) {
+        str.erase(std::ranges::find_if(std::ranges::reverse_view(str), [](unsigned char ch) {
             return !std::isspace(ch);
-        }).base(), str.end());
+        }).base().base(), str.end());
         return str;
     }
 
