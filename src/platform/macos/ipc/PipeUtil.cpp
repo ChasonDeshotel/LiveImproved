@@ -28,3 +28,15 @@ auto PipeUtil::setPath(const ipc::Path& path) -> void {
 auto PipeUtil::setFlags(int flags) -> void {
     pipeFlags_ = flags;
 }
+
+auto PipeUtil::getHandle() const -> ipc::Handle {
+    return pipeHandle_;
+}
+
+auto PipeUtil::getPath() const -> const ipc::Path& {
+    return pipePath_;
+}
+
+auto PipeUtil::getFlags() const -> int {
+    return pipeFlags_;
+}

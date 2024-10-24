@@ -17,6 +17,10 @@ public:
     auto setPath(const ipc::Path& path) -> void;
     auto setFlags(int flags) -> void;
 
+    auto getHandle() const -> ipc::Handle;
+    auto getPath() const -> const ipc::Path&;
+    auto getFlags() const -> int;
+
 protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
