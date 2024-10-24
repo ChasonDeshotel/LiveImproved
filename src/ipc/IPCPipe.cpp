@@ -46,7 +46,6 @@ auto IPCPipe::drainPipe() -> void {
 
 // loops openPipe
 auto IPCPipe::openPipeLoop() -> bool {
-    logger->debug("Setting up pipe. Path: " + pipePath_.string());
     for (int attempt = 0; attempt < ipc::MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
         if (stopIPC_) {
             logger->warn("IPCQueue initialization cancelled.");

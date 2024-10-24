@@ -130,8 +130,6 @@ void IPCQueue::processRequest(const ipc::Request& request) {
 }
 
 auto IPCQueue::pipeObjWrite(ipc::Request request) -> bool {
-    uint64_t id = nextRequestId_++;
-
     if (requestPipe_->writeRequest(request)) {
         std::thread readerThread([this, request]() {
             std::this_thread::sleep_for(ipc::LIVE_TICK * 2);
