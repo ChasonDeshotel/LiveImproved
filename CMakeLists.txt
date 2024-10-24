@@ -204,7 +204,6 @@ set(SRC_CPP
     src/ipc/IPCPipe.cpp
     src/ipc/IPCRequestPipe.cpp
     src/ipc/IPCResponsePipe.cpp
-    src/platform/macos/ipc/PipeUtil.cpp
     #src/ipc/IPCResilienceDecorator.cpp
     src/ipc/ResponseParser.cpp
 )
@@ -226,7 +225,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         src/platform/macos/system/PathManager.mm
     )
     list(APPEND SRC_CPP
-        #src/platform/macos/ipc/IPCPipe.cpp
+        src/platform/macos/ipc/PipeUtil.cpp
     )
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -234,7 +233,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         src/platform/windows/event/EventHandler.cpp
         src/platform/windows/event/KeySender.cpp
         src/platform/windows/gui/ContextMenu.cpp
-        src/platform/windows/ipc/IPC.cpp
+        src/platform/windows/ipc/PipeUtil.cpp
         src/platform/windows/live/LiveInterface.cpp
         src/platform/windows/system/PID.cpp
         src/platform/windows/system/PathManager.cpp
