@@ -44,7 +44,7 @@ void WindowManager::registerWindow(const std::string& windowName, std::function<
 	if (windows_.find(windowName) == windows_.end()) {
 		std::shared_ptr<IWindow> windowInstance = createWindowInstance(windowName);
 		if (windowInstance != nullptr) {
-			windows_[windowName] = {windowInstance, callback};
+			windows_[windowName] = {.window = windowInstance, .callback = callback};
 			windowStates_[windowName] = false;
 		} else {
 			throw std::runtime_error("Window class not found for: " + windowName);
