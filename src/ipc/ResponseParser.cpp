@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
+#include <ranges>
 
 #include "ResponseParser.h"
 #include "Types.h"
@@ -33,11 +34,11 @@ auto ResponseParser::parsePlugins(const std::string& input) -> std::vector<Plugi
 
     plugins = getUniquePlugins(plugins);
 
-    std::sort(plugins.begin(), plugins.end(), [](const Plugin& a, const Plugin& b) {
+    std::ranges::sort(plugins, [](const Plugin& a, const Plugin& b) {
         std::string aLower = a.name;
         std::string bLower = b.name;
-        std::transform(aLower.begin(), aLower.end(), aLower.begin(), ::tolower);
-        std::transform(bLower.begin(), bLower.end(), bLower.begin(), ::tolower);
+        std::ranges::transform(aLower, aLower.begin(), ::tolower);
+        std::ranges::transform(bLower, bLower.begin(), ::tolower);
         return aLower < bLower;
     });
 
