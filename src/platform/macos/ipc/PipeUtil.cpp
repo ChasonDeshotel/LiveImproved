@@ -12,10 +12,20 @@ PipeUtil::PipeUtil()
     , pipePath_()
     , pipeFlags_()
 {
-
-
 }
 
 auto PipeUtil::create() -> bool {
     return true;
+}
+
+void PipeUtil::setHandle(ipc::Handle handle) {
+    pipeHandle_ = handle;
+}
+
+void PipeUtil::setPath(const ipc::Path& path) {
+    pipePath_ = path;
+}
+
+void PipeUtil::setFlags(int flags) {
+    pipeFlags_ = flags;
 }
