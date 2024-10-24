@@ -75,7 +75,7 @@ auto PathManager::config() const -> Path {
 }
 
 auto PathManager::configMenu() const -> Path {
-    Path configFile = limRemoteScript() / "config.txt";
+    Path configFile = limRemoteScript() / "config-menu.txt";
 
     if (!isValidFile(configFile)) {
         throw std::runtime_error("Menu config doesn't exist or is not a file!");
