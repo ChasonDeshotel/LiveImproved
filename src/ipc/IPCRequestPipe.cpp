@@ -16,11 +16,10 @@ IPCRequestPipe::IPCRequestPipe(
             , const ipc::Path&
             , int
         )> ipcUtil)
-        : pipeHandle_(ipc::INVALID_PIPE_HANDLE)
+        : IPCPipe([ipcUtil, this] { return ipcUtil(pipeHandle_, pipePath_, pipeFlags_); })
+        , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
         , pipePath_(PathManager().requestPipe())
         , pipeFlags_(O_WRONLY | O_NONBLOCK)
-        , IPCPipe([ipcUtil, this] { return ipcUtil(pipeHandle_, pipePath_, pipeFlags_); }
-    )
 {}
 
 IPCRequestPipe::~IPCRequestPipe() = default;
