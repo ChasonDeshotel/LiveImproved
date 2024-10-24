@@ -10,7 +10,7 @@
 #include "PathManager.h"
 
 #include "IEventHandler.h"
-#include "IIPC.h"
+#include "IIPCQueue.h"
 #include "ILiveInterface.h"
 
 #include "ActionHandler.h"
@@ -21,6 +21,7 @@
 #include "KeySender.h"
 #include "LimLookAndFeel.h"
 #include "LiveInterface.h"
+#include "PipeUtil.h"
 #include "PID.h"
 #include "PlatformInitializer.h"
 #include "PluginManager.h"
@@ -114,7 +115,7 @@ public:
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
-        auto ipcQueue = container_.resolve<IIPC>();
+        auto ipcQueue = container_.resolve<IIPCQueue>();
         ipcQueue->createRequest("READY", [this](const std::string& response) {
             logger->info("received READY response: " + response);
         });
@@ -152,7 +153,7 @@ public:
     void shutdown() override {
         logger->info("shutdown() called");
         try {
-            auto ipc = this->container_.resolve<IIPC>();
+            auto ipc = this->container_.resolve<IIPCQueue>();
             if (ipc) {
                 logger->info("stopping IPC...");
                 ipc->halt();
@@ -167,9 +168,9 @@ public:
                 closeFuture.wait();
             }
         } catch (const std::exception& e) {
-            logger->error("Failed to resolve IIPC: " + std::string(e.what()));
+            logger->error("Failed to resolve IIPCQueue: " + std::string(e.what()));
         } catch (...) {
-            logger->error("Unknown error occurred while resolving IIPC.");
+            logger->error("Unknown error occurred while resolving IIPCQueue.");
         }
 
         logger->info("bye");
@@ -260,10 +261,27 @@ public:
 
         void ipc() {
             // platform-specific IPC
-            app->container_.registerType<IPCRequestPipe, IPCRequestPipe>(DependencyContainer::Lifetime::Singleton);
-            app->container_.registerType<IPCResponsePipe, IPCResponsePipe>(DependencyContainer::Lifetime::Singleton);
+            app->container_.registerType<PipeUtil, PipeUtil>(DependencyContainer::Lifetime::Scoped);
 
-            app->container_.registerFactory<IIPC>(
+            app->container_.registerFactory<IPCRequestPipe>(
+                [](DependencyContainer& c) -> std::shared_ptr<IPCRequestPipe> {
+                    return std::make_shared<IPCRequestPipe>(
+                        [&c]() { return c.resolve<PipeUtil>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+
+            app->container_.registerFactory<IPCResponsePipe>(
+                [](DependencyContainer& c) -> std::shared_ptr<IPCResponsePipe> {
+                    return std::make_shared<IPCResponsePipe>(
+                        [&c]() { return c.resolve<PipeUtil>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+
+            app->container_.registerFactory<IIPCQueue>(
                 [](DependencyContainer& c) -> std::shared_ptr<IPCQueue> {
                     return std::make_shared<IPCQueue>(
                         [&c]() { return c.resolve<IPCRequestPipe>(); }
@@ -278,7 +296,7 @@ public:
             app->container_.registerFactory<IPluginManager>(
                 [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
                     return std::make_shared<PluginManager>(
-                        [&c]() { return c.resolve<IIPC>(); }
+                        [&c]() { return c.resolve<IIPCQueue>(); }
                         , [&c]() { return c.resolve<ResponseParser>(); }
                     );
                 }
@@ -295,7 +313,7 @@ public:
                         [&c]() { return c.resolve<IPluginManager>(); }
                         , [&c]() { return c.resolve<WindowManager>(); }
                         , [&c]() { return c.resolve<ConfigManager>(); }
-                        , [&c]() { return c.resolve<IIPC>(); }
+                        , [&c]() { return c.resolve<IIPCQueue>(); }
                         , [&c]() { return c.resolve<IEventHandler>(); }
                         , [&c]() { return c.resolve<ILiveInterface>(); }
                     );

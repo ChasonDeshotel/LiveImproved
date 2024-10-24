@@ -8,12 +8,13 @@
 #include "IPCQueue.h"
 #include "IPCRequestPipe.h"
 #include "IPCResponsePipe.h"
+#include "PipeUtil.h"
 
 IPCQueue::IPCQueue(
          std::function<std::shared_ptr<IPCRequestPipe>()> requestPipe
          , std::function<std::shared_ptr<IPCResponsePipe>()> responsePipe
         )
-    : IIPC()
+    : IIPCQueue()
     , isProcessingRequest_(false)
     , requestPipe_(std::move(requestPipe)())
     , responsePipe_(std::move(responsePipe)())
@@ -31,7 +32,7 @@ auto IPCQueue::init() -> ipc::QueueState {
     logger->debug("IPCQueue::init() called");
 
     // create the pipes
-    if(!requestPipe_->create() || !responsePipe_->create()) {
+    if(!requestPipe_->getPipeUtil()->create() || !responsePipe_->getPipeUtil()->create()) {
         logger->error("IPCQueue::init() failed to create pipes");
     }
 
@@ -135,7 +136,7 @@ auto IPCQueue::pipeObjWrite(ipc::Request request) -> bool {
     std::string formattedRequest;
     uint64_t id = nextRequestId_++;
 
-    if (requestPipe_->writeToPipe(request)) {
+    if (requestPipe_->writeRequest(request)) {
         std::thread readerThread([this, request]() {
             std::this_thread::sleep_for(ipc::LIVE_TICK * 2);
             auto response = responsePipe_->readResponse(request.callback);

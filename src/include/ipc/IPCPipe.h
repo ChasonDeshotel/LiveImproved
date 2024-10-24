@@ -2,10 +2,11 @@
 #include <string>
 
 #include "IPCDefinitions.h"
+class PipeUtil;
 
 class IPCPipe {
 public:
-    IPCPipe();
+    IPCPipe(std::function<std::shared_ptr<PipeUtil>()> ipcUtil);
     virtual ~IPCPipe() = default;
 
     IPCPipe(const IPCPipe &) = delete;
@@ -58,12 +59,15 @@ public:
     }
 
     virtual auto readResponse(ipc::ResponseCallback callback) -> ipc::Response;
-    virtual auto writeRequest(ipc::Request) -> bool = 0;
+    virtual auto writeRequest(ipc::Request) -> bool;
+    auto logMessage(const std::string& message) -> void;
 
 protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
+    std::function<std::shared_ptr<PipeUtil>()> pipeUtil_;
+
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;
     int         pipeFlags_;

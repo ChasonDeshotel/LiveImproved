@@ -7,15 +7,15 @@
 
 using Path = std::filesystem::path;
 
-class IIPC {
+class IIPCQueue {
 public:
 
-    virtual ~IIPC() = default;
+    virtual ~IIPCQueue() = default;
 
-    IIPC(const IIPC&) = delete;
-    auto operator=(const IIPC&) -> IIPC& = delete;
-    IIPC(IIPC&&) = delete;
-    auto operator=(IIPC&&) -> IIPC& = delete;
+    IIPCQueue(const IIPCQueue&) = delete;
+    auto operator=(const IIPCQueue&) -> IIPCQueue& = delete;
+    IIPCQueue(IIPCQueue&&) = delete;
+    auto operator=(IIPCQueue&&) -> IIPCQueue& = delete;
 
     virtual auto init() -> ipc::QueueState = 0;
     [[nodiscard]] virtual auto isInitialized() const -> bool = 0;
@@ -28,5 +28,5 @@ public:
     virtual auto cleanUpPipes() -> void = 0;
 
 protected:
-    IIPC() = default;
+    IIPCQueue() = default;
 };

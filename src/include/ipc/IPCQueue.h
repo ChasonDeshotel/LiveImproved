@@ -6,12 +6,12 @@
 #include <sys/_types/_useconds_t.h>
 #include <thread>
 
-#include "IIPC.h"
+#include "IIPCQueue.h"
 #include "IPCDefinitions.h"
 #include "IPCRequestPipe.h"
 #include "IPCResponsePipe.h"
 
-class IPCQueue : public IIPC {
+class IPCQueue : public IIPCQueue {
 public:
 
     IPCQueue(

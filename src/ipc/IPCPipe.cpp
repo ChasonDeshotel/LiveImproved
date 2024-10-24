@@ -1,32 +1,141 @@
 #include <cerrno>
-#include <thread>
 #include <fcntl.h>
-#include <optional>
+#include <filesystem>
 #include <string>
 #include <sys/stat.h>
+#include <thread>
 #include <unistd.h>
 
 #include "LogGlobal.h"
-#include "PathManager.h"
 
-#include "IPCPipe.h"
 #include "IPCDefinitions.h"
-#include "IPCResponsePipe.h"
+#include "IPCPipe.h"
+#include "PipeUtil.h"
 
-using ipc::Response;
+namespace fs = std::filesystem;
 
-IPCResponsePipe::IPCResponsePipe()
-    : IPCPipe(), pipeHandle_(ipc::INVALID_PIPE_HANDLE),
-      pipePath_(PathManager().responsePipe()),
-      pipeFlags_(O_RDONLY | O_NONBLOCK) {
-  // set on base class
-  setPipePath(pipePath_);
-  setPipeFlags(pipeFlags_);
+IPCPipe::IPCPipe(std::function<std::shared_ptr<PipeUtil>()> pipeUtil)
+    : pipeUtil_(std::move(pipeUtil))
+    , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
+    , pipePath_()
+    , pipeFlags_()
+{}
+
+auto IPCPipe::create() -> bool {
+    auto p = pipeUtil_();
+    return p->create();
 }
 
-IPCResponsePipe::~IPCResponsePipe() = default;
+auto IPCPipe::openPipe() -> bool {
+    pipeHandle_ = open(pipePath_.c_str(), getPipeFlags()); // NOLINT
+    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
+        logger->error("Failed to open pipe: " + pipePath_.string() + " - " + strerror(errno));
+        return false;
+    }
 
-auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
+    setHandle(pipeHandle_);
+    logger->debug("Pipe opened: " + pipePath_.string());
+    logger->debug("Pipe opened handle: " + std::to_string(pipeHandle_));
+    return true;
+}
+
+auto IPCPipe::cleanUp() -> void {
+    if (pipeHandle_ != ipc::NULL_PIPE_HANDLE && pipeHandle_ != ipc::INVALID_PIPE_HANDLE) {
+        close(pipeHandle_);
+        logger->debug("closed pipe");
+    }
+    setHandleNull();
+
+    if (! (fs::exists(pipePath_)) ) {
+        logger->warn("pipe does not exist or is not a regular file: " + pipePath_.string());
+        return;
+    }
+    if (std::filesystem::remove(pipePath_)) {
+        logger->debug("deleted pipe: " + pipePath_.string());
+    } else {
+        logger->warn("Failed to remove request pipe file: " + pipePath_.string());
+    }
+
+    setHandleNull();
+}
+
+auto IPCPipe::drainPipe(size_t bufferSize) -> void {
+    std::vector<char> buffer(bufferSize);
+    ssize_t bytesRead = 0;
+    do { // NOLINT - don't be stupid. Know and love the do-while
+        bytesRead = read(pipeHandle_, const_cast<char*>(buffer.data()), buffer.size());
+    } while (bytesRead > 0);
+}
+
+// loops openPipe
+auto IPCPipe::openPipeLoop() -> bool {
+    logger->debug("Setting up pipe. Path: " + pipePath_.string());
+    for (int attempt = 0; attempt < ipc::MAX_PIPE_SETUP_ATTEMPTS; ++attempt) {
+        if (stopIPC_) {
+            logger->warn("IPCQueue initialization cancelled.");
+            return false;
+        }
+        if (openPipe()) {
+            logger->info("Pipe successfully opened");
+
+            // TODO
+            // if response pipe
+            // setHandleNull()
+
+            return true;
+        }
+        logger->warn("Attempt to open response pipe for reading failed. Retrying...");
+        std::this_thread::sleep_for(ipc::PIPE_SETUP_RETRY_DELAY);
+    }
+    logger->error("Max attempts reached for opening response pipe");
+    return false;
+}
+
+//auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
+//    logger->error("not implemented. Must be called from IPCResponsePipe.");
+//    return {ipc::ResponseType::Error, std::nullopt};
+//}
+
+auto IPCPipe::writeRequest(ipc::Request request) -> bool {
+	if (this->getHandle() == ipc::INVALID_PIPE_HANDLE) {
+		if (!this->openPipe()) {
+		    logger->error("Request pipe not opened for writing: " + this->string());
+			return false;
+		}
+	}
+
+    this->drainPipe(ipc::BUFFER_SIZE);
+
+    logger->debug("Writing request: " + request.formatted());
+
+    ssize_t bytesWritten = write(this->getHandle(), request.formatted().c_str(), request.formatted().length());
+    if (bytesWritten == -1) {
+        if (errno == EAGAIN) {
+            logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
+        } else {
+            logger->error("Failed to write to request pipe: " + this->string() + " - " + strerror(errno));
+        }
+        return false;
+    } else if (bytesWritten != request.formatted().length()) {
+        logger->error("Incomplete write to request pipe. Wrote " + std::to_string(bytesWritten) + " of " + std::to_string(request.formatted().length()) + " bytes");
+        return false;
+    }
+    logger->debug("Request written successfully, bytes written: " + std::to_string(bytesWritten));
+
+    return true;
+}
+
+auto IPCPipe::logMessage(const std::string& message) -> void {
+    logger->debug("Message read from response pipe: " + this->string());
+    if (message.length() > ipc::MESSAGE_TRUNCATE_CHARS) {
+        logger->debug("Message truncated to 100 characters");
+        logger->debug("Message: " + message.substr(0, ipc::MESSAGE_TRUNCATE_CHARS));
+    } else {
+        logger->debug("Message: " + message);
+    }
+}
+
+auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
     logger->debug("IPCResponsePipe::readResponse() called");
 
     int fd = this->getHandle();
@@ -141,20 +250,4 @@ auto IPCResponsePipe::readResponse(ipc::ResponseCallback callback) -> ipc::Respo
     }
 
     return {ipc::ResponseType::Success, message};
-}
-
-auto IPCResponsePipe::writeToPipe(ipc::Request) -> bool {
-    logger->error("unimplemented in response pipe");
-    return false;
-}
-
-auto IPCResponsePipe::logMessage(const std::string& message) -> void {
-    logger->debug("Message read from response pipe: " + this->string());
-    if (message.length() > ipc::MESSAGE_TRUNCATE_CHARS) {
-        logger->debug("Message truncated to 100 characters");
-        logger->debug("Message: " + message.substr(0, ipc::MESSAGE_TRUNCATE_CHARS));
-    } else {
-        logger->debug("Message: " + message);
-    }
-
 }

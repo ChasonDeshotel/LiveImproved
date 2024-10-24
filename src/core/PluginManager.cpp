@@ -2,12 +2,12 @@
 #include "PluginManager.h"
 #include "LogGlobal.h"
 #include "ResponseParser.h"
-#include "IIPC.h"
+#include "IIPCQueue.h"
 
 #include "Types.h"
 
 PluginManager::PluginManager(
-                             std::function<std::shared_ptr<IIPC>()> ipc
+                             std::function<std::shared_ptr<IIPCQueue>()> ipc
                              , std::function<std::shared_ptr<ResponseParser>()> responseParser
     )
     : ipc_(std::move(ipc))

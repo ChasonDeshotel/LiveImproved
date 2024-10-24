@@ -11,7 +11,7 @@
 #include "IActionHandler.h"
 
 class IEventHandler;
-class IIPC;
+class IIPCQueue;
 class ILiveInterface;
 class IPluginManager;
 
@@ -25,8 +25,8 @@ public:
   ActionHandler(std::function<std::shared_ptr<IPluginManager>()>   pluginManager
                 , std::function<std::shared_ptr<WindowManager>()>  windowManager
                 , std::function<std::shared_ptr<ConfigManager>()>  configManager
-                , std::function<std::shared_ptr<IIPC>()>       ipc
-                , std::function<std::shared_ptr<IEventHandler>()>   eventHandler
+                , std::function<std::shared_ptr<IIPCQueue>()>      ipc
+                , std::function<std::shared_ptr<IEventHandler>()>  eventHandler
                 , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     );
 
@@ -48,7 +48,7 @@ public:
     auto loadItemByName(const std::string &itemName) -> bool override;
 
 private:
-    std::function<std::shared_ptr<IIPC>()> ipc_;
+    std::function<std::shared_ptr<IIPCQueue>()> ipc_;
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
     std::function<std::shared_ptr<WindowManager>()> windowManager_;

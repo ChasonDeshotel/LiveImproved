@@ -10,7 +10,7 @@
 #include "Utils.h"
 
 #include "IEventHandler.h"
-#include "IIPC.h"
+#include "IIPCQueue.h"
 #include "ILiveInterface.h"
 
 #include "ActionHandler.h"
@@ -24,7 +24,7 @@ ActionHandler::ActionHandler(
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
               , std::function<std::shared_ptr<WindowManager>()> windowManager
               , std::function<std::shared_ptr<ConfigManager>()> configManager
-              , std::function<std::shared_ptr<IIPC>()> ipc
+              , std::function<std::shared_ptr<IIPCQueue>()> ipc
               , std::function<std::shared_ptr<IEventHandler>()> eventHandler
               , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
               )

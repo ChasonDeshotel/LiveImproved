@@ -7,14 +7,14 @@
 #include "IPluginManager.h"
 #include "Types.h"
 
-class IIPC;
+class IIPCQueue;
 class ResponseParser;
 class Plugin;
 
 class PluginManager : public IPluginManager {
 public:
     PluginManager(
-                  std::function<std::shared_ptr<IIPC>()> ipc
+                  std::function<std::shared_ptr<IIPCQueue>()> ipc
                   , std::function<std::shared_ptr<ResponseParser>()> responseParser
                   );
 
@@ -29,7 +29,7 @@ public:
     void refreshPlugins() override;
 
 private:
-    std::function<std::shared_ptr<IIPC>()> ipc_;
+    std::function<std::shared_ptr<IIPCQueue>()> ipc_;
     std::function<std::shared_ptr<ResponseParser>()> responseParser_;
     std::vector<Plugin> plugins_;
 };
