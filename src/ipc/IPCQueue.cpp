@@ -14,7 +14,6 @@ IPCQueue::IPCQueue(
          , std::function<std::shared_ptr<IPCResponsePipe>()> responsePipe
         )
     : IIPCQueue()
-    , isProcessingRequest_(false)
     , requestPipe_(std::move(requestPipe)())
     , responsePipe_(std::move(responsePipe)())
     , currentState_(ipc::QueueState::Initializing)
@@ -23,8 +22,8 @@ IPCQueue::IPCQueue(
 }
 
 IPCQueue::~IPCQueue() {
-    this->stopProcessing();
-    this->cleanUpPipes();
+    stopProcessing();
+    cleanUpPipes();
 }
 
 auto IPCQueue::init() -> ipc::QueueState {

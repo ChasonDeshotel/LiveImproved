@@ -36,12 +36,13 @@ public:
         createRequest(message, nullptr);
     }
 
+    auto startProcessing() -> void;
+    auto stopProcessing() -> void;
+
     auto cleanUpPipes() -> void override;
 
     auto setState(ipc::QueueState newState) -> void {
         auto oldState = currentState_.exchange(newState);
-        //logger->debug("Queue state changed from " + std::to_string(static_cast<int>(oldState)) +
-        //              " to " + std::to_string(static_cast<int>(newState)));
     }
 
      auto getState() const -> ipc::QueueState {
@@ -69,15 +70,12 @@ protected:
     ipc::RequestQueue        requestQueue_;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::mutex               queueMutex_;                                                 // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::condition_variable  queueCondition_;                                             // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-    std::atomic<bool>        isProcessingRequest_{false};                                 // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::mutex               initMutex_   ;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::condition_variable  initCv_      ;                                               // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
     std::atomic<uint64_t>    nextRequestId_;                                              // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
     std::thread processingThread_;
-    auto startProcessing() -> void;
-    auto stopProcessing() -> void;
     auto processQueue() -> void;
     auto processRequest(const ipc::Request& request) -> void;
 

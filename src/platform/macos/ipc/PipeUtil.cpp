@@ -21,8 +21,8 @@ PipeUtil::PipeUtil()
 using Path = std::filesystem::path;
 
 auto PipeUtil::createPipe() -> bool {
-    logger->error("pipe name: " + this->getPath().string());
-    Path directory = this->getPath().parent_path();
+    logger->error("pipe name: " + getPath().string());
+    Path directory = getPath().parent_path();
 
     // Check if the directory exists, and create it if it doesn't
     struct stat st{};
@@ -49,28 +49,28 @@ auto PipeUtil::createPipe() -> bool {
 }
 
 auto PipeUtil::openPipe() -> bool {
-    pipeHandle_ = open(this->getPath().c_str(), this->getFlags()); // NOLINT
+    pipeHandle_ = open(getPath().c_str(), this->getFlags()); // NOLINT
     if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
-        logger->error("Failed to open pipe: " + this->getPath().string() + " - " + strerror(errno));
+        logger->error("Failed to open pipe: " + getPath().string() + " - " + strerror(errno));
         return false;
     }
 
-    this->setHandle(pipeHandle_);
-    logger->debug("Pipe opened: " + this->getPath().string());
+    setHandle(pipeHandle_);
+    logger->debug("Pipe opened: " + getPath().string());
     logger->debug("Pipe opened handle: " + std::to_string(pipeHandle_));
     return true;
 }
 
 auto PipeUtil::closePipe() -> bool {
 //    if (h != ipc::NULL_PIPE_HANDLE && h != ipc::INVALID_PIPE_HANDLE) {
-    if (close(this->getHandle()) == -1) {
+    if (close(getHandle()) == -1) {
         std::string errorString = strerror(errno);
-        this->setHandle(ipc::INVALID_PIPE_HANDLE);
+        setHandle(ipc::INVALID_PIPE_HANDLE);
         //throw std::runtime_error("Failed to close pipe: " + errorString);
         logger->error("failed to close pipe: " + errorString);
         return false;
     } else {
-        this->setHandle(ipc::INVALID_PIPE_HANDLE);
+        setHandle(ipc::INVALID_PIPE_HANDLE);
         return true;
     }
 }
@@ -95,13 +95,13 @@ auto PipeUtil::drainPipe() -> void {
     std::vector<char> buffer(ipc::BUFFER_SIZE);
     ssize_t bytesRead = 0;
     do { // NOLINT - don't be stupid. Know and love the do-while
-        bytesRead = read(this->getHandle(), const_cast<char*>(buffer.data()), buffer.size());
+        bytesRead = read(getHandle(), const_cast<char*>(buffer.data()), buffer.size());
     } while (bytesRead > 0);
 }
 
 auto PipeUtil::writeToPipe(ipc::Request request) -> size_t {
     ssize_t result = ::write(
-            this->getHandle()
+            getHandle()
             , request.formatted().c_str()
             , request.formatted().length()
     );
@@ -109,7 +109,7 @@ auto PipeUtil::writeToPipe(ipc::Request request) -> size_t {
         if (errno == EAGAIN) {
             logger->error("Request pipe is full, message could not be written: " + std::string(strerror(errno)));
         } else {
-            logger->error("Failed to write to request pipe: " + this->getPath().string() + " - " + strerror(errno));
+            logger->error("Failed to write to request pipe: " + getPath().string() + " - " + strerror(errno));
         }
         return false;
     } else if (result != request.formatted().length()) {
@@ -121,7 +121,7 @@ auto PipeUtil::writeToPipe(ipc::Request request) -> size_t {
 }
 
 auto PipeUtil::readFromPipe(void* buffer, size_t count) const -> ssize_t {
-    ssize_t result = ::read(this->getHandle(), buffer, count);
+    ssize_t result = ::read(getHandle(), buffer, count);
     if (result == -1) {
         throw std::runtime_error("Read error: " + std::string(strerror(errno)));
     }
