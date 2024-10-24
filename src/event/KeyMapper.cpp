@@ -1,5 +1,6 @@
 #include <regex>
 #include <sstream>
+#include <ranges>
 
 #include "LogGlobal.h"
 #include "Types.h"
@@ -97,7 +98,7 @@ auto KeyMapper::buildRegexPattern() const -> std::string {
 
 auto KeyMapper::toLowerCase(const std::string& input) const -> std::string {
     std::string output = input;
-    std::transform(output.begin(), output.end(), output.begin(), ::tolower);
+    std::ranges::transform(output, output.begin(), ::tolower);
     return output;
 }
 
