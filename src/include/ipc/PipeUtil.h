@@ -32,11 +32,6 @@ public:
         pipePath_ = path;
     }
 
-    auto setFlags(int flags) -> void {
-        logger->error("setting flags");
-        pipeFlags_ = flags;
-    }
-
     auto getHandle() const -> ipc::Handle {
         return pipeHandle_;
     }
@@ -45,16 +40,20 @@ public:
         return pipePath_;
     }
 
-    auto getFlags() const -> int {
-        return pipeFlags_;
+    auto setAccess(ipc::PipeAccess access) -> void {
+        pipeAccess_ = access;
     }
+
+    auto getAccess() const -> ipc::PipeAccess {
+        return pipeAccess_;
+    };
 
 protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
-    ipc::Path   pipePath_;
-    ipc::Handle pipeHandle_;
-    int         pipeFlags_;
+    ipc::Path       pipePath_;
+    ipc::Handle     pipeHandle_;
+    ipc::PipeAccess pipeAccess_;
 };
 

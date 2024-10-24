@@ -57,6 +57,12 @@ namespace ipc {
         , Halted
         , Processing
     };
+
+    enum class PipeAccess {
+        Read
+        , Write
+    };
+
     enum class PipeState {
         Ready
         , Reading

@@ -42,7 +42,7 @@ protected:
 private:
     std::shared_ptr<PipeUtil> p_;
 
-    ipc::Path   pipePath_;
-    ipc::Handle pipeHandle_;
-    int         pipeFlags_;
+    ipc::Path       pipePath_;
+    ipc::Handle     pipeHandle_;
+    ipc::PipeAccess pipeAccess_;
 };

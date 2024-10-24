@@ -19,7 +19,8 @@ IPCPipe::IPCPipe(std::shared_ptr<PipeUtil> pipeUtil)
     : p_(std::move(pipeUtil))
     , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_()
-    , pipeFlags_() {}
+    , pipeAccess_()
+{}
 
 auto IPCPipe::getPipeUtil() -> std::shared_ptr<PipeUtil> {
     return p_;
