@@ -13,9 +13,7 @@ public:
     IPCRequestPipe &operator=(const IPCRequestPipe &) = delete;
     IPCRequestPipe &operator=(IPCRequestPipe &&) = delete;
 
-    auto writeToPipe(ipc::Request) -> bool override;
-
-    auto readResponse(ipc::ResponseCallback callback) -> ipc::Response override;
+    auto writeRequest(ipc::Request) -> bool override;
 
 private:
     ipc::Path   pipePath_;

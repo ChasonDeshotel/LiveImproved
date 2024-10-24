@@ -127,11 +127,11 @@ auto IPCQueue::createRequest(const std::string& message, ipc::ResponseCallback c
 void IPCQueue::processRequest(const ipc::Request& request) {
     logger->error("processing: " + request.message);
     if (getState() != ipc::QueueState::Halted) {
-        writeToPipe(request);
+        pipeObjWrite(request);
     }
 }
 
-auto IPCQueue::writeToPipe(ipc::Request request) -> bool {
+auto IPCQueue::pipeObjWrite(ipc::Request request) -> bool {
     std::string formattedRequest;
     uint64_t id = nextRequestId_++;
 

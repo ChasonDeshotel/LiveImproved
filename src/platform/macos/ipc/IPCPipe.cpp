@@ -113,24 +113,13 @@ auto IPCPipe::openPipeLoop() -> bool {
     logger->error("Max attempts reached for opening response pipe");
     return false;
 }
-//auto IPCPipeBase::resetResponsePipe() -> void {
-//    logger->debug("Resetting response pipe");
-//    close(_responsePipeHandle_);
-//    _responsePipeHandle_ = INVALID_PIPE_HANDLE;
-//    if (!IPCPipe::openResponsePipe(_responsePipePath_, _responsePipeHandle_)) {
-//        logger->error("Failed to reopen response pipe");
-//    } else {
-//        logger->info("Response pipe reopened successfully");
-//    }
-//}
-//auto IPCPipeBase::removePipeIfExists(const std::string& pipeName) -> void {
-//    // TODO: use filesystem remove
-//    if (access(pipeName.c_str(), F_OK) != -1) {
-//        // File exists, so remove it
-//        if (unlink(pipeName.c_str()) == 0) {
-//            logger->debug("Removed existing pipe: " + pipeName);
-//        } else {
-//            logger->error("Failed to remove existing pipe: " + pipeName + " - " + strerror(errno));
-//        }
-//    }
-//}
+
+auto IPCPipe::readResponse(ipc::ResponseCallback callback) -> ipc::Response {
+    logger->error("not implemented. Must be called from IPCResponsePipe.");
+    return {ipc::ResponseType::Error, std::nullopt};
+}
+
+auto IPCPipe::writeRequest(ipc::Request request) -> bool {
+    logger->error("not implemented. Must be called from IPCResponsePipe.");
+    return false;
+}

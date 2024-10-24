@@ -54,7 +54,7 @@ protected:
     auto readyRequestWrapper() -> void;
     auto readyResponseWrapper() -> void;
 
-    auto writeToPipe(ipc::Request) -> bool;
+    auto pipeObjWrite(ipc::Request) -> bool;
     void processNextRequest();
 
     // no fucking clue why NOLNTBEGIN (sic) doesn't want to work here

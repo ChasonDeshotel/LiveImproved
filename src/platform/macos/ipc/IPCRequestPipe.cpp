@@ -23,7 +23,7 @@ IPCRequestPipe::IPCRequestPipe()
 
 IPCRequestPipe::~IPCRequestPipe() = default;
 
-auto IPCRequestPipe::writeToPipe(ipc::Request request) -> bool {
+auto IPCRequestPipe::writeRequest(ipc::Request request) -> bool {
 	if (this->getHandle() == ipc::INVALID_PIPE_HANDLE) {
 		if (!this->openPipe()) {
 		    logger->error("Request pipe not opened for writing: " + this->string());
@@ -50,9 +50,4 @@ auto IPCRequestPipe::writeToPipe(ipc::Request request) -> bool {
     logger->debug("Request written successfully, bytes written: " + std::to_string(bytesWritten));
 
     return true;
-}
-
-auto IPCRequestPipe::readResponse(ipc::ResponseCallback dummy) -> ipc::Response {
-    logger->error("unimplemented in response pipe");
-    return {ipc::ResponseType::Error, std::nullopt};
 }

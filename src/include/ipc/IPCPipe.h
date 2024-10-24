@@ -57,10 +57,8 @@ public:
         pipeHandle_ = ipc::NULL_PIPE_HANDLE;
     }
 
-    virtual auto readResponse(ipc::ResponseCallback callback) -> ipc::Response = 0;
-    virtual auto writeToPipe(ipc::Request) -> bool = 0;
-
-//    virtual auto writeToPipe(const std::string& message, ipc::ResponseCallback callback) -> bool = 0;
+    virtual auto readResponse(ipc::ResponseCallback callback) -> ipc::Response;
+    virtual auto writeRequest(ipc::Request) -> bool = 0;
 
 protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)

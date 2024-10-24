@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <optional>
 #include <queue>
+#include <sstream>
 
 #include "LogGlobal.h"
 
@@ -96,7 +97,7 @@ namespace ipc {
         }
 
     };
-    
+
     struct Response {
         ipc::ResponseType type;
         std::optional<std::string> data;
