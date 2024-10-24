@@ -40,12 +40,12 @@ public:
         return pipePath_;
     }
 
-    auto setAccess(ipc::PipeAccess access) -> void {
-        pipeAccess_ = access;
+    auto setMode(ipc::PipeMode access) -> void {
+        pipeMode_ = access;
     }
 
-    auto getAccess() const -> ipc::PipeAccess {
-        return pipeAccess_;
+    auto getMode() const -> ipc::PipeMode {
+        return pipeMode_;
     };
 
 protected:
@@ -54,6 +54,6 @@ protected:
 private:
     ipc::Path       pipePath_;
     ipc::Handle     pipeHandle_;
-    ipc::PipeAccess pipeAccess_;
+    ipc::PipeMode pipeMode_;
 };
 

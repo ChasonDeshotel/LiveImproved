@@ -58,7 +58,7 @@ namespace ipc {
         , Processing
     };
 
-    enum class PipeAccess {
+    enum class PipeMode {
         Read
         , Write
     };

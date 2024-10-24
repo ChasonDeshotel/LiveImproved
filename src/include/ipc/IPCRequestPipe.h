@@ -2,7 +2,6 @@
 
 #include <functional>
 
-#include "IPCDefinitions.h"
 #include "IPCPipe.h"
 class PipeUtil;
 

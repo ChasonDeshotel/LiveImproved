@@ -7,12 +7,16 @@
 PipeUtil::PipeUtil()
     : pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_()
-    , pipeAccess_()
+    , pipeMode_()
 {}
+
+Pipeutil::~PipeUtil() {
+    // remove / delete
+}
 
 auto PipeUtil::createPipe() -> bool {
     logger->error("pipe name: " + getPath().string());
-    if (pipeAccess_ == ipc::PipeAccess::Read) {
+    if (pipeMode_ == ipc::PipeAccess::Read) {
         pipeHandle_ = CreateNamedPipeA(
             pipePath_.c_str()
             , PIPE_ACCESS_INBOUND  // Server will read from this pipe
@@ -23,7 +27,7 @@ auto PipeUtil::createPipe() -> bool {
             , 0
             , NULL
         );
-    } else if (pipeAccess_ == ipc::PipeAccess::Write) {
+    } else if (pipeMode_ == ipc::PipeAccess::Write) {
         pipeHandle_ = CreateNamedPipeA(
             pipePath_.c_str()
             , PIPE_ACCESS_OUTBOUND  // Server will write to this pipe

@@ -13,7 +13,7 @@ IPCResponsePipe::IPCResponsePipe(std::function<std::shared_ptr<PipeUtil>()> pipe
 {
     IPCPipe::getPipeUtil()->setHandle(ipc::INVALID_PIPE_HANDLE);;
     IPCPipe::getPipeUtil()->setPath(PathManager().responsePipe());
-    IPCPipe::getPipeUtil()->setAccess(ipc::PipeAccess::Read);
+    IPCPipe::getPipeUtil()->setMode(ipc::PipeMode::Read);
 }
 
 IPCResponsePipe::~IPCResponsePipe() = default;

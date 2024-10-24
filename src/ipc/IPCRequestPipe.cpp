@@ -13,7 +13,7 @@ IPCRequestPipe::IPCRequestPipe(std::function<std::shared_ptr<PipeUtil>()> pipeUt
 {
     IPCPipe::getPipeUtil()->setHandle(ipc::INVALID_PIPE_HANDLE);;
     IPCPipe::getPipeUtil()->setPath(PathManager().requestPipe());
-    IPCPipe::getPipeUtil()->setAccess(ipc::PipeAccess::Write);
+    IPCPipe::getPipeUtil()->setMode(ipc::PipeMode::Write);
 }
 
 IPCRequestPipe::~IPCRequestPipe() = default;

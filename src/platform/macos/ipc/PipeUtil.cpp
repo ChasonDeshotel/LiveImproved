@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 PipeUtil::PipeUtil()
     : pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_()
-    , pipeAccess_()
+    , pipeMode_()
 {}
 
 using Path = std::filesystem::path;
@@ -48,9 +48,9 @@ auto PipeUtil::createPipe() -> bool {
 }
 
 auto PipeUtil::openPipe() -> bool {
-    if (pipeAccess_ == ipc::PipeAccess::Read) {
+    if (pipeMode_ == ipc::PipeMode::Read) {
         pipeHandle_ = open(getPath().c_str(), O_RDONLY | O_NONBLOCK); // NOLINT
-    } else if (pipeAccess_ == ipc::PipeAccess::Write) {
+    } else if (pipeMode_ == ipc::PipeMode::Write) {
         pipeHandle_ = open(getPath().c_str(), O_WRONLY | O_NONBLOCK); // NOLINT
     }
 
