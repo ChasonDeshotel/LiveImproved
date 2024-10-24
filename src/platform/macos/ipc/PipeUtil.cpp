@@ -18,14 +18,14 @@ auto PipeUtil::create() -> bool {
     return true;
 }
 
-void PipeUtil::setHandle(ipc::Handle handle) {
+auto PipeUtil::setHandle(ipc::Handle handle) -> void {
     pipeHandle_ = handle;
 }
 
-void PipeUtil::setPath(const ipc::Path& path) {
+auto PipeUtil::setPath(const ipc::Path& path) -> void {
     pipePath_ = path;
 }
 
-void PipeUtil::setFlags(int flags) {
+auto PipeUtil::setFlags(int flags) -> void {
     pipeFlags_ = flags;
 }

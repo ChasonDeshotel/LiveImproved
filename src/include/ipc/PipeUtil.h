@@ -13,9 +13,9 @@ public:
     PipeUtil &operator=(PipeUtil &&) = delete;
 
     auto create() -> bool;
-    void setHandle(ipc::Handle handle);
-    void setPath(const ipc::Path& path);
-    void setFlags(int flags);
+    auto setHandle(ipc::Handle handle) -> void;
+    auto setPath(const ipc::Path& path) -> void;
+    auto setFlags(int flags) -> void;
 
 protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
