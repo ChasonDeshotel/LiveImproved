@@ -88,7 +88,7 @@ public:
                 logger->info("launch callback called");
                 // delay to let Live fully start up
                 juce::Thread::sleep(LIVE_LAUNCH_DELAY);
-                this->onLiveLaunch(2000);
+                this->onLiveLaunch(DEFAULT_IPC_DELAY);
             });
         } else {
             onLiveLaunch(DEFAULT_IPC_DELAY);

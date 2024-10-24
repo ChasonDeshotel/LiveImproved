@@ -140,7 +140,7 @@ auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
         std::string_view headerView(header.data(), ipc::HEADER_SIZE);
         uint64_t requestId = std::stoull(std::string(headerView.substr(ipc::START_MARKER_SIZE, ipc::REQUEST_ID_SIZE)));
         size_t messageSize = std::stoull(std::string(headerView.substr(ipc::START_MARKER_SIZE + ipc::REQUEST_ID_SIZE, ipc::REQUEST_ID_SIZE)));
-        return ipc::Header{requestId, messageSize};
+        return ipc::Header{.requestId=requestId, .messageSize=messageSize};
     } catch (const std::exception& e) {
         logger->error("Failed to parse header: " + std::string(e.what()));
         return std::nullopt;
