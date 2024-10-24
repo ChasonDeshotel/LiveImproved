@@ -1,7 +1,7 @@
 #include <filesystem>
 #include <regex>
 #include <algorithm>
-#include <filesystem>
+#include <ranges>
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
@@ -96,10 +96,9 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
                 if (!matches.empty()) {
                     std::string categoryName = matches[0].str().substr(1);  // Remove the first "/"
 
-                    auto it = std::find_if(menuData.begin(), menuData.end(),
-                                           [&categoryName](const MenuItem& item) {
-                                               return item.label == categoryName;
-                                           });
+                    auto it = std::ranges::find_if(menuData, [&categoryName](const MenuItem& item) {
+                        return item.label == categoryName;
+                    });
 
                     if (it != menuData.end()) {
                         currentItem = &(*it);
@@ -120,10 +119,9 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
             } else if (line.starts_with("//")) {
                 std::string subCategoryName = line.substr(2);  // Remove leading "//"
 
-                auto subIt = std::find_if(currentItem->children.begin(), currentItem->children.end(),
-                                          [&subCategoryName](const MenuItem& subItem) {
-                                              return subItem.label == subCategoryName;
-                                          });
+                auto subIt = std::ranges::find_if(currentItem->children, [&subCategoryName](const MenuItem& subItem) {
+                    return subItem.label == subCategoryName;
+                });
 
                 if (subIt != currentItem->children.end()) {
                     currentItem = &(*subIt);
