@@ -6,6 +6,7 @@
 #include <string>
 #include <typeindex>
 #include <unordered_map>
+#include <ranges>
 
 class Scope {
 public:
@@ -122,7 +123,7 @@ private:
     template<typename T>
     auto resolveImpl(std::vector<std::type_index> resolutionStack) -> std::shared_ptr<T> {
         auto typeIndex = std::type_index(typeid(T));
-        if (std::find(resolutionStack.begin(), resolutionStack.end(), typeIndex) != resolutionStack.end()) {
+        if (std::ranges::find(resolutionStack, typeIndex) != resolutionStack.end()) {
             throw std::runtime_error(std::string("Circular dependency detected: ") + typeid(T).name());
         }
 
