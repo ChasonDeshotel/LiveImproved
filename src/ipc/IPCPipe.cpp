@@ -12,31 +12,26 @@
 #include "IPCPipe.h"
 #include "PipeUtil.h"
 
+using std::shared_ptr;
+
 namespace fs = std::filesystem;
 
-IPCPipe::IPCPipe(std::function<std::shared_ptr<PipeUtil>()> pipeUtil)
+IPCPipe::IPCPipe(std::shared_ptr<PipeUtil> pipeUtil)
     : pipeUtil_(std::move(pipeUtil))
     , pipeHandle_(ipc::INVALID_PIPE_HANDLE)
     , pipePath_()
-    , pipeFlags_()
-{}
+    , pipeFlags_() {}
+
+auto IPCPipe::getPipeUtil() -> std::shared_ptr<PipeUtil> {
+    return pipeUtil_;
+}
 
 auto IPCPipe::create() -> bool {
-    auto p = pipeUtil_();
-    return p->create();
+    return pipeUtil_->create();
 }
 
 auto IPCPipe::openPipe() -> bool {
-    pipeHandle_ = open(pipePath_.c_str(), getPipeFlags()); // NOLINT
-    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
-        logger->error("Failed to open pipe: " + pipePath_.string() + " - " + strerror(errno));
-        return false;
-    }
-
-    setHandle(pipeHandle_);
-    logger->debug("Pipe opened: " + pipePath_.string());
-    logger->debug("Pipe opened handle: " + std::to_string(pipeHandle_));
-    return true;
+    return pipeUtil_->openPipe();
 }
 
 auto IPCPipe::cleanUp() -> void {

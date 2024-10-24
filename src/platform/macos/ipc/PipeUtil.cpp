@@ -44,6 +44,19 @@ auto PipeUtil::create() -> bool {
     return true;
 }
 
+auto PipeUtil::openPipe() -> bool {
+    pipeHandle_ = open(this->getPath().c_str(), this->getFlags()); // NOLINT
+    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
+        logger->error("Failed to open pipe: " + this->getPath().string() + " - " + strerror(errno));
+        return false;
+    }
+
+    this->setHandle(pipeHandle_);
+    logger->debug("Pipe opened: " + this->getPath().string());
+    logger->debug("Pipe opened handle: " + std::to_string(pipeHandle_));
+    return true;
+}
+
 auto PipeUtil::setHandle(ipc::Handle handle) -> void {
     pipeHandle_ = handle;
 }

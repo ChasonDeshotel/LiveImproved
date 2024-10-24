@@ -13,6 +13,8 @@ public:
     PipeUtil &operator=(PipeUtil &&) = delete;
 
     auto create() -> bool;
+    auto openPipe() -> bool;
+
     auto setHandle(ipc::Handle handle) -> void;
     auto setPath(const ipc::Path& path) -> void;
     auto setFlags(int flags) -> void;

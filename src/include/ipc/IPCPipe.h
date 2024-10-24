@@ -6,13 +6,15 @@ class PipeUtil;
 
 class IPCPipe {
 public:
-    IPCPipe(std::function<std::shared_ptr<PipeUtil>()> ipcUtil);
+    IPCPipe(std::shared_ptr<PipeUtil> pipeUtil);
     virtual ~IPCPipe() = default;
 
     IPCPipe(const IPCPipe &) = delete;
     IPCPipe(IPCPipe &&) = delete;
     IPCPipe &operator=(const IPCPipe &) = delete;
     IPCPipe &operator=(IPCPipe &&) = delete;
+
+    auto getPipeUtil() -> std::shared_ptr<PipeUtil>;
 
     auto cleanUp()  -> void;
 
@@ -66,7 +68,7 @@ protected:
     std::atomic<bool> stopIPC_ {false}; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
 private:
-    std::function<std::shared_ptr<PipeUtil>()> pipeUtil_;
+    std::shared_ptr<PipeUtil> pipeUtil_;
 
     ipc::Path   pipePath_;
     ipc::Handle pipeHandle_;
