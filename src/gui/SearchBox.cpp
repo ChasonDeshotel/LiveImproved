@@ -26,11 +26,11 @@ public:
         , delayBeforeClose_(delayBeforeClose)
     {}
 
-    int getNumRows() override {
+    auto getNumRows() -> int override {
         return static_cast<int>(filteredPlugins_.size());
     }
 
-    void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override {
+    auto paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) -> void override {
 //        juce::Graphics::ScopedSaveState saveState(g);
 //
 //        // Extend the clipping region to include the scrollbar area
@@ -49,7 +49,7 @@ public:
         }
     }
 
-    void listBoxItemClicked(int row, const juce::MouseEvent&) override {
+    auto listBoxItemClicked(int row, const juce::MouseEvent&) -> void override {
         if (row >= 0 && row < filteredPlugins_.size()) {
             const Plugin* plugin = getPluginAtRow(row);
             if (plugin) {
@@ -62,7 +62,7 @@ public:
         }
     }
 
-    const Plugin* getPluginAtRow(int row) const {
+    [[nodiscard]] auto getPluginAtRow(int row) const -> const Plugin* {
         if (row >= 0 && row < filteredPlugins_.size()) {
             return &filteredPlugins_[row];
         }
@@ -147,7 +147,7 @@ SearchBox::SearchBox(
 
 SearchBox::~SearchBox() {}
 
-void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
+auto SearchBox::textEditorTextChanged(juce::TextEditor& editor) -> void {
     if (&editor == &searchField_) {
         logger->debug("Search text changed: " + editor.getText().toStdString());
         juce::String searchText = searchField_.getText();
@@ -161,7 +161,7 @@ void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
     }
 }
 
-bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
+auto SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) -> bool {
     logger->info("search box key pressed: " + std::to_string(key.getKeyCode()));
 
     if (key == juce::KeyPress::escapeKey) {
@@ -220,17 +220,17 @@ bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
     return false;  // Key press not handled
 }
 
-void SearchBox::setSelectedRow(int row) {
+auto SearchBox::setSelectedRow(int row) -> void {
     selectedRow_ = row;
 }
 
-void SearchBox::resetFilters() {
+auto SearchBox::resetFilters() -> void {
     pluginListModel_->resetFilters();
     listBox_.updateContent();
     listBox_.repaint();
 }
 
-void SearchBox::setWindowGeometry() {
+auto SearchBox::setWindowGeometry() -> void {
     // TODO: store conf if the window has been moved
     // or resized then override these with values
     // from conf
@@ -261,7 +261,7 @@ void SearchBox::setWindowGeometry() {
     }
 }
 
-void SearchBox::resized() {
+auto SearchBox::resized() -> void {
     const int listBoxOffset = 10;
 
     auto bounds = getLocalBounds().reduced(PADDING);
@@ -278,7 +278,7 @@ void SearchBox::resized() {
 //    listBox_.setBounds(listBoxBounds);
 }
 
-void SearchBox::open() {
+auto SearchBox::open() -> void {
     setWindowGeometry();
 
     eventHandler_()->focusLim();
@@ -297,7 +297,7 @@ void SearchBox::open() {
     });
 }
 
-void SearchBox::focus() {
+auto SearchBox::focus() -> void {
     // hack for macOS
     // https://forum.juce.com/t/keyboard-focus-on-application-startup/9382/2
     if (!searchField_.hasKeyboardFocus(false)) {
@@ -306,13 +306,13 @@ void SearchBox::focus() {
     }
 }
 
-void SearchBox::mouseDown(const juce::MouseEvent& event) {
+auto SearchBox::mouseDown(const juce::MouseEvent& event) -> void {
     searchField_.grabKeyboardFocus();
 
     juce::Component::mouseDown(event);
 }
 
-void SearchBox::close() {
+auto SearchBox::close() -> void {
     if (juce::MessageManager::getInstance()->isThisTheMessageThread()) {
         setVisible(false);
         searchField_.clear();
@@ -326,7 +326,7 @@ void SearchBox::close() {
     }
 }
 
-void* SearchBox::getWindowHandle() const {
+auto SearchBox::getWindowHandle() const -> void* {
     void* handle = nullptr;
 
     if (juce::MessageManager::getInstance()->isThisTheMessageThread()) {
@@ -346,7 +346,7 @@ void* SearchBox::getWindowHandle() const {
     return handle;
 }
 
-int SearchBox::getNumRows() {
+auto SearchBox::getNumRows() -> int {
     return static_cast<int>(filteredOptions_.size());
 }
 
@@ -354,7 +354,7 @@ int SearchBox::getNumRows() {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #endif
-void SearchBox::paint(juce::Graphics& g) {
+auto SearchBox::paint(juce::Graphics& g) -> void {
     auto bounds = getLocalBounds().toFloat().reduced(0.5f); // NOLINT Reduce by 0.5 to avoid anti-aliasing artifacts
 
     g.setColour(theme_()->getColorValue("SceneContrast"));
@@ -379,6 +379,6 @@ void SearchBox::paint(juce::Graphics& g) {
 #pragma clang diagnostic pop
 #endif
 
-void SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) {
+auto SearchBox::paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) -> void {
     return;
 }

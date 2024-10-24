@@ -116,7 +116,7 @@ public:
 
     void textEditorTextChanged(juce::TextEditor& editor) override;
 
-    auto getWindowHandle() const -> void* override;
+    [[nodiscard]] auto getWindowHandle() const -> void* override;
 
 protected:
     // JUCE overrides for layout and input handling
@@ -124,7 +124,7 @@ protected:
     void paint(juce::Graphics& g) override;
 
     auto getNumRows() -> int override;
-    void paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) override;
+    auto paintListBoxItem(int rowNumber, juce::Graphics& g, int width, int height, bool rowIsSelected) -> void override;
 
 private:
     static constexpr int DELAY_BEFORE_FOCUS = 100;
