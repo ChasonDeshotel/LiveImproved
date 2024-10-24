@@ -11,6 +11,6 @@ public:
 
     IPCResponsePipe(const IPCResponsePipe &) = delete;
     IPCResponsePipe(IPCResponsePipe &&) = delete;
-    IPCResponsePipe &operator=(const IPCResponsePipe &) = delete;
-    IPCResponsePipe &operator=(IPCResponsePipe &&) = delete;
+    auto operator=(const IPCResponsePipe &) -> IPCResponsePipe & = delete;
+    auto operator=(IPCResponsePipe &&) -> IPCResponsePipe & = delete;
 };

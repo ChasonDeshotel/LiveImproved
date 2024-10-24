@@ -12,8 +12,8 @@ public:
 
     IPCRequestPipe(const IPCRequestPipe &) = delete;
     IPCRequestPipe(IPCRequestPipe &&) = delete;
-    IPCRequestPipe &operator=(const IPCRequestPipe &) = delete;
-    IPCRequestPipe &operator=(IPCRequestPipe &&) = delete;
+    auto operator=(const IPCRequestPipe &) -> IPCRequestPipe & = delete;
+    auto operator=(IPCRequestPipe &&) -> IPCRequestPipe & = delete;
 
 private:
 };
