@@ -9,8 +9,8 @@ public:
 
     PipeUtil(const PipeUtil &) = delete;
     PipeUtil(PipeUtil &&) = delete;
-    PipeUtil &operator=(const PipeUtil &) = delete;
-    PipeUtil &operator=(PipeUtil &&) = delete;
+    auto operator=(const PipeUtil &) -> PipeUtil & = delete;
+    auto operator=(PipeUtil &&) -> PipeUtil & = delete;
 
     auto createPipe() -> bool;
     auto openPipe() -> bool;
