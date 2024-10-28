@@ -1,5 +1,11 @@
 #pragma once
 
+
+#ifdef _WIN32
+#include <cstddef> // For std::ptrdiff_t
+using ssize_t = std::ptrdiff_t;
+#endif
+
 #include "IPCDefinitions.h"
 
 class PipeUtil {

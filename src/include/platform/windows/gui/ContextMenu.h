@@ -19,11 +19,16 @@ public:
                 std::function<std::shared_ptr<WindowManager>()> windowManager);
     ~ContextMenu() override;
 
+    ContextMenu(const ContextMenu &) = delete;
+    ContextMenu(ContextMenu &&) = delete;
+    auto operator=(const ContextMenu &) -> ContextMenu & = delete;
+    auto operator=(ContextMenu &&) -> ContextMenu & = delete;
+
     [[nodiscard]] void* getWindowHandle() const override;
 
     void open() override;
     void close() override;
-    [[nodiscard]] bool isOpen() const override;
+    //[[nodiscard]] bool isOpen() const override;
 
 private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;

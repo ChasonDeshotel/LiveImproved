@@ -1,9 +1,12 @@
 #pragma once
 
 #include <atomic>
+#include <functional>
 #include <mutex>
 #include <string>
+#ifndef _WIN32
 #include <sys/_types/_useconds_t.h>
+#endif
 #include <thread>
 
 #include "IIPCQueue.h"

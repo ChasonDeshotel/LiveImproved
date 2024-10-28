@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <queue>
 #include <sstream>
@@ -11,9 +12,10 @@
 
 namespace ipc {
     #ifdef _WIN32
-    struct HANDLE__;
-    using Handle = struct HANDLE__*;
-    static constexpr Handle UNINITIALIZED_HANDLE = nullptr;
+    #include <Windows.h>
+    using Handle = HANDLE;
+    static constexpr Handle INVALID_PIPE_HANDLE = nullptr;
+    static constexpr Handle NULL_PIPE_HANDLE = nullptr;
     #else
     using Handle = int;
     static constexpr Handle NULL_PIPE_HANDLE = -69420;
@@ -22,8 +24,10 @@ namespace ipc {
 
     using Path = std::filesystem::path;
 
+    #ifndef _WIN32
     static constexpr mode_t     DEFAULT_DIRECTORY_PERMISSIONS  {0777};
     static constexpr mode_t     DEFAULT_PIPE_PERMISSIONS       {0666};
+    #endif
 
     static constexpr int    MAX_READ_RETRIES           {100};
     static constexpr int    MESSAGE_TRUNCATE_CHARS     {100};
@@ -82,12 +86,12 @@ namespace ipc {
         std::optional<std::string> errorStr;
         
         // Constructor for success
-        PipeResponse(ResponseType type, int handle)
+        PipeResponse(ResponseType type, Handle handle)
             : returnType(type), pipeHandle(handle), errorStr(std::nullopt) {}
 
         // Constructor for error
         PipeResponse(ResponseType type, const std::string& error)
-            : returnType(type), pipeHandle(-1), errorStr(error) {}
+            : returnType(type), pipeHandle(ipc::INVALID_PIPE_HANDLE), errorStr(error) {}
     };
 
     struct Request {

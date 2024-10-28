@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <array>
 
 #include "LogGlobal.h"
 #include "IPCDefinitions.h"
@@ -10,13 +11,13 @@ PipeUtil::PipeUtil()
     , pipeMode_()
 {}
 
-Pipeutil::~PipeUtil() {
+PipeUtil::~PipeUtil() {
     // remove / delete
 }
 
 auto PipeUtil::createPipe() -> bool {
     logger->error("pipe name: " + getPath().string());
-    if (pipeMode_ == ipc::PipeAccess::Read) {
+    if (pipeMode_ == ipc::PipeMode::Read) {
         pipeHandle_ = CreateNamedPipeA(
             pipePath_.c_str()
             , PIPE_ACCESS_INBOUND  // Server will read from this pipe
@@ -27,7 +28,7 @@ auto PipeUtil::createPipe() -> bool {
             , 0
             , NULL
         );
-    } else if (pipeMode_ == ipc::PipeAccess::Write) {
+    } else if (pipeMode_ == ipc::PipeMode::Write) {
         pipeHandle_ = CreateNamedPipeA(
             pipePath_.c_str()
             , PIPE_ACCESS_OUTBOUND  // Server will write to this pipe
