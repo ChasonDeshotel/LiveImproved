@@ -128,7 +128,6 @@ auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
                 errorMsg = strerror(errno);
 #endif
                 logger->error("Failed to read the full header. Error: " + errorMsg);
-                //throw std::runtime_error("Failed to read the full error. Error: " + errorMsg);
                 return std::nullopt;
             }
         }
@@ -144,7 +143,6 @@ auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
 
     if (totalHeaderRead != ipc::HEADER_SIZE) {
         logger->error("Failed to read the full header after " + std::to_string(ipc::MAX_READ_RETRIES) + " retries. Total header bytes read: " + std::to_string(totalHeaderRead));
-        //throw std::runtime_error("Failed to read the full error. Error: " + std::string(strerror(errno)));
         return std::nullopt;
     }
 
@@ -162,7 +160,6 @@ auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
 }
 
 auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
-    // size_t instead of int because comparisons
     std::string message;
     message.reserve(messageSize + ipc::END_MARKER.size());
     size_t totalBytesRead = 0;
@@ -174,7 +171,7 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
             return std::nullopt;
         }
 
-        size_t bytesToRead = std::min(ipc::BUFFER_SIZE, messageSize + ipc::END_MARKER.size() - totalBytesRead);
+        size_t bytesToRead = (std::min)(ipc::BUFFER_SIZE, messageSize + ipc::END_MARKER.size() - totalBytesRead);
         ssize_t bytesRead = p_->readFromPipe(buffer.data(), bytesToRead);
         logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
@@ -187,7 +184,6 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
         message.append(buffer.data(), bytesRead);
         totalBytesRead += bytesRead;
 
-        //if (message.compare(message.size() - ipc::END_MARKER.size(), ipc::END_MARKER.size(), ipc::END_MARKER) == 0) {
         if (message.size() >= ipc::END_MARKER.size() &&
             std::string_view(message).substr(message.size() - ipc::END_MARKER.size()) == ipc::END_MARKER) {
             message.resize(message.size() - ipc::END_MARKER.size());
