@@ -3,10 +3,13 @@
 #include <string>
 #include <sys/stat.h>
 #include <thread>
-//#include <unistd.h>
+#include <algorithm>
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "LogGlobal.h"
