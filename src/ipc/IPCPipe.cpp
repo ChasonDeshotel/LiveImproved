@@ -5,6 +5,10 @@
 #include <thread>
 //#include <unistd.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include "LogGlobal.h"
 
 #include "IPCDefinitions.h"
@@ -112,8 +116,16 @@ auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
                 std::this_thread::sleep_for(ipc::DELAY_BETWEEN_READS);
                 continue;
             } else {
-                logger->error("Failed to read the full header. Error: " + std::string(strerror(errno)));
-                //throw std::runtime_error("Failed to read the full error. Error: " + std::string(strerror(errno)));
+                std::string errorMsg;
+#ifdef _WIN32
+                char errBuf[256];
+                strerror_s(errBuf, sizeof(errBuf), errno);
+                errorMsg = errBuf;
+#else
+                errorMsg = strerror(errno);
+#endif
+                logger->error("Failed to read the full header. Error: " + errorMsg);
+                //throw std::runtime_error("Failed to read the full error. Error: " + errorMsg);
                 return std::nullopt;
             }
         }
