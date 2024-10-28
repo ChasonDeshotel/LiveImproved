@@ -3,6 +3,11 @@
 #include <filesystem>
 #include <optional>
 
+#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS
+#include <Windows.h>
+#endif
+
 #include <JuceHeader.h>
 
 #include "LogHandler.h"
@@ -70,9 +75,15 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
 
     if (logfile.is_open()) {
         auto now = std::time(nullptr);
-        auto localTime = std::localtime(&now);
+        std::tm localTime;
 
-        logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
+#ifdef _WIN32
+        localtime_s(&localTime, &now);
+#else
+        localtime_r(&now, &localTime);
+#endif
+
+        logfile << "[" << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S") << "] "
                 << logLevelToString(level) << ": " << message << std::endl;
     } else {
         std::cerr << "Unable to open log file: " << logPath->string() << std::endl;
