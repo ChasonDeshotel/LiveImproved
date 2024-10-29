@@ -13,7 +13,7 @@
 #include "IIPCQueue.h"
 #include "ILiveInterface.h"
 
-#include "ActionHandler.h"
+//#include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
 #include "EventHandler.h"
@@ -67,14 +67,14 @@ public:
         logger->info("home:         " + p.home().generic_string());
         logger->info("documents:    " + p.documents().generic_string());
         logger->info("log:          " + p.log().generic_string());
-        logger->info("liveBundle:   " + p.liveBundle().generic_string());
-        logger->info("liveBinary:   " + p.liveBinary().generic_string());
-        logger->info("liveThemes:   " + p.liveThemes().generic_string());
-        logger->info("liveTheme:    " + p.liveTheme().generic_string());
-        logger->info("config:       " + p.config().generic_string());
-        logger->info("configMenu:   " + p.configMenu().generic_string());
-        logger->info("requestPipe:  " + p.requestPipe().generic_string());
-        logger->info("responsePipe: " + p.responsePipe().generic_string());
+//        logger->info("liveBundle:   " + p.liveBundle().generic_string());
+//        logger->info("liveBinary:   " + p.liveBinary().generic_string());
+//        logger->info("liveThemes:   " + p.liveThemes().generic_string());
+//        logger->info("liveTheme:    " + p.liveTheme().generic_string());
+//        logger->info("config:       " + p.config().generic_string());
+//        logger->info("configMenu:   " + p.configMenu().generic_string());
+//        logger->info("requestPipe:  " + p.requestPipe().generic_string());
+//        logger->info("responsePipe: " + p.responsePipe().generic_string());
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
@@ -103,15 +103,19 @@ public:
         logger->info("onLiveLaunch() called");
 
         DependencyRegisterer r(this);
+        /*
         r.configFiles();
         r.theme();
         r.liveInterface(); // also starts observers
         r.responseParser();
         r.keySender();
+        */
         r.ipc();
+        /*
         r.pluginManager();
         r.actionHandler();
         r.windowManager();
+        */
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
@@ -122,16 +126,17 @@ public:
 
         // TODO: IPC queue should be able to handle more writes without sleep
         logger->info("refreshing plugin cache");
-        container_.resolve<IPluginManager>()->refreshPlugins();
+        //container_.resolve<IPluginManager>()->refreshPlugins();
 
-        #ifndef _WIN32
-        PlatformInitializer::init();
-        container_.resolve<IEventHandler>()->setupQuartzEventTap();
-        PlatformInitializer::run();
-        #endif
+//        #ifndef _WIN32
+//        PlatformInitializer::init();
+//        container_.resolve<IEventHandler>()->setupQuartzEventTap();
+//        PlatformInitializer::run();
+//        #endif
     }
 
     void restartApplication() {
+        return;
         juce::String executablePath = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getFullPathName();
         logger->info("executable path: " + executablePath.toStdString());
 
@@ -151,6 +156,7 @@ public:
     }
 
     void shutdown() override {
+        return;
         logger->info("shutdown() called");
         try {
             auto ipc = this->container_.resolve<IIPCQueue>();
@@ -183,6 +189,7 @@ public:
         explicit DependencyRegisterer(JuceApp* parentApp) : app(parentApp) {}
 
         void eventHandler() {
+            /*
             app->container_.registerFactory<IEventHandler>(
                 [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
                     // We can delay these resolutions if needed
@@ -194,9 +201,11 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
+            */
         }
 
         void theme() {
+            /*
             auto pathManager = PathManager();
             auto themeFilePath = pathManager.liveTheme();
 
@@ -213,9 +222,11 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
+            */
         }
 
         void configFiles() {
+            /*
             auto pathManager = PathManager();
 
             auto configFilePath = pathManager.config();
@@ -230,9 +241,11 @@ public:
                 [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(configMenuPath); }
                 , DependencyContainer::Lifetime::Singleton
             );
+            */
         }
 
         void liveInterface() {
+            /*
             app->container_.registerFactory<ILiveInterface>(
                 [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
                     // We can delay these resolutions if needed
@@ -244,6 +257,7 @@ public:
             );
             // kick off the window observers
             app->container_.resolve<ILiveInterface>();
+            */
         }
 
         void responseParser() {
@@ -293,6 +307,7 @@ public:
         }
 
         void pluginManager() {
+            /*
             app->container_.registerFactory<IPluginManager>(
                 [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
                     return std::make_shared<PluginManager>(
@@ -302,9 +317,11 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
+            */
         }
 
         void actionHandler() {
+            /*
             app->container_.registerFactory<IActionHandler>(
                 [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
 
@@ -320,9 +337,11 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
+            */
         }
 
         void windowManager() {
+            /*
             app->container_.registerFactory<WindowManager>(
                 [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
                     // We can delay these resolutions if needed
@@ -338,6 +357,7 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
+            */
         }
     };
 };

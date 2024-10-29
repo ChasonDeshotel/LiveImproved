@@ -31,8 +31,14 @@ public:
     auto remoteScripts() const -> Path;
     auto limRemoteScript() const -> Path;
 
+    auto lesConfig() const -> Path;
+
     void addSearchPath(const Path& path);
     void setFallbackPath(const std::string& key, const Path& path);
+
+    #ifdef _WIN32
+    auto localAppData() const -> Path;
+    #endif
 
 private:
     auto isValidDir(const Path& dir) const -> bool;

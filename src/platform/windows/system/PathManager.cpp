@@ -33,13 +33,13 @@ auto PathManager::isValidDir(const fs::path& path) const -> bool {
 auto PathManager::home() const -> Path {
     PWSTR path = nullptr;
     HRESULT result = SHGetKnownFolderPath(FOLDERID_Profile, 0, nullptr, &path);
-    
+
     if (SUCCEEDED(result)) {
         Path homePath(path);
         CoTaskMemFree(path);
         return homePath;
     }
-    
+
     CoTaskMemFree(path);  // Free memory even if the function failed
     throw std::runtime_error("Failed to get user's home directory");
 }
@@ -64,46 +64,77 @@ auto PathManager::configMenu() const -> Path {
     return configFile;
 }
 
+auto PathManager::remoteScripts() const -> Path {
+    Path remoteScripts = documents() / "Ableton" / "User Library" / "Remote Scripts";
+
+
+    if (!isValidDir(remoteScripts)) {
+        throw std::runtime_error("Ableton Live MIDI Remote Scripts directory does not exist or is not a directory: " + remoteScripts.string());
+    }
+
+    return remoteScripts;
+}
+
+auto PathManager::limRemoteScript() const -> Path {
+    Path limRemoteScript = remoteScripts() / "LiveImproved";
+
+    if (!isValidDir(limRemoteScript)) {
+        throw std::runtime_error("LiveImproved MIDI Remote Script directory does not exist or is not a directory: " + limRemoteScript.string());
+    }
+
+    return limRemoteScript;
+}
+
+auto PathManager::lesConfig() const -> Path {
+    Path lesConfig = home() / ".les" / "menuconfig.ini";
+
+    if (!isValidFile(lesConfig)) {
+        throw std::runtime_error("Live Enhancement Suite config file is not found or is invalid: " + lesConfig.string());
+    }
+
+    return lesConfig;
+}
+
 auto PathManager::documents() const -> Path {
     PWSTR path = nullptr;
     HRESULT result = SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &path);
-    
+
     if (SUCCEEDED(result)) {
         Path docPath(path);
         CoTaskMemFree(path);
         return docPath;
     }
-    
+
     CoTaskMemFree(path);
     throw std::runtime_error("Failed to get user's Documents directory");
 }
 
-auto PathManager:: localAppData() const -> Path {
+auto PathManager::localAppData() const -> Path {
     PWSTR path = nullptr;
     HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path);
-    
+
     if (SUCCEEDED(result)) {
         Path appDataPath(path);
         CoTaskMemFree(path);
         return appDataPath;
     }
-    
+
     CoTaskMemFree(path);  // Free memory even if the function failed
     throw std::runtime_error("Failed to get user's AppData directory");
 }
 
-auto PathManager::log() -> Path {
+auto PathManager::log() const -> Path {
     Path log = localAppData() / "Logs" / "YourAppName.log";
     throw std::runtime_error("Failed to get log path");
     return log;
 }
 
-auto PathManager::liveBundle() -> Path {
+auto PathManager::liveBundle() const -> Path {
     return fs::path(localAppData()) / "Ableton" / "Live";
     //throw std::runtime_error("Failed to get Ableton Live bundle path");
 }
 
-auto PathManager::liveBinary() -> Path {
+auto PathManager::liveBinary() const -> Path {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE) {
         throw std::runtime_error("Failed to create process snapshot");
@@ -136,25 +167,25 @@ auto PathManager::liveBinary() -> Path {
     throw std::runtime_error("Ableton Live process not found");
 }
 
-auto PathManager::getProcessPath(DWORD processId) -> Path {
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processId);
-    if (hProcess == NULL) {
-        throw std::system_error(GetLastError(), std::system_category(), "OpenProcess failed");
-    }
+//auto PathManager::getProcessPath(DWORD processId) -> Path {
+//    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processId);
+//    if (hProcess == NULL) {
+//        throw std::system_error(GetLastError(), std::system_category(), "OpenProcess failed");
+//    }
+//
+//    wchar_t buffer[MAX_PATH];
+//    DWORD result = GetModuleFileNameExW(hProcess, NULL, buffer, MAX_PATH);
+//
+//    CloseHandle(hProcess);
+//
+//    if (result == 0) {
+//        throw std::system_error(GetLastError(), std::system_category(), "GetModuleFileNameEx failed");
+//    }
+//
+//    return std::filesystem::path(buffer);
+//}
 
-    wchar_t buffer[MAX_PATH];
-    DWORD result = GetModuleFileNameExW(hProcess, NULL, buffer, MAX_PATH);
-    
-    CloseHandle(hProcess);
-
-    if (result == 0) {
-        throw std::system_error(GetLastError(), std::system_category(), "GetModuleFileNameEx failed");
-    }
-
-    return std::filesystem::path(buffer);
-}
-
-auto PathManager::liveTheme() -> Path {
+auto PathManager::liveTheme() const -> Path {
     HKEY hKey;
     LONG result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Ableton\\Live", 0, KEY_READ, &hKey);
     if (result != ERROR_SUCCESS) {
@@ -185,19 +216,19 @@ auto PathManager::liveTheme() -> Path {
     return themePath;
 }
 
-auto PathManager::findExecutable(const std::string& name) -> Path {
-    char buffer[MAX_PATH];
-    std::string path = getEnvVar("PATH");
-    std::vector<std::string> paths = splitPath(path);
-
-    for (const auto& dir : paths) {
-        std::string fullPath = dir + "\\" + name;
-        if (PathFileExistsA(fullPath.c_str())) {
-            if (GetFullPathNameA(fullPath.c_str(), MAX_PATH, buffer, nullptr) != 0) {
-                return std::string(buffer);
-            }
-        }
-    }
-
-    throw std::runtime_error("Executable not found: " + name);
-}
+//auto PathManager::findExecutable(const std::string& name) -> Path {
+//    char buffer[MAX_PATH];
+//    std::string path = getEnvVar("PATH");
+//    std::vector<std::string> paths = splitPath(path);
+//
+//    for (const auto& dir : paths) {
+//        std::string fullPath = dir + "\\" + name;
+//        if (PathFileExistsA(fullPath.c_str())) {
+//            if (GetFullPathNameA(fullPath.c_str(), MAX_PATH, buffer, nullptr) != 0) {
+//                return std::string(buffer);
+//            }
+//        }
+//    }
+//
+//    throw std::runtime_error("Executable not found: " + name);
+//}

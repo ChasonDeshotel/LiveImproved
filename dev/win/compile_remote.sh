@@ -12,7 +12,7 @@ CHANGED_FILES=$(git diff --name-only HEAD)
 
 if [ -z "$CHANGED_FILES" ]; then
     echo "No changes since last commit. Nothing to transfer."
-    exit 0
+#    exit 0
 fi
 
 # Function to properly escape paths for Windows

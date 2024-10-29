@@ -1,3 +1,4 @@
+#include <array>
 #include <cerrno>
 #include <fcntl.h>
 #include <string>
@@ -7,7 +8,9 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
+#define NOMINMAX
 #else
 #include <unistd.h>
 #endif
@@ -120,13 +123,13 @@ auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
                 continue;
             } else {
                 std::string errorMsg;
-#ifdef _WIN32
+                #ifdef _WIN32
                 char errBuf[256];
                 strerror_s(errBuf, sizeof(errBuf), errno);
                 errorMsg = errBuf;
-#else
+                #else
                 errorMsg = strerror(errno);
-#endif
+                #endif
                 logger->error("Failed to read the full header. Error: " + errorMsg);
                 return std::nullopt;
             }

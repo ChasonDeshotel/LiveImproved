@@ -36,3 +36,7 @@ void openAllPlugins() {
 void tilePluginWindows() {
     return;
 }
+
+auto isAnyTextFieldFocused() -> bool {
+    return false;
+}

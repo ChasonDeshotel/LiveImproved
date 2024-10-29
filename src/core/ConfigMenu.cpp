@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include "yaml-cpp/yaml.h"
 
+#include "PathManager.h"
+
 #include "LogGlobal.h"
 
 #include "ConfigMenu.h"
@@ -14,10 +16,7 @@
 
 ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
     : configFile_(configFile) {
-    std::filesystem::path LESConfigFilePath =
-        std::filesystem::path(std::string(getenv("HOME"))) / ".les" / "menuconfig.ini";
-    parseLESMenuConfig(LESConfigFilePath);
-    logger->info("LES config menu filepath: " + configFile.string());
+    parseLESMenuConfig(PathManager().lesConfig());
 }
 
 void ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
@@ -148,9 +147,8 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
     file.close();
     menuData_ = menuData;
 
-    std::filesystem::path configMenuFilePath =
-        std::filesystem::path(std::string(getenv("HOME"))) / "Documents" / "Ableton" / "User Library"
-        / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
+    auto configMenuFilePath = PathManager().configMenu();
+
     saveToYAML(menuData, configMenuFilePath);
 }
 

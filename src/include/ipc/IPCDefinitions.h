@@ -1,4 +1,11 @@
 #pragma once
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+typedef ::DWORD pid_t;
+#endif
+
 #include <chrono>
 #include <filesystem>
 #include <functional>
@@ -13,7 +20,7 @@
 namespace ipc {
     #ifdef _WIN32
     #include <Windows.h>
-    using Handle = HANDLE;
+    using Handle = ::HANDLE;
     static constexpr Handle INVALID_PIPE_HANDLE = nullptr;
     static constexpr Handle NULL_PIPE_HANDLE = nullptr;
     #else
@@ -84,7 +91,7 @@ namespace ipc {
         ipc::ResponseType returnType;
         ipc::Handle pipeHandle;
         std::optional<std::string> errorStr;
-        
+
         // Constructor for success
         PipeResponse(ResponseType type, Handle handle)
             : returnType(type), pipeHandle(handle), errorStr(std::nullopt) {}
@@ -105,7 +112,7 @@ namespace ipc {
               callback(std::move(cb)),
               id(RequestIDGenerator::getInstance().getNextID()) {}
 
-        [[nodiscard]] auto formatted() -> std::string {
+        [[nodiscard]] auto formatted() const -> std::string {
             if (cachedFormatted.empty()) {
                 size_t messageLength = message.length();
 

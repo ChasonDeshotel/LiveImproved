@@ -1,8 +1,11 @@
 #pragma once
 
-#include <ApplicationServices/ApplicationServices.h>
 #ifdef __OBJC__
+#include <ApplicationServices/ApplicationServices.h>
 #include <CoreFoundation/CoreFoundation.h>
+#elif _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #endif
 
 #include <memory>
@@ -55,7 +58,7 @@ public:
     void focusWindow(int windowID) override;
 
     ERect getLiveBoundsRect() override;
-    
+
     auto initializeCache() -> void;
 
 private:

@@ -17,6 +17,11 @@ public:
 
     ~LiveInterface() override;
 
+    LiveInterface(const LiveInterface &) = default;
+    LiveInterface(LiveInterface &&) = delete;
+    LiveInterface &operator=(const LiveInterface &) = default;
+    LiveInterface &operator=(LiveInterface &&) = delete;
+
     void setupPluginWindowChangeObserver(std::function<void()> callback) override;
     void removePluginWindowChangeObserver() override;
 
@@ -26,6 +31,6 @@ public:
     void tilePluginWindows() override;
 
 private:
-    std::function<std::shared_ptr<EventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
 
 };

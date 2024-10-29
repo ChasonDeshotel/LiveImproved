@@ -103,7 +103,7 @@ auto PipeUtil::drainPipe() -> void {
     } while (bytesRead > 0);
 }
 
-auto PipeUtil::writeToPipe(ipc::Request request) -> size_t {
+auto PipeUtil::writeToPipe(const ipc::Request& request) -> size_t {
     ssize_t result = ::write(
             getHandle()
             , request.formatted().c_str()

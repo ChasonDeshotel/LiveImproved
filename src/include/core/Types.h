@@ -1,4 +1,24 @@
 #pragma once
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <Windows.h>
+#define NOMINMAX
+
+// Ensure Windows types are in the global namespace
+using ::DWORD;
+using ::LRESULT;
+using ::WPARAM;
+using ::LPARAM;
+using ::HHOOK;
+using ::BOOL;
+using ::HWND;
+
+typedef DWORD pid_t;
+#else
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 
 #include <functional>
 #include <iostream>
@@ -11,15 +31,6 @@
 #include <vector>
 
 #include "LogGlobal.h"
-
-// pid_t
-#ifdef _WIN32
-#include <windows.h>
-typedef DWORD pid_t;
-#else
-#include <sys/types.h>
-#include <unistd.h>
-#endif
 
 struct ERect {
     int x;

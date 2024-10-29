@@ -182,6 +182,16 @@ auto PathManager::limRemoteScript() const -> Path {
     return limRemoteScript;
 }
 
+auto PathManager::lesConfig() const -> Path {
+    Path lesConfig = home() / ".les" / "menuconfig.ini";
+
+    if (!isValidFile(lesConfig)) {
+        throw std::runtime_error("Live Enhancement Suite config file is not found or is invalid: " + lesConfig.string());
+    }
+
+    return lesConfig;
+}
+
 auto PathManager::requestPipe() const -> Path {
     return limRemoteScript() / "lim_request";
 }

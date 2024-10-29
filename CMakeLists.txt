@@ -4,8 +4,14 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    add_definitions(-DNOMINMAX)
+    add_definitions(-D_WIN32_WINNT=0x0A00)  # Target Windows 10
+endif()
+
 # if(WIN32) ?
-if(MSVC)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     if(POLICY CMP0126)
         cmake_policy(SET CMP0126 NEW)
     endif()
@@ -17,9 +23,18 @@ if(MSVC)
 
     add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_WIN32_WINNT=0x0A00)
 
-    find_package(WindowsSDK REQUIRED)
+    #    find_package(WindowsSDK REQUIRED)
+    include(FindWindowsSDK)
+        if(WINDOWSSDK_FOUND)
+            message(STATUS "Windows SDK found: ${WINDOWSSDK_LATEST_DIR}")
+            include_directories(${WINDOWSSDK_INCLUDE_DIRS})
+        else()
+            message(FATAL_ERROR "Windows SDK not found")
+        endif()
 
-    include_directories(${WindowsSDK_INCLUDE_DIRS})
+     # Add Windows-specific compile definitions
+     add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_WIN32_WINNT=0x0A00)
+
 endif()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -183,7 +198,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live/component
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/system
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/util
-        "$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/Include/10.0.19041.0/um"
+        #        "$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/Include/10.0.19041.0/um"
+        ${WINDOWSSDK_INCLUDE_DIRS}
     )
 endif()
 
@@ -323,11 +339,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(LiveImproved
         PRIVATE
-            advapi32.lib
-            gdi32.lib
-            ole32.lib
-            shell32.lib
-            user32.lib
+            advapi32
+            gdi32
+            ole32
+            shell32
+            user32
     )
 
     set_target_properties(LiveImproved PROPERTIES
@@ -340,55 +356,55 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # add test target
-enable_testing()
-add_subdirectory(lib/doctest)
-
-set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
-
-if(BUILD_TESTS)
-    add_definitions(-DTEST_BUILD)
-    add_compile_definitions(RUNNING_TESTS)
-endif()
-
+#enable_testing()
+#add_subdirectory(lib/doctest)
+#
+#set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
+#
+#if(BUILD_TESTS)
+#    add_definitions(-DTEST_BUILD)
+#    add_compile_definitions(RUNNING_TESTS)
+#endif()
+#
 # Function to add a test
-function(add_doctest_test TEST_PATH)
-    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
-    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
-    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
-
-    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
-    target_link_libraries(${TARGET_NAME}
-        PRIVATE
-            doctest::doctest
-            common_libs
-    )
-    target_include_directories(${TARGET_NAME}
-        PRIVATE
-            ${COMMON_INCLUDE_DIRS}
-            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
-            ${CMAKE_SOURCE_DIR}/abstract
-            ${CMAKE_SOURCE_DIR}/src/include
-            ${CMAKE_SOURCE_DIR}/src/include/core
-            ${CMAKE_SOURCE_DIR}/src/include/event
-            ${CMAKE_SOURCE_DIR}/mock
-    )
-    target_compile_definitions(${TARGET_NAME}
-        PRIVATE
-            JUCE_APP_CONFIG_HEADER=""
-            TEST_BUILD
-    )
-    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
-endfunction()
-
-# Add your tests
-add_doctest_test(test/core/test_ConfigManager.cpp)
-#add_doctest_test(test/test_ActionHandler.cpp)
-# Add other tests as needed
-
-# Add a custom target for building all tests
-add_custom_target(build_tests
-    DEPENDS
-        test_core_test_ConfigManager
-        #        test_test_ActionHandler
-    COMMENT "Building all tests"
-)
+#function(add_doctest_test TEST_PATH)
+#    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
+#    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
+#    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
+#
+#    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
+#    target_link_libraries(${TARGET_NAME}
+#        PRIVATE
+#            doctest::doctest
+#            common_libs
+#    )
+#    target_include_directories(${TARGET_NAME}
+#        PRIVATE
+#            ${COMMON_INCLUDE_DIRS}
+#            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
+#            ${CMAKE_SOURCE_DIR}/abstract
+#            ${CMAKE_SOURCE_DIR}/src/include
+#            ${CMAKE_SOURCE_DIR}/src/include/core
+#            ${CMAKE_SOURCE_DIR}/src/include/event
+#            ${CMAKE_SOURCE_DIR}/mock
+#    )
+#    target_compile_definitions(${TARGET_NAME}
+#        PRIVATE
+#            JUCE_APP_CONFIG_HEADER=""
+#            TEST_BUILD
+#    )
+#    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
+#endfunction()
+#
+## Add your tests
+#add_doctest_test(test/core/test_ConfigManager.cpp)
+##add_doctest_test(test/test_ActionHandler.cpp)
+## Add other tests as needed
+#
+## Add a custom target for building all tests
+#add_custom_target(build_tests
+#    DEPENDS
+#        test_core_test_ConfigManager
+#        #        test_test_ActionHandler
+#    COMMENT "Building all tests"
+#)

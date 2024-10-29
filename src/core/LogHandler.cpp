@@ -70,21 +70,21 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
 //        return;
 //    }
 
-    if (!logfile.is_open()) {
-        logfile.open(logPath->string(), std::ios_base::app);
-    }
+    //if (!logfile.is_open()) {
+    //    logfile.open(logPath->string(), std::ios_base::app);
+    //}
 
     if (logfile.is_open()) {
         auto now = std::time(nullptr);
-        std::tm localTime;
+        #ifdef _WIN32
+        std::tm timeInfo;
+        localtime_s(&timeInfo, &now);
+        auto localTime = &timeInfo;
+        #else
+        auto localTime = std::localtime(&now);
+        #endif
 
-#ifdef _WIN32
-        localtime_s(&localTime, &now);
-#else
-        localtime_r(&now, &localTime);
-#endif
-
-        logfile << "[" << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S") << "] "
+        logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
                 << logLevelToString(level) << ": " << message << std::endl;
     } else {
         std::cerr << "Unable to open log file: " << logPath->string() << std::endl;

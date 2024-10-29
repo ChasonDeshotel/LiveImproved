@@ -26,9 +26,9 @@ public:
 
     auto ensurePipeOpen() -> bool;
 
-    auto writeToPipe(ipc::Request request) -> size_t;
+    auto writeToPipe(const ipc::Request& request) -> size_t;
     auto readFromPipe(void* buffer, size_t count) const -> ssize_t;
-    
+
     auto setHandle(ipc::Handle handle) -> void {
         pipeHandle_ = handle;
     }

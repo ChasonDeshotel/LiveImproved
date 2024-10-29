@@ -1,3 +1,5 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 #include <array>
 
@@ -11,15 +13,11 @@ PipeUtil::PipeUtil()
     , pipeMode_()
 {}
 
-PipeUtil::~PipeUtil() {
-    // remove / delete
-}
-
 auto PipeUtil::createPipe() -> bool {
     logger->error("pipe name: " + getPath().string());
     if (pipeMode_ == ipc::PipeMode::Read) {
         pipeHandle_ = CreateNamedPipeA(
-            pipePath_.c_str()
+            pipePath_.string().c_str()
             , PIPE_ACCESS_INBOUND  // Server will read from this pipe
             , PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT
             , PIPE_UNLIMITED_INSTANCES
@@ -30,38 +28,37 @@ auto PipeUtil::createPipe() -> bool {
         );
     } else if (pipeMode_ == ipc::PipeMode::Write) {
         pipeHandle_ = CreateNamedPipeA(
-            pipePath_.c_str()
+            pipePath_.string().c_str()
             , PIPE_ACCESS_OUTBOUND  // Server will write to this pipe
             , PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT
             , PIPE_UNLIMITED_INSTANCES
             , ipc::BUFFER_SIZE
             , ipc::BUFFER_SIZE
-            , 0,
+            , 0
             , NULL
         );
+        if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
+            logger->error("Failed to create pipe: ");
+            return false;
+        }
     }
 
-    if (pipeHandle_ == ipc::INVALID_HANDLE_VALUE) {
-        logger->error("Failed to create pipe: " + pipe_name);
-        return false;
-    }
 }
 
 // connect to pipe
-auto PipeUtil::openPipe(const std::string& pipe_name) -> bool {
-    HANDLE pipe = pipes_[pipe_name];
-    if (pipe != INVALID_HANDLE_VALUE) {
-        if (ConnectNamedPipe(pipe, NULL) || GetLastError() == ERROR_PIPE_CONNECTED) {
+auto PipeUtil::openPipe() -> bool {
+    if (pipeHandle_ != ipc::INVALID_PIPE_HANDLE) {
+        if (ConnectNamedPipe(pipeHandle_, NULL) || GetLastError() == ERROR_PIPE_CONNECTED) {
             return true;  // Pipe is now connected
         } else {
-            logger->error("Failed to connect to pipe: " + pipe_name);
+            logger->error("Failed to connect to pipe: ");
         }
     }
     return false;
 }
 
 auto PipeUtil::closePipe() -> bool {
-    if (pipeHandle_ != INVALID_HANDLE_VALUE) {
+    if (pipeHandle_ != ipc::INVALID_PIPE_HANDLE) {
         if (!CloseHandle(pipeHandle_)) {
             DWORD error = GetLastError();
             logger->error("Failed to close pipe handle. Error code: " + std::to_string(error));
@@ -69,22 +66,22 @@ auto PipeUtil::closePipe() -> bool {
             return false;
 
         }
-        pipeHandle_ = INVALID_HANDLE_VALUE;
+        pipeHandle_ = ipc::INVALID_PIPE_HANDLE;
     }
     return true;
 }
 
-auto IPCUtil::deletePipe() -> void {
+auto PipeUtil::deletePipe() -> void {
 //    // No equivalent of `unlink` for named pipes on Windows, so this is a no-op.
 //    logger->debug("No need to remove pipes on Windows: " + pipe_name);
-    return true;
+    return;
 }
 
 auto PipeUtil::ensurePipeOpen() -> bool {
     return true;
 }
 
-void IPCUtil::drainPipe() {
+void PipeUtil::drainPipe() {
     char buffer[ipc::BUFFER_SIZE];
     DWORD bytesRead;
     do {
