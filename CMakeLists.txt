@@ -198,7 +198,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live/component
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/system
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/util
-        #        "$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/Include/10.0.19041.0/um"
         ${WINDOWSSDK_INCLUDE_DIRS}
     )
 endif()
@@ -211,11 +210,11 @@ set(SRC_CPP
     src/core/LogGlobal.cpp
     src/core/LogHandler.cpp
     src/core/PluginManager.cpp
-    src/event/ActionHandler.cpp
+    #src/event/ActionHandler.cpp
     src/event/KeyMapper.cpp
-    src/gui/SearchBox.cpp
+    #src/gui/SearchBox.cpp
     src/gui/Theme.cpp
-    src/gui/WindowManager.cpp
+    #src/gui/WindowManager.cpp
     src/ipc/IPCQueue.cpp
     src/ipc/IPCPipe.cpp
     src/ipc/IPCRequestPipe.cpp
@@ -246,11 +245,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     list(APPEND SRC_CPP
-        src/platform/windows/event/EventHandler.cpp
+        #src/platform/windows/event/EventHandler.cpp
         src/platform/windows/event/KeySender.cpp
-        src/platform/windows/gui/ContextMenu.cpp
+        #src/platform/windows/gui/ContextMenu.cpp
         src/platform/windows/ipc/PipeUtil.cpp
-        src/platform/windows/live/LiveInterface.cpp
+        #src/platform/windows/live/LiveInterface.cpp
         src/platform/windows/system/PID.cpp
         src/platform/windows/system/PathManager.cpp
     )
@@ -356,55 +355,55 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # add test target
-#enable_testing()
-#add_subdirectory(lib/doctest)
-#
-#set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
-#
-#if(BUILD_TESTS)
-#    add_definitions(-DTEST_BUILD)
-#    add_compile_definitions(RUNNING_TESTS)
-#endif()
-#
+enable_testing()
+add_subdirectory(lib/doctest)
+
+set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
+
+if(BUILD_TESTS)
+    add_definitions(-DTEST_BUILD)
+    add_compile_definitions(RUNNING_TESTS)
+endif()
+
 # Function to add a test
-#function(add_doctest_test TEST_PATH)
-#    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
-#    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
-#    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
-#
-#    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
-#    target_link_libraries(${TARGET_NAME}
-#        PRIVATE
-#            doctest::doctest
-#            common_libs
-#    )
-#    target_include_directories(${TARGET_NAME}
-#        PRIVATE
-#            ${COMMON_INCLUDE_DIRS}
-#            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
-#            ${CMAKE_SOURCE_DIR}/abstract
-#            ${CMAKE_SOURCE_DIR}/src/include
-#            ${CMAKE_SOURCE_DIR}/src/include/core
-#            ${CMAKE_SOURCE_DIR}/src/include/event
-#            ${CMAKE_SOURCE_DIR}/mock
-#    )
-#    target_compile_definitions(${TARGET_NAME}
-#        PRIVATE
-#            JUCE_APP_CONFIG_HEADER=""
-#            TEST_BUILD
-#    )
-#    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
-#endfunction()
-#
-## Add your tests
-#add_doctest_test(test/core/test_ConfigManager.cpp)
-##add_doctest_test(test/test_ActionHandler.cpp)
-## Add other tests as needed
-#
-## Add a custom target for building all tests
-#add_custom_target(build_tests
-#    DEPENDS
-#        test_core_test_ConfigManager
-#        #        test_test_ActionHandler
-#    COMMENT "Building all tests"
-#)
+function(add_doctest_test TEST_PATH)
+    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
+    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
+    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
+
+    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
+    target_link_libraries(${TARGET_NAME}
+        PRIVATE
+            doctest::doctest
+            common_libs
+    )
+    target_include_directories(${TARGET_NAME}
+        PRIVATE
+            ${COMMON_INCLUDE_DIRS}
+            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
+            ${CMAKE_SOURCE_DIR}/abstract
+            ${CMAKE_SOURCE_DIR}/src/include
+            ${CMAKE_SOURCE_DIR}/src/include/core
+            ${CMAKE_SOURCE_DIR}/src/include/event
+            ${CMAKE_SOURCE_DIR}/mock
+    )
+    target_compile_definitions(${TARGET_NAME}
+        PRIVATE
+            JUCE_APP_CONFIG_HEADER=""
+            TEST_BUILD
+    )
+    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
+endfunction()
+
+# Add your tests
+add_doctest_test(test/core/test_ConfigManager.cpp)
+#add_doctest_test(test/test_ActionHandler.cpp)
+# Add other tests as needed
+
+# Add a custom target for building all tests
+add_custom_target(build_tests
+    DEPENDS
+        test_core_test_ConfigManager
+        #        test_test_ActionHandler
+    COMMENT "Building all tests"
+)
