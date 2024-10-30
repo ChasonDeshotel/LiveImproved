@@ -3,34 +3,29 @@
 #include "ILogHandler.h"
 #include <string>
 #include <vector>
+#include <filesystem>
 
 class MockLogHandler : public ILogHandler {
 public:
-    void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO) override {
-        messages.push_back({logLevelToString(level), message});
-    }
-    void debug(const std::string& message) override { log(message, LogLevel::LOG_DEBUG); }
-    void info(const std::string& message) override { log(message, LogLevel::LOG_INFO); }
-    void warn(const std::string& message) override { log(message, LogLevel::LOG_WARN); }
-    void error(const std::string& message) override { log(message, LogLevel::LOG_ERROR); }
+    MockLogHandler();
 
-    void setLogLevel(LogLevel level) override { currentLogLevel = level; }
+    void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO) override;
+    void debug(const std::string& message) override;
+    void info(const std::string& message) override;
+    void warn(const std::string& message) override;
+    void error(const std::string& message) override;
 
-    const std::vector<std::pair<std::string, std::string>>& getMessages() const { return messages; }
-    void clear() { messages.clear(); }
+    void setLogLevel(LogLevel level) override;
+    void setLogPath(const std::filesystem::path& path) override;
+
+    const std::vector<std::string>& getMessages() const;
+    void clear();
 
 protected:
-    std::string logLevelToString(LogLevel level) override {
-        switch (level) {
-            case LogLevel::LOG_DEBUG: return "DEBUG";
-            case LogLevel::LOG_INFO: return "INFO";
-            case LogLevel::LOG_WARN: return "WARN";
-            case LogLevel::LOG_ERROR: return "ERROR";
-            default: return "UNKNOWN";
-        }
-    }
+    std::string logLevelToString(LogLevel level) override;
 
 private:
-    std::vector<std::pair<std::string, std::string>> messages;
-    LogLevel currentLogLevel = LogLevel::LOG_INFO;
+    std::vector<std::string> messages;
+    LogLevel currentLogLevel;
+    std::filesystem::path logPath;
 };
