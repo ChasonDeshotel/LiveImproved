@@ -428,3 +428,16 @@ add_custom_target(build_tests
         #        test_test_ActionHandler
     COMMENT "Building all tests"
 )
+
+# Custom target for running all tests
+add_custom_target(
+    run_tests
+    COMMAND ${CMAKE_COMMAND} -E echo "Running all tests..."
+    COMMAND ${CMAKE_COMMAND}
+        -DBUILD_DIR=${CMAKE_BINARY_DIR}
+        -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -P ${CMAKE_SOURCE_DIR}/run-tests.cmake
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Running all tests"
+    DEPENDS build_tests
+)
