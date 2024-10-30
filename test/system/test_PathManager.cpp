@@ -14,8 +14,6 @@ namespace fs = std::filesystem;
 class TestPathManager : public PathManager {
 public:
     using PathManager::PathManager;
-    using PathManager::isValidFile;
-    using PathManager::isValidDir;
 };
 
 TEST_CASE("PathManager basic functionality") {

@@ -40,7 +40,7 @@ public:
     auto localAppData() const -> Path;
     #endif
 
-private:
+protected:
     auto isValidDir(const Path& dir) const -> bool;
     auto isValidFile(const Path& file) const -> bool;
 
