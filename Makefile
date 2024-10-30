@@ -34,8 +34,8 @@ run_tests: configure-tests
 		cd $(CLI_BUILD_DIR) && ctest --output-on-failure -V; \
 	else \
 		echo "Building and running test: $(TEST)"; \
-		cmake --build $(CLI_BUILD_DIR) --target $(TEST) && \
-		cd $(CLI_BUILD_DIR) && ctest -R $(TEST) --output-on-failure -v; \
+		cmake --build $(CLI_BUILD_DIR) --target test_system_test_$(TEST) && \
+		cd $(CLI_BUILD_DIR) && ./bin/test_system_test_$(TEST) --test-case="$(TEST) basic functionality" -s; \
 	fi
 
 run: configure build
