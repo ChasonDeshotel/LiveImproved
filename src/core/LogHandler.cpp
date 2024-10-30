@@ -9,7 +9,9 @@
 #include <time.h>
 #endif
 
+#ifndef TEST_BUILD
 #include <JuceHeader.h>
+#endif
 
 #include "LogHandler.h"
 #include "PathManager.h"
@@ -62,8 +64,11 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
         return;
     }
 
-    // TODO
+#ifdef TEST_BUILD
+    std::cout << logLevelToString(level) << ": " << message << std::endl;
+#else
     juce::Logger::writeToLog(message);
+#endif
 //
 //    if (!logPath.has_value()) {
 //        std::cerr << logLevelToString(level) << ": " << message << std::endl;
