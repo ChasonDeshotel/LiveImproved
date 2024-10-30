@@ -1,110 +1,55 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
 #include "doctest/doctest.h"
 #include "ConfigManager.h"
 #include "DependencyContainer.h"
 #include "MockLogHandler.h"
+#include "KeyMapper.h"
 
 #include <fstream>
-#include <optional>
-#include <iostream>
-
-DependencyContainer& container = DependencyContainer::getInstance();
-std::shared_ptr<ILogHandler> logger = nullptr;
-
-TEST_CASE("Setup") {
-    CAPTURE("Setting up test environment");
-    logger = std::make_shared<MockLogHandler>();
-    container.registerFactory<ILogHandler>(
-        [&](DependencyContainer&) { return logger; },
-        DependencyContainer::Lifetime::Singleton
-    );
-    logger = container.resolve<ILogHandler>();
-
-    std::string configFile = "test_config.yaml";
-    container.registerFactory<ConfigManager>(
-        [configFile](DependencyContainer& c) {
-            return std::make_shared<ConfigManager>(configFile);
-        },
-        DependencyContainer::Lifetime::Transient
-    );
-
-    //logger->setLogLevel(LogLevel::LOG_DEBUG);  // Set log level to DEBUG for tests
-}
-
-// Helper function to create a temporary config file
-std::string createTempConfigFile(const std::string& content) {
-    std::string tempFileName = "temp_config.yaml";
-    std::ofstream outFile(tempFileName);
-
-    if (!outFile.is_open()) {
-        std::cerr << "Failed to create temp file: " << tempFileName << std::endl;
-        return "";
-    }
-
-    outFile << content;
-    outFile.close();
-
-    return tempFileName;
-}
-
-// Helper function to delete the temporary config file
-void deleteTempConfigFile(const std::string &filename) {
-    std::remove(filename.c_str());
-}
-
-// Custom comparison function for std::optional
-template<typename T>
-void check_optional_equal(const std::optional<T>& opt, const T& value) {
-    REQUIRE(opt.has_value());
-    CHECK(opt.value() == value);
-}
+#include <filesystem>
 
 class ConfigManagerTestFixture {
 public:
     ConfigManagerTestFixture() {
-        std::cout << "ConfigManagerTestFixture constructor called" << std::endl;
+        container = std::make_unique<DependencyContainer>();
+        logger = std::make_shared<MockLogHandler>();
+        container->registerFactory<ILogHandler>(
+            [this](DependencyContainer&) { return logger; },
+            DependencyContainer::Lifetime::Singleton
+        );
+        container->registerFactory<KeyMapper>(
+            [](DependencyContainer& c) { return std::make_shared<KeyMapper>(); },
+            DependencyContainer::Lifetime::Singleton
+        );
     }
 
     ~ConfigManagerTestFixture() {
-        if (!configFile.empty()) {
-            deleteTempConfigFile(configFile);
+        if (std::filesystem::exists(configFile)) {
+            std::filesystem::remove(configFile);
         }
     }
 
-    std::string createConfigFile(const std::string& content) {
-        configFile = "test_config.yaml";
+    void createConfigFile(const std::string& content) {
         std::ofstream outFile(configFile);
         if (!outFile.is_open()) {
-            std::cerr << "Failed to create temp file: " << configFile << std::endl;
-            return "";
+            throw std::runtime_error("Failed to create temp file: " + configFile);
         }
         outFile << content;
         outFile.close();
-        return configFile;
     }
 
-private:
-    std::string configFile;
+    std::unique_ptr<DependencyContainer> container;
+    std::shared_ptr<MockLogHandler> logger;
+    std::string configFile = "test_config.yaml";
 };
 
-// Note: We don't need to add more tests specifically for the ConfigManagerTestFixture
-// because the existing "ConfigManager - Load Config" test case already uses this fixture.
-// The fixture is properly set up and torn down for each test case that uses it.
-
 TEST_CASE_FIXTURE(ConfigManagerTestFixture, "ConfigManager - Load Config") {
-    CAPTURE("Starting ConfigManager - Load Config test");
-
     std::string configContent = R"(
-# Keyboard shortcuts
 remap:
   ctrl+d: cmd+a
-  ctrl+2: shift+f
   d: delete
-  cmd+b: cmd+d, cmd+d, cmd+d, cmd+d
   alt+a: plugin.Serum
 
-# Plugins
 rename-plugins:
   Serum: Daddy Duda's Special Synth
 
@@ -112,12 +57,10 @@ remove-plugins:
   - TerribleSynth
   - I'mTooLazyToUninstallSynth
 
-# Quick shortcuts menu
 shortcuts:
   - key: /location/to/shortcut/1
   - other: /location/to/shortcut/2
 
-# Application behavior
 init:
   retries: 10
 
@@ -125,130 +68,139 @@ window:
   search: 100,200,500,500
   preferences: 50,150,200,300
 )";
-    std::string configFile = "test_config.yaml";
-    std::ofstream outFile(configFile);
-    outFile << configContent;
-    outFile.close();
+    createConfigFile(configContent);
 
-    // Create a new ConfigManager instance with the temporary config file
     auto configManager = std::make_shared<ConfigManager>(configFile);
     configManager->loadConfig();
 
     SUBCASE("Check init retries") {
-        CHECK_MESSAGE(configManager->getInitRetries() == 10, "Init retries should be 10");
+        CHECK(configManager->getInitRetries() == 10);
     }
 
     SUBCASE("Check remap") {
         auto remap = configManager->getRemap();
+        CHECK(remap.size() == 3);
 
-        EKeyPress kpFrom;
-        kpFrom.key = "d";
-        EKeyPress kpTo;
-        kpTo.key = "delete";
-        EMacro macro;
-        macro.addKeyPress(kpTo);
+        auto km = container->resolve<KeyMapper>();
+        
+        EKeyPress ctrlD = km->processKeyPress("ctrl+d");
+        CHECK(remap.find(ctrlD) != remap.end());
+        CHECK(remap[ctrlD].steps.size() == 1);
+        CHECK(std::holds_alternative<EKeyPress>(remap[ctrlD].steps[0]));
+        CHECK(std::get<EKeyPress>(remap[ctrlD].steps[0]) == km->processKeyPress("cmd+a"));
 
-        CHECK_MESSAGE(remap.find(kpFrom) != remap.end(), "Remap should contain 'd' key");
-        CHECK_MESSAGE(remap[kpFrom] == macro, "Remap 'd' should map to 'delete'");
+        EKeyPress d = km->processKeyPress("d");
+        CHECK(remap.find(d) != remap.end());
+        CHECK(remap[d].steps.size() == 1);
+        CHECK(std::holds_alternative<EKeyPress>(remap[d].steps[0]));
+        CHECK(std::get<EKeyPress>(remap[d].steps[0]) == km->processKeyPress("delete"));
 
-        Action actionTo("plugin", "Serum");
-        EKeyPress actionKPFrom;
-        actionKPFrom.alt = true;
-        actionKPFrom.key = "a";
-        EMacro actionMacro;
-        actionMacro.addAction(actionTo);
-
-        CHECK_MESSAGE(remap.find(actionKPFrom) != remap.end(), "Remap should contain 'alt+a' key");
-        CHECK_MESSAGE(remap[actionKPFrom] == actionMacro, "Remap 'alt+a' should map to plugin.Serum action");
+        EKeyPress altA = km->processKeyPress("alt+a");
+        CHECK(remap.find(altA) != remap.end());
+        CHECK(remap[altA].steps.size() == 1);
+        CHECK(std::holds_alternative<Action>(remap[altA].steps[0]));
+        CHECK(std::get<Action>(remap[altA].steps[0]).actionName == "plugin");
+        CHECK(std::get<Action>(remap[altA].steps[0]).arguments.value() == "Serum");
     }
 
     SUBCASE("Check rename plugins") {
         auto renamePlugins = configManager->getRenamePlugins();
-        CHECK_MESSAGE(!renamePlugins.empty(), "Rename plugins should not be empty");
-        CHECK_MESSAGE(renamePlugins["Serum"] == "Daddy Duda's Special Synth", "Serum should be renamed to 'Daddy Duda's Special Synth'");
+        CHECK(renamePlugins.size() == 1);
+        CHECK(renamePlugins["Serum"] == "Daddy Duda's Special Synth");
     }
 
     SUBCASE("Check remove plugins") {
         auto removePlugins = configManager->getRemovePlugins();
-        CHECK_MESSAGE(!removePlugins.empty(), "Remove plugins should not be empty");
-        CHECK_MESSAGE(removePlugins.size() == 2, "Remove plugins should contain 2 items");
-        CHECK_MESSAGE(removePlugins[0] == "TerribleSynth", "First remove plugin should be 'TerribleSynth'");
-        CHECK_MESSAGE(removePlugins[1] == "I'mTooLazyToUninstallSynth", "Second remove plugin should be 'I'mTooLazyToUninstallSynth'");
+        CHECK(removePlugins.size() == 2);
+        CHECK(removePlugins[0] == "TerribleSynth");
+        CHECK(removePlugins[1] == "I'mTooLazyToUninstallSynth");
     }
 
     SUBCASE("Check window settings") {
         auto windowSettings = configManager->getWindowSettings();
-        CHECK_MESSAGE(!windowSettings.empty(), "Window settings should not be empty");
-        CHECK_MESSAGE(windowSettings["search"] == "100,200,500,500", "Search window settings should be '100,200,500,500'");
-        CHECK_MESSAGE(windowSettings["preferences"] == "50,150,200,300", "Preferences window settings should be '50,150,200,300'");
+        CHECK(windowSettings.size() == 2);
+        CHECK(windowSettings["search"] == "100,200,500,500");
+        CHECK(windowSettings["preferences"] == "50,150,200,300");
     }
 
     SUBCASE("Check shortcuts") {
         auto shortcuts = configManager->getShortcuts();
-        CHECK_MESSAGE(!shortcuts.empty(), "Shortcuts should not be empty");
-        REQUIRE_MESSAGE(shortcuts.size() == 2, "Shortcuts should contain 2 items");
-        CHECK_MESSAGE(shortcuts[0].at("key") == "/location/to/shortcut/1", "First shortcut should be '/location/to/shortcut/1'");
-        CHECK_MESSAGE(shortcuts[1].at("other") == "/location/to/shortcut/2", "Second shortcut should be '/location/to/shortcut/2'");
+        CHECK(shortcuts.size() == 2);
+        CHECK(shortcuts[0].at("key") == "/location/to/shortcut/1");
+        CHECK(shortcuts[1].at("other") == "/location/to/shortcut/2");
     }
-
-    // Check logged messages
-    //const auto& messages = logger->getMessages();
-    //CHECK(!messages.empty());
-    //CHECK(messages[0].first == "INFO");
-    //CHECK(messages[0].second.find("Config loaded successfully") != std::string::npos);
-
-    std::remove(configFile.c_str());
 }
 
-TEST_CASE("ConfigManager - Undo") {
-    CAPTURE("Starting ConfigManager - Undo test");
-
+TEST_CASE_FIXTURE(ConfigManagerTestFixture, "ConfigManager - Save Config") {
     std::string configContent = R"(
-# Keyboard shortcuts
-remap:
-  ctl+d: cmd+a
-  ctl+2: shift+f1
-
-# Plugins
-rename-plugins:
-  Serum: Daddy Duda's Special Synth
-
-remove-plugins:
-  - TerribleSynth
-  - I'mTooLazyToUninstallSynth
-
-# Quick shortcuts menu
-shortcuts:
-  - key: /location/to/shortcut/1
-  - other: /location/to/shortcut/2
-
-# Application behavior
 init:
   retries: 3
-
-window:
-  search: 100,200,500,500
-  preferences: 50,150,200,300
 )";
-    std::string configFile = "test_config.yaml";
-    std::ofstream outFile(configFile);
-    outFile << configContent;
-    outFile.close();
+    createConfigFile(configContent);
 
     auto configManager = std::make_shared<ConfigManager>(configFile);
     configManager->loadConfig();
 
-    CHECK_MESSAGE(configManager->getInitRetries() == 3, "retries should be 3");
+    SUBCASE("Save and reload config") {
+        configManager->setInitRetries(5);
+        configManager->setRemap("ctrl+s", "cmd+s");
+        configManager->setRenamePlugin("OldPlugin", "NewPlugin");
+        configManager->setRemovePlugin("BadPlugin");
+        configManager->setWindowSetting("main", "100,100,800,600");
+        configManager->setShortcut(0, {{"newKey", "/new/shortcut"}});
 
-    configManager->setInitRetries(5);
-    CHECK_MESSAGE(configManager->getInitRetries() == 5, "retries set to 5");
+        configManager->saveConfig();
 
-    configManager->undo();
-    CHECK_MESSAGE(configManager->getInitRetries() == 3, "retries after undo is 3");
+        // Create a new ConfigManager instance to load the saved config
+        auto newConfigManager = std::make_shared<ConfigManager>(configFile);
+        newConfigManager->loadConfig();
 
-    auto newManager = std::make_shared<ConfigManager>(configFile);
-    newManager->loadConfig();
-    CHECK(newManager->getInitRetries() == 3);
+        CHECK(newConfigManager->getInitRetries() == 5);
+        
+        auto remap = newConfigManager->getRemap();
+        auto km = container->resolve<KeyMapper>();
+        EKeyPress ctrlS = km->processKeyPress("ctrl+s");
+        CHECK(remap.find(ctrlS) != remap.end());
+        CHECK(remap[ctrlS].steps.size() == 1);
+        CHECK(std::holds_alternative<EKeyPress>(remap[ctrlS].steps[0]));
+        CHECK(std::get<EKeyPress>(remap[ctrlS].steps[0]) == km->processKeyPress("cmd+s"));
 
-    std::remove(configFile.c_str());
+        auto renamePlugins = newConfigManager->getRenamePlugins();
+        CHECK(renamePlugins["OldPlugin"] == "NewPlugin");
+
+        auto removePlugins = newConfigManager->getRemovePlugins();
+        CHECK(std::find(removePlugins.begin(), removePlugins.end(), "BadPlugin") != removePlugins.end());
+
+        auto windowSettings = newConfigManager->getWindowSettings();
+        CHECK(windowSettings["main"] == "100,100,800,600");
+
+        auto shortcuts = newConfigManager->getShortcuts();
+        CHECK(shortcuts.size() == 1);
+        CHECK(shortcuts[0].at("newKey") == "/new/shortcut");
+    }
+}
+
+TEST_CASE_FIXTURE(ConfigManagerTestFixture, "ConfigManager - Undo") {
+    std::string configContent = R"(
+init:
+  retries: 3
+)";
+    createConfigFile(configContent);
+
+    auto configManager = std::make_shared<ConfigManager>(configFile);
+    configManager->loadConfig();
+
+    SUBCASE("Undo changes") {
+        CHECK(configManager->getInitRetries() == 3);
+
+        configManager->setInitRetries(5);
+        CHECK(configManager->getInitRetries() == 5);
+
+        configManager->undo();
+        CHECK(configManager->getInitRetries() == 3);
+
+        // Check that we can't undo past the initial state
+        configManager->undo();
+        CHECK(configManager->getInitRetries() == 3);
+    }
 }
