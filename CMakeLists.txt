@@ -371,7 +371,7 @@ function(add_doctest_test TEST_PATH)
     get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
     string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
 
-    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp src/core/LogGlobal.cpp mock/MockLogHandler.cpp)
+    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp src/core/LogGlobal.cpp src/core/LogHandler.cpp mock/MockLogHandler.cpp)
     target_link_libraries(${TARGET_NAME}
         PRIVATE
             doctest::doctest
