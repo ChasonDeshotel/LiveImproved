@@ -371,7 +371,32 @@ function(add_doctest_test TEST_PATH)
     get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
     string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
 
-    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp src/core/LogGlobal.cpp src/core/LogHandler.cpp mock/MockLogHandler.cpp)
+    add_executable(${TARGET_NAME} ${TEST_PATH} 
+        src/core/ConfigManager.cpp 
+        src/event/KeyMapper.cpp 
+        src/core/LogGlobal.cpp 
+        src/core/LogHandler.cpp 
+        mock/MockLogHandler.cpp
+    )
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        target_sources(${TARGET_NAME}
+            PRIVATE
+                src/platform/macos/system/PathManager.mm
+                src/platform/macos/system/PID.mm
+        )
+        target_link_libraries(${TARGET_NAME}
+            PRIVATE
+                "-framework AppKit"
+                "-framework Foundation"
+        )
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        target_sources(${TARGET_NAME}
+            PRIVATE
+                src/platform/windows/system/PathManager.cpp
+                src/platform/windows/system/PID.cpp
+        )
+    endif()
     target_link_libraries(${TARGET_NAME}
         PRIVATE
             doctest::doctest
@@ -385,6 +410,8 @@ function(add_doctest_test TEST_PATH)
             ${CMAKE_SOURCE_DIR}/src/include
             ${CMAKE_SOURCE_DIR}/src/include/core
             ${CMAKE_SOURCE_DIR}/src/include/event
+            ${CMAKE_SOURCE_DIR}/src/include/system
+            ${CMAKE_SOURCE_DIR}/src/include/platform
             ${CMAKE_SOURCE_DIR}/mock
     )
     target_compile_definitions(${TARGET_NAME}
