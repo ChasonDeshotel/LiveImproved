@@ -397,6 +397,26 @@ endfunction()
 
 # Add your tests
 add_doctest_test(test/core/test_ConfigManager.cpp)
+add_doctest_test(test/system/test_PathManager.cpp)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_sources(test_system_test_PathManager
+        PRIVATE
+            src/platform/macos/system/PathManager.mm
+            src/platform/macos/system/PID.mm
+    )
+    target_link_libraries(test_system_test_PathManager
+        PRIVATE
+            "-framework AppKit"
+            "-framework Foundation"
+    )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_sources(test_system_test_PathManager
+        PRIVATE
+            src/platform/windows/system/PathManager.cpp
+            src/platform/windows/system/PID.cpp
+    )
+endif()
 #add_doctest_test(test/test_ActionHandler.cpp)
 # Add other tests as needed
 
@@ -404,6 +424,7 @@ add_doctest_test(test/core/test_ConfigManager.cpp)
 add_custom_target(build_tests
     DEPENDS
         test_core_test_ConfigManager
+        test_system_test_PathManager
         #        test_test_ActionHandler
     COMMENT "Building all tests"
 )
