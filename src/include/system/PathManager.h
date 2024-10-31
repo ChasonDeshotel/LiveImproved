@@ -16,6 +16,7 @@ public:
 
     auto home() const -> Path;
     auto documents() const -> Path;
+    auto music() const -> Path;
 
     auto liveBundle() const -> Path;
     auto liveBinary() const -> Path;
