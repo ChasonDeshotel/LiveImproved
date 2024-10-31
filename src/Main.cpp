@@ -183,7 +183,6 @@ public:
         void eventHandler() {
             app->container_.registerFactory<IEventHandler>(
                 [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
-                    // We can delay these resolutions if needed
                     return std::make_shared<EventHandler>(
                         [&c]() { return c.resolve<IActionHandler>(); }
                         , [&c]() { return c.resolve<IWindowManager>(); }
@@ -305,8 +304,6 @@ public:
         void actionHandler() {
             app->container_.registerFactory<IActionHandler>(
                 [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
-
-                    // We can delay these resolutions if needed
                     return std::make_shared<ActionHandler>(
                         [&c]() { return c.resolve<IPluginManager>(); }
                         , [&c]() { return c.resolve<IWindowManager>(); }
@@ -323,7 +320,6 @@ public:
         void windowManager() {
             app->container_.registerFactory<IWindowManager>(
                 [](DependencyContainer& c) -> std::shared_ptr<IWindowManager> {
-                    // We can delay these resolutions if needed
                     return std::make_shared<WindowManager>(
                         [&c]() { return c.resolve<IPluginManager>(); }
                         , [&c]() { return c.resolve<IEventHandler>(); }
@@ -340,8 +336,6 @@ public:
     };
 };
 
-// NOLINTBEGIN
 #ifndef TEST_BUILD
-START_JUCE_APPLICATION(JuceApp)
+START_JUCE_APPLICATION(JuceApp) // NOLINT
 #endif
-// NOLINTEND

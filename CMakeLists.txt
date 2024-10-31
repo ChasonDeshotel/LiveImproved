@@ -424,6 +424,7 @@ if(BUILD_TESTS)
     add_li_test(test_ConfigManager test/core/test_ConfigManager.cpp)
     add_li_test(test_ActionHandler test/core/test_ActionHandler.cpp)
     add_li_test(test_PathManager test/system/test_PathManager.cpp)
+    add_li_test(test_ResponseParser test/ipc/test_ResponseParser.cpp)
     # Add other tests as needed
 endif()
 

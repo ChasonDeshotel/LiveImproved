@@ -37,7 +37,7 @@ namespace ipc {
     #endif
 
     static constexpr int    MAX_READ_RETRIES           {100};
-    static constexpr int    MESSAGE_TRUNCATE_CHARS     {100};
+    static constexpr int    MESSAGE_TRUNCATE_CHARS     {300};
     static constexpr int    MAX_PIPE_CREATION_ATTEMPTS {100};
     static constexpr int    MAX_PIPE_SETUP_ATTEMPTS    {100};
     static constexpr size_t BUFFER_SIZE                {8192};

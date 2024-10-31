@@ -90,7 +90,7 @@ auto IPCPipe::writeRequest(ipc::Request request) -> bool {
 auto IPCPipe::logMessage(const std::string& message) -> void {
     logger->debug("Message read from response pipe: " + p_->getPath().string());
     if (message.length() > ipc::MESSAGE_TRUNCATE_CHARS) {
-        logger->debug("Message truncated to 100 characters");
+        logger->debug("Message truncated to " + std::to_string(ipc::MESSAGE_TRUNCATE_CHARS) + " characters");
         logger->debug("Message: " + message.substr(0, ipc::MESSAGE_TRUNCATE_CHARS));
     } else {
         logger->debug("Message: " + message);

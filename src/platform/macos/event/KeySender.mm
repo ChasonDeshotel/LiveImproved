@@ -147,11 +147,11 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
         CGEventFlags flags = getEventFlags(kp);
         std::optional<CGKeyCode> keyCodeOpt = getKeyCode(toLower(kp.key));
 
-        logger->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
-        logger->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
-        logger->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
-        logger->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
-        logger->debug("KeySender:: Keypress key: "   + kp.key                   );
+        //logger->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
+        //logger->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );
+        //logger->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt)   );
+        //logger->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift) );
+        //logger->debug("KeySender:: Keypress key: "   + kp.key                   );
 
         if (keyCodeOpt) {
             CGKeyCode keyCode = *keyCodeOpt;
