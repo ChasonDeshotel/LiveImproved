@@ -14,36 +14,38 @@ PipeUtil::PipeUtil()
 {}
 
 auto PipeUtil::createPipe() -> bool {
-    logger->error("pipe name: " + getPath().string());
+    logger->info("Creating pipe: " + getPath().string());
+
+    DWORD openMode;
     if (pipeMode_ == ipc::PipeMode::Read) {
-        pipeHandle_ = CreateNamedPipeA(
-            pipePath_.string().c_str()
-            , PIPE_ACCESS_INBOUND  // Server will read from this pipe
-            , PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT
-            , PIPE_UNLIMITED_INSTANCES
-            , ipc::BUFFER_SIZE
-            , ipc::BUFFER_SIZE
-            , 0
-            , NULL
-        );
-        logger->error("read pipe");
+        openMode = PIPE_ACCESS_INBOUND;
+        logger->debug("Creating read pipe");
     } else if (pipeMode_ == ipc::PipeMode::Write) {
-        pipeHandle_ = CreateNamedPipeA(
-            pipePath_.string().c_str()
-            , PIPE_ACCESS_OUTBOUND  // Server will write to this pipe
-            , PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT
-            , PIPE_UNLIMITED_INSTANCES
-            , ipc::BUFFER_SIZE
-            , ipc::BUFFER_SIZE
-            , 0
-            , NULL
-        );
-        logger->error("write pipe");
-        if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
-            logger->error("Failed to create pipe: ");
-            return false;
-        }
+        openMode = PIPE_ACCESS_OUTBOUND;
+        logger->debug("Creating write pipe");
+    } else {
+        logger->error("Invalid pipe mode");
+        return false;
     }
+
+    pipeHandle_ = CreateNamedPipe(
+        getPath().wstring().c_str(),
+        openMode,
+        PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+        PIPE_UNLIMITED_INSTANCES,
+        ipc::BUFFER_SIZE,
+        ipc::BUFFER_SIZE,
+        0,
+        NULL
+    );
+
+    if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
+        DWORD error = GetLastError();
+        logger->error("Failed to create pipe: " + getPath().string() + " - Error code: " + std::to_string(error));
+        return false;
+    }
+
+    logger->info("Pipe created successfully: " + getPath().string());
     return true;
 }
 
