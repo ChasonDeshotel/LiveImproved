@@ -30,7 +30,7 @@ test:
 run_tests: configure-tests
 	@if [ -z "$(TEST)" ]; then \
 		echo "Building and running all tests..."; \
-		cmake --build $(CLI_BUILD_DIR) --target build_tests && \
+		cmake --build $(CLI_BUILD_DIR) && \
 		cd $(CLI_BUILD_DIR) && ctest --output-on-failure -V; \
 	else \
 		echo "Building and running test: $(TEST)"; \
