@@ -1,10 +1,11 @@
 #pragma once
 
 #include "IWindow.h"
+#include <string>
 
 class MockWindow : public IWindow {
 public:
-    MockWindow() = default;
+    explicit MockWindow(const std::string& windowName) : name(windowName) {}
     ~MockWindow() override = default;
 
     MockWindow(const MockWindow &) = delete;
@@ -20,8 +21,10 @@ public:
     [[nodiscard]] bool wasOpenCalled() const { return openCalled; }
     [[nodiscard]] bool wasCloseCalled() const { return closeCalled; }
     void setWindowHandle(void* handle) { windowHandle = handle; }
+    [[nodiscard]] const std::string& getWindowName() const { return name; }
 
 private:
+    std::string name;
     bool openCalled = false;
     bool closeCalled = false;
     void* windowHandle = nullptr;
