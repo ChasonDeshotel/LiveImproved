@@ -13,6 +13,12 @@ using Path = std::filesystem::path;
 PathManager::PathManager() {
     // Add default search paths
     searchPaths.emplace_back(getenv("HOME"));
+
+    // Initialize userScriptsPaths
+    userScriptsPaths = {
+        [this]() { return documents(); },
+        [this]() { return music(); }
+    };
 }
 
 // accounts for symlinks
