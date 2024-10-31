@@ -177,14 +177,16 @@ auto PathManager::liveTheme() const -> Path {
 }
 
 auto PathManager::remoteScripts() const -> Path {
-    Path remoteScripts = documents() / "Ableton" / "User Library" / "Remote Scripts";
+    Path remoteScriptsInDocuments = documents() / "Ableton" / "User Library" / "Remote Scripts";
+    Path remoteScriptsInMusic = music() / "Ableton" / "User Library" / "Remote Scripts";
 
-
-    if (!isValidDir(remoteScripts)) {
-        throw std::runtime_error("Ableton Live MIDI Remote Scripts directory does not exist or is not a directory: " + remoteScripts.string());
+    if (isValidDir(remoteScriptsInDocuments)) {
+        return remoteScriptsInDocuments;
+    } else if (isValidDir(remoteScriptsInMusic)) {
+        return remoteScriptsInMusic;
+    } else {
+        throw std::runtime_error("Ableton Live MIDI Remote Scripts directory does not exist or is not a directory in either Documents or Music folders");
     }
-
-    return remoteScripts;
 }
 
 auto PathManager::limRemoteScript() const -> Path {
