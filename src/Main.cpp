@@ -363,5 +363,7 @@ public:
 };
 
 // NOLINTBEGIN
+#ifndef TEST_BUILD
 START_JUCE_APPLICATION(JuceApp)
+#endif
 // NOLINTEND

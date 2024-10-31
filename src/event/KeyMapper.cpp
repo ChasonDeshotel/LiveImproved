@@ -11,6 +11,8 @@ KeyMapper::KeyMapper()
     : valid(false)
 {}
 
+KeyMapper::~KeyMapper() = default;
+
 auto KeyMapper::processKeyPress(const std::string& keypress) -> EKeyPress {
     logger->debug("process key: " + keypress);
     if (validateHotkey(keypress)) {

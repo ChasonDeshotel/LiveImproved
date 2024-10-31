@@ -64,11 +64,11 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
         return;
     }
 
-#ifdef TEST_BUILD
+    #ifdef TEST_BUILD
     std::cout << logLevelToString(level) << ": " << message << std::endl;
-#else
+    #else
     juce::Logger::writeToLog(message);
-#endif
+    #endif
 //
 //    if (!logPath.has_value()) {
 //        std::cerr << logLevelToString(level) << ": " << message << std::endl;

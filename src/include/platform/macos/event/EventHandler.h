@@ -1,7 +1,10 @@
 #pragma once
 
-#ifdef __OBJC__
+#ifndef _WIN32
 #include <ApplicationServices/ApplicationServices.h>
+#endif
+
+#ifdef __OBJC__
 #include <CoreFoundation/CoreFoundation.h>
 #elif _WIN32
 #define WIN32_LEAN_AND_MEAN

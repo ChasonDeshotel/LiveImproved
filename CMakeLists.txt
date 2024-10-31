@@ -403,6 +403,7 @@ if(BUILD_TESTS)
             doctest::doctest
         )
         target_include_directories(${TEST_NAME} PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/abstract
             ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
             ${CMAKE_SOURCE_DIR}/mock
         )
@@ -414,6 +415,7 @@ if(BUILD_TESTS)
 
     # Add your tests
     add_li_test(test_ConfigManager test/core/test_ConfigManager.cpp)
+    add_li_test(test_ActionHandler test/core/test_ActionHandler.cpp)
     # Add other tests as needed
 endif()
 

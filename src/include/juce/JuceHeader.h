@@ -1,5 +1,4 @@
-#ifndef JUCE_HEADER_H
-#define JUCE_HEADER_H
+#pragma once
 
 #include <juce_core/juce_core.h>
 #include <juce_data_structures/juce_data_structures.h>
@@ -14,5 +13,3 @@ namespace ProjectInfo
     const char* const  versionString  = "0.0.0.1";
     const int          versionNumber  = 0x10000;
 }
-
-#endif

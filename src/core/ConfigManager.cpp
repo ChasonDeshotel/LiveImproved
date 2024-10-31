@@ -105,6 +105,7 @@ auto ConfigManager::applyConfig(const YAML::Node& config) -> void {
     }
 }
 
+
 auto ConfigManager::saveConfig() -> void {
     undoStack_.push_back(YAML::Clone(config_));
 

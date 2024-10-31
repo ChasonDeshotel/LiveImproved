@@ -8,6 +8,7 @@
 #include "IIPCCore.h"
 #include "EventHandler.h"
 #include "ILiveInterface.h"
+#include "LogGlobal.h"
 
 #include <memory>
 
