@@ -12,17 +12,25 @@ ResponseParser::~ResponseParser() = default;
 
 auto ResponseParser::parsePlugins(const std::string& input) -> std::vector<Plugin> {
     std::vector<Plugin> plugins;
-    std::vector<std::string> entries = Utils::split(input, '|');
+    std::vector<std::string> entries;
+
+    // Check if the input contains a pipe character
+    if (input.find('|') != std::string::npos) {
+        entries = Utils::split(input, '|');
+    } else {
+        // If no pipe, treat the entire input as a single entry
+        entries.push_back(input);
+    }
 
     for (const std::string& entry : entries) {
         std::vector<std::string> fields = Utils::split(entry, ',');
         if (fields.size() == 3) {
             Plugin plugin;
-            plugin.number = std::stoi(fields[0]);
+            plugin.number = std::stoi(fields[0]) + 1; // Add 1 to make it 1-based
             plugin.name = fields[1];
             size_t typePos = fields[2].find('#');
             if (typePos != std::string::npos) {
-                plugin.type = fields[2].substr(typePos + 1, 4); // NOLINT Extracts type (e.g., "#AUv2")
+                plugin.type = fields[2].substr(typePos + 1, 4); // NOLINT Extracts type (e.g., "AUv2")
                 plugin.uri = fields[2].substr(typePos + 6);     // NOLINT Extracts the URI part
             } else {
                 plugin.uri = fields[2];

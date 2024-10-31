@@ -18,6 +18,17 @@ TEST_CASE("ResponseParser::parsePlugins") {
         CHECK(plugins[0].uri == "Aberrant%20DSP:ShapeShifter");
     }
 
+    SUBCASE("Parse single plugin with different type") {
+        std::string input = "2,Virus TI,query:Plugins#VST3:Access:Virus%20TI";
+        auto plugins = parser.parsePlugins(input);
+
+        REQUIRE(plugins.size() == 1);
+        CHECK(plugins[0].number == 3);  // Remember, we're adding 1 to make it 1-based
+        CHECK(plugins[0].name == "Virus TI");
+        CHECK(plugins[0].type == "VST3");
+        CHECK(plugins[0].uri == "Access:Virus%20TI");
+    }
+
     SUBCASE("Parse multiple plugins") {
         std::string input = "0,ShapeShifter,query:Plugins#AUv2:Aberrant%20DSP:ShapeShifter|1,SketchCassette,query:Plugins#AUv2:Aberrant%20DSP:SketchCassette|2,Virus TI,query:Plugins#AUv2:Access:Virus%20TI";
         auto plugins = parser.parsePlugins(input);
