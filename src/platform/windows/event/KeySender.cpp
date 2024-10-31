@@ -60,7 +60,7 @@ namespace {
     }
 }
 
-void sendIndividualKeyPress(const EKeyPress& kp) {
+void KeySender::sendIndividualKeyPress(const EKeyPress& kp) {
     std::optional<WORD> keyCodeOpt = getKeyCode(toLower(kp.key));
     if (keyCodeOpt) {
         WORD keyCode = *keyCodeOpt;
