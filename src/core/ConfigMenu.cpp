@@ -16,6 +16,7 @@
 
 ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
     : configFile_(configFile) {
+    loadConfig();
     parseLESMenuConfig(PathManager().lesConfig());
 }
 
@@ -154,8 +155,34 @@ auto ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) -> vo
 
 auto ConfigMenu::loadConfig() -> void {
     try {
-        // Implementation
-    } catch (const std::exception &e) {
+        YAML::Node config = YAML::LoadFile(configFile_.string());
+        config_ = config;
+        applyConfig(config);
+    } catch (const YAML::Exception& e) {
         logger->error("Error loading config: " + std::string(e.what()));
+    } catch (const std::exception& e) {
+        logger->error("Unexpected error loading config: " + std::string(e.what()));
     }
+}
+auto ConfigMenu::applyConfig(const YAML::Node& config) -> void {
+    if (config["menu_items"]) {
+        menuData_.clear();
+        for (const auto& item : config["menu_items"]) {
+            menuData_.push_back(parseMenuItem(item));
+        }
+    }
+}
+
+auto ConfigMenu::parseMenuItem(const YAML::Node& node) -> MenuItem {
+    MenuItem item;
+    item.label = node["label"].as<std::string>();
+    if (node["action"]) {
+        item.action = node["action"].as<std::string>();
+    }
+    if (node["children"]) {
+        for (const auto& childNode : node["children"]) {
+            item.children.push_back(parseMenuItem(childNode));
+        }
+    }
+    return item;
 }

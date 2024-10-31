@@ -32,4 +32,6 @@ private:
 
     std::vector<YAML::Node> undoStack_;
 
+    void applyConfig(const YAML::Node& config);
+    MenuItem parseMenuItem(const YAML::Node& node);
 };
