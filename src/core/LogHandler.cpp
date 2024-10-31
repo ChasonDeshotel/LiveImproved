@@ -2,6 +2,7 @@
 #include <ctime>
 #include <filesystem>
 #include <optional>
+#include <sstream>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -22,6 +23,7 @@ LogHandler::LogHandler()
     : ILogHandler()
     , currentLogLevel(LogLevel::LOG_DEBUG) {
     logPath = PathManager().log();
+    initializeLogFile();
 }
 
 LogHandler::~LogHandler() {
@@ -35,29 +37,42 @@ auto LogHandler::getInstance() -> LogHandler& {
     return instance;
 }
 
-auto LogHandler::setLogPath(const std::filesystem::path& path) -> void {
+auto LogHandler::initializeLogFile() -> void {
     std::lock_guard<std::mutex> lock(logMutex);
 
-    try {
-        if (logfile.is_open()) {
-            logfile.close();
-        }
-        
-        // Create directories if they don't exist
-        fs::create_directories(path.parent_path());
+    if (!logPath.has_value()) {
+        std::cerr << "Log path not set." << std::endl;
+        return;
+    }
 
-        logfile.open(path.string(), std::ios_base::app);
+    try {
+        // Create directories if they don't exist
+        fs::create_directories(logPath->parent_path());
+
+        logfile.open(logPath->string(), std::ios_base::app);
         if (!logfile.is_open()) {
-            std::cerr << "Failed to open log file at: " << path.string() << std::endl;
+            std::cerr << "Failed to open log file at: " << logPath->string() << std::endl;
             logPath = std::nullopt;
         } else {
-            logPath = path;
-            std::cerr << "Successfully opened log file at: " << path.string() << std::endl;
+            std::cerr << "Successfully opened log file at: " << logPath->string() << std::endl;
+            logfile << "Log file opened at: " << getCurrentTimestamp() << std::endl;
+            logfile.flush();
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Filesystem error: " << e.what() << std::endl;
         logPath = std::nullopt;
     }
+}
+
+auto LogHandler::setLogPath(const std::filesystem::path& path) -> void {
+    std::lock_guard<std::mutex> lock(logMutex);
+
+    if (logfile.is_open()) {
+        logfile.close();
+    }
+
+    logPath = path;
+    initializeLogFile();
 }
 
 auto LogHandler::setLogLevel(LogLevel level) -> void {
@@ -72,25 +87,47 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
         return;
     }
 
+    std::string formattedMessage = formatLogMessage(message, level);
+
     #ifdef TEST_BUILD
-    std::cout << logLevelToString(level) << ": " << message << std::endl;
+    std::cout << formattedMessage << std::endl;
     #else
-    juce::Logger::writeToLog(message);
+    juce::Logger::writeToLog(formattedMessage);
     #endif
 
     if (!logPath.has_value()) {
-        std::cerr << "Log path not set. " << logLevelToString(level) << ": " << message << std::endl;
+        std::cerr << "Log path not set. " << formattedMessage << std::endl;
         return;
     }
 
     if (!logfile.is_open()) {
-        logfile.open(logPath->string(), std::ios_base::app);
+        initializeLogFile();
         if (!logfile.is_open()) {
             std::cerr << "Failed to open log file at: " << logPath->string() << std::endl;
             return;
         }
     }
 
+    logfile << formattedMessage << std::endl;
+    
+    // Flush the stream to ensure the message is written immediately
+    logfile.flush();
+
+    if (logfile.fail()) {
+        std::cerr << "Failed to write to log file: " << logPath->string() << std::endl;
+        // Try to get more information about the failure
+        std::cerr << "Error bits: " << logfile.rdstate() << std::endl;
+        logfile.clear(); // Clear error flags
+    }
+}
+
+auto LogHandler::formatLogMessage(const std::string& message, LogLevel level) -> std::string {
+    std::stringstream ss;
+    ss << "[" << getCurrentTimestamp() << "] " << logLevelToString(level) << ": " << message;
+    return ss.str();
+}
+
+auto LogHandler::getCurrentTimestamp() -> std::string {
     auto now = std::time(nullptr);
     #ifdef _WIN32
     std::tm timeInfo;
@@ -100,15 +137,9 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
     auto localTime = std::localtime(&now);
     #endif
 
-    logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
-            << logLevelToString(level) << ": " << message << std::endl;
-    
-    // Flush the stream to ensure the message is written immediately
-    logfile.flush();
-
-    if (logfile.fail()) {
-        std::cerr << "Failed to write to log file: " << logPath->string() << std::endl;
-    }
+    std::stringstream ss;
+    ss << std::put_time(localTime, "%Y-%m-%d %H:%M:%S");
+    return ss.str();
 }
 
 auto LogHandler::debug(const std::string& message) -> void {
