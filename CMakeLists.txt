@@ -103,10 +103,19 @@ target_link_libraries(common_libs
 # Include JUCE for all builds
 add_subdirectory(lib/JUCE)
 
+# Create a library target for the main application code
+add_library(LiveImprovedLib STATIC
+    ${SRC_CPP}
+    ${SRC_OBJCXX}
+)
+
 # Set up your project with JUCE modules
 juce_add_gui_app(LiveImproved
     PRODUCT_NAME "LiveImproved"
 )
+
+# Link LiveImprovedLib to LiveImproved
+target_link_libraries(LiveImproved PRIVATE LiveImprovedLib)
 
 # Function to add JUCE libraries and includes to a target
 function(add_juce_to_target TARGET_NAME)
@@ -258,10 +267,15 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-# Always include MAIN_CPP for LiveImproved target
+# Include MAIN_CPP for LiveImproved target
 target_sources(LiveImproved
     PRIVATE
     ${MAIN_CPP}
+)
+
+# Add sources to LiveImprovedLib
+target_sources(LiveImprovedLib
+    PRIVATE
     ${SRC_CPP}
     ${SRC_OBJCXX}
 )
@@ -297,8 +311,11 @@ endfunction()
 
 # Add a custom target for the main application
 add_executable(LiveImprovedMain ${MAIN_CPP})
-target_link_libraries(LiveImprovedMain PRIVATE LiveImproved)
+target_link_libraries(LiveImprovedMain PRIVATE LiveImprovedLib)
 set_target_properties(LiveImprovedMain PROPERTIES OUTPUT_NAME "LiveImproved")
+
+# Add JUCE to LiveImprovedMain
+add_juce_to_target(LiveImprovedMain)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
