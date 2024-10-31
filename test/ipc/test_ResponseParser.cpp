@@ -18,26 +18,37 @@ TEST_CASE("ResponseParser::parsePlugins") {
         CHECK(plugins[0].uri == "Aberrant%20DSP:ShapeShifter");
     }
 
-    SUBCASE("Parse single plugin with VST3 type") {
-        std::string input = "2,Virus TI,query:Plugins#VST3:Access:Virus%20TI";
-        auto plugins = parser.parsePlugins(input);
+    SUBCASE("Parse plugins with different types") {
+        std::vector<std::string> inputs = {
+            "0,ShapeShifter,query:Plugins#AUv2:Aberrant%20DSP:ShapeShifter",
+            "1,Virus TI,query:Plugins#VST3:Access:Virus%20TI",
+            "2,OldPlugin,query:Plugins#VST:Vintage:OldPlugin",
+            "3,NewPlugin,query:Plugins#CLAP:Modern:NewPlugin"
+        };
 
-        REQUIRE(plugins.size() == 1);
-        CHECK(plugins[0].number == 3);  // Remember, we're adding 1 to make it 1-based
-        CHECK(plugins[0].name == "Virus TI");
-        CHECK(plugins[0].type == "VST3");
-        CHECK(plugins[0].uri == "Access:Virus%20TI");
-    }
+        for (const auto& input : inputs) {
+            auto plugins = parser.parsePlugins(input);
+            REQUIRE(plugins.size() == 1);
+            const auto& plugin = plugins[0];
 
-    SUBCASE("Parse single plugin with VST type") {
-        std::string input = "2,Virus TI,query:Plugins#VST:Access:Virus%20TI";
-        auto plugins = parser.parsePlugins(input);
-
-        REQUIRE(plugins.size() == 1);
-        CHECK(plugins[0].number == 3);  // Remember, we're adding 1 to make it 1-based
-        CHECK(plugins[0].name == "Virus TI");
-        CHECK(plugins[0].type == "VST");
-        CHECK(plugins[0].uri == "Access:Virus%20TI");
+            if (plugin.name == "ShapeShifter") {
+                CHECK(plugin.number == 1);
+                CHECK(plugin.type == "AUv2");
+                CHECK(plugin.uri == "Aberrant%20DSP:ShapeShifter");
+            } else if (plugin.name == "Virus TI") {
+                CHECK(plugin.number == 2);
+                CHECK(plugin.type == "VST3");
+                CHECK(plugin.uri == "Access:Virus%20TI");
+            } else if (plugin.name == "OldPlugin") {
+                CHECK(plugin.number == 3);
+                CHECK(plugin.type == "VST");
+                CHECK(plugin.uri == "Vintage:OldPlugin");
+            } else if (plugin.name == "NewPlugin") {
+                CHECK(plugin.number == 4);
+                CHECK(plugin.type == "CLAP");
+                CHECK(plugin.uri == "Modern:NewPlugin");
+            }
+        }
     }
 
     SUBCASE("Parse multiple plugins") {

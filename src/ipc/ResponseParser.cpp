@@ -28,10 +28,13 @@ auto ResponseParser::parsePlugins(const std::string& input) -> std::vector<Plugi
             Plugin plugin;
             plugin.number = std::stoi(fields[0]) + 1; // Add 1 to make it 1-based
             plugin.name = fields[1];
-            size_t typePos = fields[2].find('#');
-            if (typePos != std::string::npos) {
-                plugin.type = fields[2].substr(typePos + 1, 4); // NOLINT Extracts type (e.g., "AUv2")
-                plugin.uri = fields[2].substr(typePos + 6);     // NOLINT Extracts the URI part
+            size_t typeStartPos = fields[2].find('#');
+            if (typeStartPos != std::string::npos) {
+                size_t typeEndPos = fields[2].find(':', typeStartPos);
+                if (typeEndPos != std::string::npos) {
+                    plugin.type = fields[2].substr(typeStartPos + 1, typeEndPos - typeStartPos - 1);
+                    plugin.uri = fields[2].substr(typeEndPos + 1);
+                }
             } else {
                 plugin.uri = fields[2];
             }
