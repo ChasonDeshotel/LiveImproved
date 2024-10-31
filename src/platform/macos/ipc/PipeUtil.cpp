@@ -131,4 +131,3 @@ auto PipeUtil::readFromPipe(void* buffer, size_t count) const -> ssize_t {
     }
     return result;
 }
-
