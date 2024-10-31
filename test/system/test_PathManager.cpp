@@ -57,6 +57,7 @@ TEST_CASE("PathManager basic functionality") {
         CHECK_FALSE(remoteScripts.empty());
         CHECK(fs::exists(remoteScripts));
         CHECK(fs::is_directory(remoteScripts));
+        CHECK(remoteScripts.string().find("Remote Scripts") != std::string::npos);
     }
 }
 
