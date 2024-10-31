@@ -101,7 +101,7 @@ target_link_libraries(common_libs
         pugixml
 )
 
-# Conditionally include JUCE and set up the main application
+# Include JUCE for all builds
 add_subdirectory(lib/JUCE)
 
 # Set up your project with JUCE modules
@@ -109,27 +109,30 @@ juce_add_gui_app(LiveImproved
     PRODUCT_NAME "LiveImproved"
 )
 
-# Add the necessary JUCE modules
-target_link_libraries(LiveImproved
-    PRIVATE
-        juce::juce_core
-        juce::juce_gui_basics
-        juce::juce_graphics
-        juce::juce_events
-        juce::juce_data_structures
-        common_libs
-)
+# Function to add JUCE libraries and includes to a target
+function(add_juce_to_target TARGET_NAME)
+    target_link_libraries(${TARGET_NAME}
+        PRIVATE
+            juce::juce_core
+            juce::juce_gui_basics
+            juce::juce_graphics
+            juce::juce_events
+            juce::juce_data_structures
+            common_libs
+    )
 
-# JUCE-specific include directories (only for LiveImproved target)
-target_include_directories(LiveImproved PRIVATE
-    ${CMAKE_SOURCE_DIR}/src/include/juce
-    ${CMAKE_SOURCE_DIR}/lib/juce/modules
-)
+    target_include_directories(${TARGET_NAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/include/juce
+        ${CMAKE_SOURCE_DIR}/lib/juce/modules
+    )
 
-# JUCE-specific compile definitions
-target_compile_definitions(LiveImproved PRIVATE
-    JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
-)
+    target_compile_definitions(${TARGET_NAME} PRIVATE
+        JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
+    )
+endfunction()
+
+# Add JUCE to the main application
+add_juce_to_target(LiveImproved)
 
 # Install rules for macOS application bundle
 install(TARGETS LiveImproved
@@ -409,6 +412,9 @@ if(BUILD_TESTS)
         )
         target_compile_definitions(${TARGET_NAME} PRIVATE TEST_BUILD)
         add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
+
+        # Add JUCE to the test target
+        add_juce_to_target(${TARGET_NAME})
     endfunction()
 
     # Add your tests
