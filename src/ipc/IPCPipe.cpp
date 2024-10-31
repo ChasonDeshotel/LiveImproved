@@ -167,25 +167,39 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
     message.reserve(messageSize + ipc::END_MARKER.size());
     size_t totalBytesRead = 0;
     std::vector<char> buffer(ipc::BUFFER_SIZE);
+    int retryCount = 0;
+    const int maxRetries = 5;
 
-    while (totalBytesRead < messageSize + ipc::END_MARKER.size()) {
+    while (totalBytesRead < messageSize + ipc::END_MARKER.size() && retryCount < maxRetries) {
         if (stopIPC_) {
             logger->info("IPCQueue write initialization cancelled during read pipe setup.");
             return std::nullopt;
         }
 
         size_t bytesToRead = (std::min)(ipc::BUFFER_SIZE, messageSize + ipc::END_MARKER.size() - totalBytesRead);
-        ssize_t bytesRead = p_->readFromPipe(buffer.data(), bytesToRead);
+        ssize_t bytesRead = 0;
+
+        try {
+            bytesRead = p_->readFromPipe(buffer.data(), bytesToRead);
+        } catch (const std::runtime_error& e) {
+            logger->error("Error reading from pipe: " + std::string(e.what()));
+            retryCount++;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100 * retryCount));
+            continue;
+        }
+
         logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
 
         if (bytesRead <= 0) {
-            logger->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
-            std::this_thread::sleep_for(ipc::DELAY_BETWEEN_READS);
+            logger->warn("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
+            retryCount++;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100 * retryCount));
             continue;
         }
 
         message.append(buffer.data(), bytesRead);
         totalBytesRead += bytesRead;
+        retryCount = 0; // Reset retry count on successful read
 
         if (message.size() >= ipc::END_MARKER.size() &&
             std::string_view(message).substr(message.size() - ipc::END_MARKER.size()) == ipc::END_MARKER) {
@@ -195,7 +209,11 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
         }
     }
 
-    logger->error("Failed to find end marker in message");
+    if (retryCount >= maxRetries) {
+        logger->error("Max retries reached while reading message");
+    } else {
+        logger->error("Failed to find end marker in message");
+    }
     return std::nullopt;
 }
 
