@@ -186,33 +186,10 @@ auto PathManager::liveBinary() const -> Path {
 //}
 
 auto PathManager::liveTheme() const -> Path {
-    HKEY hKey;
-    LONG result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Ableton\\Live", 0, KEY_READ, &hKey);
-    if (result != ERROR_SUCCESS) {
-        throw std::runtime_error("Failed to open Ableton Live registry key");
-    }
-
-    char version[256];
-    DWORD bufSize = sizeof(version);
-    result = RegQueryValueExA(hKey, "Version", NULL, NULL, (LPBYTE)version, &bufSize);
-    RegCloseKey(hKey);
-
-    if (result != ERROR_SUCCESS) {
-        throw std::runtime_error("Failed to query Ableton Live version");
-    }
-
-    std::string versionStr(version);
-    std::regex versionRegex(R"(\d+\.\d+)");
-    std::smatch match;
-    if (!std::regex_search(versionStr, match, versionRegex)) {
-        throw std::runtime_error("Failed to parse Ableton Live version");
-    }
-
-    fs::path themePath = "C:\\ProgramData\\Ableton\\Live " + match.str() + "\\Themes";
+    fs::path themePath = "C:\\ProgramData\\Ableton\\Live 12 Trial\\Resources\\Themes";
     if (!fs::exists(themePath)) {
         throw std::runtime_error("Ableton Live Themes folder not found");
     }
-
     return themePath;
 }
 
