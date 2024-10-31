@@ -16,7 +16,6 @@
 
 class IPCQueue : public IIPCQueue {
 public:
-
     IPCQueue(
             std::function<std::shared_ptr<IPCRequestPipe>()> requestPipe
             , std::function<std::shared_ptr<IPCResponsePipe>()> responsePipe

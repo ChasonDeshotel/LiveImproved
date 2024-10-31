@@ -17,10 +17,12 @@
 #include "MacUtils.h"
 
 #include "EventHandler.h"
+
 #include "IActionHandler.h"
-#include "LiveInterface.h"
+#include "ILiveInterface.h"
+#include "IWindowManager.h"
+
 #include "PID.h"
-#include "WindowManager.h"
 
 // TODO: unsuckify this
 // TODO: build out the rest of the map and put it in... somewhere else
@@ -89,7 +91,7 @@ std::string keyCodeToString(CGKeyCode keyCode) {
 
 EventHandler::EventHandler(
     std::function<std::shared_ptr<IActionHandler>()> actionHandler
-    , std::function<std::shared_ptr<WindowManager>()> windowManager
+    , std::function<std::shared_ptr<IWindowManager>()> windowManager
     , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     )
     : windowManager_(std::move(windowManager))

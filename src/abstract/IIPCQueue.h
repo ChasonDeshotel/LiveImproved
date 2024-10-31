@@ -9,7 +9,6 @@ using Path = std::filesystem::path;
 
 class IIPCQueue {
 public:
-
     virtual ~IIPCQueue() = default;
 
     IIPCQueue(const IIPCQueue&) = delete;

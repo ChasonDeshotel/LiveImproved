@@ -12,8 +12,9 @@
 #include "IEventHandler.h"
 #include "IIPCQueue.h"
 #include "ILiveInterface.h"
+#include "IWindowManager.h"
 
-//#include "ActionHandler.h"
+#include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
 #include "EventHandler.h"
@@ -103,19 +104,15 @@ public:
         logger->info("onLiveLaunch() called");
 
         DependencyRegisterer r(this);
-        /*
         r.configFiles();
         r.theme();
         r.liveInterface(); // also starts observers
         r.responseParser();
         r.keySender();
-        */
         r.ipc();
-        /*
         r.pluginManager();
         r.actionHandler();
         r.windowManager();
-        */
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
@@ -126,13 +123,13 @@ public:
 
         // TODO: IPC queue should be able to handle more writes without sleep
         logger->info("refreshing plugin cache");
-        //container_.resolve<IPluginManager>()->refreshPlugins();
+        container_.resolve<IPluginManager>()->refreshPlugins();
 
-//        #ifndef _WIN32
-//        PlatformInitializer::init();
-//        container_.resolve<IEventHandler>()->setupQuartzEventTap();
-//        PlatformInitializer::run();
-//        #endif
+        #ifndef _WIN32
+        PlatformInitializer::init();
+        container_.resolve<IEventHandler>()->setupQuartzEventTap();
+        PlatformInitializer::run();
+        #endif
     }
 
     void restartApplication() {
@@ -189,23 +186,20 @@ public:
         explicit DependencyRegisterer(JuceApp* parentApp) : app(parentApp) {}
 
         void eventHandler() {
-            /*
             app->container_.registerFactory<IEventHandler>(
                 [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
                     // We can delay these resolutions if needed
                     return std::make_shared<EventHandler>(
                         [&c]() { return c.resolve<IActionHandler>(); }
-                        , [&c]() { return c.resolve<WindowManager>(); }
+                        , [&c]() { return c.resolve<IWindowManager>(); }
                         , [&c]() { return c.resolve<ILiveInterface>(); }
                     );
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
-            */
         }
 
         void theme() {
-            /*
             auto pathManager = PathManager();
             auto themeFilePath = pathManager.liveTheme();
 
@@ -222,11 +216,9 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
-            */
         }
 
         void configFiles() {
-            /*
             auto pathManager = PathManager();
 
             auto configFilePath = pathManager.config();
@@ -241,11 +233,9 @@ public:
                 [configMenuPath](DependencyContainer&) { return std::make_shared<ConfigMenu>(configMenuPath); }
                 , DependencyContainer::Lifetime::Singleton
             );
-            */
         }
 
         void liveInterface() {
-            /*
             app->container_.registerFactory<ILiveInterface>(
                 [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
                     // We can delay these resolutions if needed
@@ -257,7 +247,6 @@ public:
             );
             // kick off the window observers
             app->container_.resolve<ILiveInterface>();
-            */
         }
 
         void responseParser() {
@@ -307,7 +296,6 @@ public:
         }
 
         void pluginManager() {
-            /*
             app->container_.registerFactory<IPluginManager>(
                 [](DependencyContainer& c) -> std::shared_ptr<PluginManager> {
                     return std::make_shared<PluginManager>(
@@ -317,18 +305,16 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
-            */
         }
 
         void actionHandler() {
-            /*
             app->container_.registerFactory<IActionHandler>(
                 [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
 
                     // We can delay these resolutions if needed
                     return std::make_shared<ActionHandler>(
                         [&c]() { return c.resolve<IPluginManager>(); }
-                        , [&c]() { return c.resolve<WindowManager>(); }
+                        , [&c]() { return c.resolve<IWindowManager>(); }
                         , [&c]() { return c.resolve<ConfigManager>(); }
                         , [&c]() { return c.resolve<IIPCQueue>(); }
                         , [&c]() { return c.resolve<IEventHandler>(); }
@@ -337,19 +323,17 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
-            */
         }
 
         void windowManager() {
-            /*
-            app->container_.registerFactory<WindowManager>(
-                [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
+            app->container_.registerFactory<IWindowManager>(
+                [](DependencyContainer& c) -> std::shared_ptr<IWindowManager> {
                     // We can delay these resolutions if needed
                     return std::make_shared<WindowManager>(
                         [&c]() { return c.resolve<IPluginManager>(); }
                         , [&c]() { return c.resolve<IEventHandler>(); }
                         , [&c]() { return c.resolve<IActionHandler>(); }
-                        , [&c]() { return c.resolve<WindowManager>(); }
+                        , [&c]() { return c.resolve<IWindowManager>(); }
                         , [&c]() { return c.resolve<Theme>(); }
                         , [&c]() { return c.resolve<LimLookAndFeel>(); }
                         , [&c]() { return c.resolve<ConfigMenu>(); }
@@ -357,7 +341,6 @@ public:
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
-            */
         }
     };
 };

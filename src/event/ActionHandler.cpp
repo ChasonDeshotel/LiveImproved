@@ -15,14 +15,13 @@
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
-#include "ContextMenu.h"
 #include "KeySender.h"
 #include "PluginManager.h"
-#include "WindowManager.h"
+#include "IWindowManager.h"
 
 ActionHandler::ActionHandler(
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
-              , std::function<std::shared_ptr<WindowManager>()> windowManager
+              , std::function<std::shared_ptr<IWindowManager>()> windowManager
               , std::function<std::shared_ptr<ConfigManager>()> configManager
               , std::function<std::shared_ptr<IIPCQueue>()> ipc
               , std::function<std::shared_ptr<IEventHandler>()> eventHandler

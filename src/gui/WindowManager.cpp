@@ -17,7 +17,7 @@ WindowManager::WindowManager(
                              std::function<std::shared_ptr<IPluginManager>()> pluginManager
                              , std::function<std::shared_ptr<IEventHandler>()> eventHandler
                              , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-                             , std::function<std::shared_ptr<WindowManager>()> windowManager
+                             , std::function<std::shared_ptr<IWindowManager>()> windowManager
                              , std::function<std::shared_ptr<Theme>()> theme
                              , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
                              , std::function<std::shared_ptr<ConfigMenu>()> configMenu

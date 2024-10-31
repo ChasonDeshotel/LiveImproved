@@ -22,11 +22,11 @@ public:
   WindowManager(std::function<std::shared_ptr<IPluginManager>()> pluginManager,
                 std::function<std::shared_ptr<IEventHandler>()> eventHandler,
                 std::function<std::shared_ptr<IActionHandler>()> actionHandler,
-                std::function<std::shared_ptr<WindowManager>()> windowManager,
+                std::function<std::shared_ptr<IWindowManager>()> windowManager,
                 std::function<std::shared_ptr<Theme>()> theme,
                 std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel,
                 std::function<std::shared_ptr<ConfigMenu>()> configMenu);
-  ~WindowManager() override;
+  virtual ~WindowManager() override = default;
 
   WindowManager(const WindowManager &) = default;
   WindowManager(WindowManager &&) = delete;
@@ -50,13 +50,13 @@ public:
       -> bool override;
 
 private:
-    std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
-    std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
-    std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
-    std::function<std::shared_ptr<WindowManager>()> windowManager_;
-    std::function<std::shared_ptr<Theme>()> theme_;
-    std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel_;
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
+    std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
+    std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
+    std::function<std::shared_ptr<IWindowManager>()> windowManager_;
+    std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel_;
+    std::function<std::shared_ptr<Theme>()> theme_;
 
     // Factory function to create window instances based on window name
     auto createWindowInstance(const std::string& windowName) -> std::unique_ptr<IWindow> override;

@@ -14,16 +14,16 @@ class IEventHandler;
 class IIPCQueue;
 class ILiveInterface;
 class IPluginManager;
+class IWindowManager;
 
 class ConfigManager;
 class KeyMapper;
 class ResponseParser;
-class WindowManager;
 
 class ActionHandler : public IActionHandler {
 public:
   ActionHandler(std::function<std::shared_ptr<IPluginManager>()>   pluginManager
-                , std::function<std::shared_ptr<WindowManager>()>  windowManager
+                , std::function<std::shared_ptr<IWindowManager>()>  windowManager
                 , std::function<std::shared_ptr<ConfigManager>()>  configManager
                 , std::function<std::shared_ptr<IIPCQueue>()>      ipc
                 , std::function<std::shared_ptr<IEventHandler>()>  eventHandler
@@ -48,12 +48,12 @@ public:
     auto loadItemByName(const std::string &itemName) -> bool override;
 
 private:
-    std::function<std::shared_ptr<IIPCQueue>()> ipc_;
-    std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
-    std::function<std::shared_ptr<WindowManager>()> windowManager_;
     std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
+    std::function<std::shared_ptr<IIPCQueue>()> ipc_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
+    std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
+    std::function<std::shared_ptr<IWindowManager>()> windowManager_;
 
     using ActionHandlerFunction = std::function<void(const std::optional<std::string>& args)>;
     std::unordered_map<std::string, ActionHandlerFunction> actionMap;

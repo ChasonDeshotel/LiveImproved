@@ -6,17 +6,18 @@
 #include "LogGlobal.h"
 #include "Types.h"
 
-#include "IEventHandler.h"
 #include "IActionHandler.h"
+#include "IEventHandler.h"
+#include "IWindowManager.h"
+
 #include "LimLookAndFeel.h"
 #include "PluginManager.h"
 #include "SearchBox.h"
 #include "Theme.h"
-#include "WindowManager.h"
 
 class PluginListModel : public juce::ListBoxModel {
 public:
-    PluginListModel(std::shared_ptr<IPluginManager> pluginManager, std::shared_ptr<IActionHandler> actionHandler, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<Theme> theme, int delayBeforeClose)
+    PluginListModel(std::shared_ptr<IPluginManager> pluginManager, std::shared_ptr<IActionHandler> actionHandler, std::shared_ptr<IWindowManager> windowManager, std::shared_ptr<Theme> theme, int delayBeforeClose)
         : pluginManager_(std::move(pluginManager))
         , actionHandler_(std::move(actionHandler))
         , windowManager_(std::move(windowManager))
@@ -90,7 +91,7 @@ public:
 private:
     std::shared_ptr<IPluginManager> pluginManager_;
     std::shared_ptr<IActionHandler> actionHandler_;
-    std::shared_ptr<WindowManager> windowManager_;
+    std::shared_ptr<IWindowManager> windowManager_;
     std::shared_ptr<Theme> theme_;
     const std::vector<Plugin>& plugins_;
     std::vector<Plugin> filteredPlugins_;
@@ -101,7 +102,7 @@ SearchBox::SearchBox(
                      std::function<std::shared_ptr<IPluginManager>()> pluginManager
                      , std::function<std::shared_ptr<IEventHandler>()> eventHandler
                      , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-                     , std::function<std::shared_ptr<WindowManager>()> windowManager
+                     , std::function<std::shared_ptr<IWindowManager>()> windowManager
                      , std::function<std::shared_ptr<Theme>()> theme
                      , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
     )

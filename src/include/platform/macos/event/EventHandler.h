@@ -32,12 +32,12 @@ struct NSArray;
 #endif
 
 class IActionHandler;
-class WindowManager;
+class IWindowManager;
 
 class EventHandler : public IEventHandler {
 public:
     EventHandler(std::function<std::shared_ptr<IActionHandler>()> actionHandler
-                 , std::function<std::shared_ptr<WindowManager>()> windowManager
+                 , std::function<std::shared_ptr<IWindowManager>()> windowManager
                  , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     );
 
@@ -66,12 +66,12 @@ public:
 
 private:
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
-    std::function<std::shared_ptr<WindowManager>()>  windowManager_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
+    std::function<std::shared_ptr<IWindowManager>()>  windowManager_;
 
-    WindowManager* resolvedWindowManager_;
     IActionHandler* resolvedActionHandler_;
     ILiveInterface* resolvedLiveInterface_;
+    IWindowManager* resolvedWindowManager_;
 
     static void focusApplication(pid_t pid);
 

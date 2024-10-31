@@ -10,11 +10,11 @@
 class IActionHandler;
 class IEventHandler;
 class IPluginManager;
+class IWindowManager;
 
 class LimLookAndFeel;
 class Plugin;
 class Theme;
-class WindowManager;
 
 class PluginListModel;
 
@@ -99,7 +99,7 @@ public:
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
               , std::function<std::shared_ptr<IEventHandler>()> eventHandler
               , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-              , std::function<std::shared_ptr<WindowManager>()> windowManager
+              , std::function<std::shared_ptr<IWindowManager>()> windowManager
               , std::function<std::shared_ptr<Theme>()> theme
               , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
         );
@@ -144,7 +144,7 @@ private:
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
-    std::function<std::shared_ptr<WindowManager>()> windowManager_;
+    std::function<std::shared_ptr<IWindowManager>()> windowManager_;
     std::function<std::shared_ptr<Theme>()> theme_;
     std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel_;
 

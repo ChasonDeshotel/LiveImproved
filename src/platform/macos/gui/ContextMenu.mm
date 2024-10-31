@@ -6,19 +6,20 @@
 
 #include "ConfigMenu.h"
 #include "ContextMenu.h"
+
 #include "IActionHandler.h"
-#include "WindowManager.h"
+#include "IWindowManager.h"
 
 @interface ContextMenuGenerator : NSObject <NSMenuDelegate>
 
 @property (nonatomic, strong) NSMenu *contextMenu;
 @property (nonatomic) std::function<void(const std::string&)> overrideCallback;
-@property (nonatomic) std::function<std::shared_ptr<WindowManager>()> windowManager;
+@property (nonatomic) std::function<std::shared_ptr<IWindowManager>()> windowManager;
 @property (nonatomic) std::function<std::shared_ptr<IActionHandler>()> actionHandler;
 @property (nonatomic, strong) ContextMenuGenerator *menuGenerator;
 
 - (instancetype)initWithContextMenu:(ContextMenu *)contextMenu
-    windowManager:(std::function<std::shared_ptr<WindowManager>()>)windowManager
+    windowManager:(std::function<std::shared_ptr<IWindowManager>()>)windowManager
     actionHandler:(std::function<std::shared_ptr<IActionHandler>()>)actionHandler;
 
 - (NSMenu *)createContextMenuWithItems:(const std::vector<MenuItem>&)items;
@@ -28,7 +29,7 @@
 @implementation ContextMenuGenerator
 
 - (instancetype)initWithContextMenu:(ContextMenu *)contextMenu
-    windowManager:(std::function<std::shared_ptr<WindowManager>()>)windowManager
+    windowManager:(std::function<std::shared_ptr<IWindowManager>()>)windowManager
     actionHandler:(std::function<std::shared_ptr<IActionHandler>()>)actionHandler {
     self = [super init];
     if (self) {
@@ -184,7 +185,7 @@
 ContextMenu::ContextMenu(
         std::function<std::shared_ptr<ConfigMenu>()> configMenu 
         , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-        , std::function<std::shared_ptr<WindowManager>()> windowManager
+        , std::function<std::shared_ptr<IWindowManager>()> windowManager
     )
     : IWindow()
     , configMenu_(std::move(configMenu))
