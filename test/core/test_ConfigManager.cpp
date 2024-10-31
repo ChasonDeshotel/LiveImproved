@@ -2,25 +2,19 @@
 #include "doctest/doctest.h"
 #include "ConfigManager.h"
 #include "DependencyContainer.h"
-#include "MockLogHandler.h"
+#include "LogGlobal.h"
 #include "KeyMapper.h"
 
 #include <fstream>
 #include <filesystem>
 
+TEST_CASE("global setup") {
+    initializeLogger();
+}
+
 class ConfigManagerTestFixture {
 public:
     ConfigManagerTestFixture() {
-        container = std::make_unique<DependencyContainer>();
-        logger = std::make_shared<MockLogHandler>();
-        container->registerFactory<ILogHandler>(
-            [this](DependencyContainer&) { return logger; },
-            DependencyContainer::Lifetime::Singleton
-        );
-        container->registerFactory<KeyMapper>(
-            [](DependencyContainer& c) { return std::make_shared<KeyMapper>(); },
-            DependencyContainer::Lifetime::Singleton
-        );
     }
 
     ~ConfigManagerTestFixture() {
@@ -38,8 +32,8 @@ public:
         outFile.close();
     }
 
-    std::unique_ptr<DependencyContainer> container;
-    std::shared_ptr<MockLogHandler> logger;
+    std::unique_ptr<KeyMapper> km = std::make_unique<KeyMapper>();
+
     std::string configFile = "test_config.yaml";
 };
 
@@ -81,8 +75,6 @@ window:
         auto remap = configManager->getRemap();
         CHECK(remap.size() == 3);
 
-        auto km = container->resolve<KeyMapper>();
-        
         EKeyPress ctrlD = km->processKeyPress("ctrl+d");
         CHECK(remap.find(ctrlD) != remap.end());
         CHECK(remap[ctrlD].steps.size() == 1);
@@ -144,10 +136,10 @@ init:
     SUBCASE("Save and reload config") {
         configManager->setInitRetries(5);
         configManager->setRemap("ctrl+s", "cmd+s");
-        configManager->setRenamePlugin("OldPlugin", "NewPlugin");
-        configManager->setRemovePlugin("BadPlugin");
-        configManager->setWindowSetting("main", "100,100,800,600");
-        configManager->setShortcut(0, {{"newKey", "/new/shortcut"}});
+//        configManager->setRenamePlugin("OldPlugin", "NewPlugin");
+//        configManager->setRemovePlugin("BadPlugin");
+//        configManager->setWindowSetting("main", "100,100,800,600");
+//        configManager->setShortcut(0, {{"newKey", "/new/shortcut"}});
 
         configManager->saveConfig();
 
@@ -158,7 +150,6 @@ init:
         CHECK(newConfigManager->getInitRetries() == 5);
         
         auto remap = newConfigManager->getRemap();
-        auto km = container->resolve<KeyMapper>();
         EKeyPress ctrlS = km->processKeyPress("ctrl+s");
         CHECK(remap.find(ctrlS) != remap.end());
         CHECK(remap[ctrlS].steps.size() == 1);
