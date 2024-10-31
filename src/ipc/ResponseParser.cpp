@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_map>
-#include <ranges>
 
 #include "ResponseParser.h"
 #include "Types.h"
@@ -23,7 +22,7 @@ auto ResponseParser::parsePlugins(const std::string& input) -> std::vector<Plugi
             plugin.name = fields[1];
             size_t typePos = fields[2].find('#');
             if (typePos != std::string::npos) {
-                plugin.type = fields[2].substr(typePos + 1, 5); // NOLINT Extracts type (e.g., "#AUv2")
+                plugin.type = fields[2].substr(typePos + 1, 4); // NOLINT Extracts type (e.g., "#AUv2")
                 plugin.uri = fields[2].substr(typePos + 6);     // NOLINT Extracts the URI part
             } else {
                 plugin.uri = fields[2];

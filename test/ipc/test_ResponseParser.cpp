@@ -8,24 +8,24 @@ TEST_CASE("ResponseParser::parsePlugins") {
     ResponseParser parser;
 
     SUBCASE("Parse single plugin") {
-        std::string input = "1,TestPlugin,#AUv2test.uri";
+        std::string input = "0,ShapeShifter,query:Plugins#AUv2:Aberrant%20DSP:ShapeShifter";
         auto plugins = parser.parsePlugins(input);
 
         REQUIRE(plugins.size() == 1);
         CHECK(plugins[0].number == 1);
-        CHECK(plugins[0].name == "TestPlugin");
+        CHECK(plugins[0].name == "ShapeShifter");
         CHECK(plugins[0].type == "AUv2");
-        CHECK(plugins[0].uri == "test.uri");
+        CHECK(plugins[0].uri == "Aberrant%20DSP:ShapeShifter");
     }
 
     SUBCASE("Parse multiple plugins") {
-        std::string input = "1,Plugin1,#AUv2uri1|2,Plugin2,#VSTuri2|3,Plugin3,#AUv3uri3";
+        std::string input = "0,ShapeShifter,query:Plugins#AUv2:Aberrant%20DSP:ShapeShifter|1,SketchCassette,query:Plugins#AUv2:Aberrant%20DSP:SketchCassette|2,Virus TI,query:Plugins#AUv2:Access:Virus%20TI";
         auto plugins = parser.parsePlugins(input);
 
         REQUIRE(plugins.size() == 3);
-        CHECK(plugins[0].name == "Plugin1");
-        CHECK(plugins[1].name == "Plugin2");
-        CHECK(plugins[2].name == "Plugin3");
+        CHECK(plugins[0].name == "ShapeShifter");
+        CHECK(plugins[1].name == "SketchCassette");
+        CHECK(plugins[2].name == "Virus TI");
     }
 
     SUBCASE("Handle empty input") {
@@ -53,12 +53,12 @@ TEST_CASE("ResponseParser::parsePlugins") {
     }
 
     SUBCASE("Handle duplicate plugins with different types") {
-        std::string input = "1,DupePlugin,#AUv2uri1|2,DupePlugin,#VSTuri2|3,UniquePlugin,#AUv3uri3";
+        std::string input = "0,DupePlugin,query:Plugins#AUv2:Aberrant%20DSP:ShapeShifter|1,DupePlugin,query:Plugins#VST3:Aberrant%20DSP:SketchCassette|2,UniquePlugin,query:Plugins#AUv2:Access:Virus%20TI";
         auto plugins = parser.parsePlugins(input);
 
         REQUIRE(plugins.size() == 2);
         CHECK(plugins[0].name == "DupePlugin");
-        CHECK(plugins[0].type == "AUv2");  // AUv2 should be preferred over VST
+        CHECK(plugins[0].type == "VST3");
         CHECK(plugins[1].name == "UniquePlugin");
     }
 }
