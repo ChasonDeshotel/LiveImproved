@@ -280,6 +280,12 @@ target_sources(LiveImprovedLib
     ${SRC_OBJCXX}
 )
 
+# Add include directories for LiveImprovedLib
+target_include_directories(LiveImprovedLib
+    PUBLIC
+    ${COMMON_INCLUDE_DIRS}
+)
+
 # Modify the add_doctest_test function to exclude MAIN_CPP
 function(add_doctest_test TEST_PATH)
     get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
