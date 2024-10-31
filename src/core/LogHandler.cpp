@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <optional>
 
+
 #ifdef _WIN32
 #include <Windows.h>
 #else
@@ -75,6 +76,8 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
     #else
     juce::Logger::writeToLog(message);
     #endif
+
+    std::cerr << message << std::endl;
 //
 //    if (!logPath.has_value()) {
 //        std::cerr << logLevelToString(level) << ": " << message << std::endl;

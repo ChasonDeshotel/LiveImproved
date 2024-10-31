@@ -65,7 +65,8 @@ auto PathManager::configMenu() const -> Path {
 }
 
 auto PathManager::remoteScripts() const -> Path {
-    Path remoteScripts = documents() / "Ableton" / "User Library" / "Remote Scripts";
+    //Path remoteScripts = documents() / "Ableton" / "User Library" / "Remote Scripts";
+    Path remoteScripts = "C:\\ProgramData\\Ableton\\Live 12 Trial\\Resources\\MIDI Remote Scripts";
 
 
     if (!isValidDir(remoteScripts)) {
@@ -211,9 +212,11 @@ auto PathManager::liveTheme() const -> Path {
 //}
 
 auto PathManager::requestPipe() const -> Path {
-    return limRemoteScript() / "lim_request";
+    Path pipePath = R"(\\.\pipe\lim_request)";
+    return pipePath;
 }
 
 auto PathManager::responsePipe() const -> Path {
-    return limRemoteScript() / "lim_response";
+    Path pipePath = R"(\\.\pipe\lim_response)";
+    return pipePath;
 }

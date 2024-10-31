@@ -43,7 +43,8 @@ pid_t PID::findLivePID() {
 
     do {
         // TODO: Check for other versions of Ableton Live
-        if (std::string(pe32.szExeFile) == "Ableton Live 11 Suite.exe") {
+        //if (std::string(pe32.szExeFile) == "Ableton Live 11 Suite.exe") {
+        if (std::string(pe32.szExeFile) == "Ableton Live 12 Trial.exe") {
             pid_t pid = pe32.th32ProcessID;
             CloseHandle(hSnapshot);
             LogHandler::getInstance().info("Ableton Live found with PID: " + std::to_string(pid));

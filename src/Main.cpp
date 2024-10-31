@@ -101,14 +101,23 @@ public:
 
         DependencyRegisterer r(this);
         r.configFiles();
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.theme();
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.liveInterface(); // also starts observers
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.responseParser();
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.keySender();
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.ipc();
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.pluginManager();
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.actionHandler();
+        DependencyContainer::getInstance().logRegisteredDependencies();
         r.windowManager();
+        DependencyContainer::getInstance().logRegisteredDependencies();
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
