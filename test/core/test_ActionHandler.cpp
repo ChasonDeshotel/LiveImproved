@@ -13,39 +13,6 @@
 
 #include <memory>
 
-class MockConfigManager : public ConfigManager {
-public:
-    MockConfigManager() : ConfigManager("") {}
-    std::unordered_map<EKeyPress, EMacro, EMacroHash> getRemap() const override {
-        return {};
-    }
-};
-
-class MockWindowManager : public WindowManager {
-public:
-    bool isWindowOpen(const std::string&) const override { return false; }
-    void openWindow(const std::string&) override {}
-    void closeWindow(const std::string&) override {}
-};
-
-class MockPluginManager : public IPluginManager {
-public:
-    std::vector<Plugin> getPlugins() const override { return {}; }
-};
-
-
-class MockEventHandler : public EventHandler {
-public:
-    MockEventHandler() : EventHandler(nullptr, nullptr) {}
-};
-
-class MockLiveInterface : public ILiveInterface {
-public:
-    void closeFocusedPlugin() override {}
-    void closeAllPlugins() override {}
-    void openAllPlugins() override {}
-    void tilePluginWindows() override {}
-};
 
 TEST_CASE("ActionHandler initialization") {
     auto configManager = std::make_shared<MockConfigManager>();
