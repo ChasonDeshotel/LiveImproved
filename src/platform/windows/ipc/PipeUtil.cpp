@@ -42,7 +42,7 @@ auto PipeUtil::createPipe() -> bool {
             return false;
         }
     }
-
+    return true;
 }
 
 // connect to pipe

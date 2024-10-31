@@ -5,6 +5,7 @@
 
 #include "IActionHandler.h"
 #include "IWindow.h"
+#include "IWindowManager.h"
 
 #include "ContextMenu.h"
 #include "ConfigMenu.h"
@@ -16,7 +17,7 @@
 ContextMenu::ContextMenu(
         std::function<std::shared_ptr<ConfigMenu>()> configMenu
         , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-        , std::function<std::shared_ptr<WindowManager>()> windowManager
+        , std::function<std::shared_ptr<IWindowManager>()> windowManager
     )
     : IWindow()
     , configMenu_(std::move(configMenu))
@@ -28,6 +29,8 @@ ContextMenu::ContextMenu(
     //menuItems_ = getConfigMenu()->getMenuData();
     //, menuItems_(configMenu_()->getMenuData())
     //, menuGenerator_(nil)
+
+ContextMenu::~ContextMenu() = default;
 
 void* ContextMenu::getWindowHandle() const {
     return nullptr;

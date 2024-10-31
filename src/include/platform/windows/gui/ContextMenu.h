@@ -6,17 +6,17 @@
 #include <functional>
 
 #include "IWindow.h"
+#include "IWindowManager.h"
 #include "Types.h"
 
 class ConfigMenu;
 class IActionHandler;
-class WindowManager;
 
 class ContextMenu : public IWindow {
 public:
     ContextMenu(std::function<std::shared_ptr<ConfigMenu>()> configMenu,
                 std::function<std::shared_ptr<IActionHandler>()> actionHandler,
-                std::function<std::shared_ptr<WindowManager>()> windowManager);
+                std::function<std::shared_ptr<IWindowManager>()> windowManager);
     ~ContextMenu() override;
 
     ContextMenu(const ContextMenu &) = delete;
@@ -33,7 +33,7 @@ public:
 private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
     std::function<std::shared_ptr<IActionHandler>()> actionHandler_;
-    std::function<std::shared_ptr<WindowManager>()> windowManager_;
+    std::function<std::shared_ptr<IWindowManager>()> windowManager_;
 
     std::vector<MenuItem> menuItems_;                         // Holds menu items
     HMENU createContextMenuWithItems(const std::vector<MenuItem>& items);

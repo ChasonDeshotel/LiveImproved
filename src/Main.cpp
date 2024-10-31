@@ -60,17 +60,18 @@ public:
         logger->info("Ignition sequence started...");
 
         PathManager p = PathManager();
-        logger->info("home:         " + p.home().generic_string());
-        logger->info("documents:    " + p.documents().generic_string());
-        logger->info("log:          " + p.log().generic_string());
+        logger->info("home:            " + p.home().generic_string());
+        logger->info("documents:       " + p.documents().generic_string());
+        logger->info("log:             " + p.log().generic_string());
+        logger->info("remote scripts:  " + p.remoteScripts().generic_string());
 //        logger->info("liveBundle:   " + p.liveBundle().generic_string());
 //        logger->info("liveBinary:   " + p.liveBinary().generic_string());
 //        logger->info("liveThemes:   " + p.liveThemes().generic_string());
 //        logger->info("liveTheme:    " + p.liveTheme().generic_string());
-//        logger->info("config:       " + p.config().generic_string());
-//        logger->info("configMenu:   " + p.configMenu().generic_string());
-//        logger->info("requestPipe:  " + p.requestPipe().generic_string());
-//        logger->info("responsePipe: " + p.responsePipe().generic_string());
+        logger->info("config:          " + p.config().generic_string());
+        logger->info("configMenu:      " + p.configMenu().generic_string());
+        logger->info("requestPipe:     " + p.requestPipe().generic_string());
+        logger->info("responsePipe:    " + p.responsePipe().generic_string());
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 

@@ -48,12 +48,10 @@ public:
     EventHandler &operator=(const EventHandler &) = default;
     EventHandler &operator=(EventHandler &&) = delete;
 
-    #ifndef _WIN32
     void runPlatform() override;
     void setupQuartzEventTap() override;
     void registerAppLaunch(std::function<void()> onLaunchCallback) override;
     void registerAppTermination(std::function<void()> onTerminationCallback) override;
-    #endif
 
     void focusLim() override;
     void focusLive() override;
@@ -74,18 +72,35 @@ private:
     IWindowManager* resolvedWindowManager_;
 
     static void focusApplication(pid_t pid);
+    bool isWindowFocused(int windowID);
 
+    #ifndef _WIN32
     static CGEventRef eventTapCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
 
     CFMachPortRef eventTap;
     CFRunLoopSourceRef runLoopSource;
-
-    bool isWindowFocused(int windowID);
-    void test();
 
     NSView *getViewFromWindowID(int windowID);
     NSWindow *getWindowFromWindowID(int windowID);
     NSArray *getAllWindowsForApp();
     NSDictionary *getMainWindowForApp(NSArray *appWindows);
     void logWindowInfo(NSDictionary *windowInfo);
+    #endif
+
+
+    #ifdef _WIN32
+    void setupWindowsEventHook();
+    void cleanupWindowsHooks();
+
+    static EventHandler* instance_;
+
+    // Hook callback functions
+    static LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+
+    HHOOK keyboardHook_;
+    HHOOK mouseHook_;
+
+    static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
+    #endif
 };

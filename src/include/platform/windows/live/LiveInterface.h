@@ -29,6 +29,7 @@ public:
     void closeAllPlugins() override;
     void openAllPlugins() override;
     void tilePluginWindows() override;
+    auto isAnyTextFieldFocused() -> bool override;
 
 private:
     std::function<std::shared_ptr<IEventHandler>()> eventHandler_;

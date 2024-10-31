@@ -8,6 +8,10 @@
 #include "Types.h"
 
 #include "IKeySender.h"
+#include "KeySender.h"
+
+KeySender::KeySender() = default;
+KeySender::~KeySender() = default;
 
 namespace {
     std::unordered_map<std::string, WORD> keyCodeMap = {
@@ -56,7 +60,7 @@ namespace {
     }
 }
 
-void KeySender::sendIndividualKeyPress(const EKeyPress& kp) {
+void sendIndividualKeyPress(const EKeyPress& kp) {
     std::optional<WORD> keyCodeOpt = getKeyCode(toLower(kp.key));
     if (keyCodeOpt) {
         WORD keyCode = *keyCodeOpt;

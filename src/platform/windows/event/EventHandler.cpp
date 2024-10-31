@@ -13,6 +13,7 @@
 #include "Types.h"
 
 #include "IActionHandler.h"
+#include "ILiveInterface.h"
 #include "EventHandler.h"
 #include "PID.h"
 #include "WindowManager.h"
@@ -81,14 +82,16 @@ HHOOK mouseHook_ = NULL;
 
 EventHandler::EventHandler(
     std::function<std::shared_ptr<IActionHandler>()> actionHandler
-    , std::function<std::shared_ptr<WindowManager>()> windowManager
+    , std::function<std::shared_ptr<IWindowManager>()> windowManager
+    , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
     )
     : actionHandler_(std::move(actionHandler))
     , windowManager_(std::move(windowManager))
+    , liveInterface_(std::move(liveInterface))
    // , keyboardHook_(NULL)
    // , mouseHook_(NULL))
 {
-    instance_ = this;
+    //instance_ = this;
 }
 
 EventHandler::~EventHandler() {
@@ -135,6 +138,7 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
         if (wParam == WM_RBUTTONDOWN || wParam == WM_LBUTTONDOWN) {
             logger->debug("Mouse down event detected");
 
+            /*
             // Check if search box is open
             if (instance_->windowManager_()->isWindowOpen("SearchBox")) {
                 HWND searchBoxHwnd = static_cast<HWND>(instance_->windowManager_()->getWindowHandle("SearchBox"));
@@ -159,6 +163,7 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
                     logger->debug("Click is inside the search box window, keeping window open.");
                 }
             }
+            */
 
             // Double-right-click detection
             if (wParam == WM_RBUTTONDOWN) {
@@ -167,7 +172,7 @@ LRESULT CALLBACK EventHandler::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
                     auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
                     if (durationSinceLastClick.count() <= doubleClickThresholdMs) {
                         logger->debug("Double-right-click detected, handling action.");
-                        instance_->actionHandler_()->handleDoubleRightClick();
+                        //instance_->actionHandler_()->handleDoubleRightClick();
                         return 1;  // Stop further processing
                     }
                 }
@@ -205,11 +210,11 @@ LRESULT CALLBACK EventHandler::LowLevelKeyboardProc(int nCode, WPARAM wParam, LP
             pressedKey.alt   = (GetAsyncKeyState(VK_MENU)    & 0x8000) != 0;
             pressedKey.key   = keyCodeToString(kbdStruct->vkCode);
             pressedKey.state = KeyState::Down;
-            bool shouldPassEvent = instance_->actionHandler_()->handleKeyEvent(pressedKey);
+            //bool shouldPassEvent = instance_->actionHandler_()->handleKeyEvent(pressedKey);
 
-            if (!shouldPassEvent) {
-                return 1;  // Block the event if not to be passed
-            }
+            //if (!shouldPassEvent) {
+            //    return 1;  // Block the event if not to be passed
+            //}
         }
     }
     return CallNextHookEx(NULL, nCode, wParam, lParam);

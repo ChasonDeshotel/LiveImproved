@@ -232,3 +232,11 @@ auto PathManager::liveTheme() const -> Path {
 //
 //    throw std::runtime_error("Executable not found: " + name);
 //}
+
+auto PathManager::requestPipe() const -> Path {
+    return limRemoteScript() / "lim_request";
+}
+
+auto PathManager::responsePipe() const -> Path {
+    return limRemoteScript() / "lim_response";
+}
