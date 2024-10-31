@@ -368,12 +368,21 @@ if(BUILD_TESTS)
         get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
         string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
 
-        add_executable(${TARGET_NAME} ${TEST_PATH} ${SRC_CPP} ${SRC_OBJCXX})
+        set(TEST_SRC
+            ${TEST_PATH}
+            ${SRC_CPP}
+            ${SRC_OBJCXX}
+            mock/MockLogHandler.cpp
+            src/event/KeyMapper.cpp
+        )
+
+        add_executable(${TARGET_NAME} ${TEST_SRC})
         target_link_libraries(${TARGET_NAME} PRIVATE doctest::doctest common_libs)
         target_include_directories(${TARGET_NAME} PRIVATE 
             ${COMMON_INCLUDE_DIRS}
             ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
             ${CMAKE_SOURCE_DIR}/mock
+            ${CMAKE_SOURCE_DIR}/src/include/event
         )
         target_compile_definitions(${TARGET_NAME} PRIVATE TEST_BUILD)
         add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
