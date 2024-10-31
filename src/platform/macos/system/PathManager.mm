@@ -14,10 +14,11 @@ PathManager::PathManager() {
     // Add default search paths
     searchPaths.emplace_back(getenv("HOME"));
 
-    // Initialize userScriptsPaths
+    // Initialize userScriptsPaths with specific paths to search
     userScriptsPaths = {
-        [this]() { return documents(); },
-        [this]() { return music(); }
+        documents() / "Ableton" / "User Library" / "Remote Scripts",
+        music() / "Ableton" / "User Library" / "Remote Scripts",
+        home() / "Library" / "Application Support" / "Ableton" / "Live 11 Suite" / "User Library" / "Remote Scripts"
     };
 }
 
@@ -183,17 +184,14 @@ auto PathManager::liveTheme() const -> Path {
 }
 
 auto PathManager::remoteScripts() const -> Path {
-    std::vector<Path> searchedPaths;
-    searchedPaths.emplace_back(documents() / ABLETON_USER_SCRIPTS_PATH);
-    searchedPaths.emplace_back(music() / ABLETON_USER_SCRIPTS_PATH);
-
-    for (auto path : userScriptsPaths) {
+    for (const auto& path : userScriptsPaths) {
         if (isValidDir(path)) {
             return path;
         }
     }
+    
     std::string errorMsg = "Ableton Live MIDI Remote Scripts directory does not exist or is not a directory in any of the searched locations:\n";
-    for (const auto& path : searchedPaths) {
+    for (const auto& path : userScriptsPaths) {
         errorMsg += "  - " + path.string() + "\n";
     }
     throw std::runtime_error(errorMsg);

@@ -52,6 +52,5 @@ protected:
     auto findPath(const std::string& key) const -> Path;
 
 private:
-    const Path ABLETON_USER_SCRIPTS_PATH = Path("Ableton") / "User Library" / "Remote Scripts";
-    std::vector<std::function<Path()>> userScriptsPaths;
+    std::vector<Path> userScriptsPaths;
 };
