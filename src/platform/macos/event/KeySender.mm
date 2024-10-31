@@ -11,6 +11,14 @@
 #include "KeySender.h"
 #include "IKeySender.h"
 
+class KeySender : public IKeySender {
+public:
+    KeySender();
+    ~KeySender() override;
+
+    void sendKeyPress(const EKeyPress& kp) override;
+};
+
 std::string toLower(const std::string& str) {
     std::string lowerStr = str;
     std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
