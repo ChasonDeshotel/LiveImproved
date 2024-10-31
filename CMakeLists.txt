@@ -4,6 +4,8 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
 
+option(BUILD_TESTS "Build the tests" OFF)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_definitions(-DWIN32_LEAN_AND_MEAN)
     add_definitions(-DNOMINMAX)
@@ -256,19 +258,57 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
+# Create a library with all your main source files
+add_library(LiveImprovedLib STATIC
+    ${SRC_CPP}
+    ${SRC_OBJCXX}
+)
+
+target_include_directories(LiveImprovedLib PUBLIC
+    ${COMMON_INCLUDE_DIRS}
+)
+
+target_link_libraries(LiveImprovedLib
+    PUBLIC
+        common_libs
+        juce::juce_core
+        juce::juce_gui_basics
+        juce::juce_graphics
+        juce::juce_events
+        juce::juce_data_structures
+)
+
+# Add platform-specific libraries
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	# Add the C++ and Objective-C++ files to the target
-	target_sources(LiveImproved
-	    PRIVATE
-		${SRC_CPP}
-		${SRC_OBJCXX}
-	)
+    target_link_libraries(LiveImprovedLib PUBLIC
+        ${HARFBUZZ_LIB}
+        ${YAML_CPP_LIB}
+        "-framework ApplicationServices"
+        "-framework Cocoa"
+        "-framework CoreFoundation"
+        "-framework CoreGraphics"
+        "-framework CoreImage"
+        "-framework CoreVideo"
+        "-framework IOKit"
+        "-framework QuartzCore"
+        "-framework Security"
+    )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	target_sources(LiveImproved
-	    PRIVATE
-		${SRC_CPP}
-	)
+    target_link_libraries(LiveImprovedLib PUBLIC
+        advapi32
+        gdi32
+        ole32
+        shell32
+        user32
+    )
 endif()
+
+# Main application
+juce_add_gui_app(LiveImproved
+    PRODUCT_NAME "LiveImproved"
+)
+
+target_link_libraries(LiveImproved PRIVATE LiveImprovedLib)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
@@ -355,57 +395,29 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-# add test target
-enable_testing()
-add_subdirectory(lib/doctest)
-
-set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
-
 if(BUILD_TESTS)
-    add_definitions(-DTEST_BUILD)
-    add_compile_definitions(RUNNING_TESTS)
-endif()
+    enable_testing()
+    add_subdirectory(lib/doctest)
 
-# Function to add a test
-function(add_doctest_test TEST_PATH)
-    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
-    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
-    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
-
-    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
-    target_link_libraries(${TARGET_NAME}
-        PRIVATE
+    # Function to add a test
+    function(add_li_test TEST_NAME TEST_SOURCE)
+        add_executable(${TEST_NAME} ${TEST_SOURCE})
+        target_link_libraries(${TEST_NAME} PRIVATE
+            LiveImprovedLib
             doctest::doctest
-            common_libs
-    )
-    target_include_directories(${TARGET_NAME}
-        PRIVATE
-            ${COMMON_INCLUDE_DIRS}
+        )
+        target_include_directories(${TEST_NAME} PRIVATE
             ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
-            ${CMAKE_SOURCE_DIR}/abstract
-            ${CMAKE_SOURCE_DIR}/src/include
-            ${CMAKE_SOURCE_DIR}/src/include/core
-            ${CMAKE_SOURCE_DIR}/src/include/event
             ${CMAKE_SOURCE_DIR}/mock
-    )
-    target_compile_definitions(${TARGET_NAME}
-        PRIVATE
-            JUCE_APP_CONFIG_HEADER=""
+        )
+        target_compile_definitions(${TEST_NAME} PRIVATE
             TEST_BUILD
-    )
-    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
-endfunction()
-#
-## Add your tests
-add_doctest_test(test/core/test_ConfigManager.cpp)
-#add_doctest_test(test/test_ActionHandler.cpp)
-## Add other tests as needed
-#
-## Add a custom target for building all tests
-add_custom_target(build_tests
-    DEPENDS
-        test_core_test_ConfigManager
-        #        test_test_ActionHandler
-    COMMENT "Building all tests"
-)
+        )
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    endfunction()
+
+    # Add your tests
+    add_li_test(test_ConfigManager test/core/test_ConfigManager.cpp)
+    # Add other tests as needed
+endif()
 
