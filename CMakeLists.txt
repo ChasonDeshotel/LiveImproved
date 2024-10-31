@@ -246,12 +246,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     list(APPEND SRC_CPP
         src/platform/macos/ipc/PipeUtil.cpp
     )
-	target_sources(LiveImproved
-	    PRIVATE
-		${MAIN_CPP}
-		${SRC_CPP}
-		${SRC_OBJCXX}
-	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     list(APPEND SRC_CPP
         src/platform/windows/event/EventHandler.cpp
@@ -262,12 +256,14 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         src/platform/windows/system/PID.cpp
         src/platform/windows/system/PathManager.cpp
     )
-	target_sources(LiveImproved
-	    PRIVATE
-		${MAIN_CPP}
-		${SRC_CPP}
-	)
 endif()
+
+target_sources(LiveImproved
+    PRIVATE
+    ${MAIN_CPP}
+    ${SRC_CPP}
+    ${SRC_OBJCXX}
+)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
@@ -373,7 +369,6 @@ if(BUILD_TESTS)
             ${SRC_CPP}
             ${SRC_OBJCXX}
             mock/MockLogHandler.cpp
-            src/event/KeyMapper.cpp
             src/event/KeyMapper.cpp
         )
 
