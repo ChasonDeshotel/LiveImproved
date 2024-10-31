@@ -183,13 +183,19 @@ auto PathManager::liveTheme() const -> Path {
 }
 
 auto PathManager::remoteScripts() const -> Path {
+    std::vector<Path> searchedPaths;
     for (const auto& pathFunc : userScriptsPaths) {
         Path remoteScriptsPath = pathFunc() / ABLETON_USER_SCRIPTS_PATH;
+        searchedPaths.push_back(remoteScriptsPath);
         if (isValidDir(remoteScriptsPath)) {
             return remoteScriptsPath;
         }
     }
-    throw std::runtime_error("Ableton Live MIDI Remote Scripts directory does not exist or is not a directory in any of the searched locations");
+    std::string errorMsg = "Ableton Live MIDI Remote Scripts directory does not exist or is not a directory in any of the searched locations:\n";
+    for (const auto& path : searchedPaths) {
+        errorMsg += "  - " + path.string() + "\n";
+    }
+    throw std::runtime_error(errorMsg);
 }
 
 auto PathManager::limRemoteScript() const -> Path {
