@@ -178,6 +178,16 @@ target_include_directories(common_libs INTERFACE
     ${CMAKE_SOURCE_DIR}/lib/yaml-cpp/include
 )
 
+# Add yaml-cpp include directory to LiveImprovedLib
+target_include_directories(LiveImprovedLib PUBLIC
+    ${CMAKE_SOURCE_DIR}/lib/yaml-cpp/include
+)
+
+# Add yaml-cpp include directory to LiveImproved
+target_include_directories(LiveImproved PUBLIC
+    ${CMAKE_SOURCE_DIR}/lib/yaml-cpp/include
+)
+
 #if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     # JUCE-specific include directories (only for LiveImproved target when not building tests)
     target_include_directories(LiveImproved PRIVATE
