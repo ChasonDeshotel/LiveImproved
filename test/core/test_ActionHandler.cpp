@@ -8,6 +8,7 @@
 #include "MockEventHandler.h"
 #include "MockLiveInterface.h"
 #include "MockIPCQueue.h"
+#include "MockKeySender.h"
 #include "LogGlobal.h"
 
 TEST_CASE("global setup") {
@@ -29,7 +30,8 @@ std::unique_ptr<ActionHandler> createActionHandler(
     std::shared_ptr<ConfigManager>& mockConfigManager,
     std::shared_ptr<MockIPCQueue>& mockIPCQueue,
     std::shared_ptr<MockEventHandler>& mockEventHandler,
-    std::shared_ptr<MockLiveInterface>& mockLiveInterface
+    std::shared_ptr<MockLiveInterface>& mockLiveInterface,
+    std::shared_ptr<MockKeySender>& mockKeySender
 ) {
     std::cout << "Creating ActionHandler..." << std::endl;
     return std::make_unique<ActionHandler>(
@@ -38,7 +40,8 @@ std::unique_ptr<ActionHandler> createActionHandler(
         [&]() { return mockConfigManager; },
         [&]() { return mockIPCQueue; },
         [&]() { return mockEventHandler; },
-        [&]() { return mockLiveInterface; }
+        [&]() { return mockLiveInterface; },
+        [&]() { return mockKeySender; }
     );
 }
 
@@ -51,6 +54,7 @@ TEST_CASE("ActionHandler initialization") {
     auto mockIPCQueue = std::make_shared<MockIPCQueue>();
     auto mockEventHandler = std::make_shared<MockEventHandler>();
     auto mockLiveInterface = std::make_shared<MockLiveInterface>();
+    auto mockKeySender = std::make_shared<MockKeySender>();
 
     REQUIRE(mockConfigManager != nullptr);
     REQUIRE(mockWindowManager != nullptr);
@@ -58,10 +62,11 @@ TEST_CASE("ActionHandler initialization") {
     REQUIRE(mockIPCQueue != nullptr);
     REQUIRE(mockEventHandler != nullptr);
     REQUIRE(mockLiveInterface != nullptr);
+    REQUIRE(mockKeySender != nullptr);
 
     auto actionHandler = createActionHandler(
         mockPluginManager, mockWindowManager, mockConfigManager,
-        mockIPCQueue, mockEventHandler, mockLiveInterface
+        mockIPCQueue, mockEventHandler, mockLiveInterface, mockKeySender
     );
 
     REQUIRE(actionHandler != nullptr);
