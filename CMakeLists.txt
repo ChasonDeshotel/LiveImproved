@@ -265,6 +265,11 @@ target_sources(LiveImproved
     ${SRC_OBJCXX}
 )
 
+# Ensure MAIN_CPP is included for LiveImproved target even when building tests
+if(BUILD_TESTS)
+    target_sources(LiveImproved PRIVATE ${MAIN_CPP})
+endif()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
