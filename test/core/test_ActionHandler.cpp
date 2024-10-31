@@ -2,9 +2,9 @@
 #include <doctest/doctest.h>
 
 #include "ActionHandler.h"
-#include "ConfigManager.h"
-#include "WindowManager.h"
-#include "PluginManager.h"
+#include "MockConfigManager.h"
+#include "MockWindowManager.h"
+#include "MockPluginManager.h"
 #include "MockEventHandler.h"
 #include "MockLiveInterface.h"
 #include "MockIPCQueue.h"
@@ -14,17 +14,17 @@
 
 
 TEST_CASE("ActionHandler initialization") {
-    auto configManager = std::make_shared<MockConfigManager>();
-    auto windowManager = std::make_shared<MockWindowManager>();
-    auto pluginManager = std::make_shared<MockPluginManager>();
+    auto mockConfigManager = std::make_shared<MockConfigManager>();
+    auto mockWindowManager = std::make_shared<MockWindowManager>();
+    auto mockPluginManager = std::make_shared<MockPluginManager>();
     auto mockIPCQueue = std::make_shared<MockIPCQueue>();
     auto mockEventHandler = std::make_shared<MockEventHandler>();
     auto mockLiveInterface = std::make_shared<MockLiveInterface>();
 
     ActionHandler actionHandler(
-        [&]() { return pluginManager; },
-        [&]() { return windowManager; },
-        [&]() { return configManager; },
+        [&]() { return mockPluginManager; },
+        [&]() { return mockWindowManager; },
+        [&]() { return mockConfigManager; },
         [&]() { return mockIPCQueue; },
         [&]() { return mockEventHandler; },
         [&]() { return mockLiveInterface; }
@@ -44,9 +44,9 @@ TEST_CASE("ActionHandler initialization") {
 }
 
 TEST_CASE("ActionHandler handleKeyEvent") {
-    auto configManager = std::make_shared<MockConfigManager>();
-    auto windowManager = std::make_shared<MockWindowManager>();
-    auto pluginManager = std::make_shared<MockPluginManager>();
+    auto mockConfigManager = std::make_shared<MockConfigManager>();
+    auto mockWindowManager = std::make_shared<MockWindowManager>();
+    auto mockPluginManager = std::make_shared<MockPluginManager>();
     auto mockIPCQueue = std::make_shared<MockIPCQueue>();
     auto mockEventHandler = std::make_shared<MockEventHandler>();
     auto mockLiveInterface = std::make_shared<MockLiveInterface>();
@@ -71,9 +71,9 @@ TEST_CASE("ActionHandler handleKeyEvent") {
 }
 
 TEST_CASE("ActionHandler handleAction with arguments") {
-    auto configManager = std::make_shared<MockConfigManager>();
-    auto windowManager = std::make_shared<MockWindowManager>();
-    auto pluginManager = std::make_shared<MockPluginManager>();
+    auto mockConfigManager = std::make_shared<MockConfigManager>();
+    auto mockWindowManager = std::make_shared<MockWindowManager>();
+    auto mockPluginManager = std::make_shared<MockPluginManager>();
     auto mockIPCQueue = std::make_shared<MockIPCQueue>();
     auto mockEventHandler = std::make_shared<MockEventHandler>();
     auto mockLiveInterface = std::make_shared<MockLiveInterface>();
