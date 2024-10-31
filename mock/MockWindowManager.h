@@ -1,0 +1,64 @@
+#pragma once
+
+#include "abstract/IWindowManager.h"
+#include <map>
+#include <set>
+
+class MockWindowManager : public IWindowManager {
+public:
+    MockWindowManager() = default;
+    ~MockWindowManager() override = default;
+
+    auto registerWindow(const std::string& windowName, std::function<void()> callback) -> void override {
+        registeredWindows_[windowName] = std::move(callback);
+    }
+
+    [[nodiscard]] auto getWindowHandle(const std::string& windowName) const -> void* override {
+        return const_cast<void*>(static_cast<const void*>(windowName.c_str()));
+    }
+
+    auto openWindow(const std::string& windowName) -> void override {
+        openWindows_.insert(windowName);
+    }
+
+    auto closeWindow(const std::string& windowName) -> void override {
+        openWindows_.erase(windowName);
+    }
+
+    auto toggleWindow(const std::string& windowName) -> void override {
+        if (isWindowOpen(windowName)) {
+            closeWindow(windowName);
+        } else {
+            openWindow(windowName);
+        }
+    }
+
+    [[nodiscard]] auto isWindowOpen(const std::string& windowName) const -> bool override {
+        return openWindows_.find(windowName) != openWindows_.end();
+    }
+
+    auto createWindowInstance(const std::string& windowName) -> std::unique_ptr<IWindow> override {
+        return std::make_unique<MockWindow>(windowName);
+    }
+
+    // Helper methods for testing
+    [[nodiscard]] auto getRegisteredWindows() const -> const std::map<std::string, std::function<void()>>& {
+        return registeredWindows_;
+    }
+
+    [[nodiscard]] auto getOpenWindows() const -> const std::set<std::string>& {
+        return openWindows_;
+    }
+
+private:
+    std::map<std::string, std::function<void()>> registeredWindows_;
+    std::set<std::string> openWindows_;
+
+    class MockWindow : public IWindow {
+    public:
+        explicit MockWindow(std::string name) : name_(std::move(name)) {}
+        [[nodiscard]] auto getName() const -> std::string override { return name_; }
+    private:
+        std::string name_;
+    };
+};
