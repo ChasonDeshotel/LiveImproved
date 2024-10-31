@@ -7,7 +7,8 @@
 #include "PluginManager.h"
 #include "EventHandler.h"
 #include "ILiveInterface.h"
-#include "IIPCQueue.h""
+#include "IIPCQueue.h"
+#include "MockIPCQueue.h"
 #include "LogGlobal.h"
 
 #include <memory>
@@ -32,10 +33,6 @@ public:
     std::vector<Plugin> getPlugins() const override { return {}; }
 };
 
-class MockIPCQueue : public IIPCQueue {
-public:
-    void writeRequest(const std::string&) override {}
-};
 
 class MockEventHandler : public EventHandler {
 public:
@@ -54,7 +51,7 @@ TEST_CASE("ActionHandler initialization") {
     auto configManager = std::make_shared<MockConfigManager>();
     auto windowManager = std::make_shared<MockWindowManager>();
     auto pluginManager = std::make_shared<MockPluginManager>();
-    auto ipcCore = std::make_shared<MockIPCCore>();
+    auto ipcQueue = std::make_shared<MockIPCQueue>();
     auto eventHandler = std::make_shared<MockEventHandler>();
     auto liveInterface = std::make_shared<MockLiveInterface>();
 
@@ -62,7 +59,7 @@ TEST_CASE("ActionHandler initialization") {
         [&]() { return pluginManager; },
         [&]() { return windowManager; },
         [&]() { return configManager; },
-        [&]() { return ipcCore; },
+        [&]() { return ipcQueue; },
         [&]() { return eventHandler; },
         [&]() { return liveInterface; }
     );
