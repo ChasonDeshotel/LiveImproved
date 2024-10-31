@@ -19,7 +19,7 @@ ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
     parseLESMenuConfig(PathManager().lesConfig());
 }
 
-void ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
+auto ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) -> void {
     out << YAML::BeginMap;
     out << YAML::Key << "label" << YAML::Value << item.label;
 
@@ -36,7 +36,7 @@ void ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
     out << YAML::EndMap;
 }
 
-void ConfigMenu::saveToYAML(const std::vector<MenuItem>& menuData, const std::filesystem::path& filePath) {
+auto ConfigMenu::saveToYAML(const std::vector<MenuItem>& menuData, const std::filesystem::path& filePath) -> void {
     YAML::Emitter out;
     out << YAML::BeginSeq;
 
@@ -55,7 +55,7 @@ auto ConfigMenu::getMenuData() -> std::vector<MenuItem> {
     return menuData_;
 }
 
-void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
+auto ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) -> void {
     std::vector<MenuItem> menuData;
 
     std::ifstream file(filePath);
@@ -152,7 +152,7 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
     saveToYAML(menuData, configMenuFilePath);
 }
 
-void ConfigMenu::loadConfig() {
+auto ConfigMenu::loadConfig() -> void {
     try {
         // Implementation
     } catch (const std::exception &e) {
