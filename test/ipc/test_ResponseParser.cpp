@@ -18,7 +18,7 @@ TEST_CASE("ResponseParser::parsePlugins") {
         CHECK(plugins[0].uri == "Aberrant%20DSP:ShapeShifter");
     }
 
-    SUBCASE("Parse single plugin with different type") {
+    SUBCASE("Parse single plugin with VST3 type") {
         std::string input = "2,Virus TI,query:Plugins#VST3:Access:Virus%20TI";
         auto plugins = parser.parsePlugins(input);
 
@@ -26,6 +26,17 @@ TEST_CASE("ResponseParser::parsePlugins") {
         CHECK(plugins[0].number == 3);  // Remember, we're adding 1 to make it 1-based
         CHECK(plugins[0].name == "Virus TI");
         CHECK(plugins[0].type == "VST3");
+        CHECK(plugins[0].uri == "Access:Virus%20TI");
+    }
+
+    SUBCASE("Parse single plugin with VST type") {
+        std::string input = "2,Virus TI,query:Plugins#VST:Access:Virus%20TI";
+        auto plugins = parser.parsePlugins(input);
+
+        REQUIRE(plugins.size() == 1);
+        CHECK(plugins[0].number == 3);  // Remember, we're adding 1 to make it 1-based
+        CHECK(plugins[0].name == "Virus TI");
+        CHECK(plugins[0].type == "VST");
         CHECK(plugins[0].uri == "Access:Virus%20TI");
     }
 
@@ -54,7 +65,7 @@ TEST_CASE("ResponseParser::parsePlugins") {
     }
 
     SUBCASE("Sort plugins alphabetically") {
-        std::string input = "2,ZPlugin,#AUv2uri2|1,APlugin,#VSTuri1|3,MPlugin,#AUv3uri3";
+        std::string input = "0,ZPlugin,query:Plugins#AUv2:Aberrant%20DSP:ShapeShifter|1,APlugin,query:Plugins#AUv2:Aberrant%20DSP:SketchCassette|2,MPlugin,query:Plugins#AUv2:Access:Virus%20TI";
         auto plugins = parser.parsePlugins(input);
 
         REQUIRE(plugins.size() == 3);
