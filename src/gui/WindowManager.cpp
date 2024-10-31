@@ -3,7 +3,8 @@
 #include "LogGlobal.h"
 
 #include "IEventHandler.h"
-#include "IEventHandler.h"
+#include "IPluginManager.h"
+#include "IActionHandler.h"
 
 #include "IWindow.h"
 
