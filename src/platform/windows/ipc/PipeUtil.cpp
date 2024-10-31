@@ -26,6 +26,7 @@ auto PipeUtil::createPipe() -> bool {
             , 0
             , NULL
         );
+        logger->error("read pipe");
     } else if (pipeMode_ == ipc::PipeMode::Write) {
         pipeHandle_ = CreateNamedPipeA(
             pipePath_.string().c_str()
@@ -37,6 +38,7 @@ auto PipeUtil::createPipe() -> bool {
             , 0
             , NULL
         );
+        logger->error("write pipe");
         if (pipeHandle_ == ipc::INVALID_PIPE_HANDLE) {
             logger->error("Failed to create pipe: ");
             return false;
