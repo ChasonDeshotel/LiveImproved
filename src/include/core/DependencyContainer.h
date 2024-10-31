@@ -7,6 +7,7 @@
 #include <typeindex>
 #include <unordered_map>
 #include <ranges>
+#include "LogHandler.h"
 
 class Scope {
 public:
@@ -117,6 +118,14 @@ public:
 
     void endScope() {
         currentScope_ = nullptr;
+    }
+
+    void logRegisteredDependencies() const {
+        auto logger = resolve<LogHandler>();
+        logger->info("Currently registered dependencies:");
+        for (const auto& [type, _] : factories_) {
+            logger->info(" - " + std::string(type.name()));
+        }
     }
 
 private:
