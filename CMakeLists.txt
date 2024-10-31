@@ -407,6 +407,7 @@ if(BUILD_TESTS)
         )
         target_include_directories(${TEST_NAME} PRIVATE
             ${CMAKE_SOURCE_DIR}/src/abstract
+            ${CMAKE_SOURCE_DIR}/src/include
             ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
             ${CMAKE_SOURCE_DIR}/mock
         )
