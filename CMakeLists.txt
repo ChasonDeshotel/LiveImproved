@@ -374,6 +374,7 @@ if(BUILD_TESTS)
             ${SRC_OBJCXX}
             mock/MockLogHandler.cpp
             src/event/KeyMapper.cpp
+            src/event/KeyMapper.cpp
         )
 
         add_executable(${TARGET_NAME} ${TEST_SRC})
