@@ -173,7 +173,10 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src/include/system
 )
 
-target_include_directories(common_libs INTERFACE ${COMMON_INCLUDE_DIRS})
+target_include_directories(common_libs INTERFACE 
+    ${COMMON_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/lib/yaml-cpp/include
+)
 
 #if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     # JUCE-specific include directories (only for LiveImproved target when not building tests)
