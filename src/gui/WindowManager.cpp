@@ -7,6 +7,7 @@
 #include "IActionHandler.h"
 
 #include "IWindow.h"
+#include "IWindowManager.h"
 
 #include "ContextMenu.h"
 #include "SearchBox.h"
@@ -21,7 +22,8 @@ WindowManager::WindowManager(
                              , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
                              , std::function<std::shared_ptr<ConfigMenu>()> configMenu
                              )
-    : pluginManager_(std::move(pluginManager))
+    : IWindowManager()
+    , pluginManager_(std::move(pluginManager))
     , eventHandler_(std::move(eventHandler))
     , actionHandler_(std::move(actionHandler))
     , windowManager_(std::move(windowManager))
