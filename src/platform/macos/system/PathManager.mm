@@ -63,6 +63,21 @@ auto PathManager::documents() const -> Path {
     throw std::runtime_error("Unable to locate Documents directory");
 }
 
+auto PathManager::music() const -> Path {
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
+    if (paths.count > 0) {
+        NSString* musicDirectory = paths.firstObject;
+        Path musicPath([musicDirectory UTF8String]);
+
+        if (!isValidDir(musicPath)) {
+            throw std::runtime_error("Music directory does not exist or is not a directory: " + musicPath.string());
+        }
+
+        return musicPath;
+    }
+
+    throw std::runtime_error("Unable to locate Music directory");
+}
 
 auto PathManager::config() const -> Path {
     Path configFile = limRemoteScript() / "config.txt";
