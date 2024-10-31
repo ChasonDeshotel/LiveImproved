@@ -77,7 +77,7 @@ TEST_CASE("ActionHandler initialization") {
 
     SUBCASE("Invalid action") {
         std::cout << "Testing invalid action" << std::endl;
-        CHECK_THROWS(actionHandler->handleAction("invalidAction"));
+        CHECK_THROWS_AS(actionHandler->handleAction("invalidAction"), std::runtime_error);
     }
 }
 
@@ -105,7 +105,7 @@ TEST_CASE("ActionHandler handleKeyEvent") {
     testKeyPress.alt = false;
     testKeyPress.shift = false;
 
-    CHECK(actionHandler->handleKeyEvent(testKeyPress));
+    CHECK_MESSAGE(actionHandler->handleKeyEvent(testKeyPress), "handleKeyEvent should return true for a valid key press");
 }
 
 TEST_CASE("ActionHandler handleAction with arguments") {
@@ -125,6 +125,11 @@ TEST_CASE("ActionHandler handleAction with arguments") {
 
     REQUIRE(actionHandler != nullptr);
 
-    CHECK_NOTHROW(actionHandler->handleAction("write-request.test_request"));
-    CHECK_NOTHROW(actionHandler->handleAction("plugin.TestPlugin"));
+    SUBCASE("write-request action") {
+        CHECK_NOTHROW_MESSAGE(actionHandler->handleAction("write-request.test_request"), "write-request action should not throw");
+    }
+
+    SUBCASE("plugin action") {
+        CHECK_NOTHROW_MESSAGE(actionHandler->handleAction("plugin.TestPlugin"), "plugin action should not throw");
+    }
 }
