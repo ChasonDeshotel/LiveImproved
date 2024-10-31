@@ -50,4 +50,8 @@ protected:
     mutable std::unordered_map<std::string, Path> cachedPaths;
 
     auto findPath(const std::string& key) const -> Path;
+
+private:
+    const Path ABLETON_USER_SCRIPTS_PATH = Path("Ableton") / "User Library" / "Remote Scripts";
+    std::vector<std::function<Path()>> userScriptsPaths;
 };
