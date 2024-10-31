@@ -2,12 +2,18 @@
 
 #include "IIPCQueue.h"
 #include <vector>
-#include <functional>
+
+#include "IPCDefinitions.h"
 
 class MockIPCQueue : public IIPCQueue {
 public:
     MockIPCQueue() = default;
     ~MockIPCQueue() override = default;
+
+    MockIPCQueue(const MockIPCQueue &) = delete;
+    MockIPCQueue(MockIPCQueue &&) = delete;
+    MockIPCQueue &operator=(const MockIPCQueue &) = delete;
+    MockIPCQueue &operator=(MockIPCQueue &&) = delete;
 
     auto init() -> ipc::QueueState override { return state_; }
     [[nodiscard]] auto isInitialized() const -> bool override { return initialized_; }
@@ -35,7 +41,7 @@ public:
 
 private:
     bool initialized_ = false;
-    ipc::QueueState state_ = ipc::QueueState::Uninitialized;
+    ipc::QueueState state_ = ipc::QueueState::Initializing;
     std::vector<std::string> requests_;
     std::vector<ipc::ResponseCallback> callbacks_;
     bool halted_ = false;

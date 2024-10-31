@@ -1,21 +1,27 @@
 #pragma once
 
-#include "abstract/IEventHandler.h"
+#include "Types.h"
+
+#include "IEventHandler.h"
 #include <functional>
-#include <map>
 
 class MockEventHandler : public IEventHandler {
 public:
     MockEventHandler() = default;
     ~MockEventHandler() override = default;
 
+    MockEventHandler(const MockEventHandler &) = default;
+    MockEventHandler(MockEventHandler &&) = delete;
+    MockEventHandler &operator=(const MockEventHandler &) = default;
+    MockEventHandler &operator=(MockEventHandler &&) = delete;
+
     void runPlatform() override {}
     void setupQuartzEventTap() override {}
-    
+
     void registerAppLaunch(std::function<void()> onLaunchCallback) override {
         appLaunchCallback = std::move(onLaunchCallback);
     }
-    
+
     void registerAppTermination(std::function<void()> onTerminationCallback) override {
         appTerminationCallback = std::move(onTerminationCallback);
     }
@@ -51,15 +57,15 @@ public:
         if (appTerminationCallback) appTerminationCallback();
     }
 
-    std::string getFocusedWindow() const {
+    [[nodiscard]] std::string getFocusedWindow() const {
         return focusedWindow;
     }
 
-    void* getLastFocusedHandle() const {
+    [[nodiscard]] void* getLastFocusedHandle() const {
         return lastFocusedHandle;
     }
 
-    int getLastFocusedID() const {
+    [[nodiscard]] int getLastFocusedID() const {
         return lastFocusedID;
     }
 
@@ -73,5 +79,5 @@ private:
     std::string focusedWindow;
     void* lastFocusedHandle = nullptr;
     int lastFocusedID = -1;
-    ERect liveBounds;
+    ERect liveBounds{};
 };

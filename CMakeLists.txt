@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 
 # Set Ninja as the preferred generator
 set(CMAKE_GENERATOR "Ninja" CACHE INTERNAL "" FORCE)
+add_compile_options(-fdiagnostics-color=always)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=always")
+
 set(BUILD_TESTING OFF)
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
@@ -404,10 +407,10 @@ if(BUILD_TESTS)
         target_link_libraries(${TEST_NAME} PRIVATE
             LiveImprovedLib
             doctest::doctest
+            common_libs
         )
         target_include_directories(${TEST_NAME} PRIVATE
-            ${CMAKE_SOURCE_DIR}/src/abstract
-            ${CMAKE_SOURCE_DIR}/src/include
+            ${COMMON_INCLUDE_DIRS}
             ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
             ${CMAKE_SOURCE_DIR}/mock
         )

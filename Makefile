@@ -30,7 +30,7 @@ test:
 run_tests: configure-tests
 	@if [ -z "$(TEST)" ]; then \
 		echo "Building and running all tests..."; \
-		ninja -C $(CLI_BUILD_DIR) && \
+		ninja -C $(CLI_BUILD_DIR) --verbose && \
 		cd $(CLI_BUILD_DIR) && ctest --output-on-failure -V; \
 	else \
 		echo "Building and running test: $(TEST)"; \

@@ -34,6 +34,12 @@ ActionHandler::ActionHandler(
     , eventHandler_(std::move(eventHandler))
     , liveInterface_(std::move(liveInterface))
 {
+     std::cout << "ActionHandler constructor called" << std::endl;
+     if (!pluginManager_ || !windowManager_ || !configManager_ || !ipc_ || !eventHandler_ || !liveInterface_) {
+         std::cerr << "One or more dependencies are null in ActionHandler constructor" << std::endl;
+         throw std::runtime_error("Null dependency in ActionHandler constructor");
+     }
+     std::cout << "ActionHandler constructor completed successfully" << std::endl;
     initializeActionMap();
 }
 

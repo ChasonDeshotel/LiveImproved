@@ -14,7 +14,7 @@ KeyMapper::KeyMapper()
 KeyMapper::~KeyMapper() = default;
 
 auto KeyMapper::processKeyPress(const std::string& keypress) -> EKeyPress {
-    logger->debug("process key: " + keypress);
+    //logger->debug("process key: " + keypress);
     if (validateHotkey(keypress)) {
         this->keypress = parseKeyPress(keypress);
         this->valid = true;
@@ -41,14 +41,14 @@ auto KeyMapper::validateHotkey(const std::string& keypress) const -> bool {
 }
 
 auto KeyMapper::parseKeyPress(const std::string& keypress) const -> EKeyPress {
-    logger->debug("parsing: " + keypress);
+    //logger->debug("parsing: " + keypress);
     const auto& namedKeys = NamedKeys::get();
 
     EKeyPress kp;
 
     if (keypress.length() == 1) {
         kp.key = keypress;
-        logger->debug("Key set to: " + kp.key);
+        //logger->debug("Key set to: " + kp.key);
         return kp;
     }
 
@@ -65,11 +65,11 @@ auto KeyMapper::parseKeyPress(const std::string& keypress) const -> EKeyPress {
             kp.key = temp;
         }
     }
-    logger->debug("key: "   + kp.key);
-    logger->debug("shift: " + std::to_string(kp.shift));
-    logger->debug("ctrl: "  + std::to_string(kp.ctrl));
-    logger->debug("cmd: "   + std::to_string(kp.cmd));
-    logger->debug("alt: "   + std::to_string(kp.alt));
+    //logger->debug("key: "   + kp.key);
+    //logger->debug("shift: " + std::to_string(kp.shift));
+    //logger->debug("ctrl: "  + std::to_string(kp.ctrl));
+    //logger->debug("cmd: "   + std::to_string(kp.cmd));
+    //logger->debug("alt: "   + std::to_string(kp.alt));
 
     return kp;
 }

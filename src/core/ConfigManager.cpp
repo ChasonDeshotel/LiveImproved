@@ -45,12 +45,12 @@ auto ConfigManager::applyConfig(const YAML::Node& config) -> void {
             initRetries_ = config["init"]["retries"].as<int>();
         }
 
-        logger->info("remap before remap");
+        //logger->info("remap before remap");
         if (config["remap"] && config["remap"].IsMap()) {
             for (const auto &item : config["remap"]) {
-                logger->debug("remap found remap");
-                logger->debug("remap fromStr: " + item.first.as<std::string>());
-                logger->debug("remap toStr: "   + item.second.as<std::string>());
+                //logger->debug("remap found remap");
+                //logger->debug("remap fromStr: " + item.first.as<std::string>());
+                //logger->debug("remap toStr: "   + item.second.as<std::string>());
 
                 processRemap(item.first.as<std::string>(), item.second.as<std::string>());
             }
@@ -113,10 +113,10 @@ auto ConfigManager::saveConfig() -> void {
 
     YAML::Node remapNode = YAML::Load("{}");
     for (const auto& item : remap_) {
-        logger->debug("save remap");
+        //logger->debug("save remap");
 
         std::string fromString = km_->EKeyPressToString(item.first);
-        logger->debug("save remap from: " + fromString);
+        //logger->debug("save remap from: " + fromString);
 
         std::vector<std::string> stepStrings;
         const EMacro& macro = item.second;
@@ -185,12 +185,12 @@ auto ConfigManager::setInitRetries(int retries) -> void {
 }
 
 auto ConfigManager::getRemap() const -> std::unordered_map<EKeyPress, EMacro, EMacroHash> {
-    logger->debug("get remap caled");
+    //logger->debug("get remap caled");
     return remap_;
 }
 
 auto ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) -> void {
-    logger->debug("setRemap: from: " + fromStr + " to: " + toStr);
+    //logger->debug("setRemap: from: " + fromStr + " to: " + toStr);
     processRemap(fromStr, toStr);
     saveConfig();
 }
@@ -257,7 +257,7 @@ auto ConfigManager::canUndo() const -> bool {
 }
 
 auto ConfigManager::processRemap(const std::string &fromStr, const std::string &toStr) -> void {
-    logger->debug("process remap: from: " + fromStr + " to: " + toStr);
+    //logger->debug("process remap: from: " + fromStr + " to: " + toStr);
     EKeyPress from = km_->processKeyPress(fromStr);
 
     // stepsString is composed of any combination of
@@ -275,12 +275,12 @@ auto ConfigManager::processRemap(const std::string &fromStr, const std::string &
     EMacro macro;
 
     for (const auto& step : steps) {
-        logger->debug("process remap: step: " + step);
+        //logger->debug("process remap: step: " + step);
 
         const auto& namedActions = NamedActions::get();
 
         if (step.length() == 1) {
-            logger->debug("process remap: single character, processing as keypress: " + step);
+            //logger->debug("process remap: single character, processing as keypress: " + step);
             try {
                 EKeyPress keyPress = km_->processKeyPress(step);
                 macro.addKeyPress(keyPress);
@@ -289,7 +289,7 @@ auto ConfigManager::processRemap(const std::string &fromStr, const std::string &
             }
 
         } else if (namedActions.find(step) != namedActions.end()) {
-            logger->debug("process remap: add action no arg: " + step);
+            //logger->debug("process remap: add action no arg: " + step);
             Action action(step);
             // TODO add validation
             macro.addAction(action);
@@ -302,7 +302,7 @@ auto ConfigManager::processRemap(const std::string &fromStr, const std::string &
 
             if (namedActions.find(actionName) != namedActions.end()) {
                 if (argument) {
-                    logger->debug("process remap: add action with arg: " + actionName + "." + *argument);
+                    //logger->debug("process remap: add action with arg: " + actionName + "." + *argument);
                     Action action(actionName, *argument);
                     // TODO add validation
                     macro.addAction(action);
@@ -315,7 +315,7 @@ auto ConfigManager::processRemap(const std::string &fromStr, const std::string &
 
         } else {
             // TODO consider turning these into a keypress macro
-            logger->debug("process remap: not in named actions. str: " + step);
+            //logger->debug("process remap: not in named actions. str: " + step);
             try {
                 EKeyPress keyPress = km_->processKeyPress(step);
                 macro.addKeyPress(keyPress);

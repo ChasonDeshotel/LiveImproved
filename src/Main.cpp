@@ -9,11 +9,6 @@
 #include "DependencyContainer.h"
 #include "PathManager.h"
 
-#include "IEventHandler.h"
-#include "IIPCQueue.h"
-#include "ILiveInterface.h"
-#include "IWindowManager.h"
-
 #include "ActionHandler.h"
 #include "ConfigManager.h"
 #include "ConfigMenu.h"
@@ -285,7 +280,7 @@ public:
             );
 
             app->container_.registerFactory<IIPCQueue>(
-                [](DependencyContainer& c) -> std::shared_ptr<IPCQueue> {
+                [](DependencyContainer& c) -> std::shared_ptr<IIPCQueue> {
                     return std::make_shared<IPCQueue>(
                         [&c]() { return c.resolve<IPCRequestPipe>(); }
                         , [&c]() { return c.resolve<IPCResponsePipe>(); }
