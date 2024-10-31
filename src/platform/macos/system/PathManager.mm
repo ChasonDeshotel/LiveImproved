@@ -177,8 +177,9 @@ auto PathManager::liveTheme() const -> Path {
 }
 
 auto PathManager::remoteScripts() const -> Path {
-    Path remoteScriptsInDocuments = documents() / "Ableton" / "User Library" / "Remote Scripts";
-    Path remoteScriptsInMusic = music() / "Ableton" / "User Library" / "Remote Scripts";
+    Path remoteScriptsPathPart = Path("Ableton") / "User Library" / "Remote Scripts";
+    Path remoteScriptsInDocuments = documents() / remoteScriptsPathPart;
+    Path remoteScriptsInMusic = music() / remoteScriptsPathPart;
 
     if (isValidDir(remoteScriptsInDocuments)) {
         return remoteScriptsInDocuments;
