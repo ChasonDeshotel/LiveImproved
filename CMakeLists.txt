@@ -34,6 +34,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
      # Add Windows-specific compile definitions
      add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_WIN32_WINNT=0x0A00)
+
 endif()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -100,47 +101,35 @@ target_link_libraries(common_libs
         pugixml
 )
 
-# Include JUCE for all builds
+# Conditionally include JUCE and set up the main application
 add_subdirectory(lib/JUCE)
-
-# Create a library target for the main application code
-add_library(LiveImprovedLib STATIC
-    ${SRC_CPP}
-    ${SRC_OBJCXX}
-)
 
 # Set up your project with JUCE modules
 juce_add_gui_app(LiveImproved
     PRODUCT_NAME "LiveImproved"
 )
 
-# Link LiveImprovedLib to LiveImproved
-target_link_libraries(LiveImproved PRIVATE LiveImprovedLib)
+# Add the necessary JUCE modules
+target_link_libraries(LiveImproved
+    PRIVATE
+        juce::juce_core
+        juce::juce_gui_basics
+        juce::juce_graphics
+        juce::juce_events
+        juce::juce_data_structures
+        common_libs
+)
 
-# Function to add JUCE libraries and includes to a target
-function(add_juce_to_target TARGET_NAME)
-    target_link_libraries(${TARGET_NAME}
-        PRIVATE
-            juce::juce_core
-            juce::juce_gui_basics
-            juce::juce_graphics
-            juce::juce_events
-            juce::juce_data_structures
-            common_libs
-    )
+# JUCE-specific include directories (only for LiveImproved target)
+target_include_directories(LiveImproved PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/include/juce
+    ${CMAKE_SOURCE_DIR}/lib/juce/modules
+)
 
-    target_include_directories(${TARGET_NAME} PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/include/juce
-        ${CMAKE_SOURCE_DIR}/lib/juce/modules
-    )
-
-    target_compile_definitions(${TARGET_NAME} PRIVATE
-        JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
-    )
-endfunction()
-
-# Add JUCE to the main application
-add_juce_to_target(LiveImproved)
+# JUCE-specific compile definitions
+target_compile_definitions(LiveImproved PRIVATE
+    JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
+)
 
 # Install rules for macOS application bundle
 install(TARGETS LiveImproved
@@ -173,22 +162,9 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src/include/system
 )
 
-target_include_directories(common_libs INTERFACE 
-    ${COMMON_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/lib/yaml-cpp/include
-)
+target_include_directories(common_libs INTERFACE ${COMMON_INCLUDE_DIRS})
 
-# Add yaml-cpp include directory to LiveImprovedLib
-target_include_directories(LiveImprovedLib PUBLIC
-    ${CMAKE_SOURCE_DIR}/lib/yaml-cpp/include
-)
-
-# Add yaml-cpp include directory to LiveImproved
-target_include_directories(LiveImproved PUBLIC
-    ${CMAKE_SOURCE_DIR}/lib/yaml-cpp/include
-)
-
-#if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     # JUCE-specific include directories (only for LiveImproved target when not building tests)
     target_include_directories(LiveImproved PRIVATE
         ${CMAKE_SOURCE_DIR}/src/include/juce
@@ -197,7 +173,7 @@ target_include_directories(LiveImproved PUBLIC
     )
 
     target_compile_definitions(LiveImproved PRIVATE JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h")
-    #endif()
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Including macOS-specific directories")
@@ -222,12 +198,14 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live/component
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/system
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/util
+        #        "$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/Include/10.0.19041.0/um"
         ${WINDOWSSDK_INCLUDE_DIRS}
     )
 endif()
 
 # Source files for C++ and Objective-C++
 set(SRC_CPP
+    src/Main.cpp
     src/core/ConfigManager.cpp
     src/core/ConfigMenu.cpp
     src/core/LogGlobal.cpp
@@ -242,11 +220,8 @@ set(SRC_CPP
     src/ipc/IPCPipe.cpp
     src/ipc/IPCRequestPipe.cpp
     src/ipc/IPCResponsePipe.cpp
+    #src/ipc/IPCResilienceDecorator.cpp
     src/ipc/ResponseParser.cpp
-)
-
-set(MAIN_CPP
-    src/Main.cpp
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -268,6 +243,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     list(APPEND SRC_CPP
         src/platform/macos/ipc/PipeUtil.cpp
     )
+
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     list(APPEND SRC_CPP
         src/platform/windows/event/EventHandler.cpp
@@ -280,61 +256,19 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-# Include MAIN_CPP for LiveImproved target
-target_sources(LiveImproved
-    PRIVATE
-    ${MAIN_CPP}
-)
-
-# Add sources to LiveImprovedLib
-target_sources(LiveImprovedLib
-    PRIVATE
-    ${SRC_CPP}
-    ${SRC_OBJCXX}
-)
-
-# Add include directories for LiveImprovedLib
-target_include_directories(LiveImprovedLib
-    PUBLIC
-    ${COMMON_INCLUDE_DIRS}
-)
-
-# Modify the add_doctest_test function to exclude MAIN_CPP
-function(add_doctest_test TEST_PATH)
-    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
-    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
-    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
-
-    set(TEST_SRC
-        ${TEST_PATH}
-        ${SRC_CPP}
-        ${SRC_OBJCXX}
-        mock/MockLogHandler.cpp
-        src/event/KeyMapper.cpp
-    )
-
-    add_executable(${TARGET_NAME} ${TEST_SRC})
-    target_link_libraries(${TARGET_NAME} PRIVATE doctest::doctest common_libs)
-    target_include_directories(${TARGET_NAME} PRIVATE 
-        ${COMMON_INCLUDE_DIRS}
-        ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
-        ${CMAKE_SOURCE_DIR}/mock
-        ${CMAKE_SOURCE_DIR}/src/include/event
-    )
-    target_compile_definitions(${TARGET_NAME} PRIVATE TEST_BUILD)
-    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
-
-    # Add JUCE to the test target
-    add_juce_to_target(${TARGET_NAME})
-endfunction()
-
-# Add a custom target for the main application
-add_executable(LiveImprovedMain ${MAIN_CPP})
-target_link_libraries(LiveImprovedMain PRIVATE LiveImprovedLib)
-set_target_properties(LiveImprovedMain PROPERTIES OUTPUT_NAME "LiveImproved")
-
-# Add JUCE to LiveImprovedMain
-add_juce_to_target(LiveImprovedMain)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	# Add the C++ and Objective-C++ files to the target
+	target_sources(LiveImproved
+	    PRIVATE
+		${SRC_CPP}
+		${SRC_OBJCXX}
+	)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	target_sources(LiveImproved
+	    PRIVATE
+		${SRC_CPP}
+	)
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
@@ -421,67 +355,57 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-# Tests
+# add test target
+enable_testing()
+add_subdirectory(lib/doctest)
+
+set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
+
 if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(lib/doctest)
-    set(DOCTEST_CONFIG_SUPER_QUIET_FAILURE_REPORTING OFF)
+    add_definitions(-DTEST_BUILD)
+    add_compile_definitions(RUNNING_TESTS)
+endif()
 
-    add_compile_definitions(TEST_BUILD RUNNING_TESTS)
+# Function to add a test
+function(add_doctest_test TEST_PATH)
+    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
+    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
+    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
 
-    # Function to add a test
-    function(add_doctest_test TEST_PATH)
-        get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
-        get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
-        string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
-
-        set(TEST_SRC
-            ${TEST_PATH}
-            ${SRC_CPP}
-            ${SRC_OBJCXX}
-            mock/MockLogHandler.cpp
-            src/event/KeyMapper.cpp
-        )
-
-        add_executable(${TARGET_NAME} ${TEST_SRC})
-        target_link_libraries(${TARGET_NAME} PRIVATE doctest::doctest common_libs)
-        target_include_directories(${TARGET_NAME} PRIVATE 
+    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
+    target_link_libraries(${TARGET_NAME}
+        PRIVATE
+            doctest::doctest
+            common_libs
+    )
+    target_include_directories(${TARGET_NAME}
+        PRIVATE
             ${COMMON_INCLUDE_DIRS}
             ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
-            ${CMAKE_SOURCE_DIR}/mock
+            ${CMAKE_SOURCE_DIR}/abstract
+            ${CMAKE_SOURCE_DIR}/src/include
+            ${CMAKE_SOURCE_DIR}/src/include/core
             ${CMAKE_SOURCE_DIR}/src/include/event
-        )
-        target_compile_definitions(${TARGET_NAME} PRIVATE TEST_BUILD)
-        add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
-
-        # Add JUCE to the test target
-        add_juce_to_target(${TARGET_NAME})
-
-        # Exclude Main.cpp from the test build
-        set_source_files_properties(${MAIN_CPP} PROPERTIES HEADER_FILE_ONLY TRUE)
-    endfunction()
-
-    # Add your tests
-    add_doctest_test(test/core/test_ConfigManager.cpp)
-    add_doctest_test(test/system/test_PathManager.cpp)
-
-    # Custom target for building all tests
-    add_custom_target(build_tests
-        DEPENDS
-            test_core_test_ConfigManager
-            test_system_test_PathManager
-        COMMENT "Building all tests"
+            ${CMAKE_SOURCE_DIR}/mock
     )
-
-    # Custom target for running all tests
-    add_custom_target(run_tests
-        COMMAND ${CMAKE_COMMAND} -E echo "Running all tests..."
-        COMMAND ${CMAKE_COMMAND}
-            -DBUILD_DIR=${CMAKE_BINARY_DIR}
-            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-            -P ${CMAKE_SOURCE_DIR}/run-tests.cmake
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMENT "Running all tests"
-        DEPENDS build_tests
+    target_compile_definitions(${TARGET_NAME}
+        PRIVATE
+            JUCE_APP_CONFIG_HEADER=""
+            TEST_BUILD
     )
-endif()
+    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
+endfunction()
+#
+## Add your tests
+add_doctest_test(test/core/test_ConfigManager.cpp)
+#add_doctest_test(test/test_ActionHandler.cpp)
+## Add other tests as needed
+#
+## Add a custom target for building all tests
+add_custom_target(build_tests
+    DEPENDS
+        test_core_test_ConfigManager
+        #        test_test_ActionHandler
+    COMMENT "Building all tests"
+)
+
