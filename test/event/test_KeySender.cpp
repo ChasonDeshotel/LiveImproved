@@ -18,7 +18,7 @@ TEST_CASE("IKeySender tests") {
     auto keySender = std::make_unique<MockKeySender>();
 
     SUBCASE("sendKeyPress test") {
-        EKeyPress kp = {.key = "a", .cmd = true, .ctrl = false, .alt = true, .shift = false};
+        EKeyPress kp = {.shift = false, .ctrl = false, .cmd = true, .alt = true, .key = "a"};
         keySender->sendKeyPress(kp);
 
         CHECK(keySender->lastKeyPress.key == "a");
@@ -29,16 +29,16 @@ TEST_CASE("IKeySender tests") {
     }
 
     SUBCASE("Multiple key presses") {
-        EKeyPress kp1 = {.key = "b", .cmd = false, .ctrl = true, .alt = false, .shift = true};
+        EKeyPress kp1 = {.shift = true, .ctrl = false, .cmd = false, .alt = false, .key = "b"};
         keySender->sendKeyPress(kp1);
 
         CHECK(keySender->lastKeyPress.key == "b");
         CHECK(keySender->lastKeyPress.cmd == false);
-        CHECK(keySender->lastKeyPress.ctrl == true);
+        CHECK(keySender->lastKeyPress.ctrl == false);
         CHECK(keySender->lastKeyPress.alt == false);
         CHECK(keySender->lastKeyPress.shift == true);
 
-        EKeyPress kp2 = {.key = "enter", .cmd = false, .ctrl = false, .alt = false, .shift = false};
+        EKeyPress kp2 = {.shift = false, .ctrl = false, .cmd = false, .alt = false, .key = "enter"};
         keySender->sendKeyPress(kp2);
 
         CHECK(keySender->lastKeyPress.key == "enter");
@@ -53,7 +53,7 @@ TEST_CASE("KeySender implementation tests") {
     auto keySender = std::make_unique<KeySender>();
 
     SUBCASE("sendKeyPress doesn't throw") {
-        EKeyPress kp = {.key = "a", .cmd = true, .ctrl = false, .alt = true, .shift = false};
+        EKeyPress kp = {.shift = false, .ctrl = false, .cmd = true, .alt = true, .key = "a"};
         CHECK_NOTHROW(keySender->sendKeyPress(kp));
     }
 

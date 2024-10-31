@@ -96,10 +96,11 @@ TEST_CASE("ActionHandler handleKeyEvent") {
     auto mockIPCQueue = std::make_shared<MockIPCQueue>();
     auto mockEventHandler = std::make_shared<MockEventHandler>();
     auto mockLiveInterface = std::make_shared<MockLiveInterface>();
+    auto mockKeySender = std::make_shared<MockKeySender>();
 
     auto actionHandler = createActionHandler(
         mockPluginManager, mockWindowManager, mockConfigManager,
-        mockIPCQueue, mockEventHandler, mockLiveInterface
+        mockIPCQueue, mockEventHandler, mockLiveInterface, mockKeySender
     );
 
     REQUIRE(actionHandler != nullptr);
@@ -123,10 +124,11 @@ TEST_CASE("ActionHandler handleAction with arguments") {
     auto mockIPCQueue = std::make_shared<MockIPCQueue>();
     auto mockEventHandler = std::make_shared<MockEventHandler>();
     auto mockLiveInterface = std::make_shared<MockLiveInterface>();
+    auto mockKeySender = std::make_shared<MockKeySender>();
 
     auto actionHandler = createActionHandler(
         mockPluginManager, mockWindowManager, mockConfigManager,
-        mockIPCQueue, mockEventHandler, mockLiveInterface
+        mockIPCQueue, mockEventHandler, mockLiveInterface, mockKeySender
     );
 
     REQUIRE(actionHandler != nullptr);

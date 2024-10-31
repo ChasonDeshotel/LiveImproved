@@ -12,6 +12,7 @@
 
 class IEventHandler;
 class IIPCQueue;
+class IKeySender;
 class ILiveInterface;
 class IPluginManager;
 class IWindowManager;
@@ -22,12 +23,13 @@ class ResponseParser;
 
 class ActionHandler : public IActionHandler {
 public:
-  ActionHandler(std::function<std::shared_ptr<IPluginManager>()>   pluginManager
+    ActionHandler(std::function<std::shared_ptr<IPluginManager>()>   pluginManager
                 , std::function<std::shared_ptr<IWindowManager>()>  windowManager
                 , std::function<std::shared_ptr<ConfigManager>()>  configManager
                 , std::function<std::shared_ptr<IIPCQueue>()>      ipc
                 , std::function<std::shared_ptr<IEventHandler>()>  eventHandler
                 , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
+                , std::function<std::shared_ptr<IKeySender>()> keySender
     );
 
     ~ActionHandler() override;
@@ -51,6 +53,7 @@ private:
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
     std::function<std::shared_ptr<IEventHandler>()> eventHandler_;
     std::function<std::shared_ptr<IIPCQueue>()> ipc_;
+    std::function<std::shared_ptr<IKeySender>()> keySender_;
     std::function<std::shared_ptr<ILiveInterface>()> liveInterface_;
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
     std::function<std::shared_ptr<IWindowManager>()> windowManager_;

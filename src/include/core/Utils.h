@@ -6,6 +6,13 @@
 #include <ranges>
 
 namespace Utils {
+    inline auto toLower(const std::string& str) -> std::string {
+        std::string lowerStr = str;
+        std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
+                       [](unsigned char c) { return std::tolower(c); });
+        return lowerStr;
+    }
+
     inline auto split(const std::string& str, char delimiter) -> std::vector<std::string> {
         std::vector<std::string> tokens;
         std::stringstream ss(str);

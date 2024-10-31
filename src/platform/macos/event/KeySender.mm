@@ -7,24 +7,14 @@
 
 #include "LogGlobal.h"
 #include "Types.h"
+#include "Utils.h"
 
-#include "KeySender.h"
 #include "IKeySender.h"
+#include "KeySender.h"
 
-class KeySender : public IKeySender {
-public:
-    KeySender();
-    ~KeySender() override;
+KeySender::KeySender() = default;
 
-    void sendKeyPress(const EKeyPress& kp) override;
-};
-
-std::string toLower(const std::string& str) {
-    std::string lowerStr = str;
-    std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
-    return lowerStr;
-}
+KeySender::~KeySender() = default;
 
 std::unordered_map<std::string, CGKeyCode> const keyCodeMap = {
     // NOLINTBEGIN
@@ -126,10 +116,6 @@ std::optional<CGKeyCode> getKeyCode(const std::string& key) {
     return std::nullopt;
 }
 
-KeySender::KeySender() = default;
-
-KeySender::~KeySender() = default;
-
 CGEventFlags getEventFlags(const EKeyPress& kp) {
     CGEventFlags flags = 0;
 
@@ -154,7 +140,7 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
 
     dispatch_async(dispatch_get_main_queue(), ^{
         CGEventFlags flags = getEventFlags(kp);
-        std::optional<CGKeyCode> keyCodeOpt = getKeyCode(toLower(kp.key));
+        std::optional<CGKeyCode> keyCodeOpt = getKeyCode(Utils::toLower(kp.key));
 
         //logger->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd)   );
         //logger->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl)  );

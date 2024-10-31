@@ -15,7 +15,7 @@
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
-#include "KeySender.h"
+#include "IKeySender.h"
 #include "PluginManager.h"
 #include "IWindowManager.h"
 
@@ -26,6 +26,7 @@ ActionHandler::ActionHandler(
               , std::function<std::shared_ptr<IIPCQueue>()> ipc
               , std::function<std::shared_ptr<IEventHandler>()> eventHandler
               , std::function<std::shared_ptr<ILiveInterface>()> liveInterface
+              , std::function<std::shared_ptr<IKeySender>()> keySender
               )
     : ipc_(std::move(ipc))
     , windowManager_(std::move(windowManager))
@@ -33,6 +34,7 @@ ActionHandler::ActionHandler(
     , configManager_(std::move(configManager))
     , eventHandler_(std::move(eventHandler))
     , liveInterface_(std::move(liveInterface))
+    , keySender_(std::move(keySender))
 {
      std::cout << "ActionHandler constructor called" << std::endl;
      if (!pluginManager_ || !windowManager_ || !configManager_ || !ipc_ || !eventHandler_ || !liveInterface_) {
@@ -110,7 +112,7 @@ void ActionHandler::executeMacro(const EMacro& macro) {
             using T = std::decay_t<decltype(item)>;
             if constexpr (std::is_same_v<T, EKeyPress>) {
                 logger->debug("macro sending keypress");
-                KeySender::getInstance().sendKeyPress(item);
+                keySender_()->sendKeyPress(item);
             } else if constexpr (std::is_same_v<T, Action>) {
                 logger->debug("macro sending action");
                 // If it's an Action, execute the action via the action map

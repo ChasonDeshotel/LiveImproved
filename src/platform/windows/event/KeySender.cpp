@@ -7,7 +7,7 @@
 #include "LogGlobal.h"
 #include "Types.h"
 
-#include "KeySender.h"
+#include "IKeySender.h"
 
 namespace {
     std::unordered_map<std::string, WORD> keyCodeMap = {

@@ -250,7 +250,7 @@ public:
         }
 
         void keySender() {
-            app->container_.registerFactory<KeySender>(
+            app->container_.registerFactory<IKeySender>(
                 [](DependencyContainer&) { return std::make_shared<KeySender>(); }
                 , DependencyContainer::Lifetime::Singleton
             );
@@ -311,6 +311,7 @@ public:
                         , [&c]() { return c.resolve<IIPCQueue>(); }
                         , [&c]() { return c.resolve<IEventHandler>(); }
                         , [&c]() { return c.resolve<ILiveInterface>(); }
+                        , [&c]() { return c.resolve<IKeySender>(); }
                     );
                 }
                 , DependencyContainer::Lifetime::Singleton
