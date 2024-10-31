@@ -112,27 +112,31 @@ auto IPCPipe::readHeader() -> std::optional<ipc::Header> {
             return std::nullopt;
         }
         auto startIt = header.begin() + totalHeaderRead;
-        bytesRead = p_->readFromPipe(&(*startIt), ipc::HEADER_SIZE - totalHeaderRead);
+        try {
+            bytesRead = p_->readFromPipe(&(*startIt), ipc::HEADER_SIZE - totalHeaderRead);
 
-        logger->debug("Header partial read: " + std::string(header.data(), totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
+            logger->debug("Header partial read: " + std::string(header.data(), totalHeaderRead) + " | Bytes just read: " + std::to_string(bytesRead));
 
-        if (bytesRead < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                retry_count++;
-                std::this_thread::sleep_for(ipc::DELAY_BETWEEN_READS);
-                continue;
-            } else {
-                std::string errorMsg;
-                #ifdef _WIN32
-                char errBuf[256];
-                strerror_s(errBuf, sizeof(errBuf), errno);
-                errorMsg = errBuf;
-                #else
-                errorMsg = strerror(errno);
-                #endif
-                logger->error("Failed to read the full header. Error: " + errorMsg);
-                return std::nullopt;
+            if (bytesRead < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    retry_count++;
+                    std::this_thread::sleep_for(ipc::DELAY_BETWEEN_READS);
+                    continue;
+                } else {
+                    throw std::runtime_error("Failed to read the full header");
+                }
             }
+        } catch (const std::exception& e) {
+            std::string errorMsg;
+            #ifdef _WIN32
+            char errBuf[256];
+            strerror_s(errBuf, sizeof(errBuf), errno);
+            errorMsg = errBuf;
+            #else
+            errorMsg = strerror(errno);
+            #endif
+            logger->error("Exception in readFromPipe: " + std::string(e.what()) + ". Error: " + errorMsg);
+            return std::nullopt;
         }
 
         if (bytesRead == 0) {
