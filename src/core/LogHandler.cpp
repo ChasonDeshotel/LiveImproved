@@ -49,10 +49,8 @@ auto LogHandler::setLogPath(const std::filesystem::path& path) -> void {
         logfile.open(path.string(), std::ios_base::app);
         if (!logfile.is_open()) {
             std::cerr << "Failed to open log file at: " << path.string() << std::endl;
-            logPath = std::nullopt;
         } else {
             logPath = path;
-            std::cerr << "Successfully opened log file at: " << path.string() << std::endl;
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Filesystem error: " << e.what() << std::endl;
@@ -77,37 +75,30 @@ auto LogHandler::log(const std::string& message, LogLevel level) -> void {
     #else
     juce::Logger::writeToLog(message);
     #endif
+//
+//    if (!logPath.has_value()) {
+//        std::cerr << logLevelToString(level) << ": " << message << std::endl;
+//        return;
+//    }
 
-    if (!logPath.has_value()) {
-        std::cerr << "Log path not set. " << logLevelToString(level) << ": " << message << std::endl;
-        return;
-    }
+    //if (!logfile.is_open()) {
+    //    logfile.open(logPath->string(), std::ios_base::app);
+    //}
 
-    if (!logfile.is_open()) {
-        logfile.open(logPath->string(), std::ios_base::app);
-        if (!logfile.is_open()) {
-            std::cerr << "Failed to open log file at: " << logPath->string() << std::endl;
-            return;
-        }
-    }
+    if (logfile.is_open()) {
+        auto now = std::time(nullptr);
+        #ifdef _WIN32
+        std::tm timeInfo;
+        localtime_s(&timeInfo, &now);
+        auto localTime = &timeInfo;
+        #else
+        auto localTime = std::localtime(&now);
+        #endif
 
-    auto now = std::time(nullptr);
-    #ifdef _WIN32
-    std::tm timeInfo;
-    localtime_s(&timeInfo, &now);
-    auto localTime = &timeInfo;
-    #else
-    auto localTime = std::localtime(&now);
-    #endif
-
-    logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
-            << logLevelToString(level) << ": " << message << std::endl;
-    
-    // Flush the stream to ensure the message is written immediately
-    logfile.flush();
-
-    if (logfile.fail()) {
-        std::cerr << "Failed to write to log file: " << logPath->string() << std::endl;
+        logfile << "[" << std::put_time(localTime, "%Y-%m-%d %H:%M:%S") << "] "
+                << logLevelToString(level) << ": " << message << std::endl;
+    } else {
+        std::cerr << "Unable to open log file: " << logPath->string() << std::endl;
     }
 }
 
