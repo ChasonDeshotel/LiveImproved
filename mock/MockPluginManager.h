@@ -13,25 +13,9 @@ public:
     }
 
     auto refreshPlugins() -> void override {
-        m_refreshCalled = true;
-    }
-
-    // Additional methods for controlling and inspecting the mock
-
-    void setPlugins(const std::vector<Plugin>& plugins) {
-        m_plugins = plugins;
-    }
-
-    bool wasRefreshCalled() const {
-        return m_refreshCalled;
-    }
-
-    void reset() {
-        m_plugins.clear();
-        m_refreshCalled = false;
+        // Implementation left empty intentionally
     }
 
 private:
     std::vector<Plugin> m_plugins;
-    bool m_refreshCalled = false;
 };
