@@ -42,9 +42,15 @@ auto LogHandler::setLogPath(const std::filesystem::path& path) -> void {
         if (logfile.is_open()) {
             logfile.close();
         }
+        
+        // Create directories if they don't exist
+        fs::create_directories(path.parent_path());
+
         logfile.open(path.string(), std::ios_base::app);
         if (!logfile.is_open()) {
-            std::cerr << "Failed to open log file at: " << logPath->string() << std::endl;
+            std::cerr << "Failed to open log file at: " << path.string() << std::endl;
+        } else {
+            logPath = path;
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Filesystem error: " << e.what() << std::endl;
