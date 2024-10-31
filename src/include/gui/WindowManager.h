@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "IWindow.h"
+#include "IWindowManager.h"
 
 class IActionHandler;
 class IEventHandler;
@@ -16,30 +17,37 @@ class ConfigMenu;
 class LimLookAndFeel;
 class Theme;
 
-class WindowManager {
+class WindowManager : public IWindowManager {
 public:
-   WindowManager(
-                 std::function<std::shared_ptr<IPluginManager>()> pluginManager
-                 , std::function<std::shared_ptr<IEventHandler>()> eventHandler
-                 , std::function<std::shared_ptr<IActionHandler>()> actionHandler
-                 , std::function<std::shared_ptr<WindowManager>()> windowManager
-                 , std::function<std::shared_ptr<Theme>()> theme
-                 , std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel
-                 , std::function<std::shared_ptr<ConfigMenu>()> configMenu
-       );
+  WindowManager(std::function<std::shared_ptr<IPluginManager>()> pluginManager,
+                std::function<std::shared_ptr<IEventHandler>()> eventHandler,
+                std::function<std::shared_ptr<IActionHandler>()> actionHandler,
+                std::function<std::shared_ptr<WindowManager>()> windowManager,
+                std::function<std::shared_ptr<Theme>()> theme,
+                std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel,
+                std::function<std::shared_ptr<ConfigMenu>()> configMenu);
+  ~WindowManager() override;
 
-    // TODO remove unused "override callback" param
-    void registerWindow(const std::string& windowName, std::function<void()> callback = nullptr);
-    [[nodiscard]] auto getWindowHandle(const std::string& windowName) const -> void*;
+  WindowManager(const WindowManager &) = default;
+  WindowManager(WindowManager &&) = delete;
+  WindowManager &operator=(const WindowManager &) = default;
+  WindowManager &operator=(WindowManager &&) = delete;
 
-    void openWindow(const std::string& windowName);
+  // TODO remove unused "override callback" param
+  void registerWindow(const std::string &windowName,
+                      std::function<void()> callback = nullptr) override;
+  [[nodiscard]] auto getWindowHandle(const std::string &windowName) const
+      -> void * override;
 
-    void closeWindow(const std::string& windowName);
+  void openWindow(const std::string &windowName) override;
 
-    void toggleWindow(const std::string& windowName);
+  void closeWindow(const std::string &windowName) override;
 
-    // Check if a window is open
-    [[nodiscard]] auto isWindowOpen(const std::string& windowName) const -> bool;
+  void toggleWindow(const std::string &windowName) override;
+
+  // Check if a window is open
+  [[nodiscard]] auto isWindowOpen(const std::string &windowName) const
+      -> bool override;
 
 private:
     std::function<std::shared_ptr<IPluginManager>()> pluginManager_;
@@ -51,7 +59,7 @@ private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;
 
     // Factory function to create window instances based on window name
-    auto createWindowInstance(const std::string& windowName) -> std::unique_ptr<IWindow>;
+    auto createWindowInstance(const std::string& windowName) -> std::unique_ptr<IWindow> override;
 
     std::unordered_map<std::string, WindowData> windows_;
     std::unordered_map<std::string, bool> windowStates_;

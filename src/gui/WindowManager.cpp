@@ -30,9 +30,7 @@ WindowManager::WindowManager(
     , theme_(std::move(theme))
     , limLookAndFeel_(std::move(limLookAndFeel))
     , configMenu_(std::move(configMenu))
-{
-    // Any additional initialization if needed
-}
+{}
 
 // Factory function to create window instances dynamically based on the name
 auto WindowManager::createWindowInstance(const std::string& windowName) -> std::unique_ptr<IWindow> {
