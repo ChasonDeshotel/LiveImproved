@@ -51,6 +51,13 @@ TEST_CASE("PathManager basic functionality") {
         CHECK(fs::exists(docsPath));
         CHECK(fs::is_directory(docsPath));
     }
+
+    SUBCASE("remote scripts directory") {
+        fs::path remoteScripts = pm.remoteScripts();
+        CHECK_FALSE(remoteScripts.empty());
+        CHECK(fs::exists(remoteScripts));
+        CHECK(fs::is_directory(remoteScripts));
+    }
 }
 
 #ifdef _WIN32
