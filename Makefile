@@ -1,17 +1,17 @@
 # default target, configure and build CLI
 all: configure build
 
-CLI_BUILD_DIR = ./build/macos-cli
+CLI_BUILD_DIR = ./build/ninja
 XCODE_BUILD_DIR = ./build/xcode
 
-configure: # defaults to cli
+configure: # defaults to Ninja
 	@mkdir -p $(CLI_BUILD_DIR)
-	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B $(CLI_BUILD_DIR)
+	@cmake -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B $(CLI_BUILD_DIR)
 	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
 configure-tests:
 	@mkdir -p $(CLI_BUILD_DIR)
-	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTS=ON -S . -B $(CLI_BUILD_DIR)
+	@cmake -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTS=ON -S . -B $(CLI_BUILD_DIR)
 	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
 configure-xcode:
@@ -19,27 +19,27 @@ configure-xcode:
 	@cmake -G "Xcode" -S . -B $(XCODE_BUILD_DIR)
 
 build: configure
-	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved -- VERBOSE=1
+	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved
 
 xcode-build: configure-xcode
 	@xcodebuild -project $(XCODE_BUILD_DIR)/LiveImproved.xcodeproj -scheme LiveImproved build -verbose
 
 test:
-	@$(MAKE) -C test
+	@ninja -C $(CLI_BUILD_DIR) test
 
 run_tests: configure-tests
 	@if [ -z "$(TEST)" ]; then \
 		echo "Building and running all tests..."; \
-		cmake --build $(CLI_BUILD_DIR) && \
+		ninja -C $(CLI_BUILD_DIR) && \
 		cd $(CLI_BUILD_DIR) && ctest --output-on-failure -V; \
 	else \
 		echo "Building and running test: $(TEST)"; \
-		cmake --build $(CLI_BUILD_DIR) --target $(TEST) && \
+		ninja -C $(CLI_BUILD_DIR) $(TEST) && \
 		cd $(CLI_BUILD_DIR) && ctest -R $(TEST) --output-on-failure -v; \
 	fi
 
 run: configure build
-	@./build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
+	@./build/ninja/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
 clean:
 	@rm -rf $(CLI_BUILD_DIR)
@@ -47,7 +47,7 @@ clean:
 	@rm -f ./build/compile_commands.json
 
 tidy:
-	@$(MAKE) -C ./build/macos-cli tidy
+	@ninja -C $(CLI_BUILD_DIR) tidy
 
 tidy-file:
 	@if [ -z "$(SOURCE_FILE)" ]; then \

@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
+
+# Set Ninja as the preferred generator
+set(CMAKE_GENERATOR "Ninja" CACHE INTERNAL "" FORCE)
 set(BUILD_TESTING OFF)
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
