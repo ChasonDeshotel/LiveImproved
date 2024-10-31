@@ -14,8 +14,8 @@
 #include "ConfigMenu.h"
 #include "IWindow.h"
 
-ConfigMenu::ConfigMenu(std::filesystem::path configFile)
-    : configFile_(std::move(configFile)) {
+ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
+    : configFile_(configFile) {
     parseLESMenuConfig(PathManager().lesConfig());
 }
 
