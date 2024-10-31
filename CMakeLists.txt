@@ -304,10 +304,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 # Main application
-juce_add_gui_app(LiveImproved
-    PRODUCT_NAME "LiveImproved"
-)
-
 target_link_libraries(LiveImproved PRIVATE LiveImprovedLib)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
