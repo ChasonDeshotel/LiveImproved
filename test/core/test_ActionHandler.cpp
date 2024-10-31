@@ -5,9 +5,9 @@
 #include "ConfigManager.h"
 #include "WindowManager.h"
 #include "PluginManager.h"
-#include "IIPCCore.h"
 #include "EventHandler.h"
 #include "ILiveInterface.h"
+#include "IIPCQueue.h""
 #include "LogGlobal.h"
 
 #include <memory>
@@ -32,7 +32,7 @@ public:
     std::vector<Plugin> getPlugins() const override { return {}; }
 };
 
-class MockIPCCore : public IIPCCore {
+class MockIPCQueue : public IIPCQueue {
 public:
     void writeRequest(const std::string&) override {}
 };
