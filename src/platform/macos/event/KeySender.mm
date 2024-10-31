@@ -9,6 +9,7 @@
 #include "Types.h"
 
 #include "KeySender.h"
+#include "IKeySender.h"
 
 std::string toLower(const std::string& str) {
     std::string lowerStr = str;
