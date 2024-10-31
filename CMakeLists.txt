@@ -207,7 +207,6 @@ endif()
 
 # Source files for C++ and Objective-C++
 set(SRC_CPP
-    src/Main.cpp
     src/core/ConfigManager.cpp
     src/core/ConfigMenu.cpp
     src/core/LogGlobal.cpp
@@ -224,6 +223,10 @@ set(SRC_CPP
     src/ipc/IPCResponsePipe.cpp
     #src/ipc/IPCResilienceDecorator.cpp
     src/ipc/ResponseParser.cpp
+)
+
+set(MAIN_CPP
+    src/Main.cpp
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -262,12 +265,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	# Add the C++ and Objective-C++ files to the target
 	target_sources(LiveImproved
 	    PRIVATE
+		${MAIN_CPP}
 		${SRC_CPP}
 		${SRC_OBJCXX}
 	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(LiveImproved
 	    PRIVATE
+		${MAIN_CPP}
 		${SRC_CPP}
 	)
 endif()
@@ -383,6 +388,9 @@ if(BUILD_TESTS)
 
         # Add JUCE to the test target
         add_juce_to_target(${TARGET_NAME})
+
+        # Exclude Main.cpp from the test build
+        set_source_files_properties(${MAIN_CPP} PROPERTIES HEADER_FILE_ONLY TRUE)
     endfunction()
 
     # Add your tests
