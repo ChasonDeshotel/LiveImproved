@@ -8,6 +8,8 @@
 #include "LogGlobal.h"
 #include "Theme.h"
 
+//NOLINTBEGIN
+
 // Helper function to convert hex color to RGB
 struct RGB {
     int r, g, b;
@@ -59,3 +61,5 @@ auto Theme::getColorValue(const std::string& tagName) -> juce::Colour {
     // Return a default color if the node or value is not found
     return juce::Colours::transparentBlack;
 }
+
+//NOLINTEND

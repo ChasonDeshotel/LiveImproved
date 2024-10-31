@@ -42,12 +42,12 @@ public:
     void handleAction(std::string) override;
 
     // returns if the event should be blocking
-    auto handleKeyEvent(EKeyPress pressedKey) -> bool override;
+    bool handleKeyEvent(EKeyPress pressedKey) override;
 
     void handleDoubleRightClick() override;
 
-    auto loadItem(int itemIndex) -> bool override;
-    auto loadItemByName(const std::string &itemName) -> bool override;
+    bool loadItem(int itemIndex) override;
+    bool loadItemByName(const std::string &itemName) override;
 
 private:
     std::function<std::shared_ptr<ConfigManager>()> configManager_;
@@ -66,5 +66,5 @@ private:
     void initializeActionMap();
     void executeMacro(const EMacro& macro);
 
-    auto closeWindows() -> bool;
+    bool closeWindows();
 };

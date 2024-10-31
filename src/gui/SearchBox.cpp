@@ -146,7 +146,7 @@ SearchBox::SearchBox(
     setWindowGeometry();
 }
 
-SearchBox::~SearchBox() {}
+SearchBox::~SearchBox() = default;
 
 auto SearchBox::textEditorTextChanged(juce::TextEditor& editor) -> void {
     if (&editor == &searchField_) {

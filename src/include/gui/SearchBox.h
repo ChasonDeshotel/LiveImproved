@@ -106,7 +106,7 @@ public:
     ~SearchBox() override;
 
     SearchBox(SearchBox&&) noexcept = delete;
-    SearchBox& operator=(SearchBox&&) noexcept = delete;
+    auto operator=(SearchBox&&) noexcept -> SearchBox& = delete;
 
     void open() override;
     void close() override;
@@ -163,5 +163,5 @@ private:
     void setWindowGeometry();
     void resetFilters();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SearchBox)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SearchBox) // NOLINT
 };

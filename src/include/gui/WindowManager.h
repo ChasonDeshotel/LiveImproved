@@ -26,16 +26,17 @@ public:
                 std::function<std::shared_ptr<Theme>()> theme,
                 std::function<std::shared_ptr<LimLookAndFeel>()> limLookAndFeel,
                 std::function<std::shared_ptr<ConfigMenu>()> configMenu);
-  virtual ~WindowManager() override = default;
+  ~WindowManager() override = default;
 
   WindowManager(const WindowManager &) = default;
   WindowManager(WindowManager &&) = delete;
-  WindowManager &operator=(const WindowManager &) = default;
-  WindowManager &operator=(WindowManager &&) = delete;
+  auto operator=(const WindowManager &) -> WindowManager & = default;
+  auto operator=(WindowManager &&) -> WindowManager & = delete;
 
   // TODO remove unused "override callback" param
   void registerWindow(const std::string &windowName,
                       std::function<void()> callback = nullptr) override;
+
   [[nodiscard]] auto getWindowHandle(const std::string &windowName) const
       -> void * override;
 
@@ -46,8 +47,7 @@ public:
   void toggleWindow(const std::string &windowName) override;
 
   // Check if a window is open
-  [[nodiscard]] auto isWindowOpen(const std::string &windowName) const
-      -> bool override;
+  [[nodiscard]] bool isWindowOpen(const std::string &windowName) const override;
 
 private:
     std::function<std::shared_ptr<ConfigMenu>()> configMenu_;

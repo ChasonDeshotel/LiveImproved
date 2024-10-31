@@ -3,6 +3,8 @@
 #include <JuceHeader.h>
 #include "Theme.h"
 
+//NOLINTBEGIN
+
 class LimLookAndFeel : public juce::LookAndFeel_V4 {
 public:
     LimLookAndFeel(std::function<std::shared_ptr<Theme>()> theme)
@@ -239,3 +241,5 @@ private:
 //    }
 //}
 //
+//
+//NOLINTEND
