@@ -1,13 +1,16 @@
 #pragma once
 
 #include "IWindow.h"
-#include <vector>
-#include <string>
 
 class MockWindow : public IWindow {
 public:
     MockWindow() = default;
     ~MockWindow() override = default;
+
+    MockWindow(const MockWindow &) = delete;
+    MockWindow(MockWindow &&) = delete;
+    MockWindow &operator=(const MockWindow &) = delete;
+    MockWindow &operator=(MockWindow &&) = delete;
 
     void open() override { openCalled = true; }
     void close() override { closeCalled = true; }

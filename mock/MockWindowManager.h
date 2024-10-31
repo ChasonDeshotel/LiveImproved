@@ -1,6 +1,7 @@
 #pragma once
 
-#include "abstract/IWindowManager.h"
+#include "MockWindow.h"
+#include "IWindowManager.h"
 #include <map>
 #include <set>
 
@@ -8,6 +9,11 @@ class MockWindowManager : public IWindowManager {
 public:
     MockWindowManager() = default;
     ~MockWindowManager() override = default;
+
+    MockWindowManager(const MockWindowManager &) = default;
+    MockWindowManager(MockWindowManager &&) = delete;
+    MockWindowManager &operator=(const MockWindowManager &) = default;
+    MockWindowManager &operator=(MockWindowManager &&) = delete;
 
     auto registerWindow(const std::string& windowName, std::function<void()> callback) -> void override {
         registeredWindows_[windowName] = std::move(callback);
@@ -54,11 +60,4 @@ private:
     std::map<std::string, std::function<void()>> registeredWindows_;
     std::set<std::string> openWindows_;
 
-    class MockWindow : public IWindow {
-    public:
-        explicit MockWindow(std::string name) : name_(std::move(name)) {}
-        [[nodiscard]] auto getName() const -> std::string override { return name_; }
-    private:
-        std::string name_;
-    };
 };
