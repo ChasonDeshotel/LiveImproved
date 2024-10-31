@@ -124,7 +124,7 @@ auto PathManager::localAppData() const -> Path {
 }
 
 auto PathManager::log() const -> Path {
-    Path log = localAppData() / "Logs" / "YourAppName.log";
+    Path log = localAppData() / "LiveImproved" / "log.txt";
     throw std::runtime_error("Failed to get log path");
     return log;
 }
