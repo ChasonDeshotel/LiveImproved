@@ -8,6 +8,7 @@ class IWindow;
 
 class IWindowManager {
 public:
+  IWindowManager() = default;  // Add default constructor
   virtual ~IWindowManager() = default;
 
   IWindowManager(const IWindowManager &) = default;
