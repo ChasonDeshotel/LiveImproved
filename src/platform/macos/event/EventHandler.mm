@@ -178,12 +178,12 @@ bool EventHandler::isWindowFocused(int windowID) {
     return false;
 }
 
-void EventHandler::test() {
-    // NOLINTNEXTLINE
-    for (NSDictionary *windowInfo in getAllWindowsForApp()) {
-        logWindowInfo(windowInfo);
-    }
-}
+//void EventHandler::test() {
+//    // NOLINTNEXTLINE
+//    for (NSDictionary *windowInfo in getAllWindowsForApp()) {
+//        logWindowInfo(windowInfo);
+//    }
+//}
 
 void EventHandler::logWindowInfo(NSDictionary *windowInfo) {
     // Get window name
