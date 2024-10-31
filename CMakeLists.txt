@@ -34,7 +34,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
      # Add Windows-specific compile definitions
      add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_WIN32_WINNT=0x0A00)
-
 endif()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -357,37 +356,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         RUNTIME DESTINATION bin
     )
 endif()
-
-# Function to add a test
-#function(add_doctest_test TEST_PATH)
-#    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
-#    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
-#    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
-#
-#    add_executable(${TARGET_NAME} ${TEST_PATH} src/core/ConfigManager.cpp src/event/KeyMapper.cpp mock/MockLogHandler.cpp)
-#    target_link_libraries(${TARGET_NAME}
-#        PRIVATE
-#            doctest::doctest
-#            common_libs
-#    )
-#    target_include_directories(${TARGET_NAME}
-#        PRIVATE
-#            ${COMMON_INCLUDE_DIRS}
-#            ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
-#            ${CMAKE_SOURCE_DIR}/abstract
-#            ${CMAKE_SOURCE_DIR}/src/include
-#            ${CMAKE_SOURCE_DIR}/src/include/core
-#            ${CMAKE_SOURCE_DIR}/src/include/event
-#            ${CMAKE_SOURCE_DIR}/mock
-#    )
-#    target_compile_definitions(${TARGET_NAME}
-#        PRIVATE
-#            JUCE_APP_CONFIG_HEADER=""
-#            TEST_BUILD
-#    )
-#    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
-#endfunction()
-#
 
 # Tests
 if(BUILD_TESTS)
