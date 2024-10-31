@@ -258,6 +258,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
+# Always include MAIN_CPP for LiveImproved target
 target_sources(LiveImproved
     PRIVATE
     ${MAIN_CPP}
@@ -265,10 +266,34 @@ target_sources(LiveImproved
     ${SRC_OBJCXX}
 )
 
-# Ensure MAIN_CPP is included for LiveImproved target even when building tests
-if(BUILD_TESTS)
-    target_sources(LiveImproved PRIVATE ${MAIN_CPP})
-endif()
+# Modify the add_doctest_test function to exclude MAIN_CPP
+function(add_doctest_test TEST_PATH)
+    get_filename_component(TEST_NAME ${TEST_PATH} NAME_WE)
+    get_filename_component(TEST_DIR ${TEST_PATH} DIRECTORY)
+    string(REPLACE "/" "_" TARGET_NAME "${TEST_DIR}_${TEST_NAME}")
+
+    set(TEST_SRC
+        ${TEST_PATH}
+        ${SRC_CPP}
+        ${SRC_OBJCXX}
+        mock/MockLogHandler.cpp
+        src/event/KeyMapper.cpp
+    )
+
+    add_executable(${TARGET_NAME} ${TEST_SRC})
+    target_link_libraries(${TARGET_NAME} PRIVATE doctest::doctest common_libs)
+    target_include_directories(${TARGET_NAME} PRIVATE 
+        ${COMMON_INCLUDE_DIRS}
+        ${CMAKE_SOURCE_DIR}/lib/doctest/doctest
+        ${CMAKE_SOURCE_DIR}/mock
+        ${CMAKE_SOURCE_DIR}/src/include/event
+    )
+    target_compile_definitions(${TARGET_NAME} PRIVATE TEST_BUILD)
+    add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME} -s -o compact -ns)
+
+    # Add JUCE to the test target
+    add_juce_to_target(${TARGET_NAME})
+endfunction()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
