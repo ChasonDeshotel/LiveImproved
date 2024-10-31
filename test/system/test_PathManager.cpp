@@ -65,22 +65,23 @@ TEST_CASE("Windows-specific PathManager tests") {
     }
 }
 #else
-TEST_CASE("macOS-specific PathManager tests") {
-    TestPathManager pm;
-
-    SUBCASE("liveBundle") {
-        // This test assumes Ableton Live is installed and running
-        // You might want to add a check to skip this test if Live is not running
-        CHECK_NOTHROW(pm.liveBundle());
-    }
-
-    SUBCASE("liveBinary") {
-        // This test assumes Ableton Live is installed
-        // You might want to add a check to skip this test if Live is not installed
-        fs::path liveBinary = pm.liveBinary();
-        CHECK_FALSE(liveBinary.empty());
-        CHECK(fs::exists(liveBinary));
-        CHECK(fs::is_regular_file(liveBinary));
-    }
-}
+// live binary
+//TEST_CASE("macOS-specific PathManager tests") {
+//    TestPathManager pm;
+//
+//    SUBCASE("liveBundle") {
+//        // This test assumes Ableton Live is installed and running
+//        // You might want to add a check to skip this test if Live is not running
+//        CHECK_NOTHROW(pm.liveBundle());
+//    }
+//
+//    SUBCASE("liveBinary") {
+//        // This test assumes Ableton Live is installed
+//        // You might want to add a check to skip this test if Live is not installed
+//        fs::path liveBinary = pm.liveBinary();
+//        CHECK_FALSE(liveBinary.empty());
+//        CHECK(fs::exists(liveBinary));
+//        CHECK(fs::is_regular_file(liveBinary));
+//    }
+//}
 #endif
