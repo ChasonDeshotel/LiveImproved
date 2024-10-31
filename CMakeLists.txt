@@ -295,6 +295,11 @@ function(add_doctest_test TEST_PATH)
     add_juce_to_target(${TARGET_NAME})
 endfunction()
 
+# Add a custom target for the main application
+add_executable(LiveImprovedMain ${MAIN_CPP})
+target_link_libraries(LiveImprovedMain PRIVATE LiveImproved)
+set_target_properties(LiveImprovedMain PROPERTIES OUTPUT_NAME "LiveImproved")
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")

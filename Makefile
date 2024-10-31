@@ -39,7 +39,7 @@ run_tests: configure-tests
 	fi
 
 run: configure build
-	@./build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
+	@./build/macos-cli/LiveImprovedMain
 
 clean:
 	@rm -rf $(CLI_BUILD_DIR)
