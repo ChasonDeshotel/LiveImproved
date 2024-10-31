@@ -172,9 +172,8 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
     size_t totalBytesRead = 0;
     std::vector<char> buffer(ipc::BUFFER_SIZE);
     int retryCount = 0;
-    const int maxRetries = 5;
 
-    while (totalBytesRead < messageSize + ipc::END_MARKER.size() && retryCount < maxRetries) {
+    while (totalBytesRead < messageSize + ipc::END_MARKER.size() && retryCount < ipc::MAX_READ_RETRIES) {
         if (stopIPC_) {
             logger->info("IPCQueue write initialization cancelled during read pipe setup.");
             return std::nullopt;
@@ -188,7 +187,7 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
         } catch (const std::runtime_error& e) {
             logger->error("Error reading from pipe: " + std::string(e.what()));
             retryCount++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100 * retryCount));
+            std::this_thread::sleep_for(ipc::DELAY_BETWEEN_RETRIES);
             continue;
         }
 
@@ -197,7 +196,7 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
         if (bytesRead <= 0) {
             logger->warn("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
             retryCount++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100 * retryCount));
+            std::this_thread::sleep_for(ipc::DELAY_BETWEEN_RETRIES);
             continue;
         }
 
@@ -213,7 +212,7 @@ auto IPCPipe::readMessage(size_t messageSize) -> std::optional<std::string> {
         }
     }
 
-    if (retryCount >= maxRetries) {
+    if (retryCount >= ipc::MAX_READ_RETRIES) {
         logger->error("Max retries reached while reading message");
     } else {
         logger->error("Failed to find end marker in message");

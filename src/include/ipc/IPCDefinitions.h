@@ -45,6 +45,7 @@ namespace ipc {
     using ms = std::chrono::milliseconds;
     // TODO: increasing delay causes buffer issues
     static constexpr ms     DELAY_BETWEEN_READS        {50};
+    static constexpr ms     DELAY_BETWEEN_RETRIES      {50};
     static constexpr ms     PIPE_CREATION_RETRY_DELAY  {500};
     static constexpr ms     PIPE_SETUP_RETRY_DELAY     {500};
     static constexpr ms     LIVE_TICK                  {100};
