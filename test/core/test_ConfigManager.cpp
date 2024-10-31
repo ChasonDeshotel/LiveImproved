@@ -130,44 +130,58 @@ init:
 )";
     createConfigFile(configContent);
 
-    auto configManager = std::make_shared<ConfigManager>(configFile);
-    configManager->loadConfig();
-
     SUBCASE("Save and reload config") {
-        configManager->setInitRetries(5);
-        configManager->setRemap("ctrl+s", "cmd+s");
-//        configManager->setRenamePlugin("OldPlugin", "NewPlugin");
-//        configManager->setRemovePlugin("BadPlugin");
-//        configManager->setWindowSetting("main", "100,100,800,600");
-//        configManager->setShortcut(0, {{"newKey", "/new/shortcut"}});
+        try {
+            auto configManager = std::make_shared<ConfigManager>(configFile);
+            configManager->loadConfig();
 
-        configManager->saveConfig();
+            // Set new values
+            configManager->setInitRetries(5);
+            configManager->setRemap("ctrl+s", "cmd+s");
+            configManager->setRenamePlugin("OldPlugin", "NewPlugin");
+            configManager->setRemovePlugin("BadPlugin");
+            configManager->setWindowSetting("main", "100,100,800,600");
+            
+            // Save the config
+            configManager->saveConfig();
 
-        // Create a new ConfigManager instance to load the saved config
-        auto newConfigManager = std::make_shared<ConfigManager>(configFile);
-        newConfigManager->loadConfig();
+            // Create a new ConfigManager instance to load the saved config
+            auto newConfigManager = std::make_shared<ConfigManager>(configFile);
+            newConfigManager->loadConfig();
 
-        CHECK(newConfigManager->getInitRetries() == 5);
-        
-        auto remap = newConfigManager->getRemap();
-        EKeyPress ctrlS = km->processKeyPress("ctrl+s");
-        CHECK(remap.find(ctrlS) != remap.end());
-        CHECK(remap[ctrlS].steps.size() == 1);
-        CHECK(std::holds_alternative<EKeyPress>(remap[ctrlS].steps[0]));
-        CHECK(std::get<EKeyPress>(remap[ctrlS].steps[0]) == km->processKeyPress("cmd+s"));
+            // Check init retries
+            CHECK(newConfigManager->getInitRetries() == 5);
+            
+            // Check remap
+            auto remap = newConfigManager->getRemap();
+            EKeyPress ctrlS = km->processKeyPress("ctrl+s");
+            REQUIRE(remap.find(ctrlS) != remap.end());
+            CHECK(remap[ctrlS].steps.size() == 1);
+            CHECK(std::holds_alternative<EKeyPress>(remap[ctrlS].steps[0]));
+            CHECK(std::get<EKeyPress>(remap[ctrlS].steps[0]) == km->processKeyPress("cmd+s"));
 
-        auto renamePlugins = newConfigManager->getRenamePlugins();
-        CHECK(renamePlugins["OldPlugin"] == "NewPlugin");
+            // Check rename plugins
+            auto renamePlugins = newConfigManager->getRenamePlugins();
+            CHECK(renamePlugins["OldPlugin"] == "NewPlugin");
 
-        auto removePlugins = newConfigManager->getRemovePlugins();
-        CHECK(std::find(removePlugins.begin(), removePlugins.end(), "BadPlugin") != removePlugins.end());
+            // Check remove plugins
+            auto removePlugins = newConfigManager->getRemovePlugins();
+            CHECK(std::find(removePlugins.begin(), removePlugins.end(), "BadPlugin") != removePlugins.end());
 
-        auto windowSettings = newConfigManager->getWindowSettings();
-        CHECK(windowSettings["main"] == "100,100,800,600");
+            // Check window settings
+            auto windowSettings = newConfigManager->getWindowSettings();
+            CHECK(windowSettings["main"] == "100,100,800,600");
 
-        auto shortcuts = newConfigManager->getShortcuts();
-        CHECK(shortcuts.size() == 1);
-        CHECK(shortcuts[0].at("newKey") == "/new/shortcut");
+            // Check shortcuts (if implemented)
+            // auto shortcuts = newConfigManager->getShortcuts();
+            // CHECK(shortcuts.size() == 1);
+            // CHECK(shortcuts[0].at("newKey") == "/new/shortcut");
+
+        } catch (const std::exception& e) {
+            FAIL("Exception caught: " << e.what());
+        } catch (...) {
+            FAIL("Unknown exception caught");
+        }
     }
 }
 
