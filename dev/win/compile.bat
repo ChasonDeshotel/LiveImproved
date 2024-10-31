@@ -12,44 +12,40 @@ set VS2022_CLANG_PATH="C:\Program Files\Microsoft Visual Studio\2022\Community\V
 
 set PATH=%VS2022_CLANG_PATH%;%CMAKE_PATH%;%NINJA_PATH%;%PATH%
 
-echo Redirecting build output to %LOG_FILE%
-(
+echo Starting CMake and Ninja build process...
+echo "Source directory: %SOURCE_DIR%"
+echo "Build directory: %BUILD_DIR%"
+echo "Output directory: %OUTPUT_DIR%"
+echo "Current PATH: %PATH%"
 
-    echo Starting CMake and Ninja build process...
-    echo "Source directory: %SOURCE_DIR%"
-    echo "Build directory: %BUILD_DIR%"
-    echo "Output directory: %OUTPUT_DIR%"
-    echo "Current PATH: %PATH%"
-    
-    if exist %FLAG_FILE% (
-        del %FLAG_FILE%
-        echo Removed old flag file.
-    )
-    
-    if not exist %BUILD_DIR% (
-        mkdir %BUILD_DIR%
-        echo Created build dir.
-    )
-    
-    cd %SOURCE_DIR%
+if exist %FLAG_FILE% (
+    del %FLAG_FILE%
+    echo Removed old flag file.
+)
 
-    REM Generate Ninja build files with CMake
-    cmake -G "Ninja" -B"%BUILD_DIR%" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
-    REM or call with --debug-output
-    if %ERRORLEVEL% NEQ 0 (
-        echo CMake configuration failed.
-        exit /b %ERRORLEVEL%
-    )
-    
-    REM Build the project with Ninja
-    ninja -C %BUILD_DIR%
-    if %ERRORLEVEL% NEQ 0 (
-        echo Ninja build failed.
-        exit /b %ERRORLEVEL%
-    )
-    
-    echo Build finished at %date% %time%
-) > %LOG_FILE% 2>&1
+if not exist %BUILD_DIR% (
+    mkdir %BUILD_DIR%
+    echo Created build dir.
+)
+
+cd %SOURCE_DIR%
+
+REM Generate Ninja build files with CMake
+cmake -G "Ninja" -B"%BUILD_DIR%" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+REM or call with --debug-output
+if %ERRORLEVEL% NEQ 0 (
+    echo CMake configuration failed.
+    exit /b %ERRORLEVEL%
+)
+
+REM Build the project with Ninja
+ninja -C %BUILD_DIR%
+if %ERRORLEVEL% NEQ 0 (
+    echo Ninja build failed.
+    exit /b %ERRORLEVEL%
+)
+
+echo Build finished at %date% %time%
 
 echo Build process completed.
 echo Creating completion flag file...
