@@ -200,7 +200,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/live/component
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/system
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/util
-        #        "$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/Include/10.0.19041.0/um"
         ${WINDOWSSDK_INCLUDE_DIRS}
     )
 endif()
@@ -221,7 +220,6 @@ set(SRC_CPP
     src/ipc/IPCPipe.cpp
     src/ipc/IPCRequestPipe.cpp
     src/ipc/IPCResponsePipe.cpp
-    #src/ipc/IPCResilienceDecorator.cpp
     src/ipc/ResponseParser.cpp
 )
 
@@ -248,7 +246,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     list(APPEND SRC_CPP
         src/platform/macos/ipc/PipeUtil.cpp
     )
-
+	target_sources(LiveImproved
+	    PRIVATE
+		${MAIN_CPP}
+		${SRC_CPP}
+		${SRC_OBJCXX}
+	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     list(APPEND SRC_CPP
         src/platform/windows/event/EventHandler.cpp
@@ -259,17 +262,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         src/platform/windows/system/PID.cpp
         src/platform/windows/system/PathManager.cpp
     )
-endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	# Add the C++ and Objective-C++ files to the target
-	target_sources(LiveImproved
-	    PRIVATE
-		${MAIN_CPP}
-		${SRC_CPP}
-		${SRC_OBJCXX}
-	)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(LiveImproved
 	    PRIVATE
 		${MAIN_CPP}
