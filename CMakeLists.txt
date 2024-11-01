@@ -426,6 +426,7 @@ if(BUILD_TESTS)
     add_li_test(test_PathManager test/system/test_PathManager.cpp)
     add_li_test(test_ResponseParser test/ipc/test_ResponseParser.cpp)
     add_li_test(test_KeySender test/event/test_KeySender.cpp)
+    add_li_test(test_PipeUtil test/platform/macos/ipc/test_PipeUtil.cpp)
     # Add other tests as needed
 endif()
 
