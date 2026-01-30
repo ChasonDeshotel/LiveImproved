@@ -11,6 +11,7 @@
 #include "LogGlobal.h"
 #include "PathFinder.h"
 
+#include "PlatformInitializer.h"
 #include "DependencyContainer.h"
 
 #include "IEventHandler.h"
@@ -315,6 +316,9 @@ public:
     };
 };
 
-// NOLINTBEGIN
-START_JUCE_APPLICATION(JuceApp)
-// NOLINTEND
+juce ::JUCEApplicationBase *juce_CreateApplication();
+juce ::JUCEApplicationBase *juce_CreateApplication() { return new JuceApp(); } // NOLINT
+int main(int argc, char *argv[]) {
+    juce ::JUCEApplicationBase ::createInstance = &juce_CreateApplication;
+    return juce ::JUCEApplicationBase ::main(argc, (const char **)argv);
+}

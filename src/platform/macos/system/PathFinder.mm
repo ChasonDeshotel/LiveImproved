@@ -16,14 +16,14 @@ namespace pathutil {
     }
 
     bool isFile(std::filesystem::path path) {
-        if (exists(path)) {
+        if (pathutil::exists(path)) {
             return std::filesystem::is_regular_file(path);
         }
         return false;
     }
 
     bool isDirectory(std::filesystem::path path) {
-        if (exists(path)) {
+        if (pathutil::exists(path)) {
             return std::filesystem::is_directory(path);
         }
         return false;
@@ -34,7 +34,7 @@ namespace PathFinder {
     std::filesystem::path home() {
         std::filesystem::path homeDir(getenv("HOME"));
 
-        if (!pathutil::isDir(homeDir)) {
+        if (!pathutil::isDirectory(homeDir)) {
             throw std::runtime_error("Failed to get home directory");
         }
 
@@ -42,14 +42,12 @@ namespace PathFinder {
     }
 
     PathOptional log() {
-        auto homeDir = home();
-
-        std::filesystem::path logFilePath = *homeDir
-            / "Scripts" / "Ableton" / "LiveImproved" / "log" / "debug.txt"
+        std::filesystem::path logFilePath = home()
+            / "source" / "ableton" / "LiveImproved" / "log" / "debug.txt"
         ;
 
         if (!pathutil::exists(logFilePath)) {
-            logger->warn("Log file does not exist: " + logFilePath.string() + ". Attempting to create it.");
+            std::cerr << "Log file does not exist: " << logFilePath << ". Attempting to create it.\n";
             try {
                 std::filesystem::create_directories(logFilePath.parent_path());
                 std::ofstream logFile(logFilePath);
@@ -111,44 +109,37 @@ namespace PathFinder {
 
     // TODO if no home, attempt to create pipes somewhere else
     std::filesystem::path requestPipe() {
-        auto homeDir = home();
-
-        std::filesystem::path requestPipePath = *homeDir
-            / "Documents" / "Ableton" / "User Library"
+        std::filesystem::path requestPipePath = home()
+            / "Music" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "lim_request";
+            /// "Documents" / "Ableton" / "User Library"
+            /// "Remote Scripts" / "LiveImproved" / "lim_request";
 
         return requestPipePath;
     }
 
     std::filesystem::path responsePipe() {
-        auto homeDir = home();
-
-        std::filesystem::path responsePipePath = *homeDir
-            / "Documents" / "Ableton" / "User Library"
+        std::filesystem::path responsePipePath = home()
+            / "Music" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "lim_response";
 
         return responsePipePath;
     }
 
     PathOptional remoteScripts() {
-        auto homeDir = home();
-
-        std::filesystem::path remoteScriptsPath = *homeDir
-            / "Documents" / "Ableton" / "User Library"
+        std::filesystem::path remoteScriptsPath = home()
+            / "Music" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved";
-
-
+        return remoteScriptsPath;
     }
 
     // TODO default config and make a config file if !configFile
     PathOptional config() {
-        auto homeDir = home();
-
-        std::filesystem::path configFilePath = *homeDir
-            / "Documents" / "Ableton" / "User Library"
+        std::filesystem::path configFilePath = home()
+            / "Music" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "config.txt";
 
-        if (!pathUtil::isFile(configFilePath)) {
+        if (!pathutil::isFile(configFilePath)) {
             logger->error("Config file does not exist or is not a regular file: " + configFilePath.string());
             return std::nullopt;
         }
@@ -157,10 +148,8 @@ namespace PathFinder {
     }
 
     PathOptional configMenu() {
-        auto homeDir = home();
-
-        std::filesystem::path configMenuPath = *homeDir
-            / "Documents" / "Ableton" / "User Library"
+        std::filesystem::path configMenuPath = home()
+            / "Music" / "Ableton" / "User Library"
             / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
 
         if (!pathutil::isFile(configMenuPath)) {
@@ -183,7 +172,7 @@ namespace PathFinder {
         std::filesystem::path themeFilePath = *bundlePath
             / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask";
 
-        if (!pathUtil::isFile(themeFilePath)) {
+        if (!pathutil::isFile(themeFilePath)) {
             logger->error("Theme file does not exist or is not a regular file: " + themeFilePath.string());
             return std::nullopt;
         }

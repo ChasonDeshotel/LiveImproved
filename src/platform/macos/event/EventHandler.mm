@@ -21,6 +21,7 @@
 #include "LiveInterface.h"
 #include "PID.h"
 #include "WindowManager.h"
+#include "AXFinder.h"
 
 // TODO: unsuckify this
 // TODO: build out the rest of the map and put it in... somewhere else
@@ -384,10 +385,12 @@ const int doubleClickThresholdMs = 300;
 //std::shared_ptr<LiveInterface> liveInterface = std::make_shared<LiveInterface>();
 
 CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogEventType, CGEventRef ogEvent, void *refcon) {
-    // fix some edge cases where event gets destroyed
+    // Retain because event is passed across TUs and must outlive this callback
+    // Fixes edge cases where the original event would be invalidated
     // NOLINTNEXTLINE
     CGEventRef event = (CGEventRef)CFRetain(ogEvent);
     CGEventType eventType = CGEventGetType(event);
+
     auto* handler = static_cast<EventHandler*>(refcon);
 
     // TODO store/pass these so we don't have to call them every time
@@ -473,9 +476,8 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
         } else if (eventType == kCGEventKeyDown) {
             logger->debug("Ableton Live keydown event detected.");
 
-// TODO fix
+            // skip macros when a text field is focused
 //            if (liveInterface->isAnyTextFieldFocused()) {
-//                logger->debug("Ableton Live text field has focus. Passing event.");
 //                return event;
 //            }
 
@@ -496,9 +498,19 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             pressedKey.alt   = (flags & Alt  ) != 0;
             pressedKey.key   = keyCodeToString(keyCode);
 
+            // if no modifiers are pressed, and we're in an AXTextField,
+            // just pass the original event
+            if (!pressedKey.isModifierPressed()) {
+                logger->debug(AXFinder::getFocusedElementTypeStr());
+                if (AXFinder::getFocusedElementTypeStr() == "AXTextField") {
+                    logger->debug("Ableton Live text field has focus. Passing event.");
+                    return ogEvent;
+                }
+            }
+
             bool shouldPassEvent = actionHandler->handleKeyEvent(pressedKey);
 
-            return shouldPassEvent ? event : nullptr;
+            return shouldPassEvent ? ogEvent : nullptr;
         }
     }
 

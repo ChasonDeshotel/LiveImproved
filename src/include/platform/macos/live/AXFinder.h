@@ -30,6 +30,8 @@ namespace AXFinder {
 
     AXUIElementRef getFocusedElement();
 
+    std::string getFocusedElementTypeStr();
+
     std::vector<AXUIElementRef> getPluginWindowsFromLiveAX(int limit = -1);
     AXUIElementRef getFocusedPluginWindow();
 
