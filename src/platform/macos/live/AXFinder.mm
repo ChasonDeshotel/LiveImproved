@@ -466,6 +466,20 @@ namespace AXFinder {
         return nullptr;
     }
 
+    std::string getFocusedElementTypeStr() {
+        AXUIElementRef focusedElement = getFocusedElement();
+        if (!focusedElement || !AXAttribute::isValid(focusedElement)) {
+            return "";
+        }
+
+        CFStringRef role = AXAttribute::getRole(focusedElement);
+        std::string roleStr = cfstringutil::getStringFromCFString(role);
+
+        if (role) CFRelease(role);
+        CFRelease(focusedElement);
+        return roleStr;
+    }
+
     std::vector<AXUIElementRef> getPluginWindowsFromLiveAX(int limit) {
         logger->debug("getPluginWindowsFromLiveAX called");
 

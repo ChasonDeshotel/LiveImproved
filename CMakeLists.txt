@@ -1,4 +1,14 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 4.0)
+# Set project name and version
+project(LiveImproved VERSION 1.0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15") # Match what Live was probably built against
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -D_LIBCPP_ABI_VERSION=2")
+
 set(BUILD_TESTING OFF)
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
@@ -10,8 +20,8 @@ if(MSVC)
         cmake_policy(SET CMP0126 NEW)
     endif()
     set(BUILD_SHARED_LIBS ON)
-    set(CMAKE_CXX_COMPILER clang++)
-    set(COMPILER clang)
+    #set(CMAKE_CXX_COMPILER clang++)
+    #set(COMPILER clang)
 
     add_compile_options(/Z7) # debug information format to C7
 
@@ -28,9 +38,6 @@ endif()
 
 # Set BUILD_TESTS option with a default value of OFF
 option(BUILD_TESTS "Build the tests" OFF)
-
-# Set project name and version
-project(LiveImproved VERSION 1.0 LANGUAGES CXX)
 
 add_definitions(-DDEBUG)
 set(CMAKE_BUILD_TYPE Debug)
@@ -124,6 +131,7 @@ if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     )
 
     if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        # only needed for Qt??
         # Copy additional files (like LICENSE) to the bundle
         if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
             add_custom_command(TARGET LiveImproved POST_BUILD
@@ -258,14 +266,14 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Set the library paths based on the architecture
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-        link_directories(/usr/local/Cellar/harfbuzz/9.0.0/lib)
+        link_directories(/usr/local/Cellar/harfbuzz/11.2.1/lib)
         link_directories(/usr/local/Cellar/yaml-cpp/0.8.0/lib)
-        set(HARFBUZZ_LIB /usr/local/Cellar/harfbuzz/9.0.0/lib/libharfbuzz.a)
+        set(HARFBUZZ_LIB /usr/local/Cellar/harfbuzz/11.2.1/lib/libharfbuzz.a)
         set(YAML_CPP_LIB /usr/local/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
     elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-        link_directories(/opt/homebrew/Cellar/harfbuzz/9.0.0/lib)
+        link_directories(/opt/homebrew/Cellar/harfbuzz/11.2.1/lib)
         link_directories(/opt/homebrew/Cellar/yaml-cpp/0.8.0/lib)
-        set(HARFBUZZ_LIB /opt/homebrew/Cellar/harfbuzz/9.0.0/lib/libharfbuzz.a)
+        set(HARFBUZZ_LIB /opt/homebrew/Cellar/harfbuzz/11.2.1/lib/libharfbuzz.a)
         set(YAML_CPP_LIB /opt/homebrew/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
     endif()
 

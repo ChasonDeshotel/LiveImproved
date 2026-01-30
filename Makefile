@@ -4,10 +4,14 @@ all: configure build
 CLI_BUILD_DIR = ./build/macos-cli
 XCODE_BUILD_DIR = ./build/xcode
 
-configure: # defaults to cli
+configure:
 	@mkdir -p $(CLI_BUILD_DIR)
-	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S . -B $(CLI_BUILD_DIR)
-	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
+	@cmake -G "Ninja" \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DBUILD_TESTS=OFF \
+		-DCMAKE_OSX_ARCHITECTURES="arm64" \
+		-S . -B $(CLI_BUILD_DIR)
+	@ln -sf build/macos-cli/compile_commands.json ./compile_commands.json
 
 configure-tests:
 	@mkdir -p $(CLI_BUILD_DIR)
@@ -16,13 +20,21 @@ configure-tests:
 
 configure-xcode:
 	@mkdir -p $(XCODE_BUILD_DIR)
-	@cmake -G "Xcode" -S . -B $(XCODE_BUILD_DIR)
+	@cmake -G "Xcode" \
+		-DCMAKE_OSX_ARCHITECTURES="arm64" \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DBUILD_TESTS=OFF \
+		-S . -B $(XCODE_BUILD_DIR)
+	@ln -sf $(realpath $(XCODE_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
 build: configure
-	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved -- VERBOSE=1
+	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved
 
-xcode-build: configure-xcode
-	@xcodebuild -project $(XCODE_BUILD_DIR)/LiveImproved.xcodeproj -scheme LiveImproved build -verbose
+build-xcode: configure-xcode
+	@xcodebuild -project $(XCODE_BUILD_DIR)/LiveImproved.xcodeproj -scheme LiveImproved build
+
+run:
+	@${XCODE_BUILD_DIR}build/xcode/LiveImproved_artifacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
 test:
 	@$(MAKE) -C test

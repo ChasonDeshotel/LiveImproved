@@ -134,6 +134,10 @@ struct EKeyPress {
         return os;
     }
 
+    [[nodiscard]] auto isModifierPressed() const -> bool {
+        return shift || ctrl || cmd || alt;
+    }
+
     void print() const {
         logger->info("state\t" + std::to_string(static_cast<int>(state)));
         logger->info("shift\t" + std::string(shift ? "true" : "false"));
