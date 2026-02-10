@@ -77,6 +77,9 @@ git submodule update --init --recursive
 make configure
 make configure-xcode
 make build-xcode
+# copy the contents of ./remote_scripts to <Ableton MIDI Remote Scripts>/LiveImproved
+# or,
+# cd <Ableton MIDI Remote Scripts> && git clone git@github.com:ChasonDeshotel/LiveImproved-RemoteScript.git LiveImproved
 ```
 
 ### Contributing
