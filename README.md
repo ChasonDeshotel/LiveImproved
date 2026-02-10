@@ -6,10 +6,9 @@ LiveImproved is designed to eliminate the need for wrapper racks, duplicated plu
 
 ### Why?
 
-Ableton Live is extremely powerful, but its keyboard usability breaks down once plugins and complex workflows are involved.
-These issues have been among the most-requested features on Ableton’s [feature request forum](https://ableton.centercode.com) for over a decade.
+Ableton Live is extremely powerful, but it provides no keyboard-based window switching for plugin windows and offers no way to customize keyboard actions.
 
-LiveImproved fixes this by restoring reliable focus, window management, and deterministic keyboard control.
+These issues have been among the most-requested features on Ableton’s [feature request forum](https://ableton.centercode.com) for over a decade.
 
 LiveImproved implements reliable focus, window management, and deterministic keyboard control at the system level.
 
