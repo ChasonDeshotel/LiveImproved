@@ -13,3 +13,6 @@
 [submodule "lib/doctest"]
 	path = lib/doctest
 	url = https://github.com/doctest/doctest.git
+[submodule "remote_scripts"]
+	path = remote_scripts
+	url = git@github.com:ChasonDeshotel/LiveImproved-RemoteScript.git
