@@ -36,6 +36,9 @@ build-xcode: configure-xcode
 run:
 	@${XCODE_BUILD_DIR}build/xcode/LiveImproved_artifacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
+ableton-log:
+	tail -f ~/Library/Preferences/Ableton/Live\ 12.2.2/Log.txt
+
 test:
 	@$(MAKE) -C test
 

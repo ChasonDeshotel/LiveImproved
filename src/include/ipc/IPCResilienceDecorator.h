@@ -30,6 +30,7 @@ public:
   void closeAndDeletePipes() override;
 
   void stopIPC() override;
+  void destroy() override;
 
   auto checkAndReestablishConnection() -> bool;
 

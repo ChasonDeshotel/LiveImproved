@@ -116,13 +116,21 @@ public:
 
         if (ipcCallDelay > 0) juce::Thread::sleep(ipcCallDelay);
 
-        logger->info("writing READY");
-        container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
-            logger->info("received READY response: " + response);
-        });
+        auto ipc = container_.resolve<IIPCCore>();
+        ipc->init();
 
-        // TODO: IPC queue should be able to handle more writes without sleep
-        juce::Thread::sleep(2);
+        while (!ipc->isInitialized()) {
+            logger->info("waiting for ipc init");
+            juce::Thread::sleep(100);
+        }
+
+        juce::Thread::sleep(3000); // wait for plugins cache to populate on the py side
+
+        //container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
+        //    logger->info("received READY response: " + response);
+        //});
+
+        //// TODO: IPC queue should be able to handle more writes without sleep
         logger->info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 
@@ -141,6 +149,10 @@ public:
         juce::ChildProcess process;
         if (process.start(executablePath)) {
             logger->info("Restarting application...");
+
+            auto ipc = container_.resolve<IIPCCore>();
+            ipc->stopIPC();
+            ipc->destroy();
 
             // Terminate the current process after the new one starts
             juce::Thread::sleep(RESTART_DELAY_MS);

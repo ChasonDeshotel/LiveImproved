@@ -13,11 +13,26 @@
 #include "IWindow.h"
 
 ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
-    : configFile_(configFile) {
-    std::filesystem::path LESConfigFilePath =
-        std::filesystem::path(std::string(getenv("HOME"))) / ".les" / "menuconfig.ini";
-    parseLESMenuConfig(LESConfigFilePath);
-    logger->info("LES config menu filepath: " + configFile.string());
+    : configFile_(configFile)
+{
+    configMenuFilePath_ =
+        std::filesystem::path(std::string(getenv("HOME"))) / "Music" / "Ableton" / "User Remote Scripts"
+        / "LiveImproved" / "config_menu.yaml";
+
+    LESConfigFilePath_ = std::filesystem::path(std::string(getenv("HOME"))) / ".les" / "menuconfig.ini";
+
+    if (!std::filesystem::exists(configMenuFilePath_) && std::filesystem::exists(LESConfigFilePath_)) {
+        logger->info("Parsing LES menu config from: " + configFile.string());
+        parseLESMenuConfig(LESConfigFilePath_);
+        return;
+    }
+
+    if (std::filesystem::exists(configMenuFilePath_)) {
+        loadConfig();
+        return;
+    }
+
+    logger->error("No menu config exists");
 }
 
 void ConfigMenu::outputItemToYAML(YAML::Emitter& out, const MenuItem& item) {
@@ -150,16 +165,51 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
     file.close();
     menuData_ = menuData;
 
-    std::filesystem::path configMenuFilePath =
-        std::filesystem::path(std::string(getenv("HOME"))) / "Documents" / "Ableton" / "User Library"
-        / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
-    saveToYAML(menuData, configMenuFilePath);
+    saveToYAML(menuData, configMenuFilePath_);
+}
+
+std::vector<MenuItem> ConfigMenu::parseMenuItems(const YAML::Node& node) {
+    std::vector<MenuItem> items;
+
+    for (const auto& entry : node) {
+        MenuItem item;
+
+        if (!entry["label"]) continue;
+        item.label = entry["label"].as<std::string>();
+
+        if (entry["children"] && entry["children"].IsSequence()) {
+            item.action = "category";
+            item.children = parseMenuItems(entry["children"]);
+        } else if (entry["action"]) {
+            item.action = entry["action"].as<std::string>();
+        }
+
+        items.push_back(item);
+    }
+
+    return items;
 }
 
 void ConfigMenu::loadConfig() {
     try {
-        // Implementation
-    } catch (const std::exception &e) {
+        std::filesystem::path configPath = configMenuFilePath_;
+        
+        if (!std::filesystem::exists(configPath)) {
+            logger->warn("No menu config found at: " + configPath.string());
+            return;
+        }
+
+        YAML::Node root = YAML::LoadFile(configPath.string());
+        
+        if (!root.IsSequence()) {
+            logger->error("Menu config root is not a sequence");
+            return;
+        }
+
+        menuData_ = parseMenuItems(root);
+        logger->info("Loaded menu config with " + std::to_string(menuData_.size()) + " top-level items");
+
+    } catch (const std::exception& e) {
         logger->error("Error loading config: " + std::string(e.what()));
     }
 }

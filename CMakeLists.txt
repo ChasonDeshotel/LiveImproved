@@ -32,10 +32,6 @@ if(MSVC)
     include_directories(${WindowsSDK_INCLUDE_DIRS})
 endif()
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-    set(CMAKE_GENERATOR_PLATFORM x64)
-endif()
-
 # Set BUILD_TESTS option with a default value of OFF
 option(BUILD_TESTS "Build the tests" OFF)
 
@@ -153,11 +149,14 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src/include
     ${CMAKE_SOURCE_DIR}/src/include/config
     ${CMAKE_SOURCE_DIR}/src/include/core
+    ${CMAKE_SOURCE_DIR}/src/include/core/sinks
     ${CMAKE_SOURCE_DIR}/src/include/event
     ${CMAKE_SOURCE_DIR}/src/include/exception
     ${CMAKE_SOURCE_DIR}/src/include/gui
     ${CMAKE_SOURCE_DIR}/src/include/ipc
     ${CMAKE_SOURCE_DIR}/src/include/system
+
+    ${CMAKE_SOURCE_DIR}/lib/fmt/include
 )
 
 target_include_directories(common_libs INTERFACE ${COMMON_INCLUDE_DIRS})
@@ -206,7 +205,6 @@ set(SRC_CPP
     src/core/ConfigManager.cpp
     src/core/ConfigMenu.cpp
     src/core/LogGlobal.cpp
-    src/core/LogHandler.cpp
     src/core/PluginManager.cpp
     src/event/ActionHandler.cpp
     src/event/KeyMapper.cpp
@@ -264,23 +262,14 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    # Set the library paths based on the architecture
-    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-        link_directories(/usr/local/Cellar/harfbuzz/11.2.1/lib)
-        link_directories(/usr/local/Cellar/yaml-cpp/0.8.0/lib)
-        set(HARFBUZZ_LIB /usr/local/Cellar/harfbuzz/11.2.1/lib/libharfbuzz.a)
-        set(YAML_CPP_LIB /usr/local/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
-    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-        link_directories(/opt/homebrew/Cellar/harfbuzz/11.2.1/lib)
-        link_directories(/opt/homebrew/Cellar/yaml-cpp/0.8.0/lib)
-        set(HARFBUZZ_LIB /opt/homebrew/Cellar/harfbuzz/11.2.1/lib/libharfbuzz.a)
-        set(YAML_CPP_LIB /opt/homebrew/Cellar/yaml-cpp/0.8.0/lib/libyaml-cpp.dylib)
-    endif()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(HARFBUZZ REQUIRED harfbuzz)
+    pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
     target_link_libraries(LiveImproved
         PRIVATE
-        ${HARFBUZZ_LIB}
-        ${YAML_CPP_LIB}
+        ${HARFBUZZ_LIBRARIES}
+        ${YAML_CPP_LIBRARIES}
         "-framework ApplicationServices"
         "-framework Cocoa"
         "-framework CoreFoundation"
@@ -294,6 +283,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
         set_target_properties(LiveImproved PROPERTIES
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
+            XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.example.LiveImproved"
         )
         install(TARGETS LiveImproved
             BUNDLE DESTINATION /Applications
@@ -312,13 +302,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	#)
 
         # Copy additional files (like LICENSE) to the bundle
-        if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
-            add_custom_command(TARGET LiveImproved POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_SOURCE_DIR}/LICENSE
-                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
-            )
-        endif()
+        #if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+        #    add_custom_command(TARGET LiveImproved POST_BUILD
+        #        COMMAND ${CMAKE_COMMAND} -E copy
+        #        ${CMAKE_SOURCE_DIR}/LICENSE
+        #        $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
+        #    )
+        #endif()
     endif()
 
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

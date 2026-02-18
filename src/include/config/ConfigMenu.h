@@ -20,13 +20,15 @@ public:
     auto getMenuData() -> std::vector<MenuItem>;
 
 private:
-    std::vector<MenuItem> menuData_;
-
+    std::vector<MenuItem> parseMenuItems(const YAML::Node& node);
     void saveToYAML(const std::vector<MenuItem>& menuData, const std::filesystem::path& filePath);
     void outputItemToYAML(YAML::Emitter& out, const MenuItem& item);
     void applyConfig(const YAML::Node& config);
 
+    std::vector<MenuItem> menuData_;
     std::filesystem::path configFile_;
+    std::filesystem::path configMenuFilePath_;
+    std::filesystem::path LESConfigFilePath_;
 
     YAML::Node config_;
 

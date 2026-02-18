@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class MockLogHandler : public ILogHandler {
+class MockLogHandler : public ILogger {
 public:
     void log(const std::string& message, LogLevel level = LogLevel::LOG_INFO) override {
         messages.push_back({logLevelToString(level), message});

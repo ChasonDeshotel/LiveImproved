@@ -2,18 +2,28 @@
 
 #include "LogGlobal.h"
 #include "DependencyContainer.h"
-#include "ILogHandler.h"
+#include "ILogger.h"
 #include "LogHandler.h"
+#include "PathFinder.h"
+
+
 
 // NOLINTBEGIN
-std::shared_ptr<ILogHandler> logger = nullptr;
+std::shared_ptr<ILogger> logger = nullptr;
 // NOLINTEND
 
 extern void initializeLogger() {
     if (!logger) {
         auto& container = DependencyContainer::getInstance();
-        container.registerType<ILogHandler, LogHandler>(DependencyContainer::Lifetime::Singleton);
-        logger = container.resolve<ILogHandler>();
-        logger->setLogLevel(LogLevel::LOG_DEBUG);
+        container.registerType<ILogger, LogHandler>(DependencyContainer::Lifetime::Singleton);
+        logger = container.resolve<ILogger>();
+
+        auto logHandler = dynamic_cast<LogHandler*>(logger.get());
+        if (PathFinder::log()) {
+            if (auto fileSink = std::make_shared<FileLogSink>(PathFinder::log().value()); fileSink->isAvailable()) {
+                logHandler->addSink(fileSink);
+            }
+        }
+        logHandler->addSink(std::make_shared<JUCELogSink>());
     }
 }

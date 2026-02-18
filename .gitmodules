@@ -16,3 +16,6 @@
 [submodule "remote_scripts"]
 	path = remote_scripts
 	url = git@github.com:ChasonDeshotel/LiveImproved-RemoteScript.git
+[submodule "lib/fmt"]
+	path = lib/fmt
+	url = git@github.com:fmtlib/fmt.git

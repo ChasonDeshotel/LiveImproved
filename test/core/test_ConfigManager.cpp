@@ -10,16 +10,16 @@
 #include <iostream>
 
 DependencyContainer& container = DependencyContainer::getInstance();
-std::shared_ptr<ILogHandler> logger = nullptr;
+std::shared_ptr<ILogger> logger = nullptr;
 
 TEST_CASE("Setup") {
     CAPTURE("Setting up test environment");
     logger = std::make_shared<MockLogHandler>();
-    container.registerFactory<ILogHandler>(
+    container.registerFactory<ILogger>(
         [&](DependencyContainer&) { return logger; },
         DependencyContainer::Lifetime::Singleton
     );
-    logger = container.resolve<ILogHandler>();
+    logger = container.resolve<ILogger>();
 
     std::string configFile = "test_config.yaml";
     container.registerFactory<ConfigManager>(
