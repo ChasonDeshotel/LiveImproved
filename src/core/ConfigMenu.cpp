@@ -22,7 +22,7 @@ ConfigMenu::ConfigMenu(const std::filesystem::path& configFile)
     LESConfigFilePath_ = std::filesystem::path(std::string(getenv("HOME"))) / ".les" / "menuconfig.ini";
 
     if (!std::filesystem::exists(configMenuFilePath_) && std::filesystem::exists(LESConfigFilePath_)) {
-        logger->info("Parsing LES menu config from: " + configFile.string());
+        logger->info("Parsing LES menu config from: {}", configFile.string());
         parseLESMenuConfig(LESConfigFilePath_);
         return;
     }
@@ -76,7 +76,7 @@ void ConfigMenu::parseLESMenuConfig(const std::filesystem::path& filePath) {
 
     std::ifstream file(filePath);
     if (!file.is_open()) {
-        logger->error("Unable to open file: " + filePath.string());
+        logger->error("Unable to open file: {}", filePath.string());
         return;
     }
 
@@ -195,7 +195,7 @@ void ConfigMenu::loadConfig() {
         std::filesystem::path configPath = configMenuFilePath_;
         
         if (!std::filesystem::exists(configPath)) {
-            logger->warn("No menu config found at: " + configPath.string());
+            logger->warn("No menu config found at: {}", configPath.string());
             return;
         }
 
@@ -207,9 +207,9 @@ void ConfigMenu::loadConfig() {
         }
 
         menuData_ = parseMenuItems(root);
-        logger->info("Loaded menu config with " + std::to_string(menuData_.size()) + " top-level items");
+        logger->info("Loaded menu config with {} top-level items", std::to_string(menuData_.size()));
 
     } catch (const std::exception& e) {
-        logger->error("Error loading config: " + std::string(e.what()));
+        logger->error("Error loading config: {}", std::string(e.what()));
     }
 }

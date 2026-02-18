@@ -40,7 +40,7 @@ namespace AXCheckBox {
             logger->info("Successfully pressed the checkbox.");
             return true;
         } else {
-            logger->error("Failed to press the checkbox. Error: " + axerror::toString(error));
+            logger->error("Failed to press the checkbox. Error: {}", axerror::toString(error));
             return false;
         }
     }
@@ -61,7 +61,7 @@ namespace AXCheckBox {
             logger->info("Successfully pressed the checkbox.");
             return true;
         } else {
-            logger->error("Failed to press the checkbox. Error: " + axerror::toString(error));
+            logger->error("Failed to press the checkbox. Error: {}", axerror::toString(error));
             return false;
         }
         return false;

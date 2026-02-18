@@ -56,13 +56,13 @@ namespace PathFinder {
                 }
                 logFile.close();
             } catch (const std::exception& e) {
-                logger->error("Failed to create log file: " + std::string(e.what()));
+                logger->error("Failed to create log file: {}", std::string(e.what()));
                 return std::nullopt;
             }
         }
 
         if (!pathutil::isFile(logFilePath)) {
-            logger->error("Log file is not a regular file: " + logFilePath.string());
+            logger->error("Log file is not a regular file: {}", logFilePath.string());
             return std::nullopt;
         }
 
@@ -83,7 +83,7 @@ namespace PathFinder {
         bundlePath = [[bundleURL path] UTF8String];
 
         if (!pathutil::isDirectory(bundlePath)) {
-            logger->error("Bundle path does not exist or is not a directory: " + bundlePath.string());
+            logger->error("Bundle path does not exist or is not a directory: {}", bundlePath.string());
             return std::nullopt;
         }
 
@@ -100,7 +100,7 @@ namespace PathFinder {
         std::filesystem::path binaryPath = *bundlePath / "Contents" / "MacOS" / "Live";
 
         if (!pathutil::exists(binaryPath)) {
-            logger->error("Binary path does not exist: " + binaryPath.string());
+            logger->error("Binary path does not exist: {}", binaryPath.string());
             return std::nullopt;
         }
 
@@ -140,7 +140,7 @@ namespace PathFinder {
             / "Remote Scripts" / "LiveImproved" / "config.txt";
 
         if (!pathutil::isFile(configFilePath)) {
-            logger->error("Config file does not exist or is not a regular file: " + configFilePath.string());
+            logger->error("Config file does not exist or is not a regular file: {}", configFilePath.string());
             return std::nullopt;
         }
 
@@ -153,7 +153,7 @@ namespace PathFinder {
             / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
 
         if (!pathutil::isFile(configMenuPath)) {
-            logger->error("Menu config file does not exist or is not a regular file: " + configMenuPath.string());
+            logger->error("Menu config file does not exist or is not a regular file: {}", configMenuPath.string());
             return std::nullopt;
         }
 
@@ -173,7 +173,7 @@ namespace PathFinder {
             / "Contents" / "App-Resources" / "Themes" / "Default Dark Neutral High.ask";
 
         if (!pathutil::isFile(themeFilePath)) {
-            logger->error("Theme file does not exist or is not a regular file: " + themeFilePath.string());
+            logger->error("Theme file does not exist or is not a regular file: {}", themeFilePath.string());
             return std::nullopt;
         }
 

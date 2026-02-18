@@ -33,7 +33,7 @@ auto ConfigManager::loadConfig() -> void {
         applyConfig(config);
 
     } catch (const std::exception &e) {
-        logger->error("Error parsing config: " + std::string(e.what()));
+        logger->error("Error parsing config: {}", std::string(e.what()));
     }
 }
 
@@ -49,8 +49,8 @@ auto ConfigManager::applyConfig(const YAML::Node& config) -> void {
         if (config["remap"] && config["remap"].IsMap()) {
             for (const auto &item : config["remap"]) {
                 logger->debug("remap found remap");
-                logger->debug("remap fromStr: " + item.first.as<std::string>());
-                logger->debug("remap toStr: "   + item.second.as<std::string>());
+                logger->debug("remap fromStr: {}", item.first.as<std::string>());
+                logger->debug("remap toStr: {}", item.second.as<std::string>());
 
                 processRemap(item.first.as<std::string>(), item.second.as<std::string>());
             }
@@ -115,7 +115,7 @@ auto ConfigManager::saveConfig() -> void {
         logger->debug("save remap");
 
         std::string fromString = km_->EKeyPressToString(item.first);
-        logger->debug("save remap from: " + fromString);
+        logger->debug("save remap from: {}", fromString);
 
         std::vector<std::string> stepStrings;
         const EMacro& macro = item.second;
@@ -189,7 +189,7 @@ auto ConfigManager::getRemap() const -> std::unordered_map<EKeyPress, EMacro, EM
 }
 
 auto ConfigManager::setRemap(const std::string &fromStr, const std::string &toStr) -> void {
-    logger->debug("setRemap: from: " + fromStr + " to: " + toStr);
+    logger->debug("setRemap: from: {} to: {}", fromStr, toStr);
     processRemap(fromStr, toStr);
     saveConfig();
 }
@@ -256,7 +256,7 @@ auto ConfigManager::canUndo() const -> bool {
 }
 
 auto ConfigManager::processRemap(const std::string &fromStr, const std::string &toStr) -> void {
-    logger->debug("process remap: from: " + fromStr + " to: " + toStr);
+    logger->debug("process remap: from: {} to: {}", fromStr, toStr);
     EKeyPress from = km_->processKeyPress(fromStr);
 
     // stepsString is composed of any combination of
@@ -274,21 +274,21 @@ auto ConfigManager::processRemap(const std::string &fromStr, const std::string &
     EMacro macro;
 
     for (const auto& step : steps) {
-        logger->debug("process remap: step: " + step);
+        logger->debug("process remap: step: {}", step);
 
         const auto& namedActions = NamedActions::get();
 
         if (step.length() == 1) {
-            logger->debug("process remap: single character, processing as keypress: " + step);
+            logger->debug("process remap: single character, processing as keypress: {}", step);
             try {
                 EKeyPress keyPress = km_->processKeyPress(step);
                 macro.addKeyPress(keyPress);
             } catch (const std::runtime_error& e) {
-                logger->error(e.what());
+                logger->error("{}", e.what());
             }
 
         } else if (namedActions.find(step) != namedActions.end()) {
-            logger->debug("process remap: add action no arg: " + step);
+            logger->debug("process remap: add action no arg: {}", step);
             Action action(step);
             // TODO add validation
             macro.addAction(action);
@@ -301,25 +301,25 @@ auto ConfigManager::processRemap(const std::string &fromStr, const std::string &
 
             if (namedActions.find(actionName) != namedActions.end()) {
                 if (argument) {
-                    logger->debug("process remap: add action with arg: " + actionName + "." + *argument);
+                    logger->debug("process remap: add action with arg: {}.{}", actionName, argument.value_or("[no args]"));
                     Action action(actionName, *argument);
                     // TODO add validation
                     macro.addAction(action);
                 }
             } else {
                 // step contains a period but no valid action
-                logger->warn("step contains . but no valid action. action given: " + actionName);
+                logger->warn("step contains . but no valid action. action given: {}", actionName);
                 continue;
             }
 
         } else {
             // TODO consider turning these into a keypress macro
-            logger->debug("process remap: not in named actions. str: " + step);
+            logger->debug("process remap: not in named actions. str: {}", step);
             try {
                 EKeyPress keyPress = km_->processKeyPress(step);
                 macro.addKeyPress(keyPress);
             } catch (const std::runtime_error& e) {
-                logger->error(e.what());
+                logger->error("{}", e.what());
             }
         }
     }

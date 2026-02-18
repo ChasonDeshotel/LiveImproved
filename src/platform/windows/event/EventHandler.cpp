@@ -248,13 +248,13 @@ void EventHandler::focusApplication(pid_t pid) {
     EnumWindows(EnumWindowsProc, (LPARAM)&pidDWORD);
 
     if (hwnd != NULL) {
-        logger->debug("Bringing app into focus: " + std::to_string(pidDWORD));
+        logger->debug("Bringing app into focus: {}", std::to_string(pidDWORD));
 
         // Restore and bring the window to the foreground
         ShowWindow(hwnd, SW_RESTORE);  // Restore if minimized
         SetForegroundWindow(hwnd);     // Bring to foreground
     } else {
-        logger->error("Application window not found with PID: " + std::to_string(pidDWORD));
+        logger->error("Application window not found with PID: {}", std::to_string(pidDWORD));
     }
 }
 

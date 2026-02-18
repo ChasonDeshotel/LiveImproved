@@ -77,11 +77,11 @@ void KeySender::sendKeyPress(const EKeyPress& kpRef) {
     EKeyPress kp = kpRef; // create a copy
     logger->debug("KeySender::sendKeyPress called");
 
-    logger->debug("KeySender:: Keypress cmd: "   + std::to_string(kp.cmd));
-    logger->debug("KeySender:: Keypress ctrl: "  + std::to_string(kp.ctrl));
-    logger->debug("KeySender:: Keypress alt: "   + std::to_string(kp.alt));
-    logger->debug("KeySender:: Keypress shift: " + std::to_string(kp.shift));
-    logger->debug("KeySender:: Keypress key: "   + kp.key);
+    logger->debug("KeySender:: Keypress cmd: {}", std::to_string(kp.cmd));
+    logger->debug("KeySender:: Keypress ctrl: {}", std::to_string(kp.ctrl));
+    logger->debug("KeySender:: Keypress alt: {}", std::to_string(kp.alt));
+    logger->debug("KeySender:: Keypress shift: {}", std::to_string(kp.shift));
+    logger->debug("KeySender:: Keypress key: {}", kp.key);
 
     sendIndividualKeyPress(kp);
 }

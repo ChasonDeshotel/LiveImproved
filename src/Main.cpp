@@ -127,7 +127,7 @@ public:
         juce::Thread::sleep(3000); // wait for plugins cache to populate on the py side
 
         //container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
-        //    logger->info("received READY response: " + response);
+        //    logger->info("received READY response: {}", response);
         //});
 
         //// TODO: IPC queue should be able to handle more writes without sleep
@@ -143,7 +143,7 @@ public:
 
     void restartApplication() {
         juce::String executablePath = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getFullPathName();
-        logger->info("executable path: " + executablePath.toStdString());
+        logger->info("executable path: {}", executablePath.toStdString());
 
         // Spawn a new process to re-launch the application
         juce::ChildProcess process;
@@ -182,7 +182,7 @@ public:
                 closeFuture.wait();
             }
         } catch (const std::exception& e) {
-            logger->error("Failed to resolve IIPCCore: " + std::string(e.what()));
+            logger->error("Failed to resolve IIPCCore: {}", std::string(e.what()));
         } catch (...) {
             logger->error("Unknown error occurred while resolving IIPCCore.");
         }

@@ -149,7 +149,7 @@ SearchBox::~SearchBox() {}
 
 void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
     if (&editor == &searchField_) {
-        logger->debug("Search text changed: " + editor.getText().toStdString());
+        logger->debug("Search text changed: {}", editor.getText().toStdString());
         juce::String searchText = searchField_.getText();
 
         pluginListModel_->filterPlugins(searchText);
@@ -162,7 +162,7 @@ void SearchBox::textEditorTextChanged(juce::TextEditor& editor) {
 }
 
 bool SearchBox::keyPressed(const juce::KeyPress& key, juce::Component*) {
-    logger->info("search box key pressed: " + std::to_string(key.getKeyCode()));
+    logger->info("search box key pressed: {}", std::to_string(key.getKeyCode()));
 
     if (key == juce::KeyPress::escapeKey) {
         if (searchField_.getText().isNotEmpty()) {
@@ -336,7 +336,7 @@ void* SearchBox::getWindowHandle() const {
 
         juce::MessageManager::callAsync([this, &handle, &event]() {
             handle = (void*)Component::getWindowHandle();
-            logger->debug("SearchBox window handle: " + std::to_string(reinterpret_cast<uintptr_t>(handle))); // NOLINT
+            logger->debug("SearchBox window handle: {}", std::to_string(reinterpret_cast<uintptr_t>(handle))); // NOLINT
             event.signal();
         });
 

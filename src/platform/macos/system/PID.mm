@@ -56,7 +56,7 @@ pid_t PID::findLivePID() {
         if (strcmp(proc->kp_proc.p_comm, "Live") == 0) {
             pid_t pid = proc->kp_proc.p_pid;
             free(procs);
-            logger->info("Ableton Live found with PID: " + std::to_string(pid));
+            logger->info("Ableton Live found with PID: {}", std::to_string(pid));
             abletonLivePID = pid;
             return pid;
         }

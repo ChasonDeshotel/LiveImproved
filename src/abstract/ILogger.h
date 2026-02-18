@@ -12,7 +12,7 @@ class LogHandler;
 
 class ILogger {
 public:
-    virtual ~ILogger() = 0;
+    virtual ~ILogger() = default;
     ILogger(ILogger&&) = delete;
     ILogger(const ILogger&) = delete;
     auto operator=(ILogger&&) -> ILogger& = delete;

@@ -79,7 +79,7 @@ void WindowManager::openWindow(const std::string& windowName) {
         it->second.callback();
     }
 
-    logger->debug("Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    logger->debug("Current window state for {}: {}", windowName, std::to_string(windowStates_[windowName]));
     if (!windowStates_[windowName]) {
         // TODO: making some assumptions by setting this to true before
         // calling `open()`, but the context menu is blocking so...
@@ -98,7 +98,7 @@ void WindowManager::closeWindow(const std::string& windowName) {
     }
     windowStates_[windowName] = false;
     logger->debug("updated window state to close");
-    logger->debug("close - Current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    logger->debug("close - Current window state for {}: {}", windowName, std::to_string(windowStates_[windowName]));
     eventHandler_()->focusLive();
 }
 
@@ -109,7 +109,7 @@ void WindowManager::toggleWindow(const std::string& windowName) {
 
     // window isn't registered -- we'll create it (with open)
     if (it == windows_.end()) {
-        logger->error("Window not found: " + windowName);
+        logger->error("Window not found: {}", windowName);
         openWindow(windowName);
         return;
     }
@@ -124,7 +124,7 @@ void WindowManager::toggleWindow(const std::string& windowName) {
         windowStates_[windowName] = !isOpen;
     }
 
-    logger->debug("toggle - current window state for " + windowName + ": " + std::to_string(windowStates_[windowName]));
+    logger->debug("toggle - current window state for {}: {}", windowName, std::to_string(windowStates_[windowName]));
 }
 
 auto WindowManager::isWindowOpen(const std::string& windowName) const -> bool {
