@@ -342,7 +342,7 @@ namespace AXPrinter {
             CFStringRef attributeName = (CFStringRef)CFArrayGetValueAtIndex(attributeNames, i);
             char nameBuffer[256];
             CFStringGetCString(attributeName, nameBuffer, sizeof(nameBuffer), kCFStringEncodingUTF8);
-            logger->debug("Attribute: " + std::string(nameBuffer));
+            logger->debug("Attribute: {}", std::string(nameBuffer));
 
             // Get the attribute value
             CFTypeRef attributeValue = nullptr;
@@ -352,18 +352,18 @@ namespace AXPrinter {
                 if (CFGetTypeID(attributeValue) == CFStringGetTypeID()) {
                     char valueBuffer[256];
                     CFStringGetCString((CFStringRef)attributeValue, valueBuffer, sizeof(valueBuffer), kCFStringEncodingUTF8);
-                    logger->debug("  Value (string): " + std::string(valueBuffer));
+                    logger->debug("  Value (string): {}", std::string(valueBuffer));
                 } else if (CFGetTypeID(attributeValue) == CFNumberGetTypeID()) {
                     int intValue;
                     CFNumberGetValue((CFNumberRef)attributeValue, kCFNumberIntType, &intValue);
-                    logger->debug("  Value (number): " + std::to_string(intValue));
+                    logger->debug("  Value (number): {}", std::to_string(intValue));
                 } else if (CFGetTypeID(attributeValue) == CFBooleanGetTypeID()) {
                     Boolean boolValue = CFBooleanGetValue((CFBooleanRef)attributeValue);
-                    logger->debug("  Value (boolean): " + std::string(boolValue ? "true" : "false"));
+                    logger->debug("  Value (boolean): {}", std::string(boolValue ? "true" : "false"));
                 } else if (CFGetTypeID(attributeValue) == CFArrayGetTypeID()) {
                     CFArrayRef arrayValue = (CFArrayRef)attributeValue;
                     CFIndex arrayCount = CFArrayGetCount(arrayValue);
-                    logger->debug("  Value (array), size: " + std::to_string(arrayCount));
+                    logger->debug("  Value (array), size: {}", std::to_string(arrayCount));
                     for (CFIndex j = 0; j < arrayCount; j++) {
                         CFTypeRef arrayElement = CFArrayGetValueAtIndex(arrayValue, j);
                         // You can recursively print array elements based on type here, if needed
@@ -373,11 +373,11 @@ namespace AXPrinter {
                    // if (valueType == kAXValueCGPointType) {
                    //     CGPoint point;
                    //     AXValueGetValue((AXValueRef)attributeValue, kAXValueCGPointType, &point);
-                   //     logger->debug("  Value (CGPoint): (" + std::to_string(point.x) + ", " + std::to_string(point.y) + ")");
+                   //     logger->debug("  Value (CGPoint): (" + std::to_string(point.x) + ", {}", std::to_string(point.y) + ")");
                    // } else if (valueType == kAXValueCGSizeType) {
                    //     CGSize size;
                    //     AXValueGetValue((AXValueRef)attributeValue, kAXValueCGSizeType, &size);
-                   //     logger->debug("  Value (CGSize): (" + std::to_string(size.width) + ", " + std::to_string(size.height) + ")");
+                   //     logger->debug("  Value (CGSize): (" + std::to_string(size.width) + ", {}", std::to_string(size.height) + ")");
                    // } else {
                    //     logger->debug("  Value (AXValue of unknown type)");
                    // }

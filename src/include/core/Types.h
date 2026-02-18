@@ -139,12 +139,12 @@ struct EKeyPress {
     }
 
     void print() const {
-        logger->info("state\t" + std::to_string(static_cast<int>(state)));
-        logger->info("shift\t" + std::string(shift ? "true" : "false"));
-        logger->info("ctrl\t" + std::string(ctrl ? "true" : "false"));
-        logger->info("cmd\t" + std::string(cmd ? "true" : "false"));
-        logger->info("alt\t" + std::string(alt ? "true" : "false"));
-        logger->info("key\t" + key);
+        logger->info("state\t{}", std::to_string(static_cast<int>(state)));
+        logger->info("shift\t{}", std::string(shift ? "true" : "false"));
+        logger->info("ctrl\t{}", std::string(ctrl ? "true" : "false"));
+        logger->info("cmd\t{}", std::string(cmd ? "true" : "false"));
+        logger->info("alt\t{}", std::string(alt ? "true" : "false"));
+        logger->info("key\t{}", key);
     }
 };
 
@@ -189,14 +189,14 @@ struct EMacro {
 
     void print() const {
         for (size_t i = 0; i < steps.size(); ++i) {
-            logger->info("Step\t" + std::to_string(i + 1));
+            logger->info("Step\t{}", std::to_string(i + 1));
             std::visit([this](const auto& step) {
                 if constexpr (std::is_same_v<std::decay_t<decltype(step)>, EKeyPress>) {
                     step.print();
                 } else if constexpr (std::is_same_v<std::decay_t<decltype(step)>, Action>) {
-                    logger->info("Action\t" + step.actionName);
+                    logger->info("Action\t{}", step.actionName);
                     if (step.arguments) {
-                        logger->info("Arguments\t" + *step.arguments);
+                        logger->info("Arguments\t{}", *step.arguments);
                     }
                 }
             }, steps[i]);

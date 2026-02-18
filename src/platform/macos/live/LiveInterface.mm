@@ -57,27 +57,27 @@ void LiveInterface::setupPluginWindowChangeObserver(std::function<void()> callba
     // create the window create observer, set the callback
     AXError error = AXObserverCreate(livePID, pluginWindowCreateCallback, &pluginWindowCreateObserver_);
     if (error != kAXErrorSuccess) {
-        logger->error("Failed to create accessibility observer. Error: " + axerror::toString(error));
+        logger->error("Failed to create accessibility observer. Error: {}", axerror::toString(error));
         return;
     }
 
     // same for destroy
     error = AXObserverCreate(livePID, pluginWindowDestroyCallback, &pluginWindowDestroyObserver_);
     if (error != kAXErrorSuccess) {
-        logger->error("Failed to create accessibility observer. Error: " + axerror::toString(error));
+        logger->error("Failed to create accessibility observer. Error: {}", axerror::toString(error));
         return;
     }
 
     error = AXObserverAddNotification(pluginWindowCreateObserver_, appElement, kAXCreatedNotification, this);
     if (error != kAXErrorSuccess) {
-        logger->error("Failed to add creation notification. Error: " + axerror::toString(error));
+        logger->error("Failed to add creation notification. Error: {}", axerror::toString(error));
         return;
     }
 
     // there is no window destroy observer, we'll have to check the type of what was destroyed
     error = AXObserverAddNotification(pluginWindowDestroyObserver_, appElement, kAXUIElementDestroyedNotification, this);
     if (error != kAXErrorSuccess) {
-        logger->error("Failed to add destruction notification. Error: " + axerror::toString(error));
+        logger->error("Failed to add destruction notification. Error: {}", axerror::toString(error));
         return;
     }
 
@@ -112,7 +112,7 @@ void LiveInterface::pluginWindowCreateCallback(AXObserverRef observer, AXUIEleme
 
     AXError error = AXUIElementPerformAction(element, kAXRaiseAction);
     if (error != kAXErrorSuccess) {
-        logger->error("Failed to raise window. AXError: " + std::to_string(error));
+        logger->error("Failed to raise window. AXError: {}", std::to_string(error));
     }
 
     if (interface && interface->createCallback_) {
@@ -143,7 +143,7 @@ void LiveInterface::pluginWindowDestroyCallback(AXObserverRef observer, AXUIElem
     AXUIElementRef windowToFocus = windows[0];
     AXError error = AXUIElementPerformAction(windowToFocus, kAXRaiseAction);
     if (error != kAXErrorSuccess) {
-        logger->error("Failed to raise the next window. AXError: " + std::to_string(error));
+        logger->error("Failed to raise the next window. AXError: {}", std::to_string(error));
     } else {
         CFRelease(windowToFocus);
         logger->debug("Successfully raised the next window.");
@@ -215,7 +215,7 @@ void LiveInterface::tilePluginWindows() {
 
     CGRect screenBounds = [[NSScreen mainScreen] frame];
     int screenWidth = screenBounds.size.width;
-    logger->info("screen width: " + std::to_string(screenWidth));
+    logger->info("screen width: {}", std::to_string(screenWidth));
     int screenHeight = screenBounds.size.height;
 
     int currentX = 0;
@@ -293,7 +293,7 @@ void LiveInterface::tilePluginWindows() {
     int unoccupiedWidth = rightX - leftX;
     int unoccupiedHeight = bottomY - topY;
 
-    logger->info("Unoccupied space: x=" + std::to_string(leftX) + 
+    logger->info("Unoccupied space: x={}", std::to_string(leftX) + 
                  ", y=" + std::to_string(topY) + 
                  ", width=" + std::to_string(unoccupiedWidth) + 
                  ", height=" + std::to_string(unoccupiedHeight));
@@ -352,7 +352,7 @@ void LiveInterface::tilePluginWindows() {
         y += yOffset;
 
         AXPrinter::printAXIdentifier(window);
-        logger->info("Setting bounds for window: x=" + std::to_string(x) + 
+        logger->info("Setting bounds for window: x={}", std::to_string(x) + 
                      ", y=" + std::to_string(y) + 
                      ", width=" + std::to_string(width) + 
                      ", height=" + std::to_string(height));

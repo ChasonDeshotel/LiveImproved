@@ -29,7 +29,7 @@ auto IPCResilienceDecorator::handleError(const std::string& operation, Func retr
         // Retry the operation once more
         return retry();
     } catch (const std::exception& e) {
-        logger->error("Unexpected error in IPC " + operation + ": " + e.what());
+        logger->error("Unexpected error in IPC {}: {}", operation, e.what());
         throw; // Re-throw unexpected exceptions
     }
 }
@@ -37,20 +37,20 @@ auto IPCResilienceDecorator::handleError(const std::string& operation, Func retr
 auto IPCResilienceDecorator::logMessage(const std::string& message, LogLevel level) -> void {
     switch (level) {
         case LogLevel::LOG_DEBUG:
-            logger->debug(message);
+            logger->debug("{}", message);
             break;
         case LogLevel::LOG_INFO:
-            logger->info(message);
+            logger->info("{}", message);
             break;
         case LogLevel::LOG_WARN:
-            logger->warn(message);
+            logger->warn("{}", message);
             break;
         case LogLevel::LOG_ERROR:
-            logger->error(message);
+            logger->error("{}", message);
             break;
         case LogLevel::LOG_TRACE:
         case LogLevel::LOG_FATAL:
-            logger->error(message);
+            logger->error("{}", message);
             break;
     }
 }

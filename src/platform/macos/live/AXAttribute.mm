@@ -58,7 +58,7 @@ namespace AXAttribute {
         AXError error = AXUIElementCopyAttributeValue(elementRef, kAXRoleAttribute, castutil::toCFTypeRef(&role));
 
         if (error != kAXErrorSuccess || !role) {
-            logger->warn("Failed to get role for element. Error: " + axerror::toString(error));
+            logger->warn("Failed to get role for element. Error: {}", axerror::toString(error));
             return nullptr;
         }
 

@@ -72,7 +72,7 @@ bool IPCCore::createWritePipe(const std::string& pipe_name) {
     );
 
     if (pipe == INVALID_HANDLE_VALUE) {
-        logger->error("Failed to create write pipe: " + pipe_name);
+        logger->error("Failed to create write pipe: {}", pipe_name);
         return false;
     }
     pipes_[pipe_name] = pipe;
@@ -93,7 +93,7 @@ bool IPCCore::createReadPipe(const std::string& pipe_name) {
     );
 
     if (pipe == INVALID_HANDLE_VALUE) {
-        logger->error("Failed to create read pipe: " + pipe_name);
+        logger->error("Failed to create read pipe: {}", pipe_name);
         return false;
     }
     pipes_[pipe_name] = pipe;
@@ -106,7 +106,7 @@ bool IPCCore::connectToPipe(const std::string& pipe_name) {
         if (ConnectNamedPipe(pipe, NULL) || GetLastError() == ERROR_PIPE_CONNECTED) {
             return true;  // Pipe is now connected
         } else {
-            logger->error("Failed to connect to pipe: " + pipe_name);
+            logger->error("Failed to connect to pipe: {}", pipe_name);
         }
     }
     return false;
@@ -114,7 +114,7 @@ bool IPCCore::connectToPipe(const std::string& pipe_name) {
 
 void IPCCore::removePipeIfExists(const std::string& pipe_name) {
     // No equivalent of `unlink` for named pipes on Windows, so this is a no-op.
-    logger->debug("No need to remove pipes on Windows: " + pipe_name);
+    logger->debug("No need to remove pipes on Windows: {}", pipe_name);
 }
 
 bool IPCCore::openPipeForWrite(const std::string& pipe_name) {
@@ -144,25 +144,25 @@ bool IPCCore::openPipeForWrite(const std::string& pipe_name) {
                 retry_count--;
                 continue;
             } else {
-                logger->error("Write pipe is busy and timeout occurred: " + pipe_name);
+                logger->error("Write pipe is busy and timeout occurred: {}", pipe_name);
                 return false;
             }
         } else if (error == ERROR_ACCESS_DENIED) {
-            logger->error("Access denied when opening write pipe: " + pipe_name + " - " + std::to_string(error));
+            logger->error("Access denied when opening write pipe: " + pipe_name + " - {}", std::to_string(error));
             return false;
         } else {
-            logger->error("Failed to open pipe for writing: " + pipe_name + " - " + std::to_string(error));
+            logger->error("Failed to open pipe for writing: " + pipe_name + " - {}", std::to_string(error));
             return false;
         }
     }
 
     if (pipe == INVALID_HANDLE_VALUE) {
-        logger->error("Failed to open pipe for writing after retries: " + pipe_name);
+        logger->error("Failed to open pipe for writing after retries: {}", pipe_name);
         return false;
     }
 
     pipes_[pipe_name] = pipe;
-    logger->debug("Pipe opened for writing: " + pipe_name);
+    logger->debug("Pipe opened for writing: {}", pipe_name);
     return true;
 }
 
@@ -190,30 +190,30 @@ bool IPCCore::openPipeForRead(const std::string& pipe_name) {
 			// Pipe is available within timeout, retry opening
             return false;
 		} else {
-			logger->error("Read pipe is busy and timeout occurred: " + pipe_name);
+			logger->error("Read pipe is busy and timeout occurred: {}", pipe_name);
 			return false;
 		}
 	} else if (error == ERROR_ACCESS_DENIED) {
-		logger->error("Access denied when opening read pipe: " + pipe_name + " - " + std::to_string(error));
+		logger->error("Access denied when opening read pipe: " + pipe_name + " - {}", std::to_string(error));
 		return false;
 	} else {
-		logger->error("Failed to open pipe for reading: " + pipe_name + " - " + std::to_string(error));
+		logger->error("Failed to open pipe for reading: " + pipe_name + " - {}", std::to_string(error));
 		return false;
 	}
 
     if (pipe == INVALID_HANDLE_VALUE) {
-        logger->error("Failed to open pipe for reading after retries: " + pipe_name);
+        logger->error("Failed to open pipe for reading after retries: {}", pipe_name);
         return false;
     }
 
     pipes_[pipe_name] = pipe;
-    logger->debug("Pipe opened for reading: " + pipe_name);
+    logger->debug("Pipe opened for reading: {}", pipe_name);
     return true;
 }
 bool IPCCore::writeRequest(const std::string& message) {
     HANDLE pipe = pipes_[requestPipePath];
     if (pipe == INVALID_HANDLE_VALUE) {
-        logger->error("Request pipe not opened for writing: " + requestPipePath);
+        logger->error("Request pipe not opened for writing: {}", requestPipePath);
         return false;
     }
 
@@ -252,7 +252,7 @@ std::string IPCCore::readResponse() {
     while (totalHeaderRead < HEADER_SIZE && retry_count < max_retries) {
         BOOL result = ReadFile(pipe, header + totalHeaderRead, HEADER_SIZE - totalHeaderRead, &bytesRead, NULL);
         if (!result || bytesRead == 0) {
-            logger->error("Failed to read the full header. Bytes read: " + std::to_string(totalHeaderRead));
+            logger->error("Failed to read the full header. Bytes read: {}", std::to_string(totalHeaderRead));
             retry_count++;
             Sleep(20);  // Sleep for 20ms
             continue;
@@ -261,7 +261,7 @@ std::string IPCCore::readResponse() {
     }
 
     if (totalHeaderRead != HEADER_SIZE) {
-        logger->error("Failed to read the full header after " + std::to_string(retry_count) + " retries.");
+        logger->error("Failed to read the full header after {}", std::to_string(retry_count) + " retries.");
         return "";
     }
 
@@ -269,7 +269,7 @@ std::string IPCCore::readResponse() {
 
     // Convert the header to an integer representing the message size
     size_t messageSize = std::stoull(header);  // Handle larger numbers
-    logger->debug("Message size to read: " + std::to_string(messageSize));
+    logger->debug("Message size to read: {}", std::to_string(messageSize));
 
     // Step 2: Read the message in chunks
     std::string message;
@@ -282,16 +282,16 @@ std::string IPCCore::readResponse() {
         BOOL result = ReadFile(pipe, buffer, bytesToRead, &bytesRead, NULL);
 
         if (!result || bytesRead == 0) {
-            logger->error("Failed to read the message or end of file reached. Total bytes read: " + std::to_string(totalBytesRead));
+            logger->error("Failed to read the message or end of file reached. Total bytes read: {}", std::to_string(totalBytesRead));
             break;
         }
 
         message.append(buffer, bytesRead);
         totalBytesRead += bytesRead;
-        logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
+        logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: {}", std::to_string(totalBytesRead));
     }
 
-    logger->debug("Total bytes read: " + std::to_string(totalBytesRead));
+    logger->debug("Total bytes read: {}", std::to_string(totalBytesRead));
 
     // Verify if the message was fully read
     if (totalBytesRead != messageSize) {
@@ -300,12 +300,12 @@ std::string IPCCore::readResponse() {
         logger->debug("Message: read the entire message.");
     }
 
-    logger->debug("Message read from response pipe: " + responsePipePath);
+    logger->debug("Message read from response pipe: {}", responsePipePath);
     if (message.length() > 100) {
         logger->debug("Message truncated to 100 characters");
-        logger->debug("Message: " + message.substr(0, 100));
+        logger->debug("Message: {}", message.substr(0, 100));
     } else {
-        logger->debug("Message: " + message);
+        logger->debug("Message: {}", message);
     }
 
     return message;
@@ -386,7 +386,7 @@ std::string IPCCore::readResponseInternal(HANDLE pipe) {
                     logger->debug("Waiting for more data.");
                     return ""; // No data available right now, but the pipe is still open.
                 } else {
-                    logger->error("Failed to read the header. Error: " + std::to_string(GetLastError()));
+                    logger->error("Failed to read the header. Error: {}", std::to_string(GetLastError()));
                     return ""; // An unrecoverable error occurred, signal this as an empty response.
                 }
             }
@@ -401,7 +401,7 @@ std::string IPCCore::readResponseInternal(HANDLE pipe) {
 
         requestId = headerBuffer.substr(START_MARKER_SIZE, REQUEST_ID_SIZE);
         messageSize = std::stoull(headerBuffer.substr(START_MARKER_SIZE + REQUEST_ID_SIZE, 8));
-        logger->debug("Header read complete. Request ID: " + requestId + ", Expected message size: " + std::to_string(messageSize));
+        logger->debug("Header read complete. Request ID: " + requestId + ", Expected message size: {}", std::to_string(messageSize));
 
         headerRead = true; // Mark the header as read
     }
@@ -423,7 +423,7 @@ std::string IPCCore::readResponseInternal(HANDLE pipe) {
                 logger->debug("Waiting for more data.");
                 return ""; // No data available right now, but the pipe is still open.
             } else {
-                logger->error("Failed to read the message. Error: " + std::to_string(GetLastError()));
+                logger->error("Failed to read the message. Error: {}", std::to_string(GetLastError()));
                 return ""; // An unrecoverable error occurred, signal this as an empty response.
             }
         }
@@ -431,7 +431,7 @@ std::string IPCCore::readResponseInternal(HANDLE pipe) {
         message.append(buffer, bytesRead);
         totalBytesRead += bytesRead;
 
-        logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: " + std::to_string(totalBytesRead));
+        logger->debug("Chunk read: " + std::to_string(bytesRead) + " bytes. Total bytes read: {}", std::to_string(totalBytesRead));
 
         // Check if the end marker is present in the accumulated message
         if (message.size() >= endMarker.size()) {
@@ -464,11 +464,11 @@ std::string IPCCore::readResponseInternal(HANDLE pipe) {
 bool IPCCore::writeToPipe(HANDLE pipe, const std::string& message) {
     DWORD bytesWritten;
     if (!WriteFile(pipe, message.c_str(), message.length(), &bytesWritten, NULL)) {
-        logger->error("Failed to write to pipe: " + std::to_string(GetLastError()));
+        logger->error("Failed to write to pipe: {}", std::to_string(GetLastError()));
         return false;
     }
 
-    logger->info("Message written to pipe: " + message);
+    logger->info("Message written to pipe: {}", message);
     return true;
 }
 
@@ -477,12 +477,12 @@ std::string IPCCore::readFromPipe(HANDLE pipe) {
     DWORD bytesRead;
 
     if (!ReadFile(pipe, buffer, sizeof(buffer) - 1, &bytesRead, NULL)) {
-        logger->error("Failed to read from pipe: " + std::to_string(GetLastError()));
+        logger->error("Failed to read from pipe: {}", std::to_string(GetLastError()));
         return "";
     }
 
     buffer[bytesRead] = '\0';
-    logger->debug("Message read from pipe: " + std::string(buffer));
+    logger->debug("Message read from pipe: {}", std::string(buffer));
     return std::string(buffer);
 }
 

@@ -109,7 +109,7 @@ namespace AXInteraction {
         CGWindowID windowID = -1;
         AXError error = _AXUIElementGetWindow(highestPlugin, &windowID);
         if (error == kAXErrorSuccess) {
-            logger->debug("ID: " + std::to_string(static_cast<int>(windowID)));
+            logger->debug("ID: {}", std::to_string(static_cast<int>(windowID)));
             closeSpecificWindow(highestPlugin);
         }
     }
@@ -128,7 +128,7 @@ namespace AXInteraction {
             CGWindowID windowID = -1;
             AXError error = _AXUIElementGetWindow(plugin, &windowID);
             if (error == kAXErrorSuccess) {
-                logger->debug("ID: " + std::to_string(static_cast<int>(windowID)));
+                logger->debug("ID: {}", std::to_string(static_cast<int>(windowID)));
                 closeSpecificWindow(plugin);
                 CFRelease(plugin);
             }

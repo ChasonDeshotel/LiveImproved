@@ -52,7 +52,7 @@ namespace AXFinder {
         
         if (result == kAXErrorSuccess && windows) {
             CFIndex windowCount = CFArrayGetCount(windows);
-            logger->debug("Number of windows: " + std::to_string(windowCount));
+            logger->debug("Number of windows: {}", std::to_string(windowCount));
             
             for (CFIndex i = 0; i < windowCount; i++) {
                 AXUIElementRef window = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(windows, i));
@@ -64,10 +64,10 @@ namespace AXFinder {
                     // Convert CFStringRef to std::string
                     auto *nsString = (__bridge NSString *)windowTitle;
                     std::string title([nsString UTF8String]);
-                    logger->debug("Window " + std::to_string(i) + ": " + title);
+                    logger->debug("Window {}: {}", std::to_string(i), title);
                     CFRelease(windowTitle);
                 } else {
-                    logger->debug("Window " + std::to_string(i) + ": (No Title)");
+                    logger->debug("Window {}: (No Title)", std::to_string(i));
                 }
             }
             return windows;
@@ -488,7 +488,7 @@ namespace AXFinder {
         AXError error = AXUIElementCopyAttributeValues(appElement, kAXChildrenAttribute, 0, 100, &appElementChildren);
 
         if (error != kAXErrorSuccess || appElementChildren == nullptr) {
-            logger->error("Failed to get appElementChildren of app. Error: " + std::to_string(error));
+            logger->error("Failed to get appElementChildren of app. Error: {}", std::to_string(error));
             if (appElement) CFRelease(appElement);  // Make sure to release appElement
             return {};
         }
@@ -496,7 +496,7 @@ namespace AXFinder {
 
         std::vector<AXUIElementRef> pluginWindowsFromLiveAX;
         CFIndex childCount = CFArrayGetCount(appElementChildren);
-        logger->debug("child count: " + std::to_string(static_cast<int>(childCount)));
+        logger->debug("child count: {}", std::to_string(static_cast<int>(childCount)));
 
         for (CFIndex i = 0; i < childCount; i++) {
             if (limit != -1 && pluginWindowsFromLiveAX.size() >= static_cast<size_t>(limit)) {
@@ -506,7 +506,7 @@ namespace AXFinder {
 
             auto child = castutil::toAXUIElementRef(CFArrayGetValueAtIndex(appElementChildren, i));
             if (AXWindow::isPluginWindow(child)) {
-                logger->debug("Plugin Window: getCurrentPluginsWindow - Child " + std::to_string(static_cast<int>(i)));
+                logger->debug("Plugin Window: getCurrentPluginsWindow - Child {}", std::to_string(static_cast<int>(i)));
                 CFRetain(child);  // Retain the child before adding to the vector
                 pluginWindowsFromLiveAX.push_back(child);
             } else {

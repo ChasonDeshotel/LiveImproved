@@ -28,9 +28,7 @@ RGB hexToRGB(const std::string& hex) {
 Theme::Theme(const std::filesystem::path& filePath) {
         pugi::xml_parse_result result = doc.load_file(filePath.generic_string().c_str());
         if (!result) {
-            logger->error("Failed to load theme file: "
-            + filePath.generic_string() + " reason: "
-              + result.description());
+            logger->error("Failed to load theme file: {}. Reason: {}", filePath.generic_string(), result.description());
         }
     }
 

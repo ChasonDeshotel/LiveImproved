@@ -114,7 +114,7 @@ void ActionHandler::executeMacro(const EMacro& macro) {
                     std::optional<std::string> optionalArgument = item.arguments;
                     it->second(optionalArgument);
                 } else {
-                    logger->warn("Unknown action: " + item.actionName);
+                    logger->warn("Unknown action: {}", item.actionName);
                 }
             }
         }, step);
@@ -167,13 +167,13 @@ auto ActionHandler::handleAction(std::string action) -> void {
         std::vector<std::string> actionParts = Utils::splitString(act, ".", 1);
 
         if (actionParts.empty()) {
-            logger->warn("Malformed action: " + act);
+            logger->warn("Malformed action: {}", act);
             continue;
         }
 
         // Get the action type (first part before '.')
         std::string actionType = Utils::trim(actionParts[0]);
-        logger->debug("Processing actionType: " + actionType);
+        logger->debug("Processing actionType: {}", actionType);
 
         // Try to find the action handler in the map
         auto actionHandler = actionMap.find(actionType);
@@ -181,18 +181,18 @@ auto ActionHandler::handleAction(std::string action) -> void {
             // Check if there is an argument (second part after '.')
             if (actionParts.size() > 1) {
                 std::string args = Utils::trim(actionParts[1]);
-                logger->debug("Action has argument: " + args);
+                logger->debug("Action has argument: {}", args);
 
                 // Call the handler with the argument
                 actionHandler->second(args);
             } else {
                 // No argument, pass std::nullopt
-                logger->debug("No argument provided for action: " + actionType);
+                logger->debug("No argument provided for action: {}", actionType);
                 actionHandler->second(std::nullopt);
             }
         } else {
             // No handler found for this action type
-            logger->warn("No handler found for action type: " + actionType);
+            logger->warn("No handler found for action type: {}", actionType);
         }
     }
 }
@@ -206,7 +206,7 @@ auto ActionHandler::handleAction(std::string action) -> void {
 auto ActionHandler::handleKeyEvent(EKeyPress pressedKey) -> bool {
     auto config = configManager_();
     auto wm = windowManager_();
-//    logger->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: " + std::to_string(flags));
+//    logger->info("action handler: Key event: " + type + ", Key code: " + std::to_string(keyCode) + ", Modifiers: {}", std::to_string(flags));
 
     // static cast probably not necessary
 
@@ -215,7 +215,7 @@ auto ActionHandler::handleKeyEvent(EKeyPress pressedKey) -> bool {
     //logger->debug("searching map for pressed cmd: "   + std::to_string(pressedKey.cmd));
     //logger->debug("searching map for pressed ctrl: "  + std::to_string(pressedKey.ctrl));
     //logger->debug("searching map for pressed alt: "   + std::to_string(pressedKey.alt));
-    //logger->debug("searching map for pressed shift: " + std::to_string(pressedKey.shift));
+    //logger->debug("searching map for pressed shift: {}", std::to_string(pressedKey.shift));
     //logger->debug("searching map for pressed sent: "  + pressedKey.key);
 
     // key remaps
@@ -224,7 +224,7 @@ auto ActionHandler::handleKeyEvent(EKeyPress pressedKey) -> bool {
         executeMacro(it->second);
         return false;
     } else {
-        logger->warn("Key not found in remap: " + pressedKey.key);
+        logger->warn("Key not found in remap: {}", pressedKey.key);
     }
 
     // when the menu is open, do not send keypresses to Live

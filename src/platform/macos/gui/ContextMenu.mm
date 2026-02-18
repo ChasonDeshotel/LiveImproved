@@ -125,11 +125,11 @@
 
             if (![NSThread isMainThread]) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    logger->error("calling handleAction via dispatch: " + actionString);
+                    logger->error("calling handleAction via dispatch: {}", actionString);
                     _actionHandler()->handleAction(actionString);
                 });
             } else {
-                logger->error("calling handleAction on main thread: " + actionString);
+                logger->error("calling handleAction on main thread: {}", actionString);
                 _actionHandler()->handleAction(actionString);
             }
         } else {
@@ -142,7 +142,7 @@
 }
 
 - (void)addMenuItems:(NSMenu *)menu fromItems:(const std::vector<MenuItem>&)items {
-//    logger->info("addMenuItems size: " + std::to_string(items.size()));
+//    logger->info("addMenuItems size: {}", std::to_string(items.size()));
     for (const auto& item : items) {
         if (item.children.empty()) {
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:item.label.c_str()]

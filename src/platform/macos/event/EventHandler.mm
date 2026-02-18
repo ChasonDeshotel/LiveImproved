@@ -127,11 +127,11 @@ void EventHandler::focusApplication(pid_t pid) {
         // Check if the application is already active
         NSRunningApplication *currentApp = [NSRunningApplication currentApplication];
         if ([currentApp processIdentifier] == pid) {
-            logger->debug("Application is already in focus: " + std::to_string(pid));
+            logger->debug("Application is already in focus: {}", std::to_string(pid));
             return;
         }
 
-        logger->debug("Bringing app into focus: " + std::to_string(pid));
+        logger->debug("Bringing app into focus: {}", std::to_string(pid));
         [app activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
     }
 }
@@ -201,7 +201,7 @@ void EventHandler::logWindowInfo(NSDictionary *windowInfo) {
                  "), Size: (" + std::to_string(windowBounds.size.width) + ", " + std::to_string(windowBounds.size.height) + ")\n";
 
     // Use logHandler_()->debug to print the debug information
-    logger->debug(debugInfo);
+    logger->debug("{}", debugInfo);
 }
 
 NSArray *EventHandler::getAllWindowsForApp() {
@@ -415,7 +415,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                 CGPoint location = CGEventGetLocation(event);
                 CFRelease(event);
 
-                logger->info("target pid: " + std::to_string(targetPID));
+                logger->info("target pid: {}", std::to_string(targetPID));
 
                 // NOLINTNEXTLINE
                 auto* nativeView = reinterpret_cast<NSView *>(windowManager->getWindowHandle("SearchBox"));
@@ -428,13 +428,13 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
                 CGPoint mouseLocation = [NSEvent mouseLocation];
                 bool isOutsideApp = !NSPointInRect(mouseLocation, appBounds);
 
-                logger->debug("Mouse Location: " + std::to_string(mouseLocation.x) + ", " + std::to_string(mouseLocation.y));
-                logger->debug("App Bounds: " + std::to_string(appBounds.origin.x) + ", " + std::to_string(appBounds.origin.y) + " to " + std::to_string(appBounds.origin.x + appBounds.size.width) + ", " + std::to_string(appBounds.origin.y + appBounds.size.height));
+                logger->debug("Mouse Location: {}, {}", std::to_string(mouseLocation.x), std::to_string(mouseLocation.y));
+                logger->debug("App Bounds: {}, {} to {}, {}", std::to_string(appBounds.origin.x), std::to_string(appBounds.origin.y), std::to_string(appBounds.origin.x + appBounds.size.width), std::to_string(appBounds.origin.y + appBounds.size.height));
 
                 if (isOutsideApp) {
                     NSRect liveBounds = getLiveBounds();
                     bool isInsideLive = NSPointInRect(mouseLocation, liveBounds);
-                    logger->debug("Live Bounds: " + std::to_string(liveBounds.origin.x) + ", " + std::to_string(liveBounds.origin.y) + " to " + std::to_string(liveBounds.origin.x + liveBounds.size.width) + ", " + std::to_string(liveBounds.origin.y + liveBounds.size.height));
+                    logger->debug("Live Bounds: {}, {} to {}, {}", std::to_string(liveBounds.origin.x), std::to_string(liveBounds.origin.y), std::to_string(liveBounds.origin.x + liveBounds.size.width), std::to_string(liveBounds.origin.y + liveBounds.size.height));
 
                     if (isInsideLive) {
                         logger->debug("Click is outside app, inside Live, closing window.");
@@ -457,10 +457,10 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
 
             if (lastRightClickTime.has_value()) {
                 auto durationSinceLastClick = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastRightClickTime.value());
-                logger->debug("Duration since last click: " + std::to_string(durationSinceLastClick.count()) + " ms");
+                logger->debug("Duration since last click: {}", std::to_string(durationSinceLastClick.count()) + " ms");
 
                 if (durationSinceLastClick.count() != 0 && durationSinceLastClick.count() <= doubleClickThresholdMs) {
-                    //handler->log_->info(        logger->debug("Termination detected for PID: " + std::to_string(terminatedPID));"double right click");
+                    //handler->log_->info(        logger->debug("Termination detected for PID: {}", std::to_string(terminatedPID));"double right click");
                     dispatch_async(dispatch_get_main_queue(), ^{
                         actionHandler->handleDoubleRightClick();
                     });
@@ -501,7 +501,7 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             // if no modifiers are pressed, and we're in an AXTextField,
             // just pass the original event
             if (!pressedKey.isModifierPressed()) {
-                logger->debug(AXFinder::getFocusedElementTypeStr());
+                logger->debug("{}", AXFinder::getFocusedElementTypeStr());
                 if (AXFinder::getFocusedElementTypeStr() == "AXTextField") {
                     logger->debug("Ableton Live text field has focus. Passing event.");
                     return ogEvent;
@@ -575,7 +575,7 @@ void EventHandler::registerAppLaunch(std::function<void()> onLaunchCallback) {
         NSString *bundleID = [launchedApp bundleIdentifier];
 
         if ([bundleID isEqualToString:@"com.ableton.live"]) {
-            logger->info("Target app launched with PID: " + std::to_string(launchedPID));
+            logger->info("Target app launched with PID: {}", std::to_string(launchedPID));
             if (onLaunchCallback) {
                 onLaunchCallback();
             }
@@ -592,11 +592,11 @@ void EventHandler::registerAppTermination(std::function<void()> onTerminationCal
         NSRunningApplication *terminatedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
         NSString *terminatedBundleID = [terminatedApp bundleIdentifier];
 
-        logger->debug("Termination detected for bundle ID: " + std::string([terminatedBundleID UTF8String]));
+        logger->debug("Termination detected for bundle ID: {}", std::string([terminatedBundleID UTF8String]));
 
         NSString *targetBundleID = @"com.ableton.live";
         if ([terminatedBundleID isEqualToString:targetBundleID]) {
-            logger->info("Target application with bundle ID " + std::string([terminatedBundleID UTF8String]) + " has been terminated");
+            logger->info("Target application with bundle ID {}", std::string([terminatedBundleID UTF8String]) + " has been terminated");
             if (onTerminationCallback) {
                 onTerminationCallback();
             }

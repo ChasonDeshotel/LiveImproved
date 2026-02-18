@@ -61,8 +61,7 @@ namespace AXWindow {
 //        AXUIElementSetAttributeValue(window, kAXSizeAttribute, sizeRef);
 //        CFRelease(sizeRef);
 //
-        logger->debug("set bounds to: (" + std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(width)
-                        + "," + std::to_string(height));
+        logger->debug("set bounds to: x: {}, y: {}, w: {}, h: {}", std::to_string(x), std::to_string(y), std::to_string(width), std::to_string(height));
 
         if (posError != kAXErrorSuccess) {
             return posError;
@@ -99,7 +98,7 @@ namespace AXWindow {
         AXValueGetValue(sizeRef, static_cast<AXValueType>(kAXValueCGSizeType), &size);
 
         CGRect bounds = CGRectMake(position.x, position.y, size.width, size.height);
-        logger->info(rectToString(bounds));
+        logger->info("{}", rectToString(bounds));
 
         if (positionRef) CFRelease(positionRef);
         if (sizeRef) CFRelease(sizeRef);

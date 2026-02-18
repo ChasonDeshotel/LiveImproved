@@ -119,6 +119,7 @@ if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     target_compile_definitions(LiveImproved PRIVATE
         JUCE_APP_CONFIG_HEADER="${CMAKE_SOURCE_DIR}/src/include/juce/AppConfig.h"
     )
+    target_compile_definitions(LiveImproved PRIVATE FMT_HEADER_ONLY)
 
     # Install rules for macOS application bundle
     install(TARGETS LiveImproved
