@@ -25,6 +25,7 @@ public:
     virtual auto closeAndDeletePipes() -> void = 0;
 
     virtual auto stopIPC() -> void = 0;
+    virtual auto destroy() -> void = 0;
 
 protected:
     IIPCCore() = default;

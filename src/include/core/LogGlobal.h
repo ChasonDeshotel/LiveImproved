@@ -3,7 +3,7 @@
 #include <memory>
 
 // NOLINTBEGIN
-#include "ILogHandler.h"
+#include "ILogger.h"
 extern void initializeLogger();
-extern std::shared_ptr<ILogHandler> logger;
+extern std::shared_ptr<ILogger> logger;
 // NOLINTEND

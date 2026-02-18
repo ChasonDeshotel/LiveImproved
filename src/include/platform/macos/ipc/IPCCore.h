@@ -1,96 +1,65 @@
 #pragma once
-
 #include <atomic>
-#include <map>
+#include <functional>
 #include <mutex>
+#include <netinet/in.h>
 #include <queue>
 #include <string>
-#include <sys/_types/_useconds_t.h>
-
+#include <thread>
 #include "IIPCCore.h"
 
 class IPCCore : public IIPCCore {
 public:
     using ResponseCallback = std::function<void(const std::string&)>;
 
-    IPCCore();
+    IPCCore() = default;
     ~IPCCore() override;
-
-    IPCCore(const IPCCore &) = delete;
-    IPCCore(IPCCore &&) = delete;
-    auto operator=(const IPCCore &) -> IPCCore & = delete;
-    auto operator=(IPCCore &&) -> IPCCore & = delete;
+    IPCCore(const IPCCore&) = delete;
+    IPCCore(IPCCore&&) = delete;
+    auto operator=(const IPCCore&) -> IPCCore& = delete;
+    auto operator=(IPCCore&&) -> IPCCore& = delete;
 
     auto init() -> bool override;
-
-    [[nodiscard]] auto isInitialized() const -> bool override {
-        return isInitialized_;
-    }
-
+    void readLoop();
+    void processBuffer(std::string& buffer);
+    [[nodiscard]] auto isInitialized() const -> bool override { return isInitialized_; }
     void writeRequest(const std::string& message, ResponseCallback callback) override;
-    void writeRequest(const std::string& message) override {
-        writeRequest(message, nullptr);
-    }
-
+    void writeRequest(const std::string& message) override { writeRequest(message, nullptr); }
     auto readResponse(ResponseCallback callback) -> std::string override;
-    void drainPipe(int fd) override;
-    void closeAndDeletePipes() override;
+    void stopIPC() override { stopIPC_ = true; }
+    void destroy() override;
+    bool isInitialized() { return isInitialized_; }
 
-    void stopIPC() override {
-        stopIPC_ = true;
-    }
+    // keeping for interface compat, noop now
+    void drainPipe(int fd) override {}
+    void closeAndDeletePipes() override {}
 
 private:
-    static constexpr mode_t DEFAULT_DIRECTORY_PERMISSIONS = 0777;
-    static constexpr mode_t DEFAULT_PIPE_PERMISSIONS      = 0666;
+    static constexpr int PORT                   = 47474;
+    static constexpr size_t BUFFER_SIZE         = 8192;
+    static constexpr int MESSAGE_TRUNCATE_CHARS = 100;
 
-    static constexpr useconds_t DELAY_BETWEEN_READS = 20000;
-    static constexpr int MAX_READ_RETRIES           = 100;
-    static constexpr int MESSAGE_TRUNCATE_CHARS     = 100;
-    static constexpr int MAX_PIPE_CREATION_ATTEMPTS = 100;
-    static constexpr int MAX_PIPE_SETUP_ATTEMPTS    = 100;
-    static constexpr size_t BUFFER_SIZE             = 8192;
-
-    static constexpr std::chrono::milliseconds PIPE_CREATION_RETRY_DELAY{500};
-    static constexpr std::chrono::milliseconds PIPE_SETUP_RETRY_DELAY{500};
+    std::mutex responseMutex_;
+    std::condition_variable responseCv_;
+    std::queue<std::string> responseQueue_;
 
     std::atomic<bool> stopIPC_{false};
-    std::atomic<bool> readPipeCreated_{false};
-    std::atomic<bool> writePipeCreated_{false};
-    std::condition_variable createPipesCv_;
-    std::mutex createPipesMutex_;
-    void createPipe();
-    void createReadPipe();
-    void createWritePipe();
-
-    std::atomic<bool> readPipeReady_{false};
-    std::atomic<bool> writePipeReady_{false};
     std::atomic<bool> isInitialized_{false};
-    std::mutex initMutex_;
-    std::condition_variable initCv_;
-    void readyReadPipe();
-    void readyWritePipe();
+    std::atomic<uint64_t> nextRequestId_{0};
+    std::atomic<bool> isReady_{false};
 
+    int serverFd_{-1};
+    int clientFd_{-1};
+
+    std::thread acceptThread_;
+    std::thread readThread_;
+
+    std::mutex writeMutex_;
     std::queue<std::pair<std::string, ResponseCallback>> requestQueue_;
     std::mutex queueMutex_;
-    std::condition_variable queueCondition_;
-    std::atomic<bool>isProcessingRequest_{false};
+    std::atomic<bool> isProcessingRequest_{false};
 
+    auto formatRequest(const std::string& request, uint64_t id) -> std::string;
     auto writeRequestInternal(const std::string& message, ResponseCallback callback) -> bool;
     void processNextRequest();
-    std::atomic<uint64_t> nextRequestId_;
-    auto formatRequest(const std::string& request, uint64_t id) -> std::string;
-
-    void resetResponsePipe();
-
-    std::string requestPipePath_;
-    std::string responsePipePath_;
-
-    std::map<std::string, int> pipes_;
-
-    void removePipeIfExists(const std::string& pipeName);
-
-    auto createPipe(const std::string& pipeName) -> bool;
-    auto openPipeForWrite(const std::string& pipeName, bool nonBlocking = false) -> bool;
-    auto openPipeForRead(const std::string& pipeName, bool nonBlocking = false) -> bool;
 };

@@ -8,7 +8,7 @@
 namespace fs = std::filesystem;
 
 LogHandler::LogHandler()
-    : ILogHandler()
+    : ILogger()
     , currentLogLevel(LogLevel::LOG_DEBUG) {
     #ifdef _WIN32
         logPath = "C:\\Users\\Billy Maizere\\source\\repos\\LiveImproved\\log.txt";

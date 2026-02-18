@@ -112,3 +112,7 @@ auto IPCResilienceDecorator::closeAndDeletePipes() -> void {
 auto IPCResilienceDecorator::stopIPC() -> void {
     handleError("stopIPC", [this]() { instance_->stopIPC(); });
 }
+
+auto IPCResilienceDecorator::destroy() -> void {
+    handleError("stopIPC", [this]() { instance_->destroy(); });
+}
