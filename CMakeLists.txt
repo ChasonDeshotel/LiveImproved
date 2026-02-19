@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.0)
 # Set project name and version
 project(LiveImproved VERSION 1.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -14,7 +14,6 @@ set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO")
 set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
 
-# if(WIN32) ?
 if(MSVC)
     if(POLICY CMP0126)
         cmake_policy(SET CMP0126 NEW)
@@ -22,45 +21,18 @@ if(MSVC)
     set(BUILD_SHARED_LIBS ON)
     #set(CMAKE_CXX_COMPILER clang++)
     #set(COMPILER clang)
-
     add_compile_options(/Z7) # debug information format to C7
-
     add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_WIN32_WINNT=0x0A00)
-
     find_package(WindowsSDK REQUIRED)
-
     include_directories(${WindowsSDK_INCLUDE_DIRS})
 endif()
 
-# Set BUILD_TESTS option with a default value of OFF
 option(BUILD_TESTS "Build the tests" OFF)
 
 add_definitions(-DDEBUG)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# Custom target for running clang-tidy
-find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
-if(CLANG_TIDY_EXE)
-    add_custom_target(
-        tidy
-        COMMAND ${CMAKE_COMMAND} -E echo "Running clang-tidy..."
-        COMMAND ${CMAKE_COMMAND}
-            -DCLANG_TIDY_EXE=${CLANG_TIDY_EXE}
-            -DBUILD_DIR=${CMAKE_BINARY_DIR}
-            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-            -DHOME=$ENV{HOME}
-            -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
-            -P ${CMAKE_SOURCE_DIR}/run-clang-tidy.cmake
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMENT "Running clang-tidy on source files"
-    )
-else()
-    message(WARNING "clang-tidy not found. Static analysis will be skipped.")
-endif()
-
-# Set the C++ standard and Objective-C++ flag
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -71,23 +43,6 @@ endif()
 
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# Add non-JUCE subdirectories
-add_subdirectory(lib/yaml-cpp)
-add_subdirectory(lib/harfbuzz)
-add_subdirectory(lib/pugixml)
-
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/lib/yaml-cpp")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/lib/harfbuzz")
-
-# Always create the common_libs target
-add_library(common_libs INTERFACE)
-target_link_libraries(common_libs
-    INTERFACE
-        yaml-cpp
-        harfbuzz
-        pugixml
-)
 
 # Conditionally include JUCE and set up the main application
 if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
@@ -106,7 +61,6 @@ if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
             juce::juce_graphics
             juce::juce_events
             juce::juce_data_structures
-            common_libs
     )
 
     # JUCE-specific include directories (only for LiveImproved target)
@@ -121,27 +75,9 @@ if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     )
     target_compile_definitions(LiveImproved PRIVATE FMT_HEADER_ONLY)
 
-    # Install rules for macOS application bundle
-    install(TARGETS LiveImproved
-        BUNDLE DESTINATION /Applications
-        RUNTIME DESTINATION bin
-    )
-
-    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        # only needed for Qt??
-        # Copy additional files (like LICENSE) to the bundle
-        if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
-            add_custom_command(TARGET LiveImproved POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_SOURCE_DIR}/LICENSE
-                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
-            )
-        endif()
-    endif()
 else()
     # For tests, create a dummy executable target instead of an interface library
     add_executable(LiveImproved src/Main.cpp)
-    target_link_libraries(LiveImproved PRIVATE common_libs)
 endif()
 
 # Common include directories
@@ -157,10 +93,10 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/src/include/ipc
     ${CMAKE_SOURCE_DIR}/src/include/system
 
+    ${CMAKE_SOURCE_DIR}/src/platform/macos/system
+
     ${CMAKE_SOURCE_DIR}/lib/fmt/include
 )
-
-target_include_directories(common_libs INTERFACE ${COMMON_INCLUDE_DIRS})
 
 if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
     # JUCE-specific include directories (only for LiveImproved target when not building tests)
@@ -175,7 +111,7 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message(STATUS "Including macOS-specific directories")
-    target_include_directories(common_libs INTERFACE
+    target_include_directories(LiveImproved PRIVATE
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/event
         ${CMAKE_SOURCE_DIR}/src/include/platform/macos/gui
@@ -187,7 +123,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Including Windows-specific directories")
-    target_include_directories(common_libs INTERFACE
+    target_include_directories(LiveImproved PRIVATE
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/event
         ${CMAKE_SOURCE_DIR}/src/include/platform/windows/gui
@@ -200,7 +136,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     )
 endif()
 
-# Source files for C++ and Objective-C++
 set(SRC_CPP
     src/Main.cpp
     src/core/ConfigManager.cpp
@@ -212,13 +147,13 @@ set(SRC_CPP
     src/gui/SearchBox.cpp
     src/gui/Theme.cpp
     src/gui/WindowManager.cpp
-    src/ipc/IPCResilienceDecorator.cpp
     src/ipc/ResponseParser.cpp
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(SRC_OBJCXX
         src/platform/macos/event/EventHandler.mm
+        src/platform/macos/event/LiveObserver.mm
         src/platform/macos/event/KeySender.mm
         src/platform/macos/event/PlatformInitializer.mm
         src/platform/macos/gui/ContextMenu.mm
@@ -263,14 +198,17 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CMAKE_PREFIX_PATH "/opt/homebrew")
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(HARFBUZZ REQUIRED harfbuzz)
-    pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
+    find_package(harfbuzz REQUIRED)
+    find_package(pugixml REQUIRED)
+    find_package(yaml-cpp REQUIRED)
 
     target_link_libraries(LiveImproved
         PRIVATE
-        ${HARFBUZZ_LIBRARIES}
-        ${YAML_CPP_LIBRARIES}
+        harfbuzz::harfbuzz
+        pugixml::pugixml
+        yaml-cpp::yaml-cpp
         "-framework ApplicationServices"
         "-framework Cocoa"
         "-framework CoreFoundation"
@@ -286,9 +224,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
             XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.example.LiveImproved"
         )
-        install(TARGETS LiveImproved
-            BUNDLE DESTINATION /Applications
-            RUNTIME DESTINATION bin
+        install(FILES
+            ${CMAKE_SOURCE_DIR}/build/xcode/LiveImproved_artefacts/Debug/LiveImproved.app
+            DESTINATION /Applications
         )
         add_custom_command(TARGET LiveImproved POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
@@ -296,20 +234,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
             $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
         )
 
-        # Install rules for macOS application bundle
-	#install(TARGETS LiveImproved
-	#    BUNDLE DESTINATION /Applications
-	#    RUNTIME DESTINATION bin
-	#)
+        add_custom_command(TARGET LiveImproved POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_FILE:LiveImprovedDaemon>
+                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/MacOS/LiveImprovedDaemon
+        )
 
-        # Copy additional files (like LICENSE) to the bundle
-        #if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
-        #    add_custom_command(TARGET LiveImproved POST_BUILD
-        #        COMMAND ${CMAKE_COMMAND} -E copy
-        #        ${CMAKE_SOURCE_DIR}/LICENSE
-        #        $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/LICENSE
-        #    )
-        #endif()
     endif()
 
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -392,3 +322,33 @@ add_custom_target(build_tests
         #        test_test_ActionHandler
     COMMENT "Building all tests"
 )
+
+add_executable(LiveImprovedDaemon
+    daemon/main.mm
+    daemon/LiveObserver.mm
+)
+
+set_target_properties(LiveImprovedDaemon PROPERTIES
+    XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
+)
+
+target_include_directories(LiveImprovedDaemon PRIVATE
+    ${CMAKE_SOURCE_DIR}/daemon
+)
+
+target_link_libraries(LiveImprovedDaemon
+    PRIVATE
+        "-framework Cocoa"
+        "-framework ApplicationServices"
+
+        # maybe not needed
+        "-framework CoreFoundation"
+        "-framework CoreGraphics"
+        "-framework CoreImage"
+        "-framework CoreVideo"
+        "-framework IOKit"
+        "-framework QuartzCore"
+        "-framework Security"
+)
+

@@ -30,11 +30,17 @@ configure-xcode:
 build: configure
 	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved
 
+build-daemon: configure
+	@cmake --build $(CLI_BUILD_DIR) --target LiveImprovedDaemon
+
 build-xcode: configure-xcode
 	@xcodebuild -project $(XCODE_BUILD_DIR)/LiveImproved.xcodeproj -scheme LiveImproved build
 
+install:
+	@cp -vr build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app /Applications/
+
 run:
-	@${XCODE_BUILD_DIR}build/xcode/LiveImproved_artifacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
+	@build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
 ableton-log:
 	tail -f ~/Library/Preferences/Ableton/Live\ 12.2.2/Log.txt
@@ -53,8 +59,8 @@ run_tests: configure-tests
 		cd $(CLI_BUILD_DIR) && ctest -R $(TEST) --output-on-failure -v; \
 	fi
 
-run: configure build
-	@./build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
+#run: configure build
+#	@./build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app/Contents/MacOS/LiveImproved
 
 clean:
 	@rm -rf $(CLI_BUILD_DIR)
