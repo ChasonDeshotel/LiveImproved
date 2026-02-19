@@ -4,6 +4,7 @@
 #endif
 #include <unordered_map>
 #include <string>
+#include <thread>
 
 #include "LogGlobal.h"
 #include "Types.h"
@@ -49,22 +50,30 @@ void ActionHandler::initializeActionMap() {
     // NOTE actions must be added here and in Types.h
     actionMap["closeFocusedPlugin"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        liveInterface->closeFocusedPlugin();
+        std::thread([liveInterface]() {
+            liveInterface->closeFocusedPlugin();
+        }).detach();
     };
 
     actionMap["closeAllPlugins"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        liveInterface->closeAllPlugins();
+        std::thread([liveInterface]() {
+            liveInterface->closeAllPlugins();
+        }).detach();
     };
 
     actionMap["openAllPlugins"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        liveInterface->openAllPlugins();
+        std::thread([liveInterface]() {
+            liveInterface->openAllPlugins();
+        }).detach();
     };
 
     actionMap["tilePluginWindows"] = [this](const std::optional<std::string>& args) {
         auto liveInterface = liveInterface_();
-        liveInterface->tilePluginWindows();
+        std::thread([liveInterface]() {
+            liveInterface->tilePluginWindows();
+        }).detach();
     };
 
     actionMap["searchbox"] = [this](const std::optional<std::string>& args) {
@@ -73,20 +82,24 @@ void ActionHandler::initializeActionMap() {
     };
 
     actionMap["write-request"] = [this](const std::optional<std::string>& args) {
-        if (args) {
-            auto ipc = ipc_();
-            ipc->writeRequest(*args);
-        } else {
-            throw std::runtime_error("write-request action requires an argument");
-        }
+        std::thread([this, args]() {
+            if (args) {
+                auto ipc = ipc_();
+                ipc->writeRequest(*args);
+            } else {
+                throw std::runtime_error("write-request action requires an argument");
+            }
+        }).detach();
     };
 
     actionMap["plugin"] = [this](const std::optional<std::string>& args) {
-        if (args) {
-            this->loadItemByName(*args);
-        } else {
-            throw std::runtime_error("plugin action requires an argument");
-        }
+        std::thread([this, args]() {
+            if (args) {
+                this->loadItemByName(*args);
+            } else {
+                throw std::runtime_error("plugin action requires an argument");
+            }
+        }).detach();
     };
 }
 
