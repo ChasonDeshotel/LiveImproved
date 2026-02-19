@@ -2,6 +2,8 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <Cocoa/Cocoa.h>
 #import <AppKit/AppKit.h>
+#include <algorithm> // Required for std::transform
+#include <cctype>    // Required for std::tolower
 #include <chrono>
 #include <fstream>
 #include <functional>
@@ -82,7 +84,10 @@ std::string keyCodeToString(CGKeyCode keyCode) {
             }
             CFRelease(source);
 
-            return std::string(chars, chars + length);
+            auto keyStr = std::string(chars, chars + length);
+            std::transform(keyStr.begin(), keyStr.end(), keyStr.begin(),
+                           [](unsigned char c){ return std::tolower(c); });
+            return keyStr;
     }
 }
 
@@ -472,32 +477,39 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
 
             lastRightClickTime = now;
             return event;
+        }
+    }
 
-        } else if (eventType == kCGEventKeyDown) {
-            logger->debug("Ableton Live keydown event detected.");
+    if (eventType == kCGEventKeyDown) {
+        // TODO
+        // You can use the CGWindowListCopyWindowInfo function to get information about
+        // all windows on the screen and correlate it with the window receiving the event
+        // like see if the event app bounds match live's to determine if live is receiving
+        // the event vs a plugin window
 
-            // skip macros when a text field is focused
-//            if (liveInterface->isAnyTextFieldFocused()) {
-//                return event;
-//            }
+        CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+        CGEventFlags flags = CGEventGetFlags(event);
 
-            // TODO
-            // You can use the CGWindowListCopyWindowInfo function to get information about
-            // all windows on the screen and correlate it with the window receiving the event
-            // like see if the event app bounds match live's to determine if live is receiving
-            // the event vs a plugin window
+        EKeyPress pressedKey;
+        pressedKey.state = KeyState::Down;
+        pressedKey.shift = (flags & Shift) != 0;
+        pressedKey.ctrl  = (flags & Ctrl ) != 0;
+        pressedKey.cmd   = (flags & Cmd  ) != 0;
+        pressedKey.alt   = (flags & Alt  ) != 0;
+        pressedKey.key   = keyCodeToString(keyCode);
 
-            CGKeyCode keyCode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
-            CGEventFlags flags = CGEventGetFlags(event);
+        // to handle remapping of menu items, e.g. cmd+shift+w = open second window (why??)
+        // these are handled at the OS level, so the PID of the event will never match Live's PID
+        // TODO: limit this to only Live menu shortcuts
+        if (pressedKey.isModifierPressed()) {
+            pid_t frontPID = [[[NSWorkspace sharedWorkspace] frontmostApplication] processIdentifier];
+            if (frontPID == PID::getInstance().livePID()) {
+                bool shouldPassEvent = actionHandler->handleKeyEvent(pressedKey);
+                return shouldPassEvent ? ogEvent : nullptr;
+            }
+        }
 
-            EKeyPress pressedKey;
-            pressedKey.state = KeyState::Down;
-            pressedKey.shift = (flags & Shift) != 0;
-            pressedKey.ctrl  = (flags & Ctrl ) != 0;
-            pressedKey.cmd   = (flags & Cmd  ) != 0;
-            pressedKey.alt   = (flags & Alt  ) != 0;
-            pressedKey.key   = keyCodeToString(keyCode);
-
+        if (eventPID == PID::getInstance().livePID()) {
             // if no modifiers are pressed, and we're in an AXTextField,
             // just pass the original event
             if (!pressedKey.isModifierPressed()) {
@@ -509,7 +521,6 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             }
 
             bool shouldPassEvent = actionHandler->handleKeyEvent(pressedKey);
-
             return shouldPassEvent ? ogEvent : nullptr;
         }
     }
@@ -561,45 +572,4 @@ bool isElementFocused(AXUIElementRef element) {
         CFRelease(focused);
     }
     return false;
-}
-
-void EventHandler::registerAppLaunch(std::function<void()> onLaunchCallback) {
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidLaunchApplicationNotification
-                                                                    object:nil
-                                                                     queue:nil
-                                                                usingBlock:^(NSNotification *notification) {
-        NSDictionary *userInfo = [notification userInfo];
-        NSRunningApplication *launchedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
-
-        pid_t launchedPID = [launchedApp processIdentifier];
-        NSString *bundleID = [launchedApp bundleIdentifier];
-
-        if ([bundleID isEqualToString:@"com.ableton.live"]) {
-            logger->info("Target app launched with PID: {}", std::to_string(launchedPID));
-            if (onLaunchCallback) {
-                onLaunchCallback();
-            }
-        }
-    }];
-}
-
-void EventHandler::registerAppTermination(std::function<void()> onTerminationCallback) {
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserverForName:NSWorkspaceDidTerminateApplicationNotification
-                                                                    object:nil
-                                                                     queue:nil
-                                                                usingBlock:^(NSNotification *notification) {
-        NSDictionary *userInfo = [notification userInfo];
-        NSRunningApplication *terminatedApp = [userInfo objectForKey:NSWorkspaceApplicationKey];
-        NSString *terminatedBundleID = [terminatedApp bundleIdentifier];
-
-        logger->debug("Termination detected for bundle ID: {}", std::string([terminatedBundleID UTF8String]));
-
-        NSString *targetBundleID = @"com.ableton.live";
-        if ([terminatedBundleID isEqualToString:targetBundleID]) {
-            logger->info("Target application with bundle ID {}", std::string([terminatedBundleID UTF8String]) + " has been terminated");
-            if (onTerminationCallback) {
-                onTerminationCallback();
-            }
-        }
-    }];
 }
