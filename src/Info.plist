@@ -9,7 +9,7 @@
   <key>CFBundleVersion</key>
   <string>1.0</string>
   <key>CFBundleExecutable</key>
-  <string>LiveImproved</string>
+  <string>LiveImprovedDaemon</string>
   <key>LSBackgroundOnly</key>
   <string>1</string>
 </dict>

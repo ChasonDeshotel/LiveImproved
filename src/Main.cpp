@@ -36,7 +36,6 @@ private:
     static constexpr int LIVE_LAUNCH_DELAY = 10;
     static constexpr int DEFAULT_IPC_DELAY = 5;
 
-
 public:
     JuceApp()
         : container_(DependencyContainer::getInstance())

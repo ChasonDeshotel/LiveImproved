@@ -234,6 +234,24 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         )
 
         add_custom_command(TARGET LiveImproved POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_SOURCE_DIR}/remote_scripts
+                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/Resources/remote-scripts
+        )
+
+        add_custom_command(TARGET LiveImproved POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_SOURCE_DIR}/config
+                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/Resources/config
+        )
+
+        add_custom_command(TARGET LiveImproved POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/resources/StatusIcon.png
+                $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/Resources
+        )
+
+        add_custom_command(TARGET LiveImproved POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
                 $<TARGET_FILE:LiveImprovedDaemon>
                 $<TARGET_BUNDLE_DIR:LiveImproved>/Contents/MacOS/LiveImprovedDaemon
@@ -323,8 +341,11 @@ add_custom_target(build_tests
 )
 
 add_executable(LiveImprovedDaemon
-    daemon/main.mm
-    daemon/LiveObserver.mm
+    ${CMAKE_SOURCE_DIR}/src/daemon/main.mm
+    ${CMAKE_SOURCE_DIR}/src/daemon/LiveObserver.mm
+    ${CMAKE_SOURCE_DIR}/src/platform/macos/system/PID.mm
+    ${CMAKE_SOURCE_DIR}/src/platform/macos/system/PathFinder.mm
+    ${CMAKE_SOURCE_DIR}/src/core/LogGlobal.cpp
 )
 
 set_target_properties(LiveImprovedDaemon PROPERTIES
@@ -333,7 +354,14 @@ set_target_properties(LiveImprovedDaemon PROPERTIES
 )
 
 target_include_directories(LiveImprovedDaemon PRIVATE
-    ${CMAKE_SOURCE_DIR}/daemon
+    ${CMAKE_SOURCE_DIR}/src/daemon
+    ${CMAKE_SOURCE_DIR}/src/include/system
+    ${CMAKE_SOURCE_DIR}/src/platform/macos/system
+    ${CMAKE_SOURCE_DIR}/src/include/core
+    ${CMAKE_SOURCE_DIR}/src/include/core/sinks
+    ${CMAKE_SOURCE_DIR}/src/include/system
+    ${CMAKE_SOURCE_DIR}/src/abstract
+    ${CMAKE_SOURCE_DIR}/lib/fmt/include
 )
 
 target_link_libraries(LiveImprovedDaemon
@@ -351,3 +379,5 @@ target_link_libraries(LiveImprovedDaemon
         "-framework Security"
 )
 
+target_compile_definitions(LiveImprovedDaemon PRIVATE NO_JUCE)
+target_compile_definitions(LiveImprovedDaemon PRIVATE FMT_HEADER_ONLY)

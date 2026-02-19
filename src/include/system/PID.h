@@ -1,9 +1,6 @@
 #pragma once
 #include <vector>
 
-#include <string>
-#include "Types.h"
-
 class PID {
 public:
     static auto getInstance() -> PID&;
@@ -14,11 +11,13 @@ public:
     auto operator=(PID&&) noexcept -> PID& = delete;
 
     auto findLiveImproveds() -> std::vector<pid_t>;
+    bool isLiveRunning();
+    bool isLIMRunning();
     auto findLivePID() -> pid_t;
+    auto findLivePIDNoCache() -> pid_t;
     auto livePID() -> pid_t;
     auto appPID() -> pid_t;
     void clearLivePID();
-
     auto livePIDBlocking() -> PID*;
 
 private:
