@@ -43,8 +43,6 @@ public:
     #ifndef _WIN32
     void runPlatform() override;
     void setupQuartzEventTap() override;
-    void registerAppLaunch(std::function<void()> onLaunchCallback) override;
-    void registerAppTermination(std::function<void()> onTerminationCallback) override;
     #endif
 
     void focusLim() override;
