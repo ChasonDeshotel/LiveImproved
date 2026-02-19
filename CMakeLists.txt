@@ -153,7 +153,6 @@ set(SRC_CPP
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(SRC_OBJCXX
         src/platform/macos/event/EventHandler.mm
-        src/platform/macos/event/LiveObserver.mm
         src/platform/macos/event/KeySender.mm
         src/platform/macos/event/PlatformInitializer.mm
         src/platform/macos/gui/ContextMenu.mm
