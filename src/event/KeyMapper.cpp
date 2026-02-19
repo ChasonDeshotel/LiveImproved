@@ -91,7 +91,7 @@ auto KeyMapper::buildRegexPattern() const -> std::string {
 //    std::string pattern = "^((" + modifierPart + "\\+)*[\\p{L}\\d\\-\\.])$"; // p{L} matches a single Unicode letter
    // std::string pattern = "^((" + modifierPart + "\\+)*[a-zA-Z0-9])$"; // p{L} matches a single Unicode letter
 
-    std::string pattern = "^(?:(?:" + modifierPart + ")\\+)*(?:[a-zA-Z0-9]|F[1-9]|F1[0-2]|delete|enter|escape|space|tab|backspace)$";
+    std::string pattern = "^(?:(?:" + modifierPart + ")\\+)*(?:[a-zA-Z0-9]|F[1-9]|F1[0-2]|delete|enter|escape|space|tab|backspace|leftarrow|uparrow|downarrow|rightarrow)$";
     return pattern;
 }
 
