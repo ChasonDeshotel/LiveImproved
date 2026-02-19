@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 class ERect;
 class IActionHandler;
 class WindowManager;
@@ -17,8 +15,6 @@ public:
     
     virtual auto runPlatform() -> void = 0;
     virtual auto setupQuartzEventTap() -> void = 0;
-    virtual auto registerAppLaunch(std::function<void()> onLaunchCallback) -> void = 0;
-    virtual auto registerAppTermination(std::function<void()> onTerminationCallback) -> void = 0;
 
     #ifdef _WIN32
 //    virtual auto setupWindowsEventHook() -> void = 0;
