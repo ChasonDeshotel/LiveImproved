@@ -83,6 +83,10 @@ struct NamedKeys {
             , "space"
             , "tab"
             , "backspace"
+            , "leftarrow"
+            , "uparrow"
+            , "downarrow"
+            , "rightarrow"
         };
         return namedKeys;
     }
