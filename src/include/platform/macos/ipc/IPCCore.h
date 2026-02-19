@@ -1,6 +1,7 @@
 #pragma once
 #include <atomic>
 #include <functional>
+#include <map>
 #include <mutex>
 #include <netinet/in.h>
 #include <queue>
@@ -19,13 +20,13 @@ public:
     auto operator=(const IPCCore&) -> IPCCore& = delete;
     auto operator=(IPCCore&&) -> IPCCore& = delete;
 
-    auto init() -> bool override;
+    void init() override;
     void readLoop();
     void processBuffer(std::string& buffer);
-    [[nodiscard]] auto isInitialized() const -> bool override { return isInitialized_; }
+    auto isInitialized() const -> bool override { return isInitialized_; }
     void writeRequest(const std::string& message, ResponseCallback callback) override;
     void writeRequest(const std::string& message) override { writeRequest(message, nullptr); }
-    auto readResponse(ResponseCallback callback) -> std::string override;
+    auto readResponse(uint64_t id, ResponseCallback callback) -> std::string override;
     void stopIPC() override { stopIPC_ = true; }
     void destroy() override;
     bool isInitialized() { return isInitialized_; }
@@ -41,18 +42,21 @@ private:
 
     std::mutex responseMutex_;
     std::condition_variable responseCv_;
-    std::queue<std::string> responseQueue_;
+    //std::queue<std::string> responseQueue_;
+    std::map<uint64_t, std::string> responseQueue_;
 
     std::atomic<bool> stopIPC_{false};
     std::atomic<bool> isInitialized_{false};
-    std::atomic<uint64_t> nextRequestId_{0};
+    std::atomic<uint64_t> nextRequestId_{420};
     std::atomic<bool> isReady_{false};
 
     int serverFd_{-1};
     int clientFd_{-1};
 
+    std::thread initThread_;
     std::thread acceptThread_;
     std::thread readThread_;
+    std::thread writeThread_;
 
     std::mutex writeMutex_;
     std::queue<std::pair<std::string, ResponseCallback>> requestQueue_;

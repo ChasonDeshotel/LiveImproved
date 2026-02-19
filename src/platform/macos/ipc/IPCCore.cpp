@@ -10,7 +10,14 @@
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
+#include <fmt/format.h>
 
+#ifndef TEST_BUILD
+#include <JuceHeader.h>
+#endif
+
+#include "DependencyContainer.h"
+#include "IPluginManager.h"
 #include "LogGlobal.h"
 #include "PathFinder.h"
 
@@ -27,45 +34,58 @@ void IPCCore::destroy() {
         clientFd_ = -1;
     }
     
-    if (acceptThread_.joinable()) acceptThread_.join();
+    if (initThread_.joinable()) initThread_.join();
     if (readThread_.joinable()) readThread_.join();
+    if (writeThread_.joinable()) writeThread_.join();
 }
 
-// IPCCore.cpp
-auto IPCCore::init() -> bool {
+void IPCCore::init() {
+    // close stale socket if we're holding it
     if (serverFd_ != -1) {
-        logger->info("IPCCore already initialized, skipping");
-        return true;
+        close(serverFd_);
+        serverFd_ = -1;
     }
-    serverFd_ = socket(AF_INET, SOCK_STREAM, 0);
-    
-    sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    addr.sin_port = htons(47474);
 
-    if (bind(serverFd_, (sockaddr*)&addr, sizeof(addr)) < 0) {
-        logger->error("Failed to bind: {}", std::string(strerror(errno)));
-        return false;
-    }
-    
-    listen(serverFd_, 1);
-    logger->info("Listening on port {}", std::to_string(PORT));
-
-    acceptThread_ = std::thread([this]() {
-        clientFd_ = accept(serverFd_, nullptr, nullptr);
-        if (clientFd_ < 0) return;
+    initThread_ = std::thread([this]() {
+        while (!stopIPC_) {
+            serverFd_ = socket(AF_INET, SOCK_STREAM, 0);
+            
+            int opt = 1;
+            setsockopt(serverFd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+            setsockopt(serverFd_, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+            
+            sockaddr_in addr{};
+            addr.sin_family = AF_INET;
+            addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+            addr.sin_port = htons(PORT);
+            
+            if (bind(serverFd_, (sockaddr*)&addr, sizeof(addr)) == 0) break;
+            
+            logger->warn("Bind failed, retrying: {}", strerror(errno));
+            close(serverFd_);
+            serverFd_ = -1;
+            juce::Thread::sleep(1000);
+        }
+        
+        listen(serverFd_, 1);
+        logger->info("Listening on port {}", PORT);
+        
+        while (!stopIPC_) {
+            clientFd_ = accept(serverFd_, nullptr, nullptr);
+            if (clientFd_ >= 0) break;
+            logger->info("Waiting for remote script...");
+            juce::Thread::sleep(500);
+        }
+        
+        if (stopIPC_) return false;
+        
         logger->info("Python remote script connected");
         isInitialized_ = true;
-        
-        // start read loop once connected
         readThread_ = std::thread(&IPCCore::readLoop, this);
         readThread_.detach();
+        logger->info("IPCCore::init() read/write enabled");
+        return true;
     });
-    acceptThread_.detach();
-
-    logger->info("IPCCore::init() read/write enabled");
-    return true;
 }
 
 auto IPCCore::readLoop() -> void {
@@ -87,10 +107,8 @@ auto IPCCore::readLoop() -> void {
             
             buffer.append(chunk.data(), bytesRead);
 
-            logger->info("received: {}", chunk.data());
-            
             size_t endPos = buffer.find("END_OF_MESSAGE");
-            if (endPos == std::string::npos) continue; // not done yet
+            if (endPos == std::string::npos) continue;
             
             size_t startPos = buffer.find("START_");
             if (startPos == std::string::npos) {
@@ -99,13 +117,24 @@ auto IPCCore::readLoop() -> void {
             }
             
             std::string fullMessage = buffer.substr(startPos, endPos - startPos);
+            uint64_t responseId = std::stoull(fullMessage.substr(6, 8));
+            std::string body = fullMessage.substr(22);
             buffer.erase(0, endPos + 14); // 14 = len("END_OF_MESSAGE")
+                                          //
+            logger->info("full message: {}", fullMessage);
             
             {
                 std::lock_guard<std::mutex> lock(responseMutex_);
-                responseQueue_.push(fullMessage);
+                logger->info("pushing to response queue, size before: {}", responseQueue_.size());
+                logger->info("pushing message: id: {} | message: {}", responseId, body);
+
+                if (body == "SHUTDOWN") {
+                    logger->warn("LiveImproved MIDI Remote Script shutting down");
+                }
+
+                responseQueue_[responseId] = body;
             }
-            responseCv_.notify_one();
+            responseCv_.notify_all();
         }
         
         if (stopIPC_) break;
@@ -118,19 +147,26 @@ auto IPCCore::readLoop() -> void {
             continue;
         }
         logger->info("Client reconnected");
+        isInitialized_ = true;
+
+        logger->info("refreshing plugin cache");
+        DependencyContainer::getInstance().resolve<IPluginManager>()->refreshPlugins();
     }
 }
 
-auto IPCCore::readResponse(ResponseCallback callback) -> std::string {
+auto IPCCore::readResponse(uint64_t id, ResponseCallback callback) -> std::string {
     std::unique_lock<std::mutex> lock(responseMutex_);
-    responseCv_.wait(lock, [this] { 
-        return !responseQueue_.empty() || stopIPC_; 
+    responseCv_.wait(lock, [this, id] { 
+        return responseQueue_.count(id) || stopIPC_; 
     });
     
-    if (stopIPC_ || responseQueue_.empty()) return "";
+    if (stopIPC_) return "";
     
-    std::string message = responseQueue_.front();
-    responseQueue_.pop();
+    std::string message = responseQueue_[id];
+    logger->info("message: {}", message);
+    logger->info("id: {}", id);
+
+    responseQueue_.erase(id);
     lock.unlock();
     
     if (callback) callback(message);
@@ -144,24 +180,20 @@ auto IPCCore::writeRequest(const std::string& message, ResponseCallback callback
         return;
     }
     // just write directly, no chunking, no queue needed for simple case
-    std::string formatted = formatRequest(message, nextRequestId_++);
+    auto id = nextRequestId_++;
+    std::string formatted = formatRequest(message, id);
     send(clientFd_, formatted.c_str(), formatted.length(), 0);
     // read response in thread
-    std::thread([this, callback]() { readResponse(callback); }).detach();
+    writeThread_ = std::thread([this, id, callback]() { readResponse(id, callback); });
+    writeThread_.detach();
 }
 
 auto IPCCore::formatRequest(const std::string& message, uint64_t id) -> std::string {
-    size_t messageLength = message.length();
+    std::string formattedRequest = fmt::format("START_{:08d}{:08d}{}", 
+        id % 100000000, 
+        message.length(), 
+        message);
 
-    std::ostringstream idStream;
-    idStream << std::setw(8) << std::setfill('0') << (id % 100000000); // NOLINT
-    std::string paddedId = idStream.str();
-
-    std::ostringstream markerStream;
-    markerStream << "START_" << paddedId << std::setw(8) << std::setfill('0') << messageLength; // NOLINT
-    std::string start_marker = markerStream.str();
-
-    std::string formattedRequest = start_marker + message;
     logger->debug("Formatted request (truncated): {}", formattedRequest.substr(0, 50) + "..."); // NOLINT
 
     return formattedRequest;
