@@ -14,13 +14,13 @@ public:
     IIPCCore(IIPCCore&&) = delete;
     auto operator=(IIPCCore&&) -> IIPCCore& = delete;
 
-    virtual auto init() -> bool = 0;
+    virtual void init() = 0;
     [[nodiscard]] virtual auto isInitialized() const -> bool = 0;
 
     virtual auto writeRequest(const std::string& message) -> void = 0;
     virtual auto writeRequest(const std::string& message, ResponseCallback callback) -> void = 0;
 
-    virtual auto readResponse(ResponseCallback callback) -> std::string = 0;
+    virtual auto readResponse(uint64_t id, ResponseCallback callback) -> std::string = 0;
     virtual auto drainPipe(int fd) -> void = 0;
     virtual auto closeAndDeletePipes() -> void = 0;
 
