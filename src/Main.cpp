@@ -1,24 +1,18 @@
 #ifndef TEST_BUILD
 #include <JuceHeader.h>
 #endif
-//#include <dispatch/dispatch.h>
-//#include <unistd.h>
-#include <chrono>
-#include <future>
-#include <thread>
 #include <utility>
 
 #include "LogGlobal.h"
 #include "PathFinder.h"
 
-#include "PlatformInitializer.h"
-#include "DependencyContainer.h"
-
 #include "IEventHandler.h"
 #include "IIPCCore.h"
 #include "ILiveInterface.h"
 #include "IPCCore.h"
-#include "IPCResilienceDecorator.h"
+
+#include "DependencyContainer.h"
+#include "PlatformInitializer.h"
 
 #include "ActionHandler.h"
 #include "ConfigManager.h"
@@ -33,7 +27,6 @@
 #include "Theme.h"
 #include "WindowManager.h"
 
-
 class JuceApp : public juce::JUCEApplication {
 private:
     DependencyContainer& container_;
@@ -42,6 +35,7 @@ private:
     static constexpr int RESTART_DELAY_MS = 5000;
     static constexpr int LIVE_LAUNCH_DELAY = 10;
     static constexpr int DEFAULT_IPC_DELAY = 5;
+
 
 public:
     JuceApp()
@@ -59,6 +53,21 @@ public:
     }
 
     void initialise(const juce::String& commandLineArgs = "") override {
+        for (auto pid : PID::getInstance().findLiveImproveds()) {
+            if (pid != PID::getInstance().appPID()) {
+                logger->warn("Already running LiveImproved instance with PID {} will to now be kill.", pid);
+                kill(pid, SIGTERM);
+            }
+        }
+        juce::Thread::sleep(500);
+
+        for (auto pid : PID::getInstance().findLiveImproveds()) {
+            if (pid != PID::getInstance().appPID()) {
+                logger->warn("Stubborn LiveImproved instance with PID {} now is get killed but more.", pid);
+                kill(pid, SIGKILL);
+            }
+        }
+
         //
         // TODO add check for is LES running
         //
@@ -68,36 +77,7 @@ public:
 
         juce::LookAndFeel::setDefaultLookAndFeel(limLookAndFeel_.get());
 
-        // use of DependencyRegisterer causes a JuceAssertion error
-        // so we won't wrap this dependency
-        container_.registerFactory<IEventHandler>(
-            [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
-                // We can delay these resolutions if needed
-                return std::make_shared<EventHandler>(
-                    [&c]() { return c.resolve<IActionHandler>(); }
-                    , [&c]() { return c.resolve<WindowManager>(); }
-                );
-            }
-            , DependencyContainer::Lifetime::Singleton
-        );
-
-        // If Live already exists, go straight to launch
-        // If not, add a the app launch callback
-        // TODO needs a isRunning for multiple instances?
-        if (PID::getInstance().livePID() == -1) {
-            container_.resolve<IEventHandler>()->registerAppLaunch([this]() {
-                logger->info("launch callback called");
-                // delay to let Live fully start up
-                juce::Thread::sleep(LIVE_LAUNCH_DELAY);
-                this->onLiveLaunch(2);
-            });
-        } else {
-            onLiveLaunch(DEFAULT_IPC_DELAY);
-        }
-
-        container_.resolve<IEventHandler>()->registerAppTermination([this]() {
-            restartApplication();
-        });
+        onLiveLaunch(DEFAULT_IPC_DELAY);
     }
 
     void onLiveLaunch(int ipcCallDelay) {
@@ -106,6 +86,7 @@ public:
         DependencyRegisterer r(std::make_shared<JuceApp>());
         r.configFiles();
         r.theme();
+        r.eventHandler();
         r.liveInterfaceAndStartObservers();
         r.responseParser();
         r.keySender();
@@ -124,13 +105,6 @@ public:
             juce::Thread::sleep(100);
         }
 
-        juce::Thread::sleep(3000); // wait for plugins cache to populate on the py side
-
-        //container_.resolve<IIPCCore>()->writeRequest("READY", [this](const std::string& response) {
-        //    logger->info("received READY response: {}", response);
-        //});
-
-        //// TODO: IPC queue should be able to handle more writes without sleep
         logger->info("refreshing plugin cache");
         container_.resolve<IPluginManager>()->refreshPlugins();
 
@@ -141,45 +115,13 @@ public:
         #endif
     }
 
-    void restartApplication() {
-        juce::String executablePath = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getFullPathName();
-        logger->info("executable path: {}", executablePath.toStdString());
-
-        // Spawn a new process to re-launch the application
-        juce::ChildProcess process;
-        if (process.start(executablePath)) {
-            logger->info("Restarting application...");
-
-            auto ipc = container_.resolve<IIPCCore>();
-            ipc->stopIPC();
-            ipc->destroy();
-
-            // Terminate the current process after the new one starts
-            juce::Thread::sleep(RESTART_DELAY_MS);
-            juce::JUCEApplicationBase::quit();
-            // std::exit(0) for the hammer
-
-        } else {
-            logger->error("Failed to start new process");
-        }
-    }
-
     void shutdown() override {
-        logger->info("shutdown() called");
         try {
             auto ipc = this->container_.resolve<IIPCCore>();
             if (ipc) {
                 logger->info("stopping IPC...");
                 ipc->stopIPC();
-
-                std::promise<void> closePromise;
-                std::future<void> closeFuture = closePromise.get_future();
-
-                std::thread([&closePromise, ipc, this]() {
-                    ipc->closeAndDeletePipes();
-                    closePromise.set_value();  // Notify that pipes are closed
-                }).detach();
-                closeFuture.wait();
+                ipc->destroy();
             }
         } catch (const std::exception& e) {
             logger->error("Failed to resolve IIPCCore: {}", std::string(e.what()));
@@ -187,7 +129,7 @@ public:
             logger->error("Unknown error occurred while resolving IIPCCore.");
         }
 
-        logger->info("bye");
+        logger->info("Goodbye.");
     }
 
     class DependencyRegisterer {
@@ -241,7 +183,6 @@ public:
         void liveInterfaceAndStartObservers() {
             app->container_.registerFactory<ILiveInterface>(
                 [](DependencyContainer& c) -> std::shared_ptr<ILiveInterface> {
-                    // We can delay these resolutions if needed
                     return std::make_shared<LiveInterface>(
                         [&c]() { return c.resolve<IEventHandler>(); }
                     );
@@ -268,11 +209,7 @@ public:
         void ipc() {
             app->container_.registerFactory<IIPCCore>(
                 [](DependencyContainer& c) -> std::shared_ptr<IIPCCore> {
-                    return std::make_shared<IPCResilienceDecorator>(
-                        []() {
-                            return std::make_shared<IPCCore>();
-                        }
-                    );
+                    return std::make_shared<IPCCore>();
                 }
                 , DependencyContainer::Lifetime::Singleton
             );
@@ -290,11 +227,21 @@ public:
             );
         }
 
+        void eventHandler() {
+            app->container_.registerFactory<IEventHandler>(
+                [](DependencyContainer& c) -> std::shared_ptr<IEventHandler> {
+                    return std::make_shared<EventHandler>(
+                        [&c]() { return c.resolve<IActionHandler>(); }
+                        , [&c]() { return c.resolve<WindowManager>(); }
+                    );
+                }
+                , DependencyContainer::Lifetime::Singleton
+            );
+        }
+
         void actionHandler() {
             app->container_.registerFactory<IActionHandler>(
                 [](DependencyContainer& c) -> std::shared_ptr<IActionHandler> {
-
-                    // We can delay these resolutions if needed
                     return std::make_shared<ActionHandler>(
                         [&c]() { return c.resolve<IPluginManager>(); }
                         , [&c]() { return c.resolve<WindowManager>(); }
@@ -311,7 +258,6 @@ public:
         void windowManager() {
             app->container_.registerFactory<WindowManager>(
                 [](DependencyContainer& c) -> std::shared_ptr<WindowManager> {
-                    // We can delay these resolutions if needed
                     return std::make_shared<WindowManager>(
                         [&c]() { return c.resolve<IPluginManager>(); }
                         , [&c]() { return c.resolve<IEventHandler>(); }
