@@ -6,7 +6,10 @@
 #include "LogHandler.h"
 #include "PathFinder.h"
 
-
+#if !defined(TEST_BUILD) && !defined(NO_JUCE)
+#include "JUCESink.h"
+#endif
+#include "FileSink.h"
 
 // NOLINTBEGIN
 std::shared_ptr<ILogger> logger = nullptr;
@@ -24,6 +27,8 @@ extern void initializeLogger() {
                 logHandler->addSink(fileSink);
             }
         }
+        #if !defined(TEST_BUILD) && !defined(NO_JUCE)
         logHandler->addSink(std::make_shared<JUCELogSink>());
+        #endif
     }
 }

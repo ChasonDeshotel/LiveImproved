@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <fmt/format.h>
 
-#ifndef TEST_BUILD
+#if !defined(TEST_BUILD) && !defined(NO_JUCE)
 #include <JuceHeader.h>
 #endif
 
@@ -18,7 +18,10 @@
 #include "LogHandler.h"
 #include "LogSink.h"
 #include "FileSink.h"
+
+#if !defined(TEST_BUILD) && !defined(NO_JUCE)
 #include "JUCESink.h"
+#endif
 
 namespace fs = std::filesystem;
 

@@ -18,14 +18,14 @@ configure-tests:
 	@cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTS=ON -S . -B $(CLI_BUILD_DIR)
 	@ln -sf $(realpath $(CLI_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
-configure-xcode:
-	@mkdir -p $(XCODE_BUILD_DIR)
-	@cmake -G "Xcode" \
-		-DCMAKE_OSX_ARCHITECTURES="arm64" \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-		-DBUILD_TESTS=OFF \
-		-S . -B $(XCODE_BUILD_DIR)
-	@ln -sf $(realpath $(XCODE_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
+#configure:
+#	@mkdir -p $(XCODE_BUILD_DIR)
+#	@cmake -G "Xcode" \
+#		-DCMAKE_OSX_ARCHITECTURES="arm64" \
+#		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+#		-DBUILD_TESTS=OFF \
+#		-S . -B $(XCODE_BUILD_DIR)
+#	@ln -sf $(realpath $(XCODE_BUILD_DIR))/compile_commands.json ./build/compile_commands.json
 
 build: configure
 	@cmake --build $(CLI_BUILD_DIR) --target LiveImproved
@@ -33,8 +33,8 @@ build: configure
 build-daemon: configure
 	@cmake --build $(CLI_BUILD_DIR) --target LiveImprovedDaemon
 
-build-xcode: configure-xcode
-	@xcodebuild -project $(XCODE_BUILD_DIR)/LiveImproved.xcodeproj -scheme LiveImproved build
+#build-xcode: configure-xcode
+#	@xcodebuild -project $(XCODE_BUILD_DIR)/LiveImproved.xcodeproj -scheme LiveImproved build
 
 install:
 	@cp -vr build/macos-cli/LiveImproved_artefacts/Debug/LiveImproved.app /Applications/

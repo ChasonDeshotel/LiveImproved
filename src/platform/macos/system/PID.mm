@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sys/sysctl.h>
+#include <sys/proc.h>
 #include <libproc.h>
 #include <dispatch/dispatch.h>
 #include <unistd.h>
@@ -22,6 +23,10 @@ PID::~PID() {}
 PID& PID::getInstance() {
     static PID instance;
     return instance;
+}
+
+bool PID::isLIMRunning() {
+    return findLiveImproveds().size() > 0;
 }
 
 std::vector<pid_t> PID::findLiveImproveds() {
@@ -48,6 +53,7 @@ std::vector<pid_t> PID::findLiveImproveds() {
     for (int i = 0; i < procCount; i++) {
         struct kinfo_proc *proc = &procs[i];
         if (strcmp(proc->kp_proc.p_comm, "LiveImproved") == 0) {
+            if (proc->kp_proc.p_stat == SZOMB) continue; // skip zombies
             pid_t pid = proc->kp_proc.p_pid;
             out.emplace_back(pid);
             logger->info("LiveImproved found with PID: {}", std::to_string(pid));
@@ -58,11 +64,20 @@ std::vector<pid_t> PID::findLiveImproveds() {
     return out;
 }
 
+bool PID::isLiveRunning() {
+    return findLivePIDNoCache() != -1;
+}
+
 pid_t PID::findLivePID() {
     if (abletonLivePID_ != -1) {
       return abletonLivePID_;
     }
+    auto pid = findLivePIDNoCache();
+    abletonLivePID_ = pid;
+    return pid;
+}
 
+pid_t PID::findLivePIDNoCache() {
     int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
     size_t len;
 
@@ -80,14 +95,14 @@ pid_t PID::findLivePID() {
     }
 
     int procCount = static_cast<int>(len / sizeof(struct kinfo_proc));
-    
+
     for (int i = 0; i < procCount; i++) {
         struct kinfo_proc *proc = &procs[i];
         if (strcmp(proc->kp_proc.p_comm, "Live") == 0) {
+            if (proc->kp_proc.p_stat == SZOMB) continue; // skip zombies
             pid_t pid = proc->kp_proc.p_pid;
             free(procs);
             logger->info("Ableton Live found with PID: {}", std::to_string(pid));
-            abletonLivePID_ = pid;
             return pid;
         }
     }
