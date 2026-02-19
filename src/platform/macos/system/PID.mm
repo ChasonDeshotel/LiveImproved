@@ -7,13 +7,14 @@
 #include <libproc.h>
 #include <dispatch/dispatch.h>
 #include <unistd.h>
+#include <vector>
 
 #include "LogGlobal.h"
 
 #include "PID.h"
 
 PID::PID()
-    : abletonLivePID(-1)
+    : abletonLivePID_(-1)
 {}
 
 PID::~PID() {}
@@ -23,18 +24,48 @@ PID& PID::getInstance() {
     return instance;
 }
 
-pid_t PID::findLivePID() {
-//    logger->info("PID::findWithSysctl() called");
+std::vector<pid_t> PID::findLiveImproveds() {
+    std::vector<pid_t> out;
 
-    if (abletonLivePID != -1) {
-//      logger->info("PID::findByName() - returning cached result");
-      return abletonLivePID;
+    int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
+    size_t len;
+
+    if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0) {
+        logger->error("sysctl failed to get process list size");
+        return {};
+    }
+
+    struct kinfo_proc *procs = (struct kinfo_proc *)malloc(len);
+
+    if (sysctl(mib, 4, procs, &len, NULL, 0) < 0) {
+        logger->error("sysctl failed to get process list");
+        free(procs);
+        return {};
+    }
+
+    int procCount = static_cast<int>(len / sizeof(struct kinfo_proc));
+    
+    for (int i = 0; i < procCount; i++) {
+        struct kinfo_proc *proc = &procs[i];
+        if (strcmp(proc->kp_proc.p_comm, "LiveImproved") == 0) {
+            pid_t pid = proc->kp_proc.p_pid;
+            out.emplace_back(pid);
+            logger->info("LiveImproved found with PID: {}", std::to_string(pid));
+        }
+    }
+
+    free(procs);
+    return out;
+}
+
+pid_t PID::findLivePID() {
+    if (abletonLivePID_ != -1) {
+      return abletonLivePID_;
     }
 
     int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
     size_t len;
 
-    // Get the size of the process list
     if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0) {
         logger->error("sysctl failed to get process list size");
         return -1;
@@ -52,12 +83,11 @@ pid_t PID::findLivePID() {
     
     for (int i = 0; i < procCount; i++) {
         struct kinfo_proc *proc = &procs[i];
-//        logger->info(proc->kp_proc.p_comm);
         if (strcmp(proc->kp_proc.p_comm, "Live") == 0) {
             pid_t pid = proc->kp_proc.p_pid;
             free(procs);
             logger->info("Ableton Live found with PID: {}", std::to_string(pid));
-            abletonLivePID = pid;
+            abletonLivePID_ = pid;
             return pid;
         }
     }
@@ -69,9 +99,9 @@ pid_t PID::findLivePID() {
 
 pid_t PID::livePID() {
 //    logger->info("livePID() called");
-    if (abletonLivePID != -1) {
+    if (abletonLivePID_ != -1) {
 //      logger->info("PID::livePID() - returning cached result");
-      return abletonLivePID;
+      return abletonLivePID_;
     }
 
     return findLivePID();
@@ -91,4 +121,8 @@ PID* PID::livePIDBlocking() {
     }
   
     return this;
+}
+
+void PID::clearLivePID() {
+    abletonLivePID_ = -1;
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 #include <string>
 #include "Types.h"
@@ -12,9 +13,11 @@ public:
     auto operator=(const PID&) -> PID& = delete;
     auto operator=(PID&&) noexcept -> PID& = delete;
 
+    auto findLiveImproveds() -> std::vector<pid_t>;
     auto findLivePID() -> pid_t;
     auto livePID() -> pid_t;
     auto appPID() -> pid_t;
+    void clearLivePID();
 
     auto livePIDBlocking() -> PID*;
 
@@ -22,5 +25,5 @@ private:
     PID();
     ~PID();
 
-    pid_t abletonLivePID = -1;
+    pid_t abletonLivePID_ = -1;
 };
