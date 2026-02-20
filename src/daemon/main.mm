@@ -5,6 +5,8 @@
 #include <thread>
 #include <filesystem>
 #include <libproc.h>
+#include <spawn.h>
+#include <signal.h>
 
 #include "LiveObserver.h"
 #include "PID.h"
@@ -12,8 +14,10 @@
 #include "LogGlobal.h"
 #include "LogHandler.h"
 #include "FileSink.h"
+#include "PathFinder.h"
 
 std::shared_ptr<ILogger> dLogger = std::make_shared<LogHandler>();
+std::atomic<bool> running_{true};
 
 // fuck globals
 class Daemon;
@@ -24,43 +28,6 @@ static inline NSString* toNS(const std::string& s) {
     return [NSString stringWithUTF8String:s.c_str()];
 }
 
-NSString* getLIMPrefsDir() {
-    return [@"~/Library/Preferences/LiveImproved" stringByExpandingTildeInPath];
-}
-
-NSString* getLogPath() {
-    return [@"~/Library/Logs/LiveImproved" stringByExpandingTildeInPath];
-}
-
-NSString* getLivePrefsDir() {
-    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-    auto pid = PID::getInstance().findLivePID();
-    proc_pidpath(pid, pathbuf, sizeof(pathbuf));
-
-    std::filesystem::path execPath = pathbuf;
-    auto appPath = toNS(execPath.parent_path().parent_path().parent_path());
-
-    auto* liveBundle = [NSBundle bundleWithPath:appPath];
-    NSString* version = [liveBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    std::string shortVersion = [[version componentsSeparatedByString:@" "].firstObject UTF8String];
-    auto latestVersionPathStr = std::string("~/Library/Preferences/Ableton/Live ") + shortVersion;
-
-    auto nsPathStr = toNS(latestVersionPathStr);
-    nsPathStr = [nsPathStr stringByExpandingTildeInPath];
-    return nsPathStr;
-}
-
-std::string getRemoteScriptsPath() {
-    NSString* pathStr = getLivePrefsDir();
-    std::string pathStdStr = [pathStr UTF8String];
-    NSString* cfgPath = [pathStr stringByAppendingPathComponent:@"Library.cfg"];
-    NSData* data = [NSData dataWithContentsOfFile:cfgPath];
-    NSXMLDocument* doc = [[NSXMLDocument alloc] initWithData:data options:0 error:nil];
-    NSArray* nodes = [doc nodesForXPath:@"//UserLibrary/LibraryProject/ProjectPath/@Value" error:nil];
-    std::string projectPath = [[[[nodes firstObject] stringValue] stringByAppendingPathComponent:@"User Library/Remote Scripts/LiveImproved"] UTF8String];
-    return projectPath;
-}
-
 void installRemoteScriptsMaybe(bool force = false) {
     NSString* bundlePath = [[NSBundle mainBundle] bundlePath];
     std::filesystem::path bundledRemoteScriptsPath = [[[[NSBundle mainBundle] bundlePath]
@@ -69,10 +36,12 @@ void installRemoteScriptsMaybe(bool force = false) {
     // TODO version check to update remote scripts
     try {
         if (force) {
-            std::filesystem::copy(bundledRemoteScriptsPath, getRemoteScriptsPath());
+            dLogger->info("force installing bundled MIDI Remote Scripts");
+            std::filesystem::copy(bundledRemoteScriptsPath, PathFinder::getRemoteScriptsPath());
         } else {
-            if (!std::filesystem::exists(getRemoteScriptsPath())) {
-                std::filesystem::copy(bundledRemoteScriptsPath, getRemoteScriptsPath());
+            if (!std::filesystem::exists(PathFinder::getRemoteScriptsPath())) {
+                dLogger->info("installing bundled MIDI Remote Scripts");
+                std::filesystem::copy(bundledRemoteScriptsPath, PathFinder::getRemoteScriptsPath());
             }
         }
     } catch (const fs::filesystem_error& ex) {
@@ -85,31 +54,21 @@ void installConfigFilesMaybe(bool force = false) {
     std::filesystem::path bundledConfigPath = [[[[NSBundle mainBundle] bundlePath]
                             stringByAppendingPathComponent:@"Contents/Resources/config"] UTF8String];
 
-    auto prefsPath = std::filesystem::path(
-        [getLIMPrefsDir() UTF8String]
-    );
+    auto prefsPath = PathFinder::getLIMPrefsDir();
 
-    auto configFilePath = bundledConfigPath / "config.txt";
-    auto configMenuFilePath = bundledConfigPath / "config-menu.txt";
-
-    if (!std::filesystem::exists(configFilePath)) {
-        dLogger->warn("bundled config.txt is missing");
-        return;
-    }
-
-    if (!std::filesystem::exists(configMenuFilePath)) {
-        dLogger->warn("bundled config-menu.txt is missing");
-        return;
-    }
+    auto configFilePath = prefsPath / "config.yaml";
+    auto configMenuFilePath = prefsPath / "config-menu.yaml";
 
     // force option unimplemented
     // we gentle
     try {
-        if (!std::filesystem::exists(prefsPath / "config.txt")) {
+        if (!std::filesystem::exists(configFilePath)) {
+            dLogger->info("installing bundled config.yaml");
             std::filesystem::copy(configFilePath, prefsPath);
         }
 
-        if (!std::filesystem::exists(prefsPath / "config-menu.txt")) {
+        if (!std::filesystem::exists(configMenuFilePath)) {
+            dLogger->info("installing bundled config-menu.yaml");
             std::filesystem::copy(configMenuFilePath, prefsPath);
         }
     } catch (const fs::filesystem_error& ex) {
@@ -118,11 +77,11 @@ void installConfigFilesMaybe(bool force = false) {
 }
 
 void createDirectoriesMaybe() {
-    dLogger->info("first run setup");
+    dLogger->debug("first run setup");
     auto prefsPath = std::filesystem::path(
-        [getLIMPrefsDir() UTF8String]
+        [PathFinder::getLIMPrefsDirNS() UTF8String]
     );
-    auto logPath = std::filesystem::path([getLogPath() UTF8String]);
+    auto logPath = std::filesystem::path([PathFinder::getLogPathNS() UTF8String]);
     std::filesystem::create_directories(prefsPath);
     std::filesystem::create_directories(logPath);
 }
@@ -133,23 +92,32 @@ class Daemon {
     Daemon(NSMenuItem* statusItem) : statusItem_(statusItem) {
         createDirectoriesMaybe();
 
-        std::filesystem::path logPath = [getLogPath() UTF8String];
+        std::filesystem::path logPath = [PathFinder::getLogPathNS() UTF8String];
         auto logFile = logPath / "daemon.txt";
+        std::filesystem::remove(logFile);
         if (auto fileSink = std::make_shared<FileLogSink>(logFile); fileSink->isAvailable()) {
-                dLogger->addSink(fileSink);
+            dLogger->addSink(fileSink);
         }
-        dLogger->info("constructor");
+        dLogger->setLogLevel(LogLevel::LOG_INFO);
+        dLogger->debug("constructor");
+
+        // initial setup needs the ableton live version..
+        // and the easy way to get that is from a running instance
+        // so we'll just wait until live is running
+        while(!PID::getInstance().isLiveRunning()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        }
 
         installConfigFilesMaybe();
         installRemoteScriptsMaybe();
 
-        //if (PID::getInstance().isLiveRunning()) {
-        //    dLogger->info("launch because already running");
-        //    launchLIM();
-        //    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        //}
-        //registerObservers();
-        //pidPoll();
+        if (PID::getInstance().isLiveRunning()) {
+            dLogger->debug("launch because already running");
+            launchLIM();
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
+        registerObservers();
+        pidPoll();
     }
 
     void updateStatus(const NSMenuItem* item, const std::string& text) {
@@ -159,9 +127,9 @@ class Daemon {
     }
 
     void pidPoll() {
-        dLogger->info("pid poll");
+        dLogger->debug("pid poll");
         std::thread([this](){
-            while(true) {
+            while(running_) {
                 if (PID::getInstance().isLIMRunning()) {
                     setStatusActive();
                 } else {
@@ -172,17 +140,13 @@ class Daemon {
         }).detach();
 
         std::thread([this](){
-            while(true) {
+            while(running_) {
                 if (!PID::getInstance().isLiveRunning() && PID::getInstance().isLIMRunning()) {
-                    for (auto pid : PID::getInstance().findLiveImproveds()) {
-                        dLogger->warn("LiveImproved instance with PID {} will to now be kill.", pid);
-                        kill(pid, SIGTERM);
-                    }
-                    for (auto pid : PID::getInstance().findLiveImproveds()) {
-                        dLogger->warn("Stubborn LiveImproved instance with PID {} now is get killed but more.", pid);
-                        kill(pid, SIGKILL);
-                    }
+                    killLIM();
                 }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
                 if (PID::getInstance().isLiveRunning() && !PID::getInstance().isLIMRunning()) {
                     launchLIM();
                 }
@@ -193,45 +157,62 @@ class Daemon {
     }
 
     void setStatusActive() {
-        dLogger->info("set status active");
+        dLogger->trace("set status active");
         updateStatus(statusItem_, "Active");
     }
 
     void setStatusInactive() {
-        dLogger->info("set status inactive");
+        dLogger->trace("set status inactive");
         updateStatus(statusItem_, "Inactive");
     }
 
     void killLIM() {
-        dLogger->info("kill lim");
-        std::string cmdStr = "killall LiveImproved";
-        std::system(cmdStr.c_str());
+        for (auto pid : PID::getInstance().findLiveImproveds()) {
+            dLogger->warn("LiveImproved instance with PID {} will to now be kill.", pid);
+            kill(pid, SIGTERM);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        for (auto pid : PID::getInstance().findLiveImproveds()) {
+            dLogger->warn("Stubborn LiveImproved instance with PID {} now is get killed but more.", pid);
+            kill(pid, SIGKILL);
+        }
         setStatusInactive();
     }
 
     void launchLIM() {
-        dLogger->info("launch lim");
+        dLogger->debug("launch lim");
         std::lock_guard<std::mutex> lock(launchMutex_);
 
         if (PID::getInstance().isLIMRunning()) {
             dLogger->warn("already running");
             return;
         };
-        NSTask *task = [[NSTask alloc] init];
-        task.launchPath = @"/Applications/LiveImproved.app/Contents/MacOS/LiveImproved";
-        [task launch];
+
+        auto* limBinaryPath = [[[[NSBundle mainBundle] bundlePath]
+                            stringByAppendingPathComponent:@"Contents/MacOS/LiveImproved"] UTF8String];
+
+        posix_spawnattr_t attr;
+        posix_spawnattr_init(&attr);
+        posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSID);
+
+        char* const argv[] = { (char*)"LiveImproved", nullptr };
+        char* const envp[] = { nullptr };
+
+        pid_t pid;
+        posix_spawn(&pid, limBinaryPath, nullptr, &attr, argv, envp);
+        posix_spawnattr_destroy(&attr);
         setStatusActive();
     }
 
     void registerObservers() {
-        dLogger->info("register observers");
+        dLogger->debug("register observers");
         LiveObserver::registerAppTermination([this]() {
-            dLogger->info("calling killall");
+            dLogger->debug("calling killall");
             killLIM();
         });
 
         LiveObserver::registerAppLaunch([this]() {
-            dLogger->info("calling open");
+            dLogger->debug("calling open");
             launchLIM();
         });
     }
@@ -265,22 +246,24 @@ class Daemon {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/chasondeshotel/liveimproved"]];
 }
 - (void)openConfigDir:(id)sender {
-    [[NSWorkspace sharedWorkspace] openFile:getLIMPrefsDir()];
+    [[NSWorkspace sharedWorkspace] openFile:PathFinder::getLIMPrefsDirNS()];
 }
 - (void)openLogDir:(id)sender {
-    [[NSWorkspace sharedWorkspace] openFile:getLogPath()];
+    [[NSWorkspace sharedWorkspace] openFile:PathFinder::getLogPathNS()];
 }
 - (void)installRemoteScripts:(id)sender {
     installRemoteScriptsMaybe(true);
 }
 - (void)quitApp {
-    std::system("killall LiveImproved");
-    sleep(1);
+    running_ = false;
+    limDaemon->killLIM();
     [NSApp terminate:nil];
 }
 @end
 
 int main(int argc, char *argv[]) {
+    signal(SIGCHLD, SIG_IGN);
+
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
     AppDelegate* delegate = [[AppDelegate alloc] init];
