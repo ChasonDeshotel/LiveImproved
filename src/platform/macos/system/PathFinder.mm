@@ -4,11 +4,16 @@
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <libproc.h>
 
 #include "LogGlobal.h"
 #include "PID.h"
 
 using PathOptional = std::optional<std::filesystem::path>;
+
+static inline NSString* toNS(const std::string& s) {
+    return [NSString stringWithUTF8String:s.c_str()];
+}
 
 namespace pathutil {
     bool exists(std::filesystem::path path) {
@@ -41,32 +46,50 @@ namespace PathFinder {
         return std::filesystem::path(homeDir);
     }
 
+    NSString* getLivePrefsDir() {
+        char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+        auto pid = PID::getInstance().findLivePID();
+        proc_pidpath(pid, pathbuf, sizeof(pathbuf));
+
+        std::filesystem::path execPath = pathbuf;
+        auto appPath = toNS(execPath.parent_path().parent_path().parent_path());
+
+        auto* liveBundle = [NSBundle bundleWithPath:appPath];
+        NSString* version = [liveBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        std::string shortVersion = [[version componentsSeparatedByString:@" "].firstObject UTF8String];
+        auto latestVersionPathStr = std::string("~/Library/Preferences/Ableton/Live ") + shortVersion;
+
+        auto nsPathStr = toNS(latestVersionPathStr);
+        nsPathStr = [nsPathStr stringByExpandingTildeInPath];
+        return nsPathStr;
+    }
+
+    std::filesystem::path getRemoteScriptsPath() {
+        NSString* pathStr = getLivePrefsDir();
+        std::string pathStdStr = [pathStr UTF8String];
+        NSString* cfgPath = [pathStr stringByAppendingPathComponent:@"Library.cfg"];
+        NSData* data = [NSData dataWithContentsOfFile:cfgPath];
+        NSXMLDocument* doc = [[NSXMLDocument alloc] initWithData:data options:0 error:nil];
+        NSArray* nodes = [doc nodesForXPath:@"//UserLibrary/LibraryProject/ProjectPath/@Value" error:nil];
+        std::string projectPath = [[[[nodes firstObject] stringValue] stringByAppendingPathComponent:@"User Library/Remote Scripts/LiveImproved"] UTF8String];
+        return projectPath;
+    }
+
+    NSString* getLIMPrefsDirNS() {
+        return [@"~/Library/Preferences/LiveImproved" stringByExpandingTildeInPath];
+    }
+
+    std::filesystem::path getLIMPrefsDir() {
+        return [getLIMPrefsDirNS() UTF8String];
+    }
+
+    NSString* getLogPathNS() {
+        return [@"~/Library/Logs/LiveImproved" stringByExpandingTildeInPath];
+    }
+
     PathOptional log() {
-        std::filesystem::path logFilePath = home()
-            / "source" / "ableton" / "LiveImproved" / "log" / "debug.txt"
-        ;
-
-        if (!pathutil::exists(logFilePath)) {
-            std::cerr << "Log file does not exist: " << logFilePath << ". Attempting to create it.\n";
-            try {
-                std::filesystem::create_directories(logFilePath.parent_path());
-                std::ofstream logFile(logFilePath);
-                if (!logFile) {
-                    throw std::runtime_error("Failed to create log file");
-                }
-                logFile.close();
-            } catch (const std::exception& e) {
-                logger->error("Failed to create log file: {}", std::string(e.what()));
-                return std::nullopt;
-            }
-        }
-
-        if (!pathutil::isFile(logFilePath)) {
-            logger->error("Log file is not a regular file: {}", logFilePath.string());
-            return std::nullopt;
-        }
-
-        return logFilePath;
+        std::filesystem::path logPath = [PathFinder::getLogPathNS() UTF8String];
+        return logPath / "debug.txt";
     }
 
     PathOptional liveBundle() {
@@ -135,9 +158,7 @@ namespace PathFinder {
 
     // TODO default config and make a config file if !configFile
     PathOptional config() {
-        std::filesystem::path configFilePath = home()
-            / "Music" / "Ableton" / "User Library"
-            / "Remote Scripts" / "LiveImproved" / "config.txt";
+        auto configFilePath = getLIMPrefsDir() / "config.yaml";
 
         if (!pathutil::isFile(configFilePath)) {
             logger->error("Config file does not exist or is not a regular file: {}", configFilePath.string());
@@ -148,9 +169,7 @@ namespace PathFinder {
     }
 
     PathOptional configMenu() {
-        std::filesystem::path configMenuPath = home()
-            / "Music" / "Ableton" / "User Library"
-            / "Remote Scripts" / "LiveImproved" / "config-menu.txt";
+        auto configMenuPath = getLIMPrefsDir() / "config-menu.yaml";
 
         if (!pathutil::isFile(configMenuPath)) {
             logger->error("Menu config file does not exist or is not a regular file: {}", configMenuPath.string());

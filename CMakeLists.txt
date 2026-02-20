@@ -223,6 +223,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
             XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.example.LiveImproved"
         )
+        set_target_properties(LiveImproved PROPERTIES
+            XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"  # ad-hoc signing
+        )
         install(FILES
             ${CMAKE_SOURCE_DIR}/build/xcode/LiveImproved_artefacts/Debug/LiveImproved.app
             DESTINATION /Applications
@@ -349,8 +352,8 @@ add_executable(LiveImprovedDaemon
 )
 
 set_target_properties(LiveImprovedDaemon PROPERTIES
-    XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
-    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
+    #XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
 )
 
 target_include_directories(LiveImprovedDaemon PRIVATE

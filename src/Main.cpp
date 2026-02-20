@@ -41,6 +41,7 @@ public:
         : container_(DependencyContainer::getInstance())
     {
         ::initializeLogger();
+        PlatformInitializer::checkPrivileges();
     }
 
     auto getApplicationName() -> const juce::String override {
@@ -100,7 +101,7 @@ public:
         ipc->init();
 
         while (!ipc->isInitialized()) {
-            logger->info("waiting for ipc init");
+            //logger->trace("waiting for ipc init");
             juce::Thread::sleep(100);
         }
 

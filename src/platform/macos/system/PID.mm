@@ -56,7 +56,7 @@ std::vector<pid_t> PID::findLiveImproveds() {
             if (proc->kp_proc.p_stat == SZOMB) continue; // skip zombies
             pid_t pid = proc->kp_proc.p_pid;
             out.emplace_back(pid);
-            logger->info("LiveImproved found with PID: {}", std::to_string(pid));
+            logger->trace("LiveImproved found with PID: {}", std::to_string(pid));
         }
     }
 
@@ -102,7 +102,7 @@ pid_t PID::findLivePIDNoCache() {
             if (proc->kp_proc.p_stat == SZOMB) continue; // skip zombies
             pid_t pid = proc->kp_proc.p_pid;
             free(procs);
-            logger->info("Ableton Live found with PID: {}", std::to_string(pid));
+            logger->trace("Ableton Live found with PID: {}", std::to_string(pid));
             return pid;
         }
     }
@@ -127,7 +127,7 @@ pid_t PID::appPID() {
 }
 
 PID* PID::livePIDBlocking() {
-    logger->debug("PID::Init() called");
+    logger->trace("PID::Init() called");
 
     while (livePID() == -1) {
         logger->info("Live not found, retrying...");
