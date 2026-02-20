@@ -23,10 +23,12 @@ extern void initializeLogger() {
 
         auto logHandler = dynamic_cast<LogHandler*>(logger.get());
         if (PathFinder::log()) {
+            std::filesystem::remove(PathFinder::log().value());
             if (auto fileSink = std::make_shared<FileLogSink>(PathFinder::log().value()); fileSink->isAvailable()) {
                 logHandler->addSink(fileSink);
             }
         }
+        logHandler->setLogLevel(LogLevel::LOG_INFO);
         #if !defined(TEST_BUILD) && !defined(NO_JUCE)
         logHandler->addSink(std::make_shared<JUCELogSink>());
         #endif

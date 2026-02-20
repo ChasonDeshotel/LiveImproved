@@ -89,6 +89,7 @@ public:
 
   private:
     void logImpl(std::string_view message, LogLevel level) override {
+        if (level < currentLogLevel_) return;
         std::lock_guard lock(logMutex_);
         std::string formattedMessage = fmt::format("[{:>5}] {}", toString(level), message);
 
