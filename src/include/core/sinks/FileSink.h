@@ -7,7 +7,7 @@
 
 class FileLogSink final : public LogSink {
 public:
-    explicit FileLogSink(const std::filesystem::path& path, bool append = true)
+    explicit FileLogSink(const std::filesystem::path& path, bool append = false)
       : logFilePath(path) {
 
         if (path.has_parent_path()) {

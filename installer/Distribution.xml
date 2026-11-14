@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>LiveImproved</title>
+    <pkg-ref id="audio.dialup.liveimproved"/>
+    <pkg-ref id="audio.dialup.liveimproved.midiscripts"/>
+    <options customize="never" require-scripts="false"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="audio.dialup.liveimproved"/>
+            <line choice="audio.dialup.liveimproved.midiscripts"/>
+        </line>
+    </choices-outline>
+    <choice id="audio.dialup.liveimproved" title="LiveImproved">
+        <pkg-ref id="audio.dialup.liveimproved"/>
+    </choice>
+    <choice id="audio.dialup.liveimproved.midiscripts" title="MIDI Scripts">
+        <pkg-ref id="audio.dialup.liveimproved.midiscripts"/>
+    </choice>
+    <pkg-ref id="audio.dialup.liveimproved">LiveImproved.pkg</pkg-ref>
+    <pkg-ref id="audio.dialup.liveimproved.midiscripts">MIDIScripts.pkg</pkg-ref>
+</installer-gui-script>

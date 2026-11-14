@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include <thread>
+#include <iostream>
 
 #include "LogGlobal.h"
 #include "Types.h"
@@ -20,6 +21,16 @@
 #include "KeySender.h"
 #include "PluginManager.h"
 #include "WindowManager.h"
+
+std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
+    size_t pos = 0;
+    while ((pos = str.find(from, pos)) != std::string::npos) {
+        str.replace(pos, from.length(), to);
+        // Move the search position past the replacement to avoid infinite loops
+        pos += to.length(); 
+    }
+    return str;
+}
 
 ActionHandler::ActionHandler(
               std::function<std::shared_ptr<IPluginManager>()> pluginManager
@@ -152,8 +163,11 @@ auto ActionHandler::loadItem(int itemIndex) -> bool {
 auto ActionHandler::loadItemByName(const std::string& itemName) -> bool {
     auto ipc = ipc_();
     auto pluginManager = pluginManager_();
+    logger->info("attempting to load plugin: {}", itemName);
     for (const auto& plugin : pluginManager->getPlugins()) {
-        if (itemName == plugin.name) {
+        // TODO: normalize on the PluginManager side
+        auto pluginNameButWithUnderscore = replaceAll(plugin.name, " ", "_");
+        if (itemName == pluginNameButWithUnderscore) {
           ipc->writeRequest("load_item," + std::to_string(plugin.number));
           return true;
         }

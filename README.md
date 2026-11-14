@@ -51,6 +51,34 @@ See the [example action config](https://github.com/ChasonDeshotel/LiveImproved-R
 
 LiveImproved includes tooling to import existing LES plugin menu configurations, allowing users to transition without rebuilding their workflows.
 
+### Known Issues
+
+- The 'Auto-Open Plug-In Windows' setting causes undesirable behavior when arrow key scrolling tracks.
+  - Workaround:
+    - Disable this setting and use LIM's `openAllPlugins` shortcut
+    - Or, click back into the main Live window for it to regain keyboard focus
+  - Fix: planned (ish)
+    - Add keyboard shortcut for opening focused plugin
+    - Potentially handle user-opened plugin focus differently from app auto-opened plugins
+
+- In rare instances, the list of plugins won't load.
+  - Workaround:
+    - Open Live Preferences, go to MIDI Control Surfaces, change "LiveImproved" to "None", and then back to "LiveImproved".
+    - Or, restart Live.
+  - Fix: in progress
+
+### Troubleshooting
+
+#### My key remaps aren't working?
+
+Triple check System Settings > Privacy & Security > Accessibility. Ensure both `LiveImproved` and `LiveImprovedDaemon` are checked.
+
+After they're both checked, restart LiveImproved.
+
+If only one shows up, restart LiveImproved and the other should be there. Check it and restart again.
+
+Improvements with permissions should be sorted once I pay the Apple Developer troll toll and can release with a signed certificate.
+
 ### Project status
 - Actively used by the author
 - Proven stable on macOS (Intel & Apple Silicon)

@@ -12,5 +12,7 @@
   <string>LiveImprovedDaemon</string>
   <key>LSBackgroundOnly</key>
   <string>1</string>
+  <key>CFBundleIconFile</key>
+  <string>LiveImproved</string>
 </dict>
 </plist>

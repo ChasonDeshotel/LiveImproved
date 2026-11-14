@@ -1,34 +1,31 @@
-# Keyboard shortcuts
-app-shortcuts:
-  leader: cmd+b
-
 # Remap keyboard shortcuts
 remap:
+  t: cmd+t # prevent double-modifier on adding tracks
+  cmd+t: cmd+shift+t # prevent double-modifier on adding tracks
   cmd+shift+e: tilePluginWindows
   cmd+w: closeFocusedPlugin
   cmd+shift+w: closeAllPlugins
   cmd+shift+o: openAllPlugins
   d: delete
   shift+d: 0
-  cmd+i: cmd+a, plugin.Serum
-  cmd+e: cmd+shift+m
-  cmd+b: cmd+d, cmd+d, cmd+d, cmd+d
-  # fuse
-  f: cmd+j
-  cmd+e: searchbox
-  t: cmd+t
-  cmd+t: cmd+shift+t
+  cmd+shift+b: cmd+shift+t, plugin.Serum_2 # NOTE: replace spaces with underscores in plugin names
+  cmd+shift+c: cmd+shift+m # new MIDI "clip"
+  cmd+b: cmd+d, cmd+d, cmd+d, cmd+d # LES-style "buplicate"
+  f: cmd+j # f for "fuse"
+  cmd+y: searchbox # plugin quick access box
+  uparrow: uparrow
+  downarrow: downarrow
+  leftarrow: leftarrow
+  rightarrow: rightarrow
   cmd+h: h
   h: leftarrow
   j: downarrow
   k: uparrow
   l: rightarrow
-  shift+h: shift+leftarrow
-  shift+j: shift+downarrow
-  shift+k: shift+uparrow
-  shift+l: shift+rightarrow
-  y: cmd+c
-  p: cmd+v
+  shift+h: leftarrow
+  shift+j: downarrow
+  shift+k: uparrow
+  shift+l: rightarrow
 
 # Plugins
 rename-plugins:
@@ -38,11 +35,6 @@ remove-plugins:
   - TerribleSynth
   - I'mTooLazyToUninstallSynth
 
-# Quick shortcuts menu
-shortcuts:
-  - key: /location/to/shortcut/1
-  - otherkey: /location/to/shortcut/2
-
 # Application behavior
 init:
   retries: 10
@@ -50,4 +42,3 @@ init:
 window:
   - search: 100,200,500,500
   - preferences: 50,150,200,300
-

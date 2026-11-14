@@ -46,26 +46,8 @@ void PlatformInitializer::run() {
     logger->debug("Finishing Cocoa application");
 
     @autoreleasepool {
-        // Start the NSApplication run loop
         [NSApp run];
 
         [NSApp finishLaunching];
-    }
-}
-
-void PlatformInitializer::stop() {
-    @autoreleasepool {
-        [NSApp stop:nil];
-        // post a dummy event to wake the run loop so stop takes effect
-        NSEvent* event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
-                                           location:NSMakePoint(0, 0)
-                                      modifierFlags:0
-                                          timestamp:0
-                                       windowNumber:0
-                                            context:nil
-                                            subtype:0
-                                              data1:0
-                                              data2:0];
-        [NSApp postEvent:event atStart:YES];
     }
 }

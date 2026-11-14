@@ -219,9 +219,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         "-framework Security"
     )
     if(NOT DEFINED BUILD_TESTS OR NOT BUILD_TESTS)
+        set(APP_ICON resources/LiveImproved.icns)
+        set_source_files_properties(${APP_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+        target_sources(LiveImproved PRIVATE ${APP_ICON})
+
         set_target_properties(LiveImproved PROPERTIES
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/src/Info.plist
             XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.example.LiveImproved"
+            MACOSX_BUNDLE_ICON_FILE "LiveImproved.icns"
         )
         set_target_properties(LiveImproved PROPERTIES
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"  # ad-hoc signing

@@ -84,3 +84,6 @@ tidy-file:
 		"--checks=-*,cppcoreguidelines-*,modernize-*" \
 		"--warnings-as-errors=*" \
 		"$(SOURCE_FILE)"
+
+icon:
+	@iconutil -c icns resources/LiveImproved.iconset -o resources/LiveImproved.icns

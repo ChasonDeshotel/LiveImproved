@@ -23,7 +23,6 @@ extern void initializeLogger() {
 
         auto logHandler = dynamic_cast<LogHandler*>(logger.get());
         if (PathFinder::log()) {
-            std::filesystem::remove(PathFinder::log().value());
             if (auto fileSink = std::make_shared<FileLogSink>(PathFinder::log().value()); fileSink->isAvailable()) {
                 logHandler->addSink(fileSink);
             }

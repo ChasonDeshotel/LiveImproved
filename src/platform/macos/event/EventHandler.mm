@@ -514,7 +514,14 @@ CGEventRef EventHandler::eventTapCallback(CGEventTapProxy proxy, CGEventType ogE
             // just pass the original event
             if (!pressedKey.isModifierPressed()) {
                 logger->debug("{}", AXFinder::getFocusedElementTypeStr());
-                if (AXFinder::getFocusedElementTypeStr() == "AXTextField") {
+                if (AXFinder::getFocusedElementTypeStr() == "AXTextField"
+                    || pressedKey.key == "downarrow"
+                    || pressedKey.key == "uparrow"
+                    || pressedKey.key == "leftarrow"
+                    || pressedKey.key == "rightarrow"
+                    || pressedKey.key == "enter"
+                    || pressedKey.key == "escape"
+                    ) {
                     logger->debug("Ableton Live text field has focus. Passing event.");
                     return ogEvent;
                 }
